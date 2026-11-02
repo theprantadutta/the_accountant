@@ -6,6 +6,7 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
     hide Transaction;
 import 'package:the_accountant/features/transactions/services/transfer_service.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Provider for TransferService
 final transferServiceProvider = Provider<TransferService>((ref) {
@@ -61,7 +62,7 @@ class TransferNotifier extends StateNotifier<TransferState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to load transfers: $e',
+        errorMessage: appL10n.txnLoadTransfersFailed('$e'),
       );
     }
   }
@@ -113,7 +114,7 @@ class TransferNotifier extends StateNotifier<TransferState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to create transfer: $e',
+        errorMessage: appL10n.txnCreateTransferFailed('$e'),
       );
       return false;
     }
@@ -161,7 +162,7 @@ class TransferNotifier extends StateNotifier<TransferState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to update transfer: $e',
+        errorMessage: appL10n.txnUpdateTransferFailed('$e'),
       );
       return false;
     }
@@ -193,7 +194,7 @@ class TransferNotifier extends StateNotifier<TransferState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to delete transfer: $e',
+        errorMessage: appL10n.txnDeleteTransferFailed('$e'),
       );
       return false;
     }

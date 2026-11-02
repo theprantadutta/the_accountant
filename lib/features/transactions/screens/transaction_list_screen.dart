@@ -762,7 +762,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           ? categoryState.categories.first
           : Category(
               id: '',
-              name: 'Other',
+              name: L10n.of(context).txnOtherCategory,
               colorCode: '#9A7869',
               type: 'expense',
               isDefault: false,

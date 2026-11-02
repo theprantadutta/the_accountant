@@ -10,6 +10,7 @@ import 'package:the_accountant/features/ai_assistant/services/finance_context_bu
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
 import 'package:the_accountant/features/ai_assistant/models/conversation.dart';
 import 'package:the_accountant/features/ai_assistant/services/ai_chat_service.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// State for AI chat conversation
 class AiChatState {
@@ -206,7 +207,7 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
       state = state.copyWith(
         isLoadingHistory: false,
         hasError: true,
-        errorMessage: 'Failed to open conversation.',
+        errorMessage: appL10n.aiOpenConversationFailed,
         errorType: 'unknown_error',
       );
     }
@@ -453,12 +454,7 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
       // coach's reply after it was lost. Not offered as a retry, which would
       // ask the whole question again and make the change a second time.
       final saved = ChatMessage.ai(
-        text: _appliedThisTurn == 1
-            ? 'Your change was saved, but the coach could not finish its '
-                  'reply. Check it in your records before asking again.'
-            : 'Your $_appliedThisTurn changes were saved, but the coach could '
-                  'not finish its reply. Check them in your records before '
-                  'asking again.',
+        text: appL10n.aiChangesSavedReplyLost(_appliedThisTurn),
         id: replyId,
       );
       state = state.copyWith(
@@ -472,9 +468,7 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
     }
 
     final notice = ChatMessage.ai(
-      text:
-          ai?.message ??
-          'The AI service is not answering right now. Please try again.',
+      text: ai?.message ?? appL10n.aiServiceNotAnsweringNow,
       id: replyId,
       isAiFallback: true,
       aiErrorType: ai?.code ?? AiException.unavailable,

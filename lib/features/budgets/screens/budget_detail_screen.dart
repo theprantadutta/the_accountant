@@ -161,15 +161,24 @@ class _PeriodNavigator extends ConsumerWidget {
           child: Column(
             children: [
               Text(
-                offset == 0 ? 'This period' : '${-offset} periods ago',
+                offset == 0
+                    ? L10n.of(context).budgetThisPeriod
+                    : L10n.of(context).budgetPeriodsAgo(-offset),
                 style: AppTypography.labelMedium.copyWith(
                   color: AppColors.textMuted,
                 ),
               ),
               Text(
-                '${AppDateFormatter.formatShortDate(progress.window.start, format)}'
-                ' to '
-                '${AppDateFormatter.formatShortDate(progress.window.end.subtract(const Duration(days: 1)), format)}',
+                L10n.of(context).budgetDateRange(
+                  AppDateFormatter.formatShortDate(
+                    progress.window.start,
+                    format,
+                  ),
+                  AppDateFormatter.formatShortDate(
+                    progress.window.end.subtract(const Duration(days: 1)),
+                    format,
+                  ),
+                ),
                 style: AppTypography.titleSmall,
                 textAlign: TextAlign.center,
               ),
@@ -229,8 +238,9 @@ class _Headline extends ConsumerWidget {
             ),
           ),
           SensitiveText(
-            'of $limit'
-            '${progress.carriedIn > 0 ? ' including $carried carried over' : ''}',
+            progress.carriedIn > 0
+                ? L10n.of(context).budgetOfLimitCarried(limit, carried)
+                : L10n.of(context).budgetOfLimit(limit),
             amounts: [limit, if (progress.carriedIn > 0) carried],
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.textSecondary,
@@ -249,17 +259,17 @@ class _Headline extends ConsumerWidget {
           AppSpacing.gapMd,
           switch ((progress.isOver, daily)) {
             (true, _) => SensitiveText(
-              '$left over the limit.',
+              L10n.of(context).budgetOverTheLimit(left),
               amounts: [left],
               style: AppTypography.bodyMedium,
             ),
             (false, final String d) when isCurrent => SensitiveText(
-              '$left left, about $d a day.',
+              L10n.of(context).budgetLeftPerDay(left, d),
               amounts: [left, d],
               style: AppTypography.bodyMedium,
             ),
             _ => SensitiveText(
-              '$left left.',
+              L10n.of(context).budgetLeftPlain(left),
               amounts: [left],
               style: AppTypography.bodyMedium,
             ),
@@ -367,7 +377,7 @@ class _CategoryBreakdown extends ConsumerWidget {
                                       .where((c) => c.id == entry.key)
                                       .firstOrNull
                                       ?.name ??
-                                  'Uncategorised',
+                                  L10n.of(context).budgetUncategorised,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTypography.bodyMedium,
@@ -455,7 +465,7 @@ class _PastPeriods extends ConsumerWidget {
               ),
               AppSpacing.gapSm,
               SensitiveText(
-                'Averaging $averageText a period.',
+                L10n.of(context).budgetAveraging(averageText),
                 amounts: [averageText],
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textSecondary,
@@ -568,7 +578,7 @@ class _Forecast extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SensitiveText(
-                        'Heading for $overBy over',
+                        L10n.of(context).budgetHeadingOver(overBy),
                         amounts: [overBy],
                         style: AppTypography.titleSmall.copyWith(
                           color: AppColors.warning,
@@ -577,10 +587,10 @@ class _Forecast extends ConsumerWidget {
                       const SizedBox(height: 4),
                       SensitiveText(
                         forecast.scheduled > 0
-                            ? 'At this rate, and counting '
-                                  '$scheduled already '
-                                  'scheduled before the period ends.'
-                            : 'At this rate, by the end of the period.',
+                            ? L10n.of(
+                                context,
+                              ).budgetForecastScheduled(scheduled)
+                            : L10n.of(context).budgetForecastPlain,
                         amounts: [if (forecast.scheduled > 0) scheduled],
                         style: AppTypography.bodySmall.copyWith(
                           color: AppColors.textSecondary,
@@ -663,9 +673,7 @@ class _CategoryCaps extends ConsumerWidget {
               ),
               if (limits.isEmpty)
                 Text(
-                  'A budget says whether the period is overspent. A cap says '
-                  'where: a food budget on track overall can still be mostly '
-                  'takeaway.',
+                  L10n.of(context).budgetCapsExplain,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.textMuted,
                   ),
@@ -815,7 +823,9 @@ class _AddCapDialogState extends State<_AddCapDialog> {
             controller: _amountController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
-              labelText: _isPercent ? 'Percent of budget' : 'Amount',
+              labelText: _isPercent
+                  ? L10n.of(context).budgetPercentOfBudget
+                  : L10n.of(context).addAmount,
               suffixText: _isPercent ? '%' : null,
             ),
           ),

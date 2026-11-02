@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Subscription tier enum matching backend SubscriptionTier
 enum SubscriptionTier {
@@ -10,13 +11,13 @@ enum SubscriptionTier {
   String get displayName {
     switch (this) {
       case SubscriptionTier.free:
-        return 'Free';
+        return appL10n.commonTierFree;
       case SubscriptionTier.premiumMonthly:
-        return 'Premium Monthly';
+        return appL10n.commonTierMonthly;
       case SubscriptionTier.premiumYearly:
-        return 'Premium Yearly';
+        return appL10n.commonTierYearly;
       case SubscriptionTier.premiumLifetime:
-        return 'Premium Lifetime';
+        return appL10n.commonTierLifetime;
     }
   }
 

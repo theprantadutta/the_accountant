@@ -57,35 +57,32 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen>
     with SingleTickerProviderStateMixin {
-  static const List<_IntroStep> _steps = [
-    _IntroStep(
-      icon: Icons.account_balance_wallet_outlined,
-      title: 'Every account, one balance',
-      body:
-          'Keep cash, cards and savings side by side, and see what you '
-          'actually have left.',
-    ),
-    _IntroStep(
-      icon: Icons.pie_chart_outline_rounded,
-      title: 'Budgets that tell you early',
-      body:
-          'Set a limit per category. The app watches the total and warns you '
-          'before you pass it, not after.',
-    ),
-    _IntroStep(
-      icon: Icons.auto_awesome_outlined,
-      title: 'Ask about your own spending',
-      body:
-          'Scan a receipt, or ask where the money went last month, and get an '
-          'answer drawn from your records.',
-    ),
-    _IntroStep(
-      icon: Icons.palette_outlined,
-      title: 'Make it look like yours',
-      body: 'Pick a theme now, or change it whenever you like from settings.',
-      showThemeLink: true,
-    ),
-  ];
+  List<_IntroStep> get _steps {
+    final l10n = L10n.of(context);
+    return [
+      _IntroStep(
+        icon: Icons.account_balance_wallet_outlined,
+        title: l10n.onboardingIntroAccountsTitle,
+        body: l10n.onboardingIntroAccountsBody,
+      ),
+      _IntroStep(
+        icon: Icons.pie_chart_outline_rounded,
+        title: l10n.onboardingIntroBudgetsTitle,
+        body: l10n.onboardingIntroBudgetsBody,
+      ),
+      _IntroStep(
+        icon: Icons.auto_awesome_outlined,
+        title: l10n.onboardingIntroAskTitle,
+        body: l10n.onboardingIntroAskBody,
+      ),
+      _IntroStep(
+        icon: Icons.palette_outlined,
+        title: l10n.onboardingIntroThemeTitle,
+        body: l10n.onboardingIntroThemeBody,
+        showThemeLink: true,
+      ),
+    ];
+  }
 
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -179,7 +176,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     _buildProgress(),
                     AppSpacing.gapXxl,
                     SunriseButton(
-                      label: isLastStep ? 'Create your account' : 'Next',
+                      label: isLastStep
+                          ? L10n.of(context).onboardingCreateYourAccount
+                          : L10n.of(context).onboardingNext,
                       onPressed: _advance,
                     ),
                     AppSpacing.gapSm,

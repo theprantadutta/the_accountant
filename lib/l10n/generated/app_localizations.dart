@@ -9931,6 +9931,6136 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'This backup is protected with a passphrase. Enter it, or your recovery code, to open it. This works without an internet connection.'**
   String get backupLockedBody;
+
+  /// Contact support: snackbar when the message is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please describe your issue first'**
+  String get settingsSupportDescribeFirst;
+
+  /// Contact support: snackbar after the message was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks! Your message has been sent.'**
+  String get settingsSupportSent;
+
+  /// Contact support: snackbar when sending failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send right now. Please try again or email us directly.'**
+  String get settingsSupportSendFailed;
+
+  /// Contact support: hint in the subject field.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s this about?'**
+  String get settingsSupportSubjectHint;
+
+  /// Contact support: hint in the message field.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your question, issue, or feedback…'**
+  String get settingsSupportMessageHint;
+
+  /// Contact support: text under the "Get in touch" heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions, bugs, or feedback — send it over and we\'ll get back to you.'**
+  String get settingsSupportHeroBody;
+
+  /// Contact support: tip bullet under "What to include".
+  ///
+  /// In en, this message translates to:
+  /// **'A clear description of your issue'**
+  String get settingsSupportTipDescription;
+
+  /// Contact support: tip bullet under "What to include".
+  ///
+  /// In en, this message translates to:
+  /// **'Steps to reproduce (if it\'s a bug)'**
+  String get settingsSupportTipSteps;
+
+  /// Contact support: tip bullet under "What to include".
+  ///
+  /// In en, this message translates to:
+  /// **'Your device model and Android version'**
+  String get settingsSupportTipDevice;
+
+  /// Contact support: button to email support instead; {email} is the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefer email? {email}'**
+  String settingsSupportPreferEmail(String email);
+
+  /// Contact support: snackbar when the support email was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Email copied to clipboard'**
+  String get settingsSupportEmailCopied;
+
+  /// About screen: tagline under the app name.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Personal Finance Companion'**
+  String get settingsAboutTagline;
+
+  /// About/licenses page: app version line.
+  ///
+  /// In en, this message translates to:
+  /// **'Version: {version}'**
+  String settingsAboutVersion(String version);
+
+  /// About/licenses page: short app description (two lines).
+  ///
+  /// In en, this message translates to:
+  /// **'A personal finance app with a focus\non privacy and beautiful UI/UX.'**
+  String get settingsAboutDescription;
+
+  /// Exchange rates: base currency header; {currency} is a code like USD.
+  ///
+  /// In en, this message translates to:
+  /// **'Base Currency: {currency}'**
+  String settingsBaseCurrencyLabel(String currency);
+
+  /// Exchange rates: when rates were fetched; {when} is e.g. "5 minutes ago".
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: {when}'**
+  String settingsRatesLastUpdated(String when);
+
+  /// Exchange rates: edit dialog title, e.g. "Edit Rate: USD → EUR".
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Rate: {base} → {target}'**
+  String settingsEditRateTitle(String base, String target);
+
+  /// Exchange rates: the fetched rate shown in the edit dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Current API rate: {rate}'**
+  String settingsCurrentApiRate(String rate);
+
+  /// Relative time, minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} minutes ago'**
+  String settingsMinutesAgo(int count);
+
+  /// Relative time, hours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hours ago'**
+  String settingsHoursAgo(int count);
+
+  /// Relative time, days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String settingsDaysAgo(int count);
+
+  /// Export screen: section header (all caps).
+  ///
+  /// In en, this message translates to:
+  /// **'DATE RANGE'**
+  String get settingsExportSectionDateRange;
+
+  /// Export screen: section header (all caps).
+  ///
+  /// In en, this message translates to:
+  /// **'FORMAT'**
+  String get settingsExportSectionFormat;
+
+  /// Export screen: section header (all caps).
+  ///
+  /// In en, this message translates to:
+  /// **'INCLUDE'**
+  String get settingsExportSectionInclude;
+
+  /// Export screen: date range covering all data.
+  ///
+  /// In en, this message translates to:
+  /// **'All Time'**
+  String get settingsExportAllTime;
+
+  /// Export screen: quick date range chip.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get settingsExportThisMonth;
+
+  /// Export screen: quick date range chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Month'**
+  String get settingsExportLastMonth;
+
+  /// Export screen: quick date range chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 Months'**
+  String get settingsExportLast3Months;
+
+  /// Export screen: quick date range chip.
+  ///
+  /// In en, this message translates to:
+  /// **'This Year'**
+  String get settingsExportThisYear;
+
+  /// Export screen: dialog explaining the PDF report is Premium.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV export is free — your data is always yours. The formatted PDF report, with summaries and category & wallet breakdowns, is a Premium feature.'**
+  String get settingsExportPdfPremiumBody;
+
+  /// Export screen: main button; {format} is CSV or PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Export {format}'**
+  String settingsExportButton(String format);
+
+  /// Export screen: snackbar when export failed; {error} is the technical error.
+  ///
+  /// In en, this message translates to:
+  /// **'Export failed: {error}'**
+  String settingsExportFailed(String error);
+
+  /// Share sheet subject for a CSV export.
+  ///
+  /// In en, this message translates to:
+  /// **'The Accountant - Export'**
+  String get settingsExportShareSubject;
+
+  /// Export screen: snackbar after a CSV export.
+  ///
+  /// In en, this message translates to:
+  /// **'Exported {count} transactions'**
+  String settingsExportedCount(int count);
+
+  /// Share sheet subject for a PDF report.
+  ///
+  /// In en, this message translates to:
+  /// **'The Accountant - Financial Report'**
+  String get settingsExportPdfShareSubject;
+
+  /// Export screen: snackbar after a PDF export.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF report generated with {count} transactions'**
+  String settingsExportPdfGenerated(int count);
+
+  /// Regional settings: number format option, shown in brackets after 1,234.56.
+  ///
+  /// In en, this message translates to:
+  /// **'Comma for thousands'**
+  String get settingsNumberFormatCommaThousands;
+
+  /// Regional settings: number format option, shown in brackets after 1.234,56.
+  ///
+  /// In en, this message translates to:
+  /// **'Dot for thousands'**
+  String get settingsNumberFormatDotThousands;
+
+  /// Regional settings: number format option, shown in brackets after 1 234,56.
+  ///
+  /// In en, this message translates to:
+  /// **'Space for thousands'**
+  String get settingsNumberFormatSpaceThousands;
+
+  /// Regional settings: number format option, shown in brackets after 1234.56.
+  ///
+  /// In en, this message translates to:
+  /// **'No separator'**
+  String get settingsNumberFormatNoSeparator;
+
+  /// Auto-lock timeout option.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediately'**
+  String get settingsAutoLockImmediately;
+
+  /// Auto-lock timeout option, a number of minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 minute} other{{count} minutes}}'**
+  String settingsAutoLockMinutes(int count);
+
+  /// Auto-lock timeout option.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get settingsAutoLockNever;
+
+  /// Privacy & security: snackbar when the phone has no biometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric authentication not available on this device'**
+  String get settingsBiometricUnavailable;
+
+  /// Privacy & security / password dialog: set a password (account has none).
+  ///
+  /// In en, this message translates to:
+  /// **'Set Password'**
+  String get settingsSetPassword;
+
+  /// Privacy & security / password dialog: change the password.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get settingsChangePassword;
+
+  /// Privacy & security: subtitle under "Set Password".
+  ///
+  /// In en, this message translates to:
+  /// **'Add password to your account'**
+  String get settingsAddPasswordSubtitle;
+
+  /// Snackbar after changing the password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully'**
+  String get settingsPasswordChanged;
+
+  /// Snackbar after setting a password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password set successfully'**
+  String get settingsPasswordSet;
+
+  /// Clear cache confirmation text.
+  ///
+  /// In en, this message translates to:
+  /// **'This will clear cached data and force a re-sync on next app launch. Your data will not be deleted.'**
+  String get settingsClearCacheBody;
+
+  /// Loading dialog while clearing the cache.
+  ///
+  /// In en, this message translates to:
+  /// **'Clearing cache...'**
+  String get settingsClearingCache;
+
+  /// Snackbar after clearing the cache.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache cleared and sync triggered'**
+  String get settingsCacheCleared;
+
+  /// Snackbar when clearing the cache failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to clear cache'**
+  String get settingsClearCacheFailed;
+
+  /// Clear all data: first confirmation text.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete ALL your transactions, budgets, wallets, categories, and settings. This action cannot be undone!'**
+  String get settingsClearAllDataBody;
+
+  /// Clear all data: second confirmation (type DELETE) text.
+  ///
+  /// In en, this message translates to:
+  /// **'All your financial data will be permanently erased.'**
+  String get settingsClearAllDataConfirmBody;
+
+  /// Loading dialog while clearing all data.
+  ///
+  /// In en, this message translates to:
+  /// **'Clearing all data...'**
+  String get settingsClearingAllData;
+
+  /// Snackbar after clearing all data.
+  ///
+  /// In en, this message translates to:
+  /// **'All data cleared successfully'**
+  String get settingsAllDataCleared;
+
+  /// Snackbar when clearing all data failed; {error} is technical.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to clear data: {error}'**
+  String settingsClearDataFailed(String error);
+
+  /// Delete account confirmation text.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll be taken to a form to request account deletion. The process takes a few days to complete. Once processed, all data on the server will be permanently deleted.'**
+  String get settingsDeleteAccountBody;
+
+  /// Lock screen: biometric check failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication failed. Please try again.'**
+  String get settingsLockAuthFailed;
+
+  /// Lock screen: unexpected error during unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get settingsLockError;
+
+  /// Lock screen: button while checking biometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticating...'**
+  String get settingsLockAuthenticating;
+
+  /// Edit profile: snackbar when the name is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Name cannot be empty'**
+  String get settingsProfileNameEmpty;
+
+  /// Edit profile: snackbar after saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get settingsProfileUpdated;
+
+  /// Edit profile: snackbar when saving failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update profile'**
+  String get settingsProfileUpdateFailed;
+
+  /// Edit profile: save button when there are changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get settingsProfileSaveChanges;
+
+  /// Edit profile: save button when nothing changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get settingsProfileSaved;
+
+  /// Edit profile: snackbar for the photo button.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo upload coming soon'**
+  String get settingsProfilePhotoSoon;
+
+  /// Edit profile: section header.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Information'**
+  String get settingsProfileAccountInformation;
+
+  /// Edit profile: label for the sign-up date.
+  ///
+  /// In en, this message translates to:
+  /// **'Member Since'**
+  String get settingsProfileMemberSince;
+
+  /// Edit profile: value when a field is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get settingsProfileUnknown;
+
+  /// Edit profile: subscription value for free users.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get settingsProfileFree;
+
+  /// Edit profile: label for the account ID.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID'**
+  String get settingsProfileUserId;
+
+  /// Edit profile: snackbar after copying the user ID.
+  ///
+  /// In en, this message translates to:
+  /// **'User ID copied'**
+  String get settingsProfileUserIdCopied;
+
+  /// Subscription plan name.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Monthly'**
+  String get settingsPremiumMonthly;
+
+  /// Subscription plan name.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Yearly'**
+  String get settingsPremiumYearly;
+
+  /// Subscription plan name.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Lifetime'**
+  String get settingsPremiumLifetime;
+
+  /// Unsaved changes dialog text.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes. Are you sure you want to leave?'**
+  String get settingsUnsavedChangesBody;
+
+  /// Text shared when the user recommends the app; {url} is the Play Store link.
+  ///
+  /// In en, this message translates to:
+  /// **'Check out The Accountant - a beautiful personal finance app!\n\n{url}'**
+  String settingsShareAppText(String url);
+
+  /// Share sheet subject when recommending the app.
+  ///
+  /// In en, this message translates to:
+  /// **'The Accountant - Personal Finance App'**
+  String get settingsShareAppSubject;
+
+  /// Cloud Sync premium gate description.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your financial data synchronized across all your devices. Never lose your data again.'**
+  String get settingsCloudSyncGateBody;
+
+  /// Sync settings: chip with how many changes were sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Pushed {count}'**
+  String settingsSyncPushed(int count);
+
+  /// Sync settings: chip with how many changes were received.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulled {count}'**
+  String settingsSyncPulled(int count);
+
+  /// Sync settings: chip with the number of conflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} conflicts'**
+  String settingsSyncConflicts(int count);
+
+  /// Sync settings: subtitle under "Sync Now".
+  ///
+  /// In en, this message translates to:
+  /// **'Push and pull all changes'**
+  String get settingsSyncNowSubtitle;
+
+  /// Snackbar after a manual sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync complete — pushed {pushed}, pulled {pulled}'**
+  String settingsSyncComplete(int pushed, int pulled);
+
+  /// Snackbar when some records failed to sync; {details} is an extra explanation sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync incomplete — {count} record(s) could not be saved and will be retried. {details}'**
+  String settingsSyncIncomplete(int count, String details);
+
+  /// Snackbar when sync failed; {error} is the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed: {error}'**
+  String settingsSyncFailed(String error);
+
+  /// Sync settings: subtitle under "Restore from cloud".
+  ///
+  /// In en, this message translates to:
+  /// **'Replace this device\'s data with your cloud data'**
+  String get settingsRestoreFromCloudSubtitle;
+
+  /// Restore from cloud confirmation text.
+  ///
+  /// In en, this message translates to:
+  /// **'This erases ALL data on this device and replaces it with your cloud data. Any changes on this device that have not synced yet will be lost. This cannot be undone.'**
+  String get settingsRestoreFromCloudBody;
+
+  /// Snackbar after restoring from the cloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored {count} items from the cloud'**
+  String settingsRestoredFromCloud(int count);
+
+  /// Snackbar when a cloud restore was rolled back; {details} is an extra explanation sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore cancelled — your local data was left unchanged. {details}'**
+  String settingsRestoreCancelled(String details);
+
+  /// Snackbar when a cloud restore failed; {error} is the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore failed: {error}'**
+  String settingsRestoreFailed(String error);
+
+  /// Sync settings: info card.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data syncs automatically every 15 minutes and when you open the app. Amounts, names and notes are encrypted on this phone before they sync, so our server cannot read them.'**
+  String get settingsSyncInfoBody;
+
+  /// Sync settings: how long the last sync took, in seconds ("s" = seconds).
+  ///
+  /// In en, this message translates to:
+  /// **'Completed in {seconds}s'**
+  String settingsSyncCompletedSeconds(int seconds);
+
+  /// Sync settings: how long the last sync took ("m" = minutes, "s" = seconds).
+  ///
+  /// In en, this message translates to:
+  /// **'Completed in {minutes}m {seconds}s'**
+  String settingsSyncCompletedMinutes(int minutes, int seconds);
+
+  /// Category matching card title; {name} is a built-in category name.
+  ///
+  /// In en, this message translates to:
+  /// **'Is this your \"{name}\" category?'**
+  String settingsReconcileQuestion(String name);
+
+  /// Category matching card: decision saved, waiting for sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. This will be applied the next time you sync.'**
+  String get settingsReconcileSavedPending;
+
+  /// Category matching card text; {count} is how many of the user's categories share the name {name}.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Your account already has a category called \"{name}\". Tell us whether to use it as the built-in category, or keep it separate. Nothing changes until you choose.} other{Your account already has {count} categories called \"{name}\". Tell us whether to use one of them as the built-in category, or keep it separate. Nothing changes until you choose.}}'**
+  String settingsReconcileBody(int count, String name);
+
+  /// Category matching: button when there is one match.
+  ///
+  /// In en, this message translates to:
+  /// **'No — keep mine and add a separate one'**
+  String get settingsReconcileKeepMine;
+
+  /// Category matching: button when there are several matches.
+  ///
+  /// In en, this message translates to:
+  /// **'None of these — add a separate one'**
+  String get settingsReconcileNoneOfThese;
+
+  /// Category matching: keep-separate confirmation; {count} existing categories named {name}.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Your existing \"{name}\" category stays exactly as it is, with all its transactions. A new built-in \"{name}\" will be added alongside.} other{Your existing \"{name}\" categories stay exactly as they are, with all its transactions. A new built-in \"{name}\" will be added alongside.}}'**
+  String settingsReconcileKeepSeparateBody(int count, String name);
+
+  /// Category matching: confirm button.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep separate'**
+  String get settingsReconcileKeepSeparate;
+
+  /// Category matching: how many transactions a category has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No transactions} =1{1 transaction} other{{count} transactions}}'**
+  String settingsReconcileTransactionCount(int count);
+
+  /// Category matching: confirm title; {name} is the user's category.
+  ///
+  /// In en, this message translates to:
+  /// **'Use \"{name}\"?'**
+  String settingsReconcileUseTitle(String name);
+
+  /// Category matching: confirm text; {count} transactions, {name} is the built-in category.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{It becomes the built-in \"{name}\" category and keeps everything filed under it, along with its subcategories. Nothing is deleted.} other{It becomes the built-in \"{name}\" category and keeps all {count} of its transactions, along with its subcategories. Nothing is deleted.}}'**
+  String settingsReconcileUseBody(int count, String name);
+
+  /// Category matching: confirm button.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this one'**
+  String get settingsReconcileUseThisOne;
+
+  /// Category matching: pending decision to use a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Will use \"{name}\".'**
+  String settingsReconcileWillUse(String name);
+
+  /// Category matching: pending decision to add a separate category.
+  ///
+  /// In en, this message translates to:
+  /// **'Will add a separate \"{name}\".'**
+  String settingsReconcileWillAdd(String name);
+
+  /// Change password dialog: subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password and choose a new one'**
+  String get settingsChangePasswordSubtitle;
+
+  /// Set password dialog: subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a password to your account for additional security'**
+  String get settingsSetPasswordSubtitle;
+
+  /// Password dialog: validation error.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your current password'**
+  String get settingsEnterCurrentPassword;
+
+  /// Password dialog: validation error.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a new password'**
+  String get settingsEnterNewPassword;
+
+  /// Password validation error.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters'**
+  String get settingsPasswordMinLength;
+
+  /// Password dialog: validation error.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your password'**
+  String get settingsConfirmYourPassword;
+
+  /// Password validation error.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get settingsPasswordsDoNotMatch;
+
+  /// Loading dialog default text.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait...'**
+  String get settingsPleaseWait;
+
+  /// Destructive confirm dialog: field label; {word} is the word to type (e.g. DELETE), keep the quotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Type \"{word}\" to confirm'**
+  String settingsTypeToConfirm(String word);
+
+  /// Notifications: budget warning threshold value, e.g. "80% of budget".
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of budget'**
+  String settingsPercentOfBudget(int percent);
+
+  /// Sign-in error when rate limited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please wait a minute and try again.'**
+  String get authTooManyAttempts;
+
+  /// Sign-in error when the server fails.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not reach our servers. This is on our side — please try again in a few minutes.'**
+  String get authServerDown;
+
+  /// Auth error at startup.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to initialize authentication'**
+  String get authInitFailed;
+
+  /// Generic sign-in error.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during sign in'**
+  String get authSignInError;
+
+  /// Generic sign-up error.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during sign up'**
+  String get authSignUpError;
+
+  /// Google sign-in did not complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Sign-In was cancelled or failed'**
+  String get authGoogleCancelled;
+
+  /// Sign-in error: could not get a sign-in token.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to get Firebase ID token'**
+  String get authFirebaseTokenFailed;
+
+  /// Generic Google sign-in error.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during Google sign in'**
+  String get authGoogleSignInError;
+
+  /// Sign-in error: email already used with another sign-in method.
+  ///
+  /// In en, this message translates to:
+  /// **'An account already exists with the same email address but different sign-in credentials.'**
+  String get authAccountExistsDifferentCredential;
+
+  /// Sign-in error: bad or expired credential.
+  ///
+  /// In en, this message translates to:
+  /// **'The supplied auth credential is malformed or has expired.'**
+  String get authInvalidCredential;
+
+  /// Sign-in error.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in is disabled.'**
+  String get authGoogleDisabled;
+
+  /// Sign-in error: account disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'The user account has been disabled.'**
+  String get authUserDisabled;
+
+  /// Generic Apple sign-in error.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during Apple sign in'**
+  String get authAppleSignInError;
+
+  /// Sign-in error.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple sign-in is disabled.'**
+  String get authAppleDisabled;
+
+  /// Account linking error: nothing to link.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending account to link'**
+  String get authNoPendingLink;
+
+  /// Account linking error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to link account'**
+  String get authLinkFailed;
+
+  /// Account linking error: wrong password.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password. Please try again.'**
+  String get authIncorrectPassword;
+
+  /// Sign-out error.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during sign out'**
+  String get authSignOutError;
+
+  /// Account linking screen: subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this email already exists. Enter your password to link your Google account.'**
+  String get authLinkSubtitle;
+
+  /// Password field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get authEnterYourPasswordHint;
+
+  /// Validation error: password empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
+  String get authEnterYourPassword;
+
+  /// Account linking screen: info box.
+  ///
+  /// In en, this message translates to:
+  /// **'After linking, you can use either email/password or Google to sign in.'**
+  String get authLinkInfo;
+
+  /// Validation error: email empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
+  String get authEnterYourEmail;
+
+  /// Validation error: bad email.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email'**
+  String get authEnterValidEmail;
+
+  /// Validation error: password too short.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get authPasswordMin6;
+
+  /// Sign-in screen: text before the "Sign Up" link (keep the trailing space).
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? '**
+  String get authNoAccountPrompt;
+
+  /// Forgot password screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password'**
+  String get authForgotPasswordTitle;
+
+  /// Forgot password screen title after the code was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Your Email'**
+  String get authCheckYourEmail;
+
+  /// Forgot password screen subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and we\'ll send you a code to reset your password.'**
+  String get authForgotPasswordSubtitle;
+
+  /// Forgot password: subtitle after sending the code; {email} is the address.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {email}. Enter it below with your new password.'**
+  String authCodeSentSubtitle(String email);
+
+  /// Email field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email'**
+  String get authEnterYourEmailHint;
+
+  /// Reset code field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get authSixDigitCodeHint;
+
+  /// Validation error: reset code empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the code'**
+  String get authEnterTheCode;
+
+  /// Validation error: reset code wrong length.
+  ///
+  /// In en, this message translates to:
+  /// **'The code is 6 digits'**
+  String get authCodeIsSixDigits;
+
+  /// New password field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new password'**
+  String get authCreateNewPasswordHint;
+
+  /// Confirm new password field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-enter your new password'**
+  String get authReenterNewPasswordHint;
+
+  /// Name field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name'**
+  String get authEnterYourNameHint;
+
+  /// Validation error: name empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your full name'**
+  String get authEnterFullName;
+
+  /// Validation error: name too short.
+  ///
+  /// In en, this message translates to:
+  /// **'Name must be at least 2 characters'**
+  String get authNameMin2;
+
+  /// Password field hint on sign-up.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a password'**
+  String get authCreatePasswordHint;
+
+  /// Validation error: weak password.
+  ///
+  /// In en, this message translates to:
+  /// **'Must contain uppercase, lowercase, and number'**
+  String get authPasswordComplexity;
+
+  /// Confirm password field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-enter your password'**
+  String get authReenterPasswordHint;
+
+  /// Password strength label.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak'**
+  String get authStrengthWeak;
+
+  /// Password strength label.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair'**
+  String get authStrengthFair;
+
+  /// Password strength label.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get authStrengthGood;
+
+  /// Password strength label.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get authStrengthStrong;
+
+  /// Sign-up terms checkbox; {terms} becomes "Terms of Service" and {privacy} "Privacy Policy" (highlighted). Put them where your language needs them.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the {terms} and {privacy}'**
+  String authAgreeToTerms(String terms, String privacy);
+
+  /// Profile: name shown when the user has none.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get authDefaultUserName;
+
+  /// Profile: sign-up month; {date} is e.g. "March 2025".
+  ///
+  /// In en, this message translates to:
+  /// **'Member since {date}'**
+  String authMemberSince(String date);
+
+  /// Validation error: required field empty.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get authFieldRequired;
+
+  /// Snackbar when sign-out failed; {error} is technical.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sign out: {error}'**
+  String authSignOutFailed(String error);
+
+  /// Snackbar when picking a photo failed; {error} is technical.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to pick image: {error}'**
+  String authPickImageFailed(String error);
+
+  /// Snackbar when saving the profile failed; {error} is technical.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update profile: {error}'**
+  String authUpdateProfileFailed(String error);
+
+  /// Paywall badge on the yearly plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Save ~44%'**
+  String get premiumSaveAbout44;
+
+  /// Paywall badge on the lifetime plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Value'**
+  String get premiumBestValue;
+
+  /// Purchase error: the store is not available.
+  ///
+  /// In en, this message translates to:
+  /// **'IAP not available'**
+  String get premiumIapUnavailable;
+
+  /// Purchase error: plan not found in the store.
+  ///
+  /// In en, this message translates to:
+  /// **'Product not found'**
+  String get premiumProductNotFound;
+
+  /// Purchase error.
+  ///
+  /// In en, this message translates to:
+  /// **'This plan is not available on your account right now'**
+  String get premiumPlanUnavailable;
+
+  /// Restore purchases error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to restore purchases'**
+  String get premiumRestoreFailed;
+
+  /// Purchase error.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase failed'**
+  String get premiumPurchaseFailed;
+
+  /// Purchase error: our server could not verify it.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification failed'**
+  String get premiumVerificationFailed;
+
+  /// Free trial length.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String premiumPeriodDays(int count);
+
+  /// Free trial length.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 week} other{{count} weeks}}'**
+  String premiumPeriodWeeks(int count);
+
+  /// Free trial length.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 month} other{{count} months}}'**
+  String premiumPeriodMonths(int count);
+
+  /// Free trial length.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 year} other{{count} years}}'**
+  String premiumPeriodYears(int count);
+
+  /// Upgrade dialog; {items} is a plural noun like "wallets".
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used {count} of {limit} free {items}.'**
+  String premiumLimitUsed(int count, int limit, String items);
+
+  /// Upgrade dialog; {items} is a plural noun like "wallets".
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Premium for unlimited {items} and more!'**
+  String premiumLimitUpgrade(String items);
+
+  /// Free tier limit message; {items} is a plural noun like "wallets".
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached the free tier limit of {limit} {items}. Upgrade to Premium for unlimited {items}.'**
+  String premiumFreeLimitMessage(int limit, String items);
+
+  /// Free-limit item name (plural, lower case).
+  ///
+  /// In en, this message translates to:
+  /// **'wallets'**
+  String get premiumLimitWallets;
+
+  /// Free-limit item name (plural, lower case).
+  ///
+  /// In en, this message translates to:
+  /// **'custom categories'**
+  String get premiumLimitCategories;
+
+  /// Free-limit item name (plural, lower case).
+  ///
+  /// In en, this message translates to:
+  /// **'active budgets'**
+  String get premiumLimitBudgets;
+
+  /// Free-limit item name (plural, lower case).
+  ///
+  /// In en, this message translates to:
+  /// **'active objectives'**
+  String get premiumLimitObjectives;
+
+  /// Free-limit item name (plural, lower case).
+  ///
+  /// In en, this message translates to:
+  /// **'payment methods'**
+  String get premiumLimitPaymentMethods;
+
+  /// Restore error: the chosen file is not JSON.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is not a backup — it could not be read as JSON.'**
+  String get backupErrNotJson;
+
+  /// Restore error: the file is not an app backup.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is not a backup from The Accountant.'**
+  String get backupErrNotOurs;
+
+  /// Restore error: backup from a newer app version.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was written by a newer version of the app. Update The Accountant and try again.'**
+  String get backupErrNewerVersion;
+
+  /// Restore error: backup too old; {version} and {oldest} are database version numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is from an older version of the app than this one can read (database {version}, oldest supported {oldest}).'**
+  String backupErrTooOld(int version, int oldest);
+
+  /// Restore error.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup has no data in it.'**
+  String get backupErrNoData;
+
+  /// Restore error; {section} is an internal table name.
+  ///
+  /// In en, this message translates to:
+  /// **'The \"{section}\" section of this backup is damaged.'**
+  String backupErrSectionDamaged(String section);
+
+  /// Restore error.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is missing the header that says what it is.'**
+  String get backupErrNoHeader;
+
+  /// Restore error.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup does not say which database version it was taken from, so it cannot be restored safely.'**
+  String get backupErrNoSchemaVersion;
+
+  /// Restore error.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup does not say when it was taken.'**
+  String get backupErrNoDate;
+
+  /// Restore error.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup file is damaged.'**
+  String get backupErrDamaged;
+
+  /// Restore error: encrypted for another account.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup belongs to a different account, or the file has been changed. Sign in with the account that made it to restore it.'**
+  String get backupErrWrongKey;
+
+  /// Restore error.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup cannot be opened with a passphrase.'**
+  String get backupErrNoPassphraseLock;
+
+  /// Restore: the backup needs the passphrase or recovery code.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is protected with a passphrase. Enter it, or the recovery code, to restore it.'**
+  String get backupErrNeedsSecret;
+
+  /// Restore error: wrong passphrase or recovery code.
+  ///
+  /// In en, this message translates to:
+  /// **'That passphrase or recovery code does not open this backup.'**
+  String get backupErrWrongSecret;
+
+  /// Restore error; {version} and {supported} are database version numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was made by a newer version of the app (database {version}, this build reads up to {supported}). Update The Accountant and try again.'**
+  String backupErrNewerSchema(int version, int supported);
+
+  /// Google Drive error; {error} is technical detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive could not be reached: {error}'**
+  String backupDriveUnreachable(String error);
+
+  /// Google Drive error: access not granted.
+  ///
+  /// In en, this message translates to:
+  /// **'The Accountant is not allowed to use Google Drive yet.'**
+  String get backupDriveNotAllowed;
+
+  /// Google Drive error.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive would not make a folder to keep backups in.'**
+  String get backupDriveNoFolder;
+
+  /// Google Drive error.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive accepted the backup but did not say where it put it.'**
+  String get backupDriveNoFileId;
+
+  /// Google Drive error.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive is taking too long to answer. Try again later.'**
+  String get backupDriveTimeout;
+
+  /// Google Drive error.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection to Google Drive. Try again once you are online.'**
+  String get backupDriveOffline;
+
+  /// Google Drive error: access refused.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive turned the request down. Grant access again and retry.'**
+  String get backupDriveDenied;
+
+  /// Google Drive error.
+  ///
+  /// In en, this message translates to:
+  /// **'That backup is no longer in Google Drive.'**
+  String get backupDriveFileGone;
+
+  /// Google Drive error; {status} is an HTTP code, {reason} an explanation sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive answered {status}. {reason}'**
+  String backupDriveHttpError(int status, String reason);
+
+  /// Fallback reason after a Google Drive error.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in a moment.'**
+  String get backupDriveTryAgainSoon;
+
+  /// Backup error; {error} is technical detail.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup could not be taken: {error}'**
+  String backupTakeFailed(String error);
+
+  /// Drive backup list: why a file cannot be restored.
+  ///
+  /// In en, this message translates to:
+  /// **'Written by a newer version of the app.'**
+  String get backupUnrestorableNewer;
+
+  /// Drive backup list: why a file cannot be restored.
+  ///
+  /// In en, this message translates to:
+  /// **'Older than this version of the app can read.'**
+  String get backupUnrestorableOlder;
+
+  /// Encryption key error.
+  ///
+  /// In en, this message translates to:
+  /// **'The server sent an unusable encryption key. Try again later.'**
+  String get backupKeyUnusable;
+
+  /// Backup error when signed out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to make or restore a backup — backups are encrypted with your account.'**
+  String get backupKeyNeedsSignIn;
+
+  /// Backup error: the key has never been fetched.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet once so your data can be encrypted, then try again.'**
+  String get backupKeyNeedsInternet;
+
+  /// Error: data is passphrase-locked on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is protected with a passphrase. Unlock it on this device first.'**
+  String get backupKeyLocked;
+
+  /// Automatic backup frequency option.
+  ///
+  /// In en, this message translates to:
+  /// **'Only when I ask'**
+  String get backupFrequencyManual;
+
+  /// Automatic backup frequency option.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get backupFrequencyDaily;
+
+  /// Automatic backup frequency option.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get backupFrequencyWeekly;
+
+  /// Automatic backup frequency option.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month'**
+  String get backupFrequencyMonthly;
+
+  /// Backup screen intro card.
+  ///
+  /// In en, this message translates to:
+  /// **'A backup is a single file holding everything on this device — every transaction, account, budget and goal. Keep one somewhere safe and nothing here is ever lost for good.'**
+  String get backupIntro;
+
+  /// Backup screen section header (all caps).
+  ///
+  /// In en, this message translates to:
+  /// **'ON THIS DEVICE'**
+  String get backupSectionOnDevice;
+
+  /// Backup screen section header (all caps).
+  ///
+  /// In en, this message translates to:
+  /// **'GOOGLE DRIVE'**
+  String get backupSectionGoogleDrive;
+
+  /// Backup screen section header (all caps).
+  ///
+  /// In en, this message translates to:
+  /// **'BACKUPS IN DRIVE'**
+  String get backupSectionInDrive;
+
+  /// Snackbar after saving a backup file.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed up {count} records.'**
+  String backupBackedUpCount(int count);
+
+  /// System save dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Save backup'**
+  String get backupSaveDialogTitle;
+
+  /// System file picker title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a backup file'**
+  String get backupChooseFileTitle;
+
+  /// Restore error; {error} is technical.
+  ///
+  /// In en, this message translates to:
+  /// **'That file could not be read: {error}'**
+  String backupFileUnreadable(String error);
+
+  /// Restore confirmation: when the backup was taken.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken {date}.'**
+  String backupTakenOn(String date);
+
+  /// Restore confirmation: when and on which phone the backup was taken.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken {date} on {device}.'**
+  String backupTakenOnDevice(String date, String device);
+
+  /// Restore confirmation: whose account the backup is from.
+  ///
+  /// In en, this message translates to:
+  /// **'It belonged to {email}.'**
+  String backupBelongedTo(String email);
+
+  /// Restore confirmation warning.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not the account signed in here. Restoring will put someone else\'s records on this device.'**
+  String get backupDifferentAccountWarning;
+
+  /// Restore confirmation warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything currently on this device is erased and replaced. Anything that has not synced yet is lost. This cannot be undone.'**
+  String get backupRestoreEraseWarning;
+
+  /// Snackbar after a restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored {count} records.'**
+  String backupRestoredCount(int count);
+
+  /// Snackbar after a partial restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored {count} records. Some of the file did not fit this version and was left out.'**
+  String backupRestoredPartial(int count);
+
+  /// Restore error; {error} is technical.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was changed — the restore failed: {error}'**
+  String backupRestoreFailed(String error);
+
+  /// Subtitle under "Connect Google Drive".
+  ///
+  /// In en, this message translates to:
+  /// **'Backups go in a private folder only this app can open. Your other files are never read.'**
+  String get backupConnectDriveSubtitle;
+
+  /// Backup screen: Drive is connected (title).
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive connected'**
+  String get backupDriveConnectedTitle;
+
+  /// Backup screen: where backups will go; {folder} is a folder name.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups from this device will go to a folder called \"{folder}\" in your Drive.'**
+  String backupDriveFolderFirst(String folder);
+
+  /// Backup screen: where backups go; {folder} is a folder name.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups go to \"{folder}\" in your Drive.'**
+  String backupDriveFolder(String folder);
+
+  /// Subtitle under "Back up now".
+  ///
+  /// In en, this message translates to:
+  /// **'No backup has gone up from this device yet'**
+  String get backupNoneYet;
+
+  /// Subtitle under "Back up now"; {date} is a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backed up {date}'**
+  String backupLastBackedUp(String date);
+
+  /// How many Drive backups are kept.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} backups — older ones are removed after a new one lands'**
+  String backupKeepSubtitle(int count);
+
+  /// Subtitle under "Disconnect Google Drive".
+  ///
+  /// In en, this message translates to:
+  /// **'Stops automatic backups. Nothing already saved is deleted.'**
+  String get backupDisconnectSubtitle;
+
+  /// Error listing Drive backups; {error} is technical.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not list your backups: {error}'**
+  String backupListFailed(String error);
+
+  /// Snackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive access was not granted.'**
+  String get backupDriveNotGranted;
+
+  /// Snackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive connected.'**
+  String get backupDriveConnected;
+
+  /// Snackbar; {error} is technical.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive could not be connected: {error}'**
+  String backupDriveConnectFailed(String error);
+
+  /// Disconnect Drive confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic backups stop. The backups already in Drive stay where they are, and you can reconnect at any time.'**
+  String get backupDisconnectBody;
+
+  /// Snackbar; {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {name} to Google Drive.'**
+  String backupSavedToDrive(String name);
+
+  /// Snackbar; {error} is technical.
+  ///
+  /// In en, this message translates to:
+  /// **'That backup could not be saved: {error}'**
+  String backupCopyFailed(String error);
+
+  /// Delete Drive backup confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'It is removed from Google Drive for good.'**
+  String get backupDeleteBody;
+
+  /// Tooltip on the refresh button.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get backupRefresh;
+
+  /// Error when the stored passphrase settings are unsafe or damaged (technical).
+  ///
+  /// In en, this message translates to:
+  /// **'Unacceptable key-derivation parameters.'**
+  String get ppErrKdfParams;
+
+  /// Error when the stored passphrase settings are unknown (technical).
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown key-derivation algorithm.'**
+  String get ppErrKdfAlgorithm;
+
+  /// Intro slide 1 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Every account, one balance'**
+  String get onboardingIntroAccountsTitle;
+
+  /// Intro slide 1 text.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep cash, cards and savings side by side, and see what you actually have left.'**
+  String get onboardingIntroAccountsBody;
+
+  /// Intro slide 2 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets that tell you early'**
+  String get onboardingIntroBudgetsTitle;
+
+  /// Intro slide 2 text.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a limit per category. The app watches the total and warns you before you pass it, not after.'**
+  String get onboardingIntroBudgetsBody;
+
+  /// Intro slide 3 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about your own spending'**
+  String get onboardingIntroAskTitle;
+
+  /// Intro slide 3 text.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a receipt, or ask where the money went last month, and get an answer drawn from your records.'**
+  String get onboardingIntroAskBody;
+
+  /// Intro slide 4 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Make it look like yours'**
+  String get onboardingIntroThemeTitle;
+
+  /// Intro slide 4 text.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a theme now, or change it whenever you like from settings.'**
+  String get onboardingIntroThemeBody;
+
+  /// Intro: button on the last slide.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get onboardingCreateYourAccount;
+
+  /// Intro / walkthrough: next button.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// Onboarding: note under the currency picker.
+  ///
+  /// In en, this message translates to:
+  /// **'This will be used as your primary currency. You can add accounts with different currencies later.'**
+  String get onboardingCurrencyInfo;
+
+  /// Onboarding: account type chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get onboardingTypeCash;
+
+  /// Onboarding: account type chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Account'**
+  String get onboardingTypeBank;
+
+  /// Onboarding: account type chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Card'**
+  String get onboardingTypeCard;
+
+  /// Onboarding: account type chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit'**
+  String get onboardingTypeDeposit;
+
+  /// Onboarding: account type chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment'**
+  String get onboardingTypeInvestment;
+
+  /// Onboarding: account type chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Asset'**
+  String get onboardingTypeAsset;
+
+  /// Onboarding: credit card billing day option.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String onboardingDayN(int day);
+
+  /// Onboarding: final step title.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re All Set!'**
+  String get onboardingAllSet;
+
+  /// Onboarding error; {error} is technical.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to complete onboarding: {error}'**
+  String onboardingCompleteFailed(String error);
+
+  /// Onboarding error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to skip onboarding'**
+  String get onboardingSkipFailed;
+
+  /// Startup recovery: confirm continuing offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data stays exactly where it is — nothing on this device or in the cloud will be deleted.\n\nBut if the account does have data saved, anything you add now will sit alongside it once you restore — you may end up with duplicates to tidy up.'**
+  String get startupOfflineConfirmBody;
+
+  /// Startup recovery title when the cloud data needs a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is waiting in the cloud'**
+  String get startupDataInCloudTitle;
+
+  /// Startup recovery title when loading failed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t finish loading your account'**
+  String get startupLoadFailedTitle;
+
+  /// Startup recovery: fallback reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong while checking this account.'**
+  String get startupGenericReason;
+
+  /// Startup recovery button.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the app without restoring'**
+  String get startupUseWithoutRestoring;
+
+  /// Legal acceptance screen: tab for the terms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms'**
+  String get legalTermsTab;
+
+  /// Legal acceptance screen: consent checkbox.
+  ///
+  /// In en, this message translates to:
+  /// **'I have read and agree to the Privacy Policy and Terms & Conditions'**
+  String get legalConsent;
+
+  /// Walkthrough: button on the last step.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it!'**
+  String get walkthroughGotIt;
+
+  /// Help screen FAQ section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting Started'**
+  String get settingsFaqSectionGettingStarted;
+
+  /// Help screen FAQ question (Getting Started).
+  ///
+  /// In en, this message translates to:
+  /// **'How do I add a transaction?'**
+  String get settingsFaq01Question;
+
+  /// Help screen FAQ answer to: How do I add a transaction?
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the + button at the bottom of the home screen. Fill in the amount, select a category, choose a wallet, and optionally add notes. Tap Save to record your transaction.'**
+  String get settingsFaq01Answer;
+
+  /// Help screen FAQ question (Getting Started).
+  ///
+  /// In en, this message translates to:
+  /// **'What is the difference between wallets and categories?'**
+  String get settingsFaq02Question;
+
+  /// Help screen FAQ answer to: What is the difference between wallets and categories?
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets represent where your money is stored (e.g., Cash, Bank Account, Credit Card). Categories describe what the money was spent on or where it came from (e.g., Food, Salary, Entertainment).'**
+  String get settingsFaq02Answer;
+
+  /// Help screen FAQ question (Getting Started).
+  ///
+  /// In en, this message translates to:
+  /// **'How do I customize my date and number format?'**
+  String get settingsFaq03Question;
+
+  /// Help screen FAQ answer to: How do I customize my date and number format?
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Settings > Regional Settings. You can change your default currency, date format (e.g., DD/MM/YYYY or MM/DD/YYYY), and number format (e.g., 1,234.56 or 1.234,56). A live preview shows how your settings will look.'**
+  String get settingsFaq03Answer;
+
+  /// Help screen FAQ section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get settingsFaqSectionTransactions;
+
+  /// Help screen FAQ question (Transactions).
+  ///
+  /// In en, this message translates to:
+  /// **'Can I track recurring transactions?'**
+  String get settingsFaq04Question;
+
+  /// Help screen FAQ answer to: Can I track recurring transactions?
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! When adding a transaction, enable the \"Recurring\" option. You can set it to repeat daily, weekly, monthly, or yearly. The app will automatically create these transactions for you.'**
+  String get settingsFaq04Answer;
+
+  /// Help screen FAQ question (Transactions).
+  ///
+  /// In en, this message translates to:
+  /// **'How do I transfer money between wallets?'**
+  String get settingsFaq05Question;
+
+  /// Help screen FAQ answer to: How do I transfer money between wallets?
+  ///
+  /// In en, this message translates to:
+  /// **'When adding a transaction, select \"Transfer\" as the type. Choose the source wallet, destination wallet, and enter the amount. The app will automatically deduct from one and add to the other.'**
+  String get settingsFaq05Answer;
+
+  /// Help screen FAQ question (Transactions).
+  ///
+  /// In en, this message translates to:
+  /// **'What are upcoming transactions?'**
+  String get settingsFaq06Question;
+
+  /// Help screen FAQ answer to: What are upcoming transactions?
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming transactions are future expenses or income you expect but haven\'t paid yet. They won\'t affect your wallet balance until you mark them as paid. You can find overdue and upcoming items in the transactions section.'**
+  String get settingsFaq06Answer;
+
+  /// Help screen FAQ question (Transactions).
+  ///
+  /// In en, this message translates to:
+  /// **'How do I track subscriptions?'**
+  String get settingsFaq07Question;
+
+  /// Help screen FAQ answer to: How do I track subscriptions?
+  ///
+  /// In en, this message translates to:
+  /// **'When adding a transaction, set the special type to Subscription. This marks it as a recurring service payment. You can view all your subscriptions in one place and track your monthly subscription spending.'**
+  String get settingsFaq07Answer;
+
+  /// Help screen FAQ question (Transactions).
+  ///
+  /// In en, this message translates to:
+  /// **'How does credit and debt tracking work?'**
+  String get settingsFaq08Question;
+
+  /// Help screen FAQ answer to: How does credit and debt tracking work?
+  ///
+  /// In en, this message translates to:
+  /// **'Use Credit to track money you\'ve lent to someone, and Debt to track money you\'ve borrowed. Each entry tracks the amount, who owes whom, and payment progress. You can record partial payments and mark debts as settled when fully repaid.'**
+  String get settingsFaq08Answer;
+
+  /// Help screen FAQ question (Transactions).
+  ///
+  /// In en, this message translates to:
+  /// **'Can I add notes or receipts to transactions?'**
+  String get settingsFaq09Question;
+
+  /// Help screen FAQ answer to: Can I add notes or receipts to transactions?
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! When adding or editing a transaction, you can type notes in the notes field. Premium users can also scan receipts using the AI-powered receipt scanner, which automatically extracts the amount and merchant details.'**
+  String get settingsFaq09Answer;
+
+  /// Help screen FAQ section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets & Currencies'**
+  String get settingsFaqSectionWalletsCurrencies;
+
+  /// Help screen FAQ question (Wallets & Currencies).
+  ///
+  /// In en, this message translates to:
+  /// **'How do I manage multiple wallet accounts?'**
+  String get settingsFaq10Question;
+
+  /// Help screen FAQ answer to: How do I manage multiple wallet accounts?
+  ///
+  /// In en, this message translates to:
+  /// **'The app supports four account types: Cash, Bank Account, Credit Card, and Subscription. To add a new account, go to \'Your Accounts\' on the dashboard and tap \'Add Account\'. Each account can have its own name, icon, color, and currency. Your first account is automatically set as the default. Credit card accounts also let you set a credit limit and billing cycle day so you can track available credit.'**
+  String get settingsFaq10Answer;
+
+  /// Help screen FAQ question (Wallets & Currencies).
+  ///
+  /// In en, this message translates to:
+  /// **'Can I use multiple currencies?'**
+  String get settingsFaq11Question;
+
+  /// Help screen FAQ answer to: Can I use multiple currencies?
+  ///
+  /// In en, this message translates to:
+  /// **'Yes! Each wallet can have its own currency. The app supports automatic currency conversion using live exchange rates. You can also set custom exchange rates in Settings > Regional Settings.'**
+  String get settingsFaq11Answer;
+
+  /// Help screen FAQ question (Wallets & Currencies).
+  ///
+  /// In en, this message translates to:
+  /// **'How does currency conversion work?'**
+  String get settingsFaq12Question;
+
+  /// Help screen FAQ answer to: How does currency conversion work?
+  ///
+  /// In en, this message translates to:
+  /// **'Each wallet can have a different currency, and the app automatically converts amounts using live exchange rates updated every few hours. You can also set custom exchange rates for any currency pair in Settings > Regional Settings. The app supports over 150 currencies with automatic rate fetching.'**
+  String get settingsFaq12Answer;
+
+  /// Help screen FAQ question (Wallets & Currencies).
+  ///
+  /// In en, this message translates to:
+  /// **'What happens if I delete a category with transactions?'**
+  String get settingsFaq13Question;
+
+  /// Help screen FAQ answer to: What happens if I delete a category with transactions?
+  ///
+  /// In en, this message translates to:
+  /// **'Those transactions will be moved to \"Uncategorized\". You can then reassign them to a different category or leave them uncategorized.'**
+  String get settingsFaq13Answer;
+
+  /// Help screen FAQ question (Wallets & Currencies).
+  ///
+  /// In en, this message translates to:
+  /// **'What are subcategories and how do I use them?'**
+  String get settingsFaq14Question;
+
+  /// Help screen FAQ answer to: What are subcategories and how do I use them?
+  ///
+  /// In en, this message translates to:
+  /// **'You can create subcategories under any main category for more detailed tracking. For example, under \'Food\', you could have \'Groceries\', \'Restaurants\', and \'Coffee\'. Subcategories help you see exactly where your money goes.'**
+  String get settingsFaq14Answer;
+
+  /// Help screen FAQ question (Wallets & Currencies).
+  ///
+  /// In en, this message translates to:
+  /// **'What is a balance correction?'**
+  String get settingsFaq15Question;
+
+  /// Help screen FAQ answer to: What is a balance correction?
+  ///
+  /// In en, this message translates to:
+  /// **'A balance correction lets you adjust a wallet\'s balance when it doesn\'t match the actual amount. This creates a special transaction that brings your tracked balance in line with reality, without manually adding income or expense entries.'**
+  String get settingsFaq15Answer;
+
+  /// Help screen FAQ section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets & Goals'**
+  String get settingsFaqSectionBudgetsGoals;
+
+  /// Help screen FAQ question (Budgets & Goals).
+  ///
+  /// In en, this message translates to:
+  /// **'How do I set up a budget?'**
+  String get settingsFaq16Question;
+
+  /// Help screen FAQ answer to: How do I set up a budget?
+  ///
+  /// In en, this message translates to:
+  /// **'Go to the Budgets tab and tap \"Create Budget\". Choose a name, set your spending limit, select the time period (weekly/monthly), and pick which categories to track. The app will alert you when you approach your limit.'**
+  String get settingsFaq16Answer;
+
+  /// Help screen FAQ question (Budgets & Goals).
+  ///
+  /// In en, this message translates to:
+  /// **'What are savings goals?'**
+  String get settingsFaq17Question;
+
+  /// Help screen FAQ answer to: What are savings goals?
+  ///
+  /// In en, this message translates to:
+  /// **'Savings goals let you set a target amount you want to save. Create a goal in the Objectives section, set your target, and link transactions to track your progress. The app shows a progress bar and percentage toward your target.'**
+  String get settingsFaq17Answer;
+
+  /// Help screen FAQ question (Budgets & Goals).
+  ///
+  /// In en, this message translates to:
+  /// **'How do I track a loan?'**
+  String get settingsFaq18Question;
+
+  /// Help screen FAQ answer to: How do I track a loan?
+  ///
+  /// In en, this message translates to:
+  /// **'Create a Loan objective in the Objectives section with the total amount owed. As you make payments, link those transactions to the loan to track your repayment progress. The app shows how much you\'ve paid and what remains.'**
+  String get settingsFaq18Answer;
+
+  /// Help screen FAQ section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Data & Sync'**
+  String get settingsFaqSectionDataSync;
+
+  /// Help screen FAQ question (Data & Sync).
+  ///
+  /// In en, this message translates to:
+  /// **'How does Cloud Sync work?'**
+  String get settingsFaq19Question;
+
+  /// Help screen FAQ answer to: How does Cloud Sync work?
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Sync keeps your data synchronized across devices. Go to Settings > Data Management > Cloud Sync to enable it. Sync runs automatically every 15 minutes and when you open the app. You can also tap \'Sync Now\' for an immediate sync. This is a Premium feature.'**
+  String get settingsFaq19Answer;
+
+  /// Help screen FAQ question (Data & Sync).
+  ///
+  /// In en, this message translates to:
+  /// **'How do I export my data?'**
+  String get settingsFaq20Question;
+
+  /// Help screen FAQ answer to: How do I export my data?
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Settings > Data Management > Export Data. Choose a date range, select CSV (for spreadsheets) or PDF (for a formatted report), and tap Export. You can include or exclude category and wallet breakdowns. This is a Premium feature.'**
+  String get settingsFaq20Answer;
+
+  /// Help screen FAQ question (Data & Sync).
+  ///
+  /// In en, this message translates to:
+  /// **'What happens if I clear my data?'**
+  String get settingsFaq21Question;
+
+  /// Help screen FAQ answer to: What happens if I clear my data?
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Settings > Privacy & Security. \'Clear Cache\' removes temporary data and forces a re-sync without deleting your transactions. \'Clear All Data\' permanently deletes everything — you\'ll need to type DELETE to confirm. This action cannot be undone.'**
+  String get settingsFaq21Answer;
+
+  /// Help screen FAQ section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium & AI Features'**
+  String get settingsFaqSectionPremiumAiFeatures;
+
+  /// Help screen FAQ question (Premium & AI Features).
+  ///
+  /// In en, this message translates to:
+  /// **'What features are included in Premium?'**
+  String get settingsFaq22Question;
+
+  /// Help screen FAQ answer to: What features are included in Premium?
+  ///
+  /// In en, this message translates to:
+  /// **'Premium unlocks: unlimited AI (the coach, monthly summaries, receipt reading and Describe it) with no ads, Cloud Sync, PDF reports, Premium Themes, and removes limits on wallets, categories, budgets, goals, and payment methods. You also get priority support.'**
+  String get settingsFaq22Answer;
+
+  /// Help screen FAQ question (Premium & AI Features).
+  ///
+  /// In en, this message translates to:
+  /// **'What are the free tier limits?'**
+  String get settingsFaq23Question;
+
+  /// Help screen FAQ answer to: What are the free tier limits?
+  ///
+  /// In en, this message translates to:
+  /// **'Free users can create up to 3 wallets, 10 custom categories, 3 active budgets, 2 active goals/loans, and 5 payment methods. Upgrading to Premium removes all these limits.'**
+  String get settingsFaq23Answer;
+
+  /// Help screen FAQ question (Premium & AI Features).
+  ///
+  /// In en, this message translates to:
+  /// **'What can the AI Assistant do?'**
+  String get settingsFaq24Question;
+
+  /// Help screen FAQ answer to: What can the AI Assistant do?
+  ///
+  /// In en, this message translates to:
+  /// **'The money coach answers questions about your own money: where it went, whether you are on track with your budgets and goals, which bills are coming, and how to spend less or save more. It sees a summary of your figures (totals, categories, budgets, goals, bills and recent transactions) so its answers use your real numbers, and it suggests follow-up questions after each reply. It gives general guidance, not professional financial advice. Your conversations are saved so you can pick up where you left off, and you can delete them at any time.'**
+  String get settingsFaq24Answer;
+
+  /// Help screen FAQ question (Premium & AI Features).
+  ///
+  /// In en, this message translates to:
+  /// **'How do AI Insights work?'**
+  String get settingsFaq25Question;
+
+  /// Help screen FAQ answer to: How do AI Insights work?
+  ///
+  /// In en, this message translates to:
+  /// **'The monthly summary (Stats > Spending Insights) shows this month against last month: what you earned and spent, and how each category moved. Tap Write my summary and the AI picks out what stood out and suggests one thing to try. The numbers are free for everyone; the AI write-up uses one AI request.'**
+  String get settingsFaq25Answer;
+
+  /// Help screen FAQ question (Premium & AI Features).
+  ///
+  /// In en, this message translates to:
+  /// **'What is Smart Categorization?'**
+  String get settingsFaq26Question;
+
+  /// Help screen FAQ answer to: What is Smart Categorization?
+  ///
+  /// In en, this message translates to:
+  /// **'When you file a transaction by hand, the app remembers which category that title belongs to and picks it for you next time (you can see and edit these under Naming rules). For something new, tap the sparkle button on the add screen and Describe it: type something like \'lunch 250 yesterday from bKash\' and the AI fills in the amount, date, category and account for you to check.'**
+  String get settingsFaq26Answer;
+
+  /// Help screen FAQ question (Premium & AI Features).
+  ///
+  /// In en, this message translates to:
+  /// **'How does the AI receipt scanner work?'**
+  String get settingsFaq27Question;
+
+  /// Help screen FAQ answer to: How does the AI receipt scanner work?
+  ///
+  /// In en, this message translates to:
+  /// **'Take or pick a photo of a receipt. Your phone reads the text on the device and suggests the merchant and total. Tap Read with AI and the AI works out the real total, the date, each item and the right category, even on a messy receipt; only the text is sent, never the photo. You can review and edit before saving. Reading with AI uses one AI request.'**
+  String get settingsFaq27Answer;
+
+  /// Help screen FAQ question (Premium & AI Features).
+  ///
+  /// In en, this message translates to:
+  /// **'How many AI requests do I get, and what are the ads for?'**
+  String get settingsFaq28Question;
+
+  /// Help screen FAQ answer to: How many AI requests do I get, and what are the ads for?
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone gets 10 free AI requests a month, and they come back on the 1st. If you want more, you can choose to watch a short ad for one extra request, up to 10 more a month. Ads can also unlock a 24-hour premium theme trial or a PDF export. An ad only ever plays after you tap a button and confirm; there are no banner ads and nothing appears on its own. Premium members get unlimited AI and everything else with no ads at all.'**
+  String get settingsFaq28Answer;
+
+  /// Help screen FAQ question (Premium & AI Features).
+  ///
+  /// In en, this message translates to:
+  /// **'How do I manage my Premium purchase?'**
+  String get settingsFaq29Question;
+
+  /// Help screen FAQ answer to: How do I manage my Premium purchase?
+  ///
+  /// In en, this message translates to:
+  /// **'Premium purchases are managed through Google Play. Go to your Google Play subscription settings to view or manage your plan. Premium is available as a monthly, yearly, or one-time lifetime purchase.'**
+  String get settingsFaq29Answer;
+
+  /// Help screen FAQ section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Security'**
+  String get settingsFaqSectionPrivacySecurity;
+
+  /// Help screen FAQ question (Privacy & Security).
+  ///
+  /// In en, this message translates to:
+  /// **'How do I set up biometric lock?'**
+  String get settingsFaq30Question;
+
+  /// Help screen FAQ answer to: How do I set up biometric lock?
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Settings > Privacy & Security and enable Biometric Lock. Once enabled, you\'ll need your fingerprint or face to open the app. You can also configure an auto-lock timer so the app locks after a period of inactivity.'**
+  String get settingsFaq30Answer;
+
+  /// Help screen FAQ question (Privacy & Security).
+  ///
+  /// In en, this message translates to:
+  /// **'Is my financial data secure?'**
+  String get settingsFaq31Question;
+
+  /// Help screen FAQ answer to: Is my financial data secure?
+  ///
+  /// In en, this message translates to:
+  /// **'Yes. All your data is stored locally on your device. If you enable Cloud Sync, your data is encrypted during transfer. We never share your financial data with third parties. You can review our Privacy Policy in Settings > About.'**
+  String get settingsFaq31Answer;
+
+  /// Error when payment methods cannot be loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load payment methods'**
+  String get txnLoadPaymentMethodsFailed;
+
+  /// Error when a payment method cannot be added.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add payment method'**
+  String get txnAddPaymentMethodFailed;
+
+  /// Error when the payment method being edited no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment method not found'**
+  String get txnPaymentMethodNotFound;
+
+  /// Error when a payment method cannot be updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update payment method'**
+  String get txnUpdatePaymentMethodFailed;
+
+  /// Error when a payment method cannot be deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete payment method'**
+  String get txnDeletePaymentMethodFailed;
+
+  /// Error when transactions cannot be loaded; {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load transactions: {error}'**
+  String txnLoadFailed(String error);
+
+  /// Error when a transaction cannot be saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add transaction'**
+  String get txnAddFailed;
+
+  /// Error when a transaction cannot be saved; {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add transaction: {error}'**
+  String txnAddFailedWithError(String error);
+
+  /// Error when the transaction no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction not found'**
+  String get txnNotFound;
+
+  /// Error when a transaction cannot be updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update transaction'**
+  String get txnUpdateFailed;
+
+  /// Error when a transaction expected to be a transfer is not; {id} is its internal id.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction {id} is not a transfer'**
+  String txnNotATransfer(String id);
+
+  /// Error when a transfer cannot be updated; {error} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update transfer: {error}'**
+  String txnUpdateTransferFailed(String error);
+
+  /// Error when a transaction cannot be deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete transaction'**
+  String get txnDeleteFailed;
+
+  /// Error when transfers cannot be loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load transfers: {error}'**
+  String txnLoadTransfersFailed(String error);
+
+  /// Error when a transfer cannot be created.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create transfer: {error}'**
+  String txnCreateTransferFailed(String error);
+
+  /// Error when a transfer cannot be deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete transfer: {error}'**
+  String txnDeleteTransferFailed(String error);
+
+  /// Error when a screen's data cannot be loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load data: {error}'**
+  String txnLoadDataFailed(String error);
+
+  /// Error when an upcoming payment cannot be marked as paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to mark as paid: {error}'**
+  String txnMarkPaidFailed(String error);
+
+  /// Error when a payment cannot be marked as unpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to mark as unpaid: {error}'**
+  String txnMarkUnpaidFailed(String error);
+
+  /// Error when an upcoming transaction cannot be skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to skip transaction: {error}'**
+  String txnSkipFailed(String error);
+
+  /// Title of the repayment row when money lent comes back; {title} is the loan's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Received: {title}'**
+  String creditReceivedTitle(String title);
+
+  /// Title of the repayment row when you pay back money you borrowed; {title} is the loan's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid: {title}'**
+  String creditPaidTitle(String title);
+
+  /// Title of the row that undoes repayments of a loan; {title} is the loan's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reversed: {title}'**
+  String creditReversedTitle(String title);
+
+  /// Error when a loan cannot be marked as settled.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to mark as settled: {error}'**
+  String creditMarkSettledFailed(String error);
+
+  /// Error when a loan repayment amount is zero or less.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment amount must be positive'**
+  String get creditPaymentMustBePositive;
+
+  /// Error when a loan repayment cannot be recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to record payment: {error}'**
+  String creditRecordPaymentFailed(String error);
+
+  /// Error when a settled loan cannot be reopened.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to mark as pending: {error}'**
+  String creditMarkPendingFailed(String error);
+
+  /// Amount still owed on a loan, in the payment dialog; {amount} is formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining: {amount}'**
+  String creditRemaining(String amount);
+
+  /// Snackbar after a loan payment; {amount} is formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment of {amount} recorded'**
+  String creditPaymentRecorded(String amount);
+
+  /// Snackbar after marking money lent as collected; {title} is the loan.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as collected from \"{title}\"'**
+  String creditMarkedCollected(String title);
+
+  /// Import field: the column holding the description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get importFieldDescription;
+
+  /// Import field: a column saying whether money came in or went out.
+  ///
+  /// In en, this message translates to:
+  /// **'Type (credit/debit)'**
+  String get importFieldDirection;
+
+  /// Part of "Still needs …": a missing date column.
+  ///
+  /// In en, this message translates to:
+  /// **'a date column'**
+  String get importMissingDate;
+
+  /// Part of "Still needs …": a missing amount column.
+  ///
+  /// In en, this message translates to:
+  /// **'an amount column'**
+  String get importMissingAmount;
+
+  /// Name given to a column when the file has no titles.
+  ///
+  /// In en, this message translates to:
+  /// **'Column {index}'**
+  String importColumnN(int index);
+
+  /// Problem with an imported line: no date.
+  ///
+  /// In en, this message translates to:
+  /// **'No date'**
+  String get importNoDate;
+
+  /// Problem with an imported line; {date} is the raw text, {format} a date pattern.
+  ///
+  /// In en, this message translates to:
+  /// **'The date \"{date}\" does not match {format}'**
+  String importDateMismatch(String date, String format);
+
+  /// Used in place of a date pattern when none is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'any known format'**
+  String get importAnyKnownFormat;
+
+  /// Problem with an imported line: no amount.
+  ///
+  /// In en, this message translates to:
+  /// **'No amount'**
+  String get importNoAmount;
+
+  /// Intro on the import screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Export a CSV from your bank and open it here. The columns are worked out for you, and nothing is added until you have seen exactly what it will be.'**
+  String get importIntro;
+
+  /// Section header (all caps) for saved bank mappings.
+  ///
+  /// In en, this message translates to:
+  /// **'SAVED BANKS'**
+  String get importSavedBanks;
+
+  /// Title of the file picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a statement'**
+  String get importChooseStatement;
+
+  /// Snackbar when the chosen file is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no rows in that file.'**
+  String get importNoRows;
+
+  /// Snackbar when a saved bank mapping is applied; {name} is the bank.
+  ///
+  /// In en, this message translates to:
+  /// **'Using your saved mapping for {name}.'**
+  String importUsingSavedMapping(String name);
+
+  /// Snackbar when the file cannot be read; {error} is the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'That file could not be read: {error}'**
+  String importCouldNotRead(String error);
+
+  /// Title of the dialog that forgets a saved bank; {name} is the bank.
+  ///
+  /// In en, this message translates to:
+  /// **'Forget {name}?'**
+  String importForgetTitle(String name);
+
+  /// Body of the dialog that forgets a saved bank.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be asked to map the columns again next time.'**
+  String get importForgetBody;
+
+  /// Section header (all caps).
+  ///
+  /// In en, this message translates to:
+  /// **'COLUMNS'**
+  String get importColumnsHeader;
+
+  /// Section header (all caps).
+  ///
+  /// In en, this message translates to:
+  /// **'HOW TO READ THE VALUES'**
+  String get importHowToRead;
+
+  /// Section header (all caps).
+  ///
+  /// In en, this message translates to:
+  /// **'WHERE IT GOES'**
+  String get importWhereItGoes;
+
+  /// Section header (all caps).
+  ///
+  /// In en, this message translates to:
+  /// **'WHAT WILL BE ADDED'**
+  String get importWhatWillBeAdded;
+
+  /// Number of rows in the chosen file.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 row} other{{count} rows}}'**
+  String importRowsCount(int count);
+
+  /// Number of columns in the chosen file.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 column} other{{count} columns}}'**
+  String importColumnsCount(int count);
+
+  /// How the file separates values; {separator} is e.g. "commas".
+  ///
+  /// In en, this message translates to:
+  /// **'separated by {separator}'**
+  String importSeparatedBy(String separator);
+
+  /// Which saved bank mapping is applied; {name} is the bank.
+  ///
+  /// In en, this message translates to:
+  /// **'mapped as {name}'**
+  String importMappedAs(String name);
+
+  /// Value separator name.
+  ///
+  /// In en, this message translates to:
+  /// **'commas'**
+  String get importDelimCommas;
+
+  /// Value separator name.
+  ///
+  /// In en, this message translates to:
+  /// **'semicolons'**
+  String get importDelimSemicolons;
+
+  /// Value separator name.
+  ///
+  /// In en, this message translates to:
+  /// **'tabs'**
+  String get importDelimTabs;
+
+  /// Value separator name (the | character).
+  ///
+  /// In en, this message translates to:
+  /// **'pipes'**
+  String get importDelimPipes;
+
+  /// Under an import field that must be mapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get importRequired;
+
+  /// Under an import field left unmapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Not imported'**
+  String get importNotImported;
+
+  /// Shown when a column has no values.
+  ///
+  /// In en, this message translates to:
+  /// **'empty'**
+  String get importEmptySample;
+
+  /// Under the date format, before a date column is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date column first.'**
+  String get importPickDateColumnFirst;
+
+  /// Under the date format when the sample does not parse; {sample} is the raw value.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{sample}\" does not fit this format.'**
+  String importDateDoesNotFit(String sample);
+
+  /// Under the date format: how the sample is read; {sample} is raw, {date} formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{sample}\" reads as {date}'**
+  String importDateReadsAs(String sample, String date);
+
+  /// Decimal point option: detected automatically.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from the file'**
+  String get importDecimalAuto;
+
+  /// Decimal point option: a full stop.
+  ///
+  /// In en, this message translates to:
+  /// **'A full stop, as in 1,234.56'**
+  String get importDecimalFullStop;
+
+  /// Decimal point option: a comma.
+  ///
+  /// In en, this message translates to:
+  /// **'A comma, as in 1.234,56'**
+  String get importDecimalComma;
+
+  /// Subtitle of the skip-duplicates switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches on the day, the amount and the description, so re-importing an overlapping statement does not double anything'**
+  String get importDuplicatesHint;
+
+  /// Warning when the mapping is incomplete; {item} is e.g. "a date column".
+  ///
+  /// In en, this message translates to:
+  /// **'Still needs {item}.'**
+  String importStillNeeds(String item);
+
+  /// Warning when two things are missing; {first} and {second} are e.g. "a date column".
+  ///
+  /// In en, this message translates to:
+  /// **'Still needs {first} and {second}.'**
+  String importStillNeedsBoth(String first, String second);
+
+  /// Warning when no row can be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this file can be read with these settings. Check the date format and which column holds the amount.'**
+  String get importNothingReadable;
+
+  /// Number of transactions that will be imported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction} other{{count} transactions}}'**
+  String importTransactionsCount(int count);
+
+  /// Total coming in, in the import preview; {amount} is formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} in'**
+  String importAmountIn(String amount);
+
+  /// Total going out, in the import preview; {amount} is formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} out'**
+  String importAmountOut(String amount);
+
+  /// After a shortened list.
+  ///
+  /// In en, this message translates to:
+  /// **'and {count} more'**
+  String importAndMore(int count);
+
+  /// Heading of the list of lines that cannot be imported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 line will be skipped} other{{count} lines will be skipped}}'**
+  String importLinesSkipped(int count);
+
+  /// Line in the import confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 line will be skipped.} other{{count} lines will be skipped.}}'**
+  String importLinesSkippedSentence(int count);
+
+  /// One unreadable line; {line} is its number, {problem} the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Line {line}: {problem}'**
+  String importLineProblem(int line, String problem);
+
+  /// Import button when there is no account.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an account first'**
+  String get importAddAccountFirst;
+
+  /// Import button.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Import 1 transaction} other{Import {count} transactions}}'**
+  String importImportCount(int count);
+
+  /// Title of the import confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Import 1 transaction?} other{Import {count} transactions?}}'**
+  String importConfirmTitle(int count);
+
+  /// First line of the import confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'They are added to your records and uploaded on the next sync.'**
+  String get importConfirmBody;
+
+  /// Line in the import confirmation when duplicates are skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything already here on the same day, for the same amount and description, is left alone.'**
+  String get importConfirmDuplicates;
+
+  /// Snackbar when the import fails; {error} is the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'The import failed: {error}'**
+  String importFailed(String error);
+
+  /// Title of the import result dialog; {count} is how many were added.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {count}'**
+  String importImportedTitle(int count);
+
+  /// Import result line.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} were already here and were left alone.'**
+  String importSkippedDuplicates(int count);
+
+  /// Import result line.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 line could not be read.} other{{count} lines could not be read.}}'**
+  String importUnreadableLines(int count);
+
+  /// Import result line; {names} is a comma-separated list.
+  ///
+  /// In en, this message translates to:
+  /// **'New categories: {names}.'**
+  String importNewCategories(String names);
+
+  /// Import result line; {names} is a comma-separated list of account names.
+  ///
+  /// In en, this message translates to:
+  /// **'These account names had nothing here to match, so their rows went to the account you chose: {names}.'**
+  String importUnmatchedAccounts(String names);
+
+  /// Body of the remember-this-bank dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'The next file with these same columns will be mapped this way without asking.'**
+  String get importRememberBody;
+
+  /// Snackbar when a file without column titles is saved as a bank.
+  ///
+  /// In en, this message translates to:
+  /// **'A file with no column titles cannot be recognised again, so there is nothing to match on.'**
+  String get importNoHeaderCannotSave;
+
+  /// Snackbar after saving a bank mapping.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. Files with these columns will use it from now on.'**
+  String get importTemplateSaved;
+
+  /// Error when a transfer is from and to the same account.
+  ///
+  /// In en, this message translates to:
+  /// **'Source and destination wallets must be different'**
+  String get txnTransferSameWallet;
+
+  /// Error when a transfer amount is zero or less.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer amount must be positive'**
+  String get txnTransferAmountPositive;
+
+  /// Error when a transfer fee is below zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer fee cannot be negative'**
+  String get txnTransferFeeNegative;
+
+  /// Error when the account a transfer leaves from is missing; {id} is its internal id.
+  ///
+  /// In en, this message translates to:
+  /// **'Source wallet not found: {id}'**
+  String txnSourceWalletNotFound(String id);
+
+  /// Error when the account a transfer goes to is missing; {id} is its internal id.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination wallet not found: {id}'**
+  String txnDestinationWalletNotFound(String id);
+
+  /// Default title given to a new transfer; {from} and {to} are account names.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer: {from} → {to}'**
+  String txnTransferTitle(String from, String to);
+
+  /// Error when one of the two accounts of a transfer is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Both wallets must exist to transfer between them (source: {source}, destination: {destination}).'**
+  String txnTransferWalletsMissing(String source, String destination);
+
+  /// Error when a different received amount is given for a same-currency transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'A transfer within one currency moves one figure: {source} and {destination} are both in {currency}, so the amount received cannot differ.'**
+  String txnTransferSameCurrencyReceived(
+    String source,
+    String destination,
+    String currency,
+  );
+
+  /// Error when no exchange rate is known for a cross-currency transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'No rate is known between {from} and {to}, so enter what actually landed in {destination}.'**
+  String txnTransferNoRate(String from, String to, String destination);
+
+  /// Error when the amount received in a cross-currency transfer is zero or less.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount received has to be more than zero. Enter what actually landed in {destination}.'**
+  String txnTransferReceivedPositive(String destination);
+
+  /// Title of the expense recorded for a transfer fee; {title} is the transfer title.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee: {title}'**
+  String txnFeeTitle(String title);
+
+  /// Error when a transaction is missing; {id} is its internal id.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction not found: {id}'**
+  String txnNotFoundWithId(String id);
+
+  /// Error when editing a transfer that has no other half.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction is not a transfer (no paired transaction)'**
+  String get txnNotATransferNoPair;
+
+  /// Error when the other half of a transfer is missing; {id} is its internal id.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired transaction {id} not found; refusing to edit half a transfer.'**
+  String txnPairedNotFound(String id);
+
+  /// Error when an account is missing; {id} is its internal id.
+  ///
+  /// In en, this message translates to:
+  /// **'No such account: {id}'**
+  String walletNoSuchAccount(String id);
+
+  /// Title of the transaction that records a balance correction.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance correction'**
+  String get walletCorrectionTitle;
+
+  /// Note on a balance correction; {name} is the account name.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjusted {name} to match its real balance.'**
+  String walletCorrectionNote(String name);
+
+  /// Error when trying to merge an account into itself.
+  ///
+  /// In en, this message translates to:
+  /// **'An account cannot be merged into itself.'**
+  String get walletMergeIntoItself;
+
+  /// Error when one of the two accounts of a merge is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Both accounts must exist to merge them.'**
+  String get walletMergeBothMustExist;
+
+  /// Error when two accounts in different currencies cannot be merged for lack of a rate.
+  ///
+  /// In en, this message translates to:
+  /// **'No rate is known between {from} and {to}, so these accounts cannot be merged yet.'**
+  String walletMergeNoRate(String from, String to);
+
+  /// Title of the correction recorded when a merge leaves a rate difference.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge adjustment'**
+  String get walletMergeAdjustmentTitle;
+
+  /// Note on a merge adjustment; {name} is the merged account.
+  ///
+  /// In en, this message translates to:
+  /// **'The rate a transfer between these accounts was made at differs from the rate {name} was merged at. This records the difference so the total is unchanged.'**
+  String walletMergeAdjustmentNote(String name);
+
+  /// Split bill error: no total entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount of the bill.'**
+  String get splitErrNoTotal;
+
+  /// Split bill error: nobody to split with.
+  ///
+  /// In en, this message translates to:
+  /// **'Add someone to split it with.'**
+  String get splitErrNoPeople;
+
+  /// Split bill error: the payer is not one of the people; {name} is the payer.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is not in on the bill.'**
+  String splitErrPayerNotOnBill(String name);
+
+  /// Split bill error: someone else paid and the user had no share.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone else paid and you had none of it, so there is nothing to record.'**
+  String get splitErrNothingToRecord;
+
+  /// Split bill error: the user's own amount is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Give your own share.'**
+  String get splitErrGiveOwnShare;
+
+  /// Split bill error: a person's amount is missing; {name} is the person.
+  ///
+  /// In en, this message translates to:
+  /// **'Give {name}\'s share.'**
+  String splitErrGiveShare(String name);
+
+  /// Split bill error: a share below zero.
+  ///
+  /// In en, this message translates to:
+  /// **'A share cannot be negative.'**
+  String get splitErrNegativeShare;
+
+  /// Split bill error: amounts do not add up to the bill; {sum} and {total} are amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'The shares add up to {sum}, not {total}.'**
+  String splitErrSharesSum(String sum, String total);
+
+  /// Split bill error: percentages do not add up to 100; {sum} is a number.
+  ///
+  /// In en, this message translates to:
+  /// **'The percentages add up to {sum}%, not 100%.'**
+  String splitErrPercentSum(String sum);
+
+  /// Split bill error: a name is too long.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep names under 100 characters.'**
+  String get splitErrNameTooLong;
+
+  /// Split bill error: the same person twice; {name} is the person.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is on the bill twice.'**
+  String splitErrDuplicateName(String name);
+
+  /// Split bill error: the title is too long.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the title under 200 characters.'**
+  String get splitErrTitleTooLong;
+
+  /// Split bill error: no valid account chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the account it was paid from.'**
+  String get splitErrChooseAccount;
+
+  /// Split bill error: the account chosen is a managed kind (e.g. a goal).
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an ordinary account.'**
+  String get splitErrOrdinaryAccount;
+
+  /// Split bill error: the user's share is zero when someone else paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share is nothing, so there is nothing owed.'**
+  String get splitErrYourShareNothing;
+
+  /// Split bill error: every share is zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Every share is nothing.'**
+  String get splitErrEveryShareNothing;
+
+  /// Frequency of a repeating transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get recurringDaily;
+
+  /// Frequency: every N days (N is 2 or more).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Every day} other{Every {count} days}}'**
+  String recurringEveryDays(int count);
+
+  /// Frequency: every N weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Every week} other{Every {count} weeks}}'**
+  String recurringEveryWeeks(int count);
+
+  /// Frequency: every N months.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Every month} other{Every {count} months}}'**
+  String recurringEveryMonths(int count);
+
+  /// Frequency: every N years.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Every year} other{Every {count} years}}'**
+  String recurringEveryYears(int count);
+
+  /// Frequency with an unknown unit; {unit} is the raw unit name.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {count} {unit}'**
+  String recurringEveryOther(int count, String unit);
+
+  /// Name shown for a repeating transaction that has no title.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring Transaction'**
+  String get recurringUntitled;
+
+  /// When the next repeat is due, in days (2 to 6).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{In 1 day} other{In {count} days}}'**
+  String recurringInDays(int count);
+
+  /// When the next repeat is due: 7 to 13 days away.
+  ///
+  /// In en, this message translates to:
+  /// **'Next week'**
+  String get recurringNextWeek;
+
+  /// When the next repeat is due, in weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{In 1 week} other{In {count} weeks}}'**
+  String recurringInWeeks(int count);
+
+  /// Kind of payment method: a bank card.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get txnPmKindCard;
+
+  /// Kind of payment method: a phone wallet app (e.g. bKash, PayPal).
+  ///
+  /// In en, this message translates to:
+  /// **'Digital wallet'**
+  String get txnPmKindDigitalWallet;
+
+  /// Empty state on the payment methods screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the cards and accounts you pay with, and you can pick one on a transaction.'**
+  String get txnPmEmptyHint;
+
+  /// Body of the dialog that deletes a payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions already filed against it keep their record. They simply stop naming a payment method.'**
+  String get txnPmDeleteBody;
+
+  /// Title of the dialog that adds a payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'New payment method'**
+  String get txnPmNew;
+
+  /// Title of the dialog that edits a payment method.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit payment method'**
+  String get txnPmEdit;
+
+  /// Footer under the recently deleted list.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted transactions are kept for thirty days, then removed for good.'**
+  String get txnRecentlyDeletedFooter;
+
+  /// Shown when a category cannot be found.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get txnUnknownCategory;
+
+  /// Subtitle of a title rule: how it matches, then the category it files into.
+  ///
+  /// In en, this message translates to:
+  /// **'{match} → {category}'**
+  String txnRuleSubtitle(String match, String category);
+
+  /// A title rule that matches the exact title.
+  ///
+  /// In en, this message translates to:
+  /// **'Exactly this'**
+  String get txnRuleExactly;
+
+  /// A title rule that matches any title containing the text.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything containing this'**
+  String get txnRuleContaining;
+
+  /// Footer under the title rules list.
+  ///
+  /// In en, this message translates to:
+  /// **'A rule matches anywhere in the title unless you make it exact. The app adds one for you each time you file something by hand.'**
+  String get txnRulesFooter;
+
+  /// Empty state on the title rules screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Teach the app where something belongs once, and it files it that way from then on.'**
+  String get txnRulesEmptyHint;
+
+  /// Title of the dialog that adds a title rule.
+  ///
+  /// In en, this message translates to:
+  /// **'New rule'**
+  String get txnRuleNew;
+
+  /// Title of the dialog that edits a title rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit rule'**
+  String get txnRuleEdit;
+
+  /// Helper under the exact-match switch, when on.
+  ///
+  /// In en, this message translates to:
+  /// **'Only titles that are exactly this'**
+  String get txnRuleExactHint;
+
+  /// Helper under the exact-match switch, when off.
+  ///
+  /// In en, this message translates to:
+  /// **'Any title containing it'**
+  String get txnRuleContainingHint;
+
+  /// Kind of a transaction on its detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer between accounts'**
+  String get txnKindTransfer;
+
+  /// Kind of a transaction made by a repeating schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'From a repeating entry'**
+  String get txnKindRecurring;
+
+  /// Kind of transaction: income.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in'**
+  String get txnMoneyIn;
+
+  /// Kind of transaction: expense.
+  ///
+  /// In en, this message translates to:
+  /// **'Money out'**
+  String get txnMoneyOut;
+
+  /// State of a transaction that has not been paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet paid'**
+  String get txnNotYetPaid;
+
+  /// Heading of the loan progress card for money lent.
+  ///
+  /// In en, this message translates to:
+  /// **'Lent out'**
+  String get txnLentOut;
+
+  /// Loan progress when fully repaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled in full.'**
+  String get txnSettledInFull;
+
+  /// Loan progress; {paid} is repaid so far, {owed} is still owed. Both are formatted amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{paid} back, {owed} still owed.'**
+  String txnLoanProgress(String paid, String owed);
+
+  /// Category shown for a transaction with none.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorised'**
+  String get txnUncategorised;
+
+  /// Account shown when it cannot be found.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get txnUnknownAccount;
+
+  /// Snackbar when trying to duplicate one leg of a transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'A transfer cannot be copied on its own.'**
+  String get txnTransferCannotCopy;
+
+  /// Snackbar after a transaction is duplicated.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied.'**
+  String get txnCopied;
+
+  /// Body of the dialog that deletes one transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'The account balance is recalculated. If this is one leg of a transfer, the other half goes with it.'**
+  String get txnDeleteOneBody;
+
+  /// Tab on the upcoming screen with the number of upcoming payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming ({count})'**
+  String txnUpcomingTab(int count);
+
+  /// Tab on the upcoming screen with the number of overdue payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue ({count})'**
+  String txnOverdueTab(int count);
+
+  /// Empty state title: no overdue payments.
+  ///
+  /// In en, this message translates to:
+  /// **'No overdue transactions'**
+  String get txnNoOverdue;
+
+  /// Empty state title: no upcoming payments.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming transactions'**
+  String get txnNoUpcoming;
+
+  /// Empty state message: no overdue payments.
+  ///
+  /// In en, this message translates to:
+  /// **'All your payments are up to date!'**
+  String get txnNoOverdueBody;
+
+  /// Empty state message: no upcoming payments.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no pending payments scheduled'**
+  String get txnNoUpcomingBody;
+
+  /// Label over the total of overdue payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Overdue'**
+  String get txnTotalOverdue;
+
+  /// Label over the total of upcoming payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Upcoming'**
+  String get txnTotalUpcoming;
+
+  /// Number of items in a list.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
+  String txnItemsCount(int count);
+
+  /// How many days a payment is overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day overdue} other{{count} days overdue}}'**
+  String txnDaysOverdue(int count);
+
+  /// Snackbar after marking a payment as paid; {title} is its title.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked \"{title}\" as paid'**
+  String txnMarkedPaid(String title);
+
+  /// Snackbar after skipping a payment; {title} is its title.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped \"{title}\"'**
+  String txnSkippedTitle(String title);
+
+  /// Day header in a list; {date} is a short date.
+  ///
+  /// In en, this message translates to:
+  /// **'Today, {date}'**
+  String txnDateHeaderToday(String date);
+
+  /// Day header in a list; {date} is a short date.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday, {date}'**
+  String txnDateHeaderYesterday(String date);
+
+  /// Day header in a list; {date} is a short date.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow, {date}'**
+  String txnDateHeaderTomorrow(String date);
+
+  /// Snackbar when a transaction cannot be deleted; {error} is the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting transaction: {error}'**
+  String txnDeleteError(String error);
+
+  /// Title of the filter sheet; {title} is Income or Expenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter {title}'**
+  String txnFilterTitle(String title);
+
+  /// Heading of the monthly total card on the income screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Income'**
+  String get txnMonthlyIncome;
+
+  /// Heading of the monthly total card on the expenses screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Expenses'**
+  String get txnMonthlyExpenses;
+
+  /// Word under a transaction count (the number is shown separately above).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{transaction} other{transactions}}'**
+  String txnStatTransactions(int count);
+
+  /// Label under the average amount per transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'avg per transaction'**
+  String get txnAvgPerTransaction;
+
+  /// Empty state for a future month on the income screen.
+  ///
+  /// In en, this message translates to:
+  /// **'No planned income'**
+  String get txnNoPlannedIncome;
+
+  /// Empty state for a future month on the expenses screen.
+  ///
+  /// In en, this message translates to:
+  /// **'No planned expenses'**
+  String get txnNoPlannedExpenses;
+
+  /// Empty state hint; {month} is a month and year.
+  ///
+  /// In en, this message translates to:
+  /// **'Add future income for {month}'**
+  String txnAddFutureIncome(String month);
+
+  /// Empty state hint; {month} is a month and year.
+  ///
+  /// In en, this message translates to:
+  /// **'Add future expenses for {month}'**
+  String txnAddFutureExpenses(String month);
+
+  /// Empty state for the current month on the income screen.
+  ///
+  /// In en, this message translates to:
+  /// **'No income yet this month'**
+  String get txnNoIncomeYet;
+
+  /// Empty state for the current month on the expenses screen.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses yet this month'**
+  String get txnNoExpensesYet;
+
+  /// Empty state hint on the income screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tracking your income this month'**
+  String get txnStartTrackingIncome;
+
+  /// Empty state hint on the expenses screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tracking your expenses this month'**
+  String get txnStartTrackingExpenses;
+
+  /// Empty state for a past month; {month} is a month name.
+  ///
+  /// In en, this message translates to:
+  /// **'No income in {month}'**
+  String txnNoIncomeIn(String month);
+
+  /// Empty state for a past month; {month} is a month name.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses in {month}'**
+  String txnNoExpensesIn(String month);
+
+  /// Empty state hint for a past month; {month} is a month and year.
+  ///
+  /// In en, this message translates to:
+  /// **'No records for {month}'**
+  String txnNoRecordsFor(String month);
+
+  /// Fallback category name when none can be found.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get txnOtherCategory;
+
+  /// Search field hint on the income screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Search income'**
+  String get txnSearchIncome;
+
+  /// Search field hint on the expenses screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Search expenses'**
+  String get txnSearchExpenses;
+
+  /// Generic error snackbar; {error} is the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String txnErrorWith(String error);
+
+  /// Hint under the amount on the transaction form, when an amount is set.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to edit amount'**
+  String get txnTapToEditAmount;
+
+  /// Hint under the amount on the transaction form, when empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to enter amount'**
+  String get txnTapToEnterAmount;
+
+  /// Chip for an ordinary (not special) transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get txnSpecialDefault;
+
+  /// Chip for a transaction that repeats on a schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Repetitive'**
+  String get txnSpecialRepetitive;
+
+  /// Heading of the repeat options section.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat Settings'**
+  String get txnRepeatSettings;
+
+  /// Heading of the subscription options section.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Settings'**
+  String get txnSubscriptionSettings;
+
+  /// When a subscription ends; {date} is a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends: {date}'**
+  String txnEndsOn(String date);
+
+  /// Shown when a subscription has no end date.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get txnNoEndDate;
+
+  /// Title of the transaction form when editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Transaction'**
+  String get txnEditTransaction;
+
+  /// Title of the transaction form when adding.
+  ///
+  /// In en, this message translates to:
+  /// **'New Transaction'**
+  String get txnNewTransaction;
+
+  /// Label of the source account on a transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'From account'**
+  String get txnFromAccount;
+
+  /// Label of the destination account on a transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'To account'**
+  String get txnToAccount;
+
+  /// Heading of the received-amount box on a cross-currency transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount received'**
+  String get txnAmountReceived;
+
+  /// Hint on a cross-currency transfer; {account} is the destination account.
+  ///
+  /// In en, this message translates to:
+  /// **'These accounts count in different currencies. Enter what actually landed in {account}, or leave it blank to use the app\'s rate.'**
+  String txnAmountReceivedHint(String account);
+
+  /// Label of the received amount; {currency} is a currency code.
+  ///
+  /// In en, this message translates to:
+  /// **'In {currency}'**
+  String txnInCurrency(String currency);
+
+  /// Hint of the title field on a transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Move to savings (optional)'**
+  String get txnTransferTitleHint;
+
+  /// Hint of the title field on a transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'What was it for?'**
+  String get txnTitleHint;
+
+  /// Save button when editing a transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get txnUpdate;
+
+  /// Title of the category picker sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Select category'**
+  String get txnSelectCategory;
+
+  /// Hint of the transaction search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search transactions'**
+  String get txnSearchTransactions;
+
+  /// Special type: an ordinary transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular'**
+  String get txnSpecialRegular;
+
+  /// Special type: money lent to someone.
+  ///
+  /// In en, this message translates to:
+  /// **'Lend'**
+  String get txnSpecialLend;
+
+  /// Special type: money borrowed from someone.
+  ///
+  /// In en, this message translates to:
+  /// **'Borrow'**
+  String get txnSpecialBorrow;
+
+  /// Description of an ordinary transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal transaction'**
+  String get txnSpecialRegularDesc;
+
+  /// Description of an upcoming transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Future payment to track'**
+  String get txnSpecialUpcomingDesc;
+
+  /// Description of a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring service payment'**
+  String get txnSpecialSubscriptionDesc;
+
+  /// Description of a repeating transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeating transaction'**
+  String get txnSpecialRepetitiveDesc;
+
+  /// Description of money lent.
+  ///
+  /// In en, this message translates to:
+  /// **'Money you lent (they owe you)'**
+  String get txnSpecialLendDesc;
+
+  /// Description of money borrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Money you borrowed (you owe them)'**
+  String get txnSpecialBorrowDesc;
+
+  /// Warning in the filter sheet when the minimum amount is above the maximum; {min} and {max} are amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'The lower bound is above the upper one, so nothing can match. {min} to {max}.'**
+  String txnFilterBoundsInverted(String min, String max);
+
+  /// Default name suggested for the first account.
+  ///
+  /// In en, this message translates to:
+  /// **'My Wallet'**
+  String get walletMyWallet;
+
+  /// Snackbar when an account cannot be created; {error} is the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create wallet: {error}'**
+  String walletCreateFailed(String error);
+
+  /// Account type.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Account'**
+  String get walletTypeBankAccount;
+
+  /// Account type.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Card'**
+  String get walletTypeCreditCard;
+
+  /// Account type.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get walletTypeSubscription;
+
+  /// Account type: a fixed deposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit'**
+  String get walletTypeDeposit;
+
+  /// Account type.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment'**
+  String get walletTypeInvestment;
+
+  /// Account type: something owned, like a car or house.
+  ///
+  /// In en, this message translates to:
+  /// **'Asset'**
+  String get walletTypeAsset;
+
+  /// Validation error on the account name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter an account name'**
+  String get walletEnterAccountName;
+
+  /// Validation error on the credit limit field.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit limit is required'**
+  String get walletCreditLimitRequired;
+
+  /// Validation error on the credit limit field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid credit limit'**
+  String get walletEnterValidCreditLimit;
+
+  /// Validation error on the credit limit field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid credit limit greater than 0'**
+  String get walletEnterValidCreditLimitAboveZero;
+
+  /// Title of the account form when editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Wallet'**
+  String get walletEditWallet;
+
+  /// Title of the account form when adding.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Wallet'**
+  String get walletAddNewWallet;
+
+  /// Validation error on the wallet name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a wallet name'**
+  String get walletEnterWalletNameError;
+
+  /// Validation error on a number field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number'**
+  String get walletEnterValidNumber;
+
+  /// Subtitle of the decimals switch, when on.
+  ///
+  /// In en, this message translates to:
+  /// **'Show cents (e.g., \$1,234.56)'**
+  String get walletShowCents;
+
+  /// Subtitle of the decimals switch, when off.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole numbers only (e.g., \$1,235)'**
+  String get walletWholeNumbersOnly;
+
+  /// Button that creates an account.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Wallet'**
+  String get walletCreateWallet;
+
+  /// Pill on a closed account.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed. Its history is kept, but it is not offered or counted.'**
+  String get walletClosedPill;
+
+  /// Pill on an account left out of the total.
+  ///
+  /// In en, this message translates to:
+  /// **'Left out of the total across accounts.'**
+  String get walletExcludedPill;
+
+  /// Action that reopens a closed account.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen'**
+  String get walletReopen;
+
+  /// Action that closes an account.
+  ///
+  /// In en, this message translates to:
+  /// **'Close account'**
+  String get walletCloseAccount;
+
+  /// Subtitle of the reopen action.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer it again and count it'**
+  String get walletReopenSubtitle;
+
+  /// Subtitle of the close action.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep its history, stop counting it'**
+  String get walletCloseAccountSubtitle;
+
+  /// Action that counts an account in the total again.
+  ///
+  /// In en, this message translates to:
+  /// **'Include in the total'**
+  String get walletIncludeInTotal;
+
+  /// Action that leaves an account out of the total.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave out of the total'**
+  String get walletLeaveOutOfTotal;
+
+  /// Snackbar when the entered balance equals the current one.
+  ///
+  /// In en, this message translates to:
+  /// **'That is already the balance.'**
+  String get walletAlreadyTheBalance;
+
+  /// Snackbar after a balance correction.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded the difference as a correction.'**
+  String get walletCorrectionRecorded;
+
+  /// Body of the merge confirmation, same currency; {name} is the account being merged away.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything filed against {name} moves across, and {name} is closed. Nothing is deleted.'**
+  String walletMergeConfirmBody(String name);
+
+  /// Body of the merge confirmation across currencies; {name} is the account being merged away, {from} and {to} are currency codes.
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts are converted from {from} to {to} as they move. Nothing is deleted, and {name} is closed rather than removed.'**
+  String walletMergeConfirmBodyConverted(String name, String from, String to);
+
+  /// Credit card summary when the card is in credit; {amount} and {available} are amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} in credit · {available} available'**
+  String walletCardInCredit(String amount, String available);
+
+  /// Credit card summary when money is owed; {amount} and {available} are amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} owed · {available} still available'**
+  String walletCardOwed(String amount, String available);
+
+  /// Body of the correct-balance dialog; {name} is the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what {name} really holds. The difference is recorded as a transaction, so the account still adds up to its own history.'**
+  String walletCorrectBalanceBody(String name);
+
+  /// Shown when the server refuses this old app version (HTTP 426).
+  ///
+  /// In en, this message translates to:
+  /// **'Update The Accountant to keep syncing. Everything stays on this phone until you do.'**
+  String get apiUpdateRequired;
+
+  /// Sign-in error: an account with this email already exists and must be linked.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this email already exists. Please link your accounts.'**
+  String get apiAccountExistsLink;
+
+  /// Error when the server fails (HTTP 5xx).
+  ///
+  /// In en, this message translates to:
+  /// **'Our server is having trouble right now. Everything is safe on this phone; try again in a few minutes.'**
+  String get apiServerTrouble;
+
+  /// Generic error with the HTTP status code.
+  ///
+  /// In en, this message translates to:
+  /// **'Request failed (HTTP {status}).'**
+  String apiRequestFailedHttp(String status);
+
+  /// Error when the server takes too long.
+  ///
+  /// In en, this message translates to:
+  /// **'Our server took too long to answer. Check your connection, or try again in a few minutes.'**
+  String get apiServerTimeout;
+
+  /// Error when the server cannot be reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot reach our server. Check your connection; if you are online, try again in a few minutes.'**
+  String get apiCannotReachServer;
+
+  /// Generic error talking to the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong talking to our server. Please try again.'**
+  String get apiSomethingWentWrong;
+
+  /// A sync was requested while one is already running.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync already in progress'**
+  String get syncAlreadyInProgress;
+
+  /// Sync error for free users.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync requires Premium subscription'**
+  String get syncRequiresPremium;
+
+  /// Sync error when offline.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection'**
+  String get syncNoInternet;
+
+  /// Sync error when not signed in.
+  ///
+  /// In en, this message translates to:
+  /// **'Not authenticated'**
+  String get syncNotAuthenticated;
+
+  /// Restore error when the cloud data could not be downloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not fetch your cloud data. Local data is unchanged.'**
+  String get syncCouldNotFetchCloud;
+
+  /// Sync error when the signed-in account cannot be determined.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not determine the signed-in account; sync cancelled.'**
+  String get syncAccountUnknown;
+
+  /// Sync refused because the local data belongs to another account.
+  ///
+  /// In en, this message translates to:
+  /// **'This device\'s data belongs to a different account. Sign in as that account, or clear the local data, before syncing.'**
+  String get syncStoreOtherAccount;
+
+  /// Partial sync: one cloud record could not be applied. {record} is technical detail (table, id, reason).
+  ///
+  /// In en, this message translates to:
+  /// **'Some cloud records could not be saved on this device: {record}. They will be retried on the next sync.'**
+  String syncRecordsNotSaved(String record);
+
+  /// Partial sync: several cloud records could not be applied. {record} is the first one (technical detail), {count} how many more.
+  ///
+  /// In en, this message translates to:
+  /// **'Some cloud records could not be saved on this device: {record} (and {count} more). They will be retried on the next sync.'**
+  String syncRecordsNotSavedMore(String record, int count);
+
+  /// Notification title: a credit card's statement was generated.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} statement is ready'**
+  String notifCardStatementReady(String name);
+
+  /// Notification body: the statement total, already paid.
+  ///
+  /// In en, this message translates to:
+  /// **'It came to {amount}, already paid. Nothing more is due.'**
+  String notifCardStatementPaid(String amount);
+
+  /// Notification body: amount due by a date.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is due by {date}.'**
+  String notifCardDueBy(String amount, String date);
+
+  /// Appended to a card bill reminder: how much is already paid.
+  ///
+  /// In en, this message translates to:
+  /// **'{paid} of {owed} is already paid.'**
+  String notifCardPaidSoFar(String paid, String owed);
+
+  /// Notification title: a card bill is due tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} bill is due tomorrow'**
+  String notifCardDueTomorrow(String name);
+
+  /// Notification title: a card bill is due in some days (always 2 or more).
+  ///
+  /// In en, this message translates to:
+  /// **'{name} bill is due in {days} days'**
+  String notifCardDueInDays(String name, int days);
+
+  /// Reminder body: pay an amount by a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount} by {date}.'**
+  String notifPayBy(String amount, String date);
+
+  /// Notification title: a card bill is due today.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} bill is due today'**
+  String notifCardDueToday(String name);
+
+  /// Notification body on a card bill's due day. {paidSoFar} is either empty or a leading space plus a sentence saying how much is already paid.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is still unpaid.{paidSoFar} Paying today avoids a late fee.'**
+  String notifCardStillUnpaid(String amount, String paidSoFar);
+
+  /// Inserted into plan reminder titles ('X matures today').
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get notifWhenToday;
+
+  /// Inserted into plan reminder titles ('X matures tomorrow').
+  ///
+  /// In en, this message translates to:
+  /// **'tomorrow'**
+  String get notifWhenTomorrow;
+
+  /// Inserted into plan reminder titles ('X matures in 3 days').
+  ///
+  /// In en, this message translates to:
+  /// **'in {days} days'**
+  String notifWhenInDays(int days);
+
+  /// Notification title: an insurance plan pays out. {when} is today / tomorrow / in N days.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} pays out {when}'**
+  String notifPlanPaysOut(String name, String when);
+
+  /// Notification body: insurance payout to an account on a date.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is due to {account} on {date}.'**
+  String notifPlanPayoutBody(String amount, String account, String date);
+
+  /// Notification title: a deposit plan matures. {when} is today / tomorrow / in N days.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} matures {when}'**
+  String notifPlanMatures(String name, String when);
+
+  /// Notification body: maturity amount returns to an account on a date.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} comes back to {account} on {date}.'**
+  String notifPlanMaturityBody(String amount, String account, String date);
+
+  /// Notification title for a plan installment. kind: dps = deposit, insurance = premium, sip = SIP, other = installment. {when} is today / tomorrow / in N days.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {kind, select, dps{deposit} insurance{premium} sip{SIP} other{installment}} {number} of {total} due {when}'**
+  String notifPlanInstallmentDue(
+    String name,
+    String kind,
+    int number,
+    int total,
+    String when,
+  );
+
+  /// Reminder body: invest an amount by a date (SIP paid by hand).
+  ///
+  /// In en, this message translates to:
+  /// **'Invest {amount} by {date}.'**
+  String notifInvestBy(String amount, String date);
+
+  /// Reminder body: an automatic SIP will invest from an account on a date.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} will be invested from {account} on {date}.'**
+  String notifWillBeInvested(String amount, String account, String date);
+
+  /// Reminder body: an automatic installment will be recorded from an account on a date.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} will be recorded from {account} on {date}.'**
+  String notifWillBeRecorded(String amount, String account, String date);
+
+  /// Fallback account name in a plan reminder when the account is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'your account'**
+  String get notifYourAccount;
+
+  /// Inbox entry title after plan installments were recorded automatically.
+  ///
+  /// In en, this message translates to:
+  /// **'EMI and savings updated'**
+  String get notifPlansUpdatedTitle;
+
+  /// Inbox entry body: how many plan entries were recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 plan entry recorded on its day.} other{{count} plan entries recorded on their day.}}'**
+  String notifPlansUpdatedBody(int count);
+
+  /// Inbox entry title after recurring transactions were recorded automatically.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring transactions recorded'**
+  String get notifRecurringRecordedTitle;
+
+  /// Inbox entry body: how many recurring transactions were recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 recurring transaction recorded.} other{{count} recurring transactions recorded.}}'**
+  String notifRecurringRecordedBody(int count);
+
+  /// Notification title: scheduled payments waiting for the user to confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 payment to confirm} other{{count} payments to confirm}}'**
+  String notifPaymentsToConfirmTitle(int count);
+
+  /// Notification body for payments waiting for confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm what was charged, or skip it, in Upcoming.'**
+  String get notifPaymentsToConfirmBody;
+
+  /// Notification body for payments waiting for confirmation, starting with their names.
+  ///
+  /// In en, this message translates to:
+  /// **'{names} — confirm what was charged, or skip it, in Upcoming.'**
+  String notifPaymentsToConfirmBodyNames(String names);
+
+  /// Name used for an upcoming transaction without a title.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Transaction'**
+  String get notifUpcomingFallbackTitle;
+
+  /// Notification title for an upcoming transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming: {title}'**
+  String notifUpcomingTitle(String title);
+
+  /// Notification body: an upcoming income is due soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Income of {amount} is due soon.'**
+  String notifUpcomingIncomeBody(String amount);
+
+  /// Notification body: an upcoming expense is due soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense of {amount} is due soon.'**
+  String notifUpcomingExpenseBody(String amount);
+
+  /// Name used for a credit (money lent) without a title.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit'**
+  String get notifCreditFallback;
+
+  /// Name used for a debt (money borrowed) without a title.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt'**
+  String get notifDebtFallback;
+
+  /// Notification title: a credit (money lent) is overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue Credit: {title}'**
+  String notifOverdueCreditTitle(String title);
+
+  /// Notification title: a debt (money borrowed) is overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue Debt: {title}'**
+  String notifOverdueDebtTitle(String title);
+
+  /// Notification body for an overdue loan.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is still outstanding. Tap to review.'**
+  String notifOutstandingBody(String amount);
+
+  /// Name used for a recurring transaction without a title.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring Transaction'**
+  String get notifRecurringFallbackTitle;
+
+  /// Notification title for an upcoming recurring transaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Recurring: {title}'**
+  String notifUpcomingRecurringTitle(String title);
+
+  /// Notification body: an amount due on a date.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} due on {date}.'**
+  String notifDueOnBody(String amount, String date);
+
+  /// Notification title: a credit (money lent) is due.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Due: {title}'**
+  String notifCreditDueTitle(String title);
+
+  /// Notification title: a debt (money borrowed) is due.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt Due: {title}'**
+  String notifDebtDueTitle(String title);
+
+  /// Notification title: a subscription payment is due.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Due: {title}'**
+  String notifSubscriptionDueTitle(String title);
+
+  /// Notification title: a repeating bill is due.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill Due: {title}'**
+  String notifBillDueTitle(String title);
+
+  /// Notification title: a transaction is due soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Due Soon: {title}'**
+  String notifDueSoonTitle(String title);
+
+  /// Name used for a repeating bill without a title.
+  ///
+  /// In en, this message translates to:
+  /// **'Repetitive Bill'**
+  String get notifRepetitiveBillFallback;
+
+  /// Notification body: an amount is due soon.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is due soon. Tap to review.'**
+  String notifDueSoonBody(String amount);
+
+  /// Android notification channel name (shown in system settings).
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring Transactions'**
+  String get notifChannelRecurring;
+
+  /// Android notification channel description.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications for auto-created recurring transactions'**
+  String get notifChannelRecurringDesc;
+
+  /// Android notification channel name.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Reminders'**
+  String get notifChannelUpcoming;
+
+  /// Android notification channel description.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders for upcoming transactions'**
+  String get notifChannelUpcomingDesc;
+
+  /// Android notification channel name.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan Reminders'**
+  String get notifChannelLoan;
+
+  /// Android notification channel description.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders for overdue credits and debts'**
+  String get notifChannelLoanDesc;
+
+  /// Android notification channel name.
+  ///
+  /// In en, this message translates to:
+  /// **'Due Date Reminders'**
+  String get notifChannelDueDate;
+
+  /// Android notification channel description.
+  ///
+  /// In en, this message translates to:
+  /// **'One-off reminders for specific transaction due dates'**
+  String get notifChannelDueDateDesc;
+
+  /// Android notification channel description for card bills and plan installments.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card bills and plan installments coming due'**
+  String get notifChannelBillsDesc;
+
+  /// Reminder timing option.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour before'**
+  String get notifOffset1Hour;
+
+  /// Reminder timing option.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day before'**
+  String get notifOffset1Day;
+
+  /// Reminder timing option.
+  ///
+  /// In en, this message translates to:
+  /// **'3 days before'**
+  String get notifOffset3Days;
+
+  /// Reminder timing option.
+  ///
+  /// In en, this message translates to:
+  /// **'1 week before'**
+  String get notifOffset1Week;
+
+  /// Reminder timing option in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} minutes before'**
+  String notifOffsetMinutes(int minutes);
+
+  /// Android notification channel name.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get notifChannelGeneral;
+
+  /// Android notification channel description.
+  ///
+  /// In en, this message translates to:
+  /// **'Account and app notifications'**
+  String get notifChannelGeneralDesc;
+
+  /// Android notification channel name.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminders'**
+  String get notifChannelReminders;
+
+  /// Android notification channel description.
+  ///
+  /// In en, this message translates to:
+  /// **'A nudge to log the day\'s spending'**
+  String get notifChannelRemindersDesc;
+
+  /// Android notification channel description for card bills.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card statements and due dates'**
+  String get notifChannelBillsStatementsDesc;
+
+  /// Android notification channel name, also a heading in the notification permission sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget alerts'**
+  String get notifChannelBudgets;
+
+  /// Android notification channel description.
+  ///
+  /// In en, this message translates to:
+  /// **'When a budget is nearly or fully spent'**
+  String get notifChannelBudgetsDesc;
+
+  /// Notification title: a budget is exceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Over budget: {name}'**
+  String notifOverBudgetTitle(String name);
+
+  /// Notification title: a budget is nearly spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget alert: {name}'**
+  String notifBudgetAlertTitle(String name);
+
+  /// Notification body: percentage spent of an exceeded budget.
+  ///
+  /// In en, this message translates to:
+  /// **'You have spent {percent}% of your {name} budget for this period.'**
+  String notifOverBudgetBody(String percent, String name);
+
+  /// Notification body: percentage used of a budget.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used {percent}% of your {name} budget.'**
+  String notifBudgetAlertBody(String percent, String name);
+
+  /// Notification title: Premium is about to expire.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium is ending soon'**
+  String get notifPremiumEndingTitle;
+
+  /// Notification body: Premium ends tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Premium ends tomorrow. Renew to keep your Premium features.'**
+  String get notifPremiumEndsTomorrow;
+
+  /// Notification body: Premium ends in some days (2 or more).
+  ///
+  /// In en, this message translates to:
+  /// **'Your Premium ends in {days} days. Renew to keep your Premium features.'**
+  String notifPremiumEndsInDays(int days);
+
+  /// Notification title for a large income.
+  ///
+  /// In en, this message translates to:
+  /// **'Large Income Alert'**
+  String get notifLargeIncomeTitle;
+
+  /// Notification title for a large expense.
+  ///
+  /// In en, this message translates to:
+  /// **'Large Expense Alert'**
+  String get notifLargeExpenseTitle;
+
+  /// Notification body for a large income with its title.
+  ///
+  /// In en, this message translates to:
+  /// **'Income of {amount} recorded: {title}'**
+  String notifLargeIncomeBodyTitled(String amount, String title);
+
+  /// Notification body for a large income without a title.
+  ///
+  /// In en, this message translates to:
+  /// **'Income of {amount} recorded'**
+  String notifLargeIncomeBody(String amount);
+
+  /// Notification body for a large expense with its title.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense of {amount} recorded: {title}'**
+  String notifLargeExpenseBodyTitled(String amount, String title);
+
+  /// Notification body for a large expense without a title.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense of {amount} recorded'**
+  String notifLargeExpenseBody(String amount);
+
+  /// Android notification channel description for the daily reminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily expense reminder notifications'**
+  String get notifChannelDailyRemindersDesc;
+
+  /// Daily reminder notification title.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Expense Reminder'**
+  String get notifDailyReminderTitle;
+
+  /// Daily reminder notification body.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget to log your expenses today! Keep track of your spending.'**
+  String get notifDailyReminderBody;
+
+  /// Title of the test notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Notification'**
+  String get notifTestTitle;
+
+  /// Body of the test notification.
+  ///
+  /// In en, this message translates to:
+  /// **'If you see this, notifications are working!'**
+  String get notifTestBody;
+
+  /// Notification action button: snooze for one day. Keep very short.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze 1d'**
+  String get notifActionSnooze1Day;
+
+  /// Notification action button: snooze for one week. Keep very short.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze 1w'**
+  String get notifActionSnooze1Week;
+
+  /// Notification inbox group header.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get notifGroupThisWeek;
+
+  /// Notification inbox group header.
+  ///
+  /// In en, this message translates to:
+  /// **'This Month'**
+  String get notifGroupThisMonth;
+
+  /// Notification detail: a date (Today / Yesterday / d/m/y) at a time.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} at {time}'**
+  String notifDateAtTime(String date, String time);
+
+  /// Short relative time on a notification.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String notifMinutesAgo(int count);
+
+  /// Short relative time on a notification.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String notifHoursAgo(int count);
+
+  /// Short relative time on a notification.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String notifDaysAgo(int count);
+
+  /// Body of the notification permission sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications and we\'ll give you a heads-up on the things that matter.'**
+  String get notifPrimerSheetBody;
+
+  /// Notification permission sheet: budget alerts benefit.
+  ///
+  /// In en, this message translates to:
+  /// **'Know before you overspend a budget.'**
+  String get notifPrimerBudgetsBody;
+
+  /// Notification permission sheet: benefit heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill & subscription reminders'**
+  String get notifPrimerBillsTitle;
+
+  /// Notification permission sheet: benefit text.
+  ///
+  /// In en, this message translates to:
+  /// **'Never miss a recurring payment.'**
+  String get notifPrimerBillsBody;
+
+  /// Notification permission sheet: benefit heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Large transactions'**
+  String get notifPrimerLargeTitle;
+
+  /// Notification permission sheet: benefit text.
+  ///
+  /// In en, this message translates to:
+  /// **'Get notified about unusual activity.'**
+  String get notifPrimerLargeBody;
+
+  /// Error on the notification inbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load notifications'**
+  String get notifLoadFailed;
+
+  /// Recovery screen reason: startup failed unexpectedly.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong while starting up. Your data is safe on this device.'**
+  String get startupReasonSomethingWrong;
+
+  /// Recovery screen reason: the account's local data could not be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the local data for this account.'**
+  String get startupReasonCouldNotOpenLocal;
+
+  /// Recovery screen reason: preparing the local data failed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not finish setting up this account on this device. Nothing has been deleted.'**
+  String get startupReasonSetupFailed;
+
+  /// Recovery screen reason: offline and no local data yet.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t reach your account, and this device doesn\'t have its data yet. If you\'ve used The Accountant before, connect to the internet and we\'ll bring your data back. New here? You can start on this device now.'**
+  String get startupReasonOffline;
+
+  /// Recovery screen reason: cloud data needs an active subscription to restore.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has data saved in the cloud. Restoring it needs an active subscription. Nothing has been deleted.'**
+  String get startupReasonNeedsSubscription;
+
+  /// Recovery screen reason: still checking the subscription before restoring.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has data in the cloud. We are still confirming your subscription so it can be restored.'**
+  String get startupReasonConfirmingSubscription;
+
+  /// Recovery screen reason: the restore threw an error.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore failed: {error}'**
+  String startupReasonRestoreFailed(String error);
+
+  /// Recovery screen reason: cloud data exists but nothing came down.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has data in the cloud but it could not be restored yet.'**
+  String get startupReasonNotRestoredYet;
+
+  /// Shown in the system fingerprint/face prompt when unlocking the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Authenticate to unlock The Accountant'**
+  String get commonBiometricReason;
+
+  /// Error loading the currency list.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load currencies'**
+  String get commonLoadCurrenciesFailed;
+
+  /// Error loading exchange rates.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load exchange rates'**
+  String get commonLoadRatesFailed;
+
+  /// Error refreshing exchange rates.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to refresh exchange rates'**
+  String get commonRefreshRatesFailed;
+
+  /// Budget scope label when a budget covers every category.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get commonAllCategories;
+
+  /// Budget scope label: number of categories (2 or more).
+  ///
+  /// In en, this message translates to:
+  /// **'{count} categories'**
+  String commonCategoryCount(int count);
+
+  /// Subscription tier name.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get commonTierFree;
+
+  /// Subscription tier name.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Monthly'**
+  String get commonTierMonthly;
+
+  /// Subscription tier name.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Yearly'**
+  String get commonTierYearly;
+
+  /// Subscription tier name.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Lifetime'**
+  String get commonTierLifetime;
+
+  /// Error when merging a category into itself.
+  ///
+  /// In en, this message translates to:
+  /// **'A category cannot be merged into itself.'**
+  String get commonCategoryMergeSelf;
+
+  /// Error when one of the categories to merge is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'Both categories must exist to merge them.'**
+  String get commonCategoryMergeMissing;
+
+  /// Error: the app's built-in categories cannot be merged.
+  ///
+  /// In en, this message translates to:
+  /// **'The app\'s own categories cannot be merged.'**
+  String get commonCategoryMergeSystem;
+
+  /// Error: an income and a spending category cannot be merged.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and spending categories cannot be merged.'**
+  String get commonCategoryMergeKinds;
+
+  /// Error: categories can only be one level deep.
+  ///
+  /// In en, this message translates to:
+  /// **'That category is inside another one, and categories are one level deep.'**
+  String get commonCategoryOneLevel;
+
+  /// Error when moving transactions into the same category.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a different category to move them to.'**
+  String get commonCategoryMoveSame;
+
+  /// Error when one of the categories is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'Both categories must exist to move between them.'**
+  String get commonCategoryMoveMissing;
+
+  /// Error: transactions cannot be moved into or out of built-in categories.
+  ///
+  /// In en, this message translates to:
+  /// **'The app\'s own categories cannot be moved between.'**
+  String get commonCategoryMoveSystem;
+
+  /// Error: income and spending transactions cannot swap categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and spending transactions cannot swap categories.'**
+  String get commonCategoryMoveKinds;
+
+  /// Error: the category was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'That category no longer exists.'**
+  String get commonCategoryGone;
+
+  /// Error: built-in categories cannot be moved under another.
+  ///
+  /// In en, this message translates to:
+  /// **'The app\'s own categories cannot be moved.'**
+  String get commonCategoryParentSystem;
+
+  /// Error: a category cannot be its own parent.
+  ///
+  /// In en, this message translates to:
+  /// **'A category cannot sit inside itself.'**
+  String get commonCategoryParentSelf;
+
+  /// Error: nothing can be placed inside built-in categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing can be filed inside the app\'s own categories.'**
+  String get commonCategoryParentIntoSystem;
+
+  /// Error: an income category and a spending one cannot be nested.
+  ///
+  /// In en, this message translates to:
+  /// **'An income category and a spending one cannot be nested.'**
+  String get commonCategoryParentKinds;
+
+  /// Error: a category with subcategories must stay at the top level.
+  ///
+  /// In en, this message translates to:
+  /// **'This category has subcategories of its own, so it stays at the top level.'**
+  String get commonCategoryHasChildren;
+
+  /// Color picker hint when a color is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to change'**
+  String get commonTapToChange;
+
+  /// Color picker hint when no color is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Select color'**
+  String get commonSelectColor;
+
+  /// Color picker tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Show palette'**
+  String get commonShowPalette;
+
+  /// Color picker tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom color'**
+  String get commonCustomColor;
+
+  /// Currency picker placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Select currency'**
+  String get commonSelectCurrency;
+
+  /// Currency search empty state hint. Quotes the toggle label.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable \'Include crypto currencies\' to search crypto tokens.'**
+  String get commonEnableCryptoHint;
+
+  /// Default placeholder of a search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search...'**
+  String get commonSearchHint;
+
+  /// Error loading the AI coach chat list.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load conversations.'**
+  String get aiLoadConversationsFailed;
+
+  /// Error loading one chat's messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load chat history.'**
+  String get aiLoadHistoryFailed;
+
+  /// Error when the AI assistant needs Premium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium subscription required for AI Assistant'**
+  String get aiPremiumRequired;
+
+  /// Generic AI chat error.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred. Please try again.'**
+  String get aiUnexpectedError;
+
+  /// Error when the AI did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to get AI response. Please try again.'**
+  String get aiResponseFailed;
+
+  /// Coach error when the AI service does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI service is not answering.'**
+  String get aiServiceNotAnswering;
+
+  /// Coach error when the streamed reply ended early.
+  ///
+  /// In en, this message translates to:
+  /// **'The reply was cut off. Please try again.'**
+  String get aiReplyCutOff;
+
+  /// Coach error when offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the server. Check your connection and try again.'**
+  String get aiCouldNotReachServer;
+
+  /// Generic coach error.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong.'**
+  String get aiSomethingWentWrong;
+
+  /// Error opening a saved chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to open conversation.'**
+  String get aiOpenConversationFailed;
+
+  /// Coach notice: the confirmed change(s) were saved but the coach's reply after it failed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Your change was saved, but the coach could not finish its reply. Check it in your records before asking again.} other{Your {count} changes were saved, but the coach could not finish its reply. Check them in your records before asking again.}}'**
+  String aiChangesSavedReplyLost(int count);
+
+  /// Coach notice when the reply failed for an unknown reason.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI service is not answering right now. Please try again.'**
+  String get aiServiceNotAnsweringNow;
+
+  /// Very short age of a chat in the chat list (minutes).
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m'**
+  String aiMinutesShort(int count);
+
+  /// Very short age of a chat in the chat list (hours).
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h'**
+  String aiHoursShort(int count);
+
+  /// Very short age of a chat in the chat list (days).
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d'**
+  String aiDaysShort(int count);
+
+  /// Receipt scanner error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to extract text from image'**
+  String get aiOcrTextFailed;
+
+  /// Receipt scanner error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to extract receipt data from image'**
+  String get aiOcrReceiptFailed;
+
+  /// Value in the coach's confirmation card (e.g. auto-collect: yes).
+  ///
+  /// In en, this message translates to:
+  /// **'yes'**
+  String get coachYes;
+
+  /// Value in the coach's confirmation card (e.g. auto-collect: no).
+  ///
+  /// In en, this message translates to:
+  /// **'no'**
+  String get coachNo;
+
+  /// Investment trade type in the coach's confirmation card title ('Fund name: buy').
+  ///
+  /// In en, this message translates to:
+  /// **'buy'**
+  String get coachTradeBuy;
+
+  /// Investment trade type in the coach's confirmation card title ('Fund name: sell').
+  ///
+  /// In en, this message translates to:
+  /// **'sell'**
+  String get coachTradeSell;
+
+  /// Investment trade type in the coach's confirmation card title ('Fund name: dividend').
+  ///
+  /// In en, this message translates to:
+  /// **'dividend'**
+  String get coachTradeDividend;
+
+  /// Error when the paying account of a plan was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'That account no longer exists.'**
+  String get planAccountGone;
+
+  /// Error: a plan cannot be paid from a deposit/managed account.
+  ///
+  /// In en, this message translates to:
+  /// **'A plan is paid from an ordinary account, not from a deposit.'**
+  String get planPaidFromOrdinary;
+
+  /// Error: a SIP plan needs an investment to buy.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the fund or share the SIP buys.'**
+  String get planSipChooseHolding;
+
+  /// Error: a SIP cannot be paid from the investment's own account.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay for the SIP from another account.'**
+  String get planSipPayFromOther;
+
+  /// Error: the plan has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the plan a name.'**
+  String get planNeedNameError;
+
+  /// Error: number of installments out of range.
+  ///
+  /// In en, this message translates to:
+  /// **'The number of installments must be 1 to 1200.'**
+  String get planInstallmentCountRange;
+
+  /// Error: interval below 1.
+  ///
+  /// In en, this message translates to:
+  /// **'The interval must be at least 1.'**
+  String get planIntervalMin;
+
+  /// Error: interest rate out of range.
+  ///
+  /// In en, this message translates to:
+  /// **'The rate must be between 0 and 100 percent.'**
+  String get planRateRange;
+
+  /// Error: tax rate out of range.
+  ///
+  /// In en, this message translates to:
+  /// **'The tax must be between 0 and 100 percent.'**
+  String get planTaxRange;
+
+  /// Error: provider name or reference number too long.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the company and number under 100 characters.'**
+  String get planProviderTooLong;
+
+  /// Error: insurance plan has no premium amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the premium.'**
+  String get planNeedPremium;
+
+  /// Error: plan has no installment amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount of each installment.'**
+  String get planNeedInstallmentAmount;
+
+  /// Error: fixed deposit or bond has no amount deposited.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount deposited.'**
+  String get planNeedDeposited;
+
+  /// Error: a fixed deposit's term must be in months or years, not weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'It runs for months or years.'**
+  String get planTermMonthsOrYears;
+
+  /// Error: loan amount is negative.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount cannot be negative.'**
+  String get planAmountNotNegative;
+
+  /// Error when taking a maturity before its date. {date} is a date.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} matures on {date}. To take the money out before then, close it early.'**
+  String planMaturesOnCloseEarly(String name, String date);
+
+  /// Error: the plan was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'That plan no longer exists.'**
+  String get planNoLongerExists;
+
+  /// Error: reminder days before out of range.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders can be 0 (off) to 30 days before.'**
+  String get planReminderDaysRange;
+
+  /// Error when deleting a deposit plan that still has money. {account} is an account name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} still holds money. Close it first, which moves the money back to {account}.'**
+  String planStillHoldsMoney(String name, String account);
+
+  /// Fallback for an account name when the account is gone, used inside planStillHoldsMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'its account'**
+  String get planItsAccount;
+
+  /// Error: the plan has already ended.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has already ended.'**
+  String planAlreadyEnded(String name);
+
+  /// Error: investment has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the investment a name.'**
+  String get investNeedName;
+
+  /// Error: name over 100 characters.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the name under 100 characters.'**
+  String get investNameTooLong;
+
+  /// Error: ticker symbol over 20 characters.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the symbol under 20 characters.'**
+  String get investSymbolTooLong;
+
+  /// Error: negative price.
+  ///
+  /// In en, this message translates to:
+  /// **'A price cannot be negative.'**
+  String get investPriceNotNegative;
+
+  /// Error: an investment or asset with this name is already tracked.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is already tracked.'**
+  String investAlreadyTracked(String name);
+
+  /// Error: buy amount missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what was paid.'**
+  String get investNeedPaid;
+
+  /// Error: units bought must be positive.
+  ///
+  /// In en, this message translates to:
+  /// **'Units bought must be more than zero.'**
+  String get investUnitsBoughtPositive;
+
+  /// Error: cannot pay for an investment from its own account.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay for it from another account.'**
+  String get investPayFromOther;
+
+  /// Error: sale amount missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what the sale brought in.'**
+  String get investNeedSaleAmount;
+
+  /// Error: units sold must be positive.
+  ///
+  /// In en, this message translates to:
+  /// **'Units sold must be more than zero.'**
+  String get investUnitsSoldPositive;
+
+  /// Error: sale proceeds must go to another account.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell into another account.'**
+  String get investSellIntoOther;
+
+  /// Error: trying to sell more units than held. {units} is a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {units} units of {name} are held.'**
+  String investOnlyUnitsHeld(String units, String name);
+
+  /// Error: dividend amount missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the dividend received.'**
+  String get investNeedDividend;
+
+  /// Error: dividend must go into an ordinary account.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive it into an ordinary account.'**
+  String get investReceiveIntoOrdinary;
+
+  /// Error: price must be positive.
+  ///
+  /// In en, this message translates to:
+  /// **'A price must be more than zero.'**
+  String get investPricePositive;
+
+  /// Error: units must be positive.
+  ///
+  /// In en, this message translates to:
+  /// **'Units must be more than zero.'**
+  String get investUnitsPositive;
+
+  /// Error: the transaction is not a buy or sell of an investment.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a trade of an investment.'**
+  String get investNotATrade;
+
+  /// Error when deleting an investment that still has units.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} still holds units. Sell them first.'**
+  String investStillHoldsUnits(String name);
+
+  /// Error: the investment was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'That investment no longer exists.'**
+  String get investNoLongerExists;
+
+  /// Error: asset has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the asset a name.'**
+  String get networthNeedAssetName;
+
+  /// Error: negative asset value.
+  ///
+  /// In en, this message translates to:
+  /// **'A value cannot be negative.'**
+  String get networthValueNotNegative;
+
+  /// Error: purchase price of an asset missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what was paid for it.'**
+  String get networthNeedPaidFor;
+
+  /// Error: an asset must be paid from an ordinary account.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay for it from an ordinary account.'**
+  String get networthPayFromOrdinary;
+
+  /// Error: asset value missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what it is worth.'**
+  String get networthNeedWorth;
+
+  /// Error: sale price of an asset missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter what it was sold for.'**
+  String get networthNeedSoldFor;
+
+  /// Error: sale proceeds must go into an ordinary account.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive the money into an ordinary account.'**
+  String get networthReceiveIntoOrdinary;
+
+  /// Error when deleting an asset that still has value.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is still worth something. Sell it, or set its value to zero, first.'**
+  String networthStillWorth(String name);
+
+  /// Error: the asset is closed or deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'That asset is no longer tracked.'**
+  String get networthAssetGone;
+
+  /// Error: zakat payment amount missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount paid.'**
+  String get zakatNeedAmountPaid;
+
+  /// Error: zakat must be paid from an ordinary account.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay it from an ordinary account.'**
+  String get zakatPayFromOrdinary;
+
+  /// Notification title on the zakat date.
+  ///
+  /// In en, this message translates to:
+  /// **'Your zakat is due today'**
+  String get zakatReminderTitleToday;
+
+  /// Notification title a few days before the zakat date.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Zakat due in 1 day} other{Zakat due in {count} days}}'**
+  String zakatReminderTitleIn(int count);
+
+  /// Notification body on the zakat date.
+  ///
+  /// In en, this message translates to:
+  /// **'Your zakat year completes today. Tap to see what is due.'**
+  String get zakatReminderBodyToday;
+
+  /// Notification body a few days before the zakat date. {date} is like 'Friday, Mar 6'.
+  ///
+  /// In en, this message translates to:
+  /// **'Your zakat year completes on {date}. Tap to see what is due.'**
+  String zakatReminderBodyOn(String date);
+
+  /// Error state when checking budgets for alerts failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to check budgets'**
+  String get budgetCheckFailed;
+
+  /// Error state when budgets fail to load.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load budgets'**
+  String get budgetLoadFailed;
+
+  /// Error when adding a budget failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add budget'**
+  String get budgetAddFailed;
+
+  /// Error: the budget being edited was not found.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget not found'**
+  String get budgetNotFound;
+
+  /// Error when updating a budget failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update budget'**
+  String get budgetUpdateFailed;
+
+  /// Error when deleting a budget failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete budget'**
+  String get budgetDeleteFailed;
+
+  /// Title of the budget form when editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit budget'**
+  String get budgetEdit;
+
+  /// Validation: budget name empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the budget a name'**
+  String get budgetNeedName;
+
+  /// Validation: amount field empty or invalid (budget and goal forms).
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount'**
+  String get budgetEnterAmount;
+
+  /// Validation: budget amount must be positive.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount must be more than zero'**
+  String get budgetAmountMoreThanZero;
+
+  /// Section label: this budget tracks income.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking earnings'**
+  String get budgetTrackingEarnings;
+
+  /// Section label: this budget tracks spending.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking spending'**
+  String get budgetTrackingSpending;
+
+  /// Section label for how a budget repeats.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats'**
+  String get budgetRepeats;
+
+  /// Validation: repeat interval over 999.
+  ///
+  /// In en, this message translates to:
+  /// **'Too big'**
+  String get budgetTooBig;
+
+  /// Section label for budget start date.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get budgetStarts;
+
+  /// Section label for a one-off budget's end date.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get budgetEnds;
+
+  /// Section label for when a repeating budget stops.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops repeating'**
+  String get budgetStopsRepeating;
+
+  /// Shown when a budget has no end date.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get budgetNever;
+
+  /// Budget form: no categories selected means all.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories: all of them'**
+  String get budgetCategoriesAll;
+
+  /// Budget form: number of categories selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories: {count} selected'**
+  String budgetCategoriesSelected(int count);
+
+  /// Budget form: there are no income categories.
+  ///
+  /// In en, this message translates to:
+  /// **'No income categories yet.'**
+  String get budgetNoIncomeCategories;
+
+  /// Budget form: there are no expense categories.
+  ///
+  /// In en, this message translates to:
+  /// **'No expense categories yet.'**
+  String get budgetNoExpenseCategories;
+
+  /// Budget form hint under the category chips.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to watch every category. Anything filed inside a chosen category counts toward it too.'**
+  String get budgetCategoriesHint;
+
+  /// Budget form: no accounts selected means all.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts: all of them'**
+  String get budgetAccountsAll;
+
+  /// Budget form: number of accounts selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts: {count} selected'**
+  String budgetAccountsSelected(int count);
+
+  /// Subtitle of the carry-over switch on the budget form.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything unspent is added to the next period. Going over does not carry a debt forward.'**
+  String get budgetRolloverHint;
+
+  /// Repeat option: daily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get budgetPeriodDaily;
+
+  /// Repeat option: every two weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'Fortnightly'**
+  String get budgetPeriodFortnightly;
+
+  /// Repeat option: a single custom span.
+  ///
+  /// In en, this message translates to:
+  /// **'One-off'**
+  String get budgetPeriodOneOff;
+
+  /// Unit after 'Every [n]' on the budget form.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get budgetUnitDays;
+
+  /// Unit after 'Every [n]' on the budget form.
+  ///
+  /// In en, this message translates to:
+  /// **'weeks'**
+  String get budgetUnitWeeks;
+
+  /// Unit after 'Every [n]' on the budget form.
+  ///
+  /// In en, this message translates to:
+  /// **'fortnights'**
+  String get budgetUnitFortnights;
+
+  /// Unit after 'Every [n]' on the budget form.
+  ///
+  /// In en, this message translates to:
+  /// **'months'**
+  String get budgetUnitMonths;
+
+  /// Unit after 'Every [n]' on the budget form.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get budgetUnitYears;
+
+  /// Message: a one-off budget has no end date.
+  ///
+  /// In en, this message translates to:
+  /// **'A one-off budget needs an end date.'**
+  String get budgetOneOffNeedsEnd;
+
+  /// Message: budget end date is not after its start date.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date has to come after the start date.'**
+  String get budgetEndAfterStart;
+
+  /// Message when saving a budget fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the budget.'**
+  String get budgetSaveFailed;
+
+  /// Budget detail: the current period.
+  ///
+  /// In en, this message translates to:
+  /// **'This period'**
+  String get budgetThisPeriod;
+
+  /// Budget detail: how many periods back is shown.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 period ago} other{{count} periods ago}}'**
+  String budgetPeriodsAgo(int count);
+
+  /// A date range, start and end are formatted dates.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} to {end}'**
+  String budgetDateRange(String start, String end);
+
+  /// Under the spent amount: 'of' the budget limit.
+  ///
+  /// In en, this message translates to:
+  /// **'of {limit}'**
+  String budgetOfLimit(String limit);
+
+  /// Under the spent amount: the limit including money carried over from the last period.
+  ///
+  /// In en, this message translates to:
+  /// **'of {limit} including {carried} carried over'**
+  String budgetOfLimitCarried(String limit, String carried);
+
+  /// Budget detail: spending without a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorised'**
+  String get budgetUncategorised;
+
+  /// Budget detail: amount over the limit.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over the limit.'**
+  String budgetOverTheLimit(String amount);
+
+  /// Budget detail: amount left and a daily allowance.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left, about {daily} a day.'**
+  String budgetLeftPerDay(String left, String daily);
+
+  /// Budget detail: amount left.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left.'**
+  String budgetLeftPlain(String left);
+
+  /// Budget detail: average spending per period.
+  ///
+  /// In en, this message translates to:
+  /// **'Averaging {amount} a period.'**
+  String budgetAveraging(String amount);
+
+  /// Budget forecast warning title.
+  ///
+  /// In en, this message translates to:
+  /// **'Heading for {amount} over'**
+  String budgetHeadingOver(String amount);
+
+  /// Budget forecast explanation, counting payments already scheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'At this rate, and counting {scheduled} already scheduled before the period ends.'**
+  String budgetForecastScheduled(String scheduled);
+
+  /// Budget forecast explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'At this rate, by the end of the period.'**
+  String get budgetForecastPlain;
+
+  /// Explains category caps when a budget has none.
+  ///
+  /// In en, this message translates to:
+  /// **'A budget says whether the period is overspent. A cap says where: a food budget on track overall can still be mostly takeaway.'**
+  String get budgetCapsExplain;
+
+  /// Cap form field label: a percentage of the budget.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent of budget'**
+  String get budgetPercentOfBudget;
+
+  /// Budget list title when showing archived budgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived budgets'**
+  String get budgetArchivedTitle;
+
+  /// Tooltip: switch the list back to active items.
+  ///
+  /// In en, this message translates to:
+  /// **'Show active'**
+  String get budgetShowActive;
+
+  /// Tooltip: switch the list to archived items.
+  ///
+  /// In en, this message translates to:
+  /// **'Show archived'**
+  String get budgetShowArchived;
+
+  /// Budget menu: unpin from the top.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get budgetUnpin;
+
+  /// Budget menu: pin to the top of the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin to top'**
+  String get budgetPinToTop;
+
+  /// Budget menu subtitle for Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Start counting it again'**
+  String get budgetStartCounting;
+
+  /// Budget menu subtitle for Archive.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep its history, stop counting it'**
+  String get budgetStopCounting;
+
+  /// Confirmation body when deleting a budget.
+  ///
+  /// In en, this message translates to:
+  /// **'The budget goes, your transactions stay. Nothing you have recorded is removed.'**
+  String get budgetDeleteBody;
+
+  /// Empty state title when nothing is archived (budgets or goals).
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing archived'**
+  String get budgetNothingArchived;
+
+  /// Empty state title on the budget list.
+  ///
+  /// In en, this message translates to:
+  /// **'No budgets yet'**
+  String get budgetNoneYet;
+
+  /// Empty state message for archived budgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets you archive are kept here.'**
+  String get budgetArchivedEmptyHint;
+
+  /// Empty state message on the budget list.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a limit for a category and see how the month is going.'**
+  String get budgetEmptyHint;
+
+  /// Home error when financial data fails to load. {error} is technical detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load financial data: {error}'**
+  String dashLoadFailed(String error);
+
+  /// Name shown for a category that cannot be found.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get categoryUnknown;
+
+  /// Credit card tile on home: credit available.
+  ///
+  /// In en, this message translates to:
+  /// **'Available: {amount}'**
+  String dashCardAvailable(String amount);
+
+  /// Credit card tile on home: the card is in credit, and credit available.
+  ///
+  /// In en, this message translates to:
+  /// **'In credit · Available: {amount}'**
+  String dashCardInCreditAvailable(String amount);
+
+  /// Short account type badge on home cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get dashTypeBank;
+
+  /// Short account type badge on home cards: credit card.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit'**
+  String get dashTypeCredit;
+
+  /// Short account type badge on home cards: subscriptions account.
+  ///
+  /// In en, this message translates to:
+  /// **'Subs'**
+  String get dashTypeSubs;
+
+  /// Short account type badge on home cards: deposit (DPS/FDR) account.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit'**
+  String get dashTypeDeposit;
+
+  /// Short account type badge on home cards: investment account.
+  ///
+  /// In en, this message translates to:
+  /// **'Invest'**
+  String get dashTypeInvest;
+
+  /// Short account type badge on home cards: asset.
+  ///
+  /// In en, this message translates to:
+  /// **'Asset'**
+  String get dashTypeAsset;
+
+  /// Tile at the end of the home account cards. Keep the line break.
+  ///
+  /// In en, this message translates to:
+  /// **'Add\nAccount'**
+  String get dashAddAccountTile;
+
+  /// Error state when categories fail to load.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load categories'**
+  String get categoryLoadFailed;
+
+  /// Error when adding a category failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to add category'**
+  String get categoryAddFailed;
+
+  /// Error: the category being edited was not found.
+  ///
+  /// In en, this message translates to:
+  /// **'Category not found'**
+  String get categoryNotFound;
+
+  /// Error when updating a category failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update category'**
+  String get categoryUpdateFailed;
+
+  /// Error: built-in categories cannot be deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot delete the app\'s own categories'**
+  String get categoryCannotDeleteSystem;
+
+  /// Error: a category that still has transactions cannot be deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot delete a category with transactions; move or delete them first'**
+  String get categoryCannotDeleteWithTransactions;
+
+  /// Error when deleting a category failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete category'**
+  String get categoryDeleteFailed;
+
+  /// Snackbar when saving a category fails. {error} is technical detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save category: {error}'**
+  String categorySaveFailed(String error);
+
+  /// Category form title when editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Category'**
+  String get categoryEditTitle;
+
+  /// Category form title when creating.
+  ///
+  /// In en, this message translates to:
+  /// **'New Category'**
+  String get categoryNewTitle;
+
+  /// Category form section: which parent category it sits in.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of'**
+  String get categoryPartOf;
+
+  /// Preview text before a category name is typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Name'**
+  String get categoryNamePlaceholder;
+
+  /// Save button when editing a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Category'**
+  String get categoryUpdate;
+
+  /// Save button when creating a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Category'**
+  String get categoryCreate;
+
+  /// Error when reports fail to load. {error} is technical detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load reports: {error}'**
+  String reportLoadFailed(String error);
+
+  /// Goal form title when editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit goal'**
+  String get goalEdit;
+
+  /// Validation: goal name empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the goal a name'**
+  String get goalNeedName;
+
+  /// Validation: goal target must be positive.
+  ///
+  /// In en, this message translates to:
+  /// **'The target must be more than zero'**
+  String get goalTargetMoreThanZero;
+
+  /// Shown when a goal has no target date.
+  ///
+  /// In en, this message translates to:
+  /// **'No deadline'**
+  String get goalNoDeadline;
+
+  /// Message: goal target date is not after its start date.
+  ///
+  /// In en, this message translates to:
+  /// **'The target date has to come after the start date.'**
+  String get goalTargetDateAfterStart;
+
+  /// Message when saving a goal fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the goal.'**
+  String get goalSaveFailed;
+
+  /// Goal list title when showing archived goals.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived goals'**
+  String get goalArchivedTitle;
+
+  /// Goal menu: stop showing it on the home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide from home'**
+  String get goalHideFromHome;
+
+  /// Goal menu: show it on the home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on home'**
+  String get goalShowOnHome;
+
+  /// Goal list: the goal is reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Reached'**
+  String get goalReached;
+
+  /// Goal list: amount still to save.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} to go'**
+  String goalToGo(String amount);
+
+  /// Empty state title on the goal list.
+  ///
+  /// In en, this message translates to:
+  /// **'No goals yet'**
+  String get goalNoneYet;
+
+  /// Empty state message for archived goals.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals you archive are kept here.'**
+  String get goalArchivedEmptyHint;
+
+  /// Empty state message on the goal list.
+  ///
+  /// In en, this message translates to:
+  /// **'Name something you are saving for, then link the transactions that go toward it.'**
+  String get goalEmptyHint;
+
+  /// Goal list: saved so far out of the target.
+  ///
+  /// In en, this message translates to:
+  /// **'{saved} of {target}'**
+  String goalSavedOfTarget(String saved, String target);
+
+  /// Goal detail: under the saved amount, 'of' the target.
+  ///
+  /// In en, this message translates to:
+  /// **'of {target}'**
+  String goalOfTarget(String target);
+
+  /// Goal detail when the goal is reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Reached. Nicely done.'**
+  String get goalReachedNicelyDone;
+
+  /// Goal detail: amount still to save.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} still to go.'**
+  String goalStillToGo(String amount);
+
+  /// Goal detail: how much to save each day to reach the goal on time.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a day to arrive on time.'**
+  String goalDailyToArrive(String amount);
+
+  /// Goal detail when no transactions are linked yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing linked yet. Pick this goal on a transaction and it will show up here.'**
+  String get goalNothingLinked;
+
+  /// Confirmation body when deleting a goal.
+  ///
+  /// In en, this message translates to:
+  /// **'The goal goes, your transactions stay. They are simply no longer counted toward it.'**
+  String get goalDeleteBody;
+
+  /// Goal plan: number of payments and the size of each.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 payment of {amount}} other{{count} payments of {amount}}}'**
+  String goalPaymentsOf(int count, String amount);
+
+  /// Goal plan: when the goal will be reached. {date} is a formatted date.
+  ///
+  /// In en, this message translates to:
+  /// **'Finishing around {date}.'**
+  String goalFinishingAround(String date);
+
+  /// Error: a goal could not be found. {id} is an internal id.
+  ///
+  /// In en, this message translates to:
+  /// **'Objective not found: {id}'**
+  String goalNotFound(String id);
+
+  /// A loan objective is fully paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid off!'**
+  String get goalPaidOff;
+
+  /// A goal is complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed!'**
+  String get goalCompleted;
+
+  /// Progress of a goal. {percent} is a whole number.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% complete'**
+  String goalPercentComplete(String percent);
+
+  /// Time left on a goal, in weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 week left} other{{count} weeks left}}'**
+  String goalWeeksLeft(int count);
+
+  /// Time left on a goal, in months.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 month left} other{{count} months left}}'**
+  String goalMonthsLeft(int count);
+
+  /// Time left on a goal, in years. {years} is a decimal like 1.5.
+  ///
+  /// In en, this message translates to:
+  /// **'{years} years left'**
+  String goalYearsLeft(String years);
+
+  /// Name for a recurring bill without a title.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring Bill'**
+  String get subRecurringBill;
+
+  /// Subscription frequency: every n days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Every 1 day} other{Every {count} days}}'**
+  String subEveryDays(int count);
+
+  /// Subscription frequency: every n weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Every 1 week} other{Every {count} weeks}}'**
+  String subEveryWeeks(int count);
+
+  /// Subscription frequency: every n months.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Every 1 month} other{Every {count} months}}'**
+  String subEveryMonths(int count);
+
+  /// Subscription frequency: every n years.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Every 1 year} other{Every {count} years}}'**
+  String subEveryYears(int count);
+
+  /// Subscription frequency with an unknown unit. {unit} is a raw stored value.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {count} {unit}'**
+  String subEveryOther(int count, String unit);
+
+  /// Error when subscriptions fail to load. {error} is technical detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load subscriptions: {error}'**
+  String subLoadFailed(String error);
+
+  /// Error when pausing a subscription fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to pause subscription: {error}'**
+  String subPauseFailed(String error);
+
+  /// Error when resuming a subscription fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to resume subscription: {error}'**
+  String subResumeFailed(String error);
+
+  /// Error when updating a subscription fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update subscription: {error}'**
+  String subUpdateFailed(String error);
+
+  /// Error when cancelling a subscription fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to cancel subscription: {error}'**
+  String subCancelFailed(String error);
+
+  /// Section header with the number of active subscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Active ({count})'**
+  String subActiveCount(int count);
+
+  /// Section header with the number of paused subscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused ({count})'**
+  String subPausedCount(int count);
+
+  /// Empty state title on the subscriptions screen.
+  ///
+  /// In en, this message translates to:
+  /// **'No subscriptions or bills'**
+  String get subEmptyTitle;
+
+  /// Empty state message on the subscriptions screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Add subscription or recurring bill transactions to track them here'**
+  String get subEmptyBody;
+
+  /// Summary card title: monthly recurring cost.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring Cost'**
+  String get subRecurringCost;
+
+  /// Summary card: yearly cost.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} / year'**
+  String subPerYear(String amount);
+
+  /// Summary stat label: active subscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get subActive;
+
+  /// Subscription card: date of the next payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Next {date}'**
+  String subNext(String date);
+
+  /// Subscription menu: resume a paused subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get subResume;
+
+  /// Subscription menu: pause a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get subPause;
+
+  /// Dialog title and button: cancel a recurring bill.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Recurring Bill'**
+  String get subCancelBillTitle;
+
+  /// Dialog title and button: cancel a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Subscription'**
+  String get subCancelSubTitle;
+
+  /// Confirmation body when cancelling a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel \"{name}\"? This will stop all future recurring payments.'**
+  String subCancelConfirm(String name);
+
+  /// Snackbar after cancelling a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" cancelled'**
+  String subCancelled(String name);
+
+  /// Snackbar when saving subscription changes fails. {error} is technical detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String subSaveError(String error);
+
+  /// Edit sheet title for a recurring bill.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Recurring Bill'**
+  String get subEditBill;
+
+  /// Edit sheet title for a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Subscription'**
+  String get subEditSub;
+
+  /// Unit after the interval stepper (count is the interval).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{day} other{days}}'**
+  String subUnitDay(int count);
+
+  /// Unit after the interval stepper (count is the interval).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{week} other{weeks}}'**
+  String subUnitWeek(int count);
+
+  /// Unit after the interval stepper (count is the interval).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{month} other{months}}'**
+  String subUnitMonth(int count);
+
+  /// Unit after the interval stepper (count is the interval).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{year} other{years}}'**
+  String subUnitYear(int count);
+
+  /// Subscription end date. {date} is a formatted date.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends: {date}'**
+  String subEndsOn(String date);
+
+  /// Subscription has no end date.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get subNoEndDate;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

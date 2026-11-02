@@ -109,7 +109,11 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isEditing ? 'Edit budget' : 'New budget'),
+        title: Text(
+          widget.isEditing
+              ? L10n.of(context).budgetEdit
+              : L10n.of(context).budgetNew,
+        ),
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,
@@ -138,7 +142,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Give the budget a name'
+                    ? L10n.of(context).budgetNeedName
                     : null,
               ),
               AppSpacing.gapLg,
@@ -149,21 +153,27 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
                   decimal: true,
                 ),
                 decoration: InputDecoration(
-                  labelText: _isIncome ? 'Target' : 'Limit',
+                  labelText: _isIncome
+                      ? L10n.of(context).goalTarget
+                      : L10n.of(context).walletLimit,
                   prefixText: '${_currencySymbol(currency)} ',
                   border: OutlineInputBorder(),
                 ),
                 validator: (v) {
                   final cents = (v ?? '').toCentsOrNull();
-                  if (cents == null) return 'Enter an amount';
-                  if (cents <= 0) return 'The amount must be more than zero';
+                  if (cents == null) return L10n.of(context).budgetEnterAmount;
+                  if (cents <= 0) {
+                    return L10n.of(context).budgetAmountMoreThanZero;
+                  }
                   return null;
                 },
               ),
               AppSpacing.gapXl,
 
               _SectionLabel(
-                _isIncome ? 'Tracking earnings' : 'Tracking spending',
+                _isIncome
+                    ? L10n.of(context).budgetTrackingEarnings
+                    : L10n.of(context).budgetTrackingSpending,
               ),
               SegmentedButton<bool>(
                 segments: [
@@ -185,13 +195,13 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
               ),
               AppSpacing.gapXl,
 
-              const _SectionLabel('Repeats'),
+              _SectionLabel(L10n.of(context).budgetRepeats),
               Wrap(
                 spacing: 8,
                 children: [
                   for (final p in BudgetPeriod.values)
                     ChoiceChip(
-                      label: Text(_periodLabel(p)),
+                      label: Text(_periodLabel(L10n.of(context), p)),
                       selected: _period == p,
                       onSelected: (_) => setState(() => _period = p),
                     ),
@@ -216,19 +226,19 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
                         validator: (v) {
                           final n = int.tryParse(v ?? '');
                           if (n == null || n < 1) return '1+';
-                          if (n > 999) return 'Too big';
+                          if (n > 999) return L10n.of(context).budgetTooBig;
                           return null;
                         },
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text(_periodUnit(_period)),
+                    Text(_periodUnit(L10n.of(context), _period)),
                   ],
                 ),
               ],
               AppSpacing.gapXl,
 
-              const _SectionLabel('Starts'),
+              _SectionLabel(L10n.of(context).budgetStarts),
               _DateRow(
                 label: AppDateFormatter.formatDate(_startDate, dateFormat),
                 onTap: () => _pickDate(
@@ -238,11 +248,13 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
               ),
               AppSpacing.gapMd,
               _SectionLabel(
-                _period == BudgetPeriod.custom ? 'Ends' : 'Stops repeating',
+                _period == BudgetPeriod.custom
+                    ? L10n.of(context).budgetEnds
+                    : L10n.of(context).budgetStopsRepeating,
               ),
               _DateRow(
                 label: _endDate == null
-                    ? 'Never'
+                    ? L10n.of(context).budgetNever
                     : AppDateFormatter.formatDate(_endDate!, dateFormat),
                 onClear: _endDate == null
                     ? null
@@ -256,12 +268,16 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
 
               _SectionLabel(
                 _categoryIds.isEmpty
-                    ? 'Categories: all of them'
-                    : 'Categories: ${_categoryIds.length} selected',
+                    ? L10n.of(context).budgetCategoriesAll
+                    : L10n.of(
+                        context,
+                      ).budgetCategoriesSelected(_categoryIds.length),
               ),
               if (selectable.isEmpty)
                 Text(
-                  'No ${_isIncome ? 'income' : 'expense'} categories yet.',
+                  _isIncome
+                      ? L10n.of(context).budgetNoIncomeCategories
+                      : L10n.of(context).budgetNoExpenseCategories,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.textMuted,
                   ),
@@ -287,8 +303,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
                 ),
               AppSpacing.gapSm,
               Text(
-                'Leave empty to watch every category. Anything filed inside a '
-                'chosen category counts toward it too.',
+                L10n.of(context).budgetCategoriesHint,
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textMuted,
                 ),
@@ -297,8 +312,10 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
 
               _SectionLabel(
                 _walletIds.isEmpty
-                    ? 'Accounts: all of them'
-                    : 'Accounts: ${_walletIds.length} selected',
+                    ? L10n.of(context).budgetAccountsAll
+                    : L10n.of(
+                        context,
+                      ).budgetAccountsSelected(_walletIds.length),
               ),
               Wrap(
                 spacing: 8,
@@ -325,10 +342,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
                 value: _rollover,
                 onChanged: (v) => setState(() => _rollover = v),
                 title: Text(L10n.of(context).budgetCarryOverWhatIsLeft),
-                subtitle: const Text(
-                  'Anything unspent is added to the next period. Going over does '
-                  'not carry a debt forward.',
-                ),
+                subtitle: Text(L10n.of(context).budgetRolloverHint),
               ),
               AppSpacing.gapXxl,
             ],
@@ -340,21 +354,21 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
 
   static String _currencySymbol(String code) => code;
 
-  static String _periodLabel(BudgetPeriod p) => switch (p) {
-    BudgetPeriod.daily => 'Daily',
-    BudgetPeriod.weekly => 'Weekly',
-    BudgetPeriod.biweekly => 'Fortnightly',
-    BudgetPeriod.monthly => 'Monthly',
-    BudgetPeriod.yearly => 'Yearly',
-    BudgetPeriod.custom => 'One-off',
+  static String _periodLabel(L10n l10n, BudgetPeriod p) => switch (p) {
+    BudgetPeriod.daily => l10n.budgetPeriodDaily,
+    BudgetPeriod.weekly => l10n.planWeekly,
+    BudgetPeriod.biweekly => l10n.budgetPeriodFortnightly,
+    BudgetPeriod.monthly => l10n.planMonthly,
+    BudgetPeriod.yearly => l10n.planYearly,
+    BudgetPeriod.custom => l10n.budgetPeriodOneOff,
   };
 
-  static String _periodUnit(BudgetPeriod p) => switch (p) {
-    BudgetPeriod.daily => 'days',
-    BudgetPeriod.weekly => 'weeks',
-    BudgetPeriod.biweekly => 'fortnights',
-    BudgetPeriod.monthly => 'months',
-    BudgetPeriod.yearly => 'years',
+  static String _periodUnit(L10n l10n, BudgetPeriod p) => switch (p) {
+    BudgetPeriod.daily => l10n.budgetUnitDays,
+    BudgetPeriod.weekly => l10n.budgetUnitWeeks,
+    BudgetPeriod.biweekly => l10n.budgetUnitFortnights,
+    BudgetPeriod.monthly => l10n.budgetUnitMonths,
+    BudgetPeriod.yearly => l10n.budgetUnitYears,
     BudgetPeriod.custom => '',
   };
 
@@ -379,11 +393,11 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
 
     // A one-off budget is a fixed span, so it needs both ends.
     if (_period == BudgetPeriod.custom && _endDate == null) {
-      _showMessage('A one-off budget needs an end date.');
+      _showMessage(L10n.of(context).budgetOneOffNeedsEnd);
       return;
     }
     if (_endDate != null && !_endDate!.isAfter(_startDate)) {
-      _showMessage('The end date has to come after the start date.');
+      _showMessage(L10n.of(context).budgetEndAfterStart);
       return;
     }
 
@@ -430,7 +444,7 @@ class _AddBudgetScreenState extends ConsumerState<AddBudgetScreen> {
     } on PremiumLimitException catch (e) {
       if (mounted) await UpgradeLimitDialog.showFromException(context, e);
     } catch (e) {
-      if (mounted) _showMessage('Could not save the budget.');
+      if (mounted) _showMessage(L10n.of(context).budgetSaveFailed);
     } finally {
       if (mounted) setState(() => _saving = false);
     }

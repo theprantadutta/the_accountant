@@ -75,18 +75,20 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
                       .read(subscriptionDashboardProvider.notifier)
                       .refresh(),
                   child: state.subscriptions.isEmpty
-                      ? _buildEmptyState()
+                      ? _buildEmptyState(context)
                       : ListView(
                           padding: AppSpacing.paddingScreen,
                           children: [
                             // Summary header
-                            _buildSummaryCard(state, ref),
+                            _buildSummaryCard(context, state, ref),
                             AppSpacing.gapLg,
 
                             // Active subscriptions
                             if (state.activeSubscriptions.isNotEmpty) ...[
                               Text(
-                                'Active (${state.activeCount})',
+                                L10n.of(
+                                  context,
+                                ).subActiveCount(state.activeCount),
                                 style: AppTypography.titleMedium.copyWith(
                                   color: AppColors.textPrimary,
                                 ),
@@ -104,7 +106,9 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
                             if (state.pausedSubscriptions.isNotEmpty) ...[
                               AppSpacing.gapLg,
                               Text(
-                                'Paused (${state.pausedSubscriptions.length})',
+                                L10n.of(context).subPausedCount(
+                                  state.pausedSubscriptions.length,
+                                ),
                                 style: AppTypography.titleMedium.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
@@ -128,16 +132,19 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState() => const Center(
+  Widget _buildEmptyState(BuildContext context) => Center(
     child: EmptyState(
       icon: Symbols.autorenew_rounded,
-      title: 'No subscriptions or bills',
-      message:
-          'Add subscription or recurring bill transactions to track them here',
+      title: L10n.of(context).subEmptyTitle,
+      message: L10n.of(context).subEmptyBody,
     ),
   );
 
-  Widget _buildSummaryCard(SubscriptionDashboardState state, WidgetRef ref) {
+  Widget _buildSummaryCard(
+    BuildContext context,
+    SubscriptionDashboardState state,
+    WidgetRef ref,
+  ) {
     final monthlyFormat = AppNumberFormatter.currency(
       CurrencyInfo.getSymbol(state.currency),
       ref.watch(numberFormatSettingProvider),
@@ -156,7 +163,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
               Icon(Icons.autorenew, color: AppColors.primaryAccent, size: 24),
               const SizedBox(width: 8),
               Text(
-                'Recurring Cost',
+                L10n.of(context).subRecurringCost,
                 style: AppTypography.titleMedium.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -175,7 +182,7 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
           ),
           AppSpacing.gapXs,
           SensitiveText(
-            '$yearly / year',
+            L10n.of(context).subPerYear(yearly),
             amounts: [yearly],
             style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),
@@ -185,19 +192,19 @@ class SubscriptionDashboardScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildStatItem(
-                'Active',
+                L10n.of(context).subActive,
                 '${state.activeCount}',
                 AppColors.success,
               ),
               Container(width: 1, height: 30, color: AppColors.glassBorder),
               _buildStatItem(
-                'Paused',
+                L10n.of(context).subPaused,
                 '${state.pausedSubscriptions.length}',
                 AppColors.textMuted,
               ),
               Container(width: 1, height: 30, color: AppColors.glassBorder),
               _buildStatItem(
-                'Total',
+                L10n.of(context).splitTotal,
                 '${state.subscriptions.length}',
                 AppColors.primaryAccent,
               ),
@@ -326,7 +333,9 @@ class _SubscriptionCard extends ConsumerWidget {
                       if (isPaused)
                         L10n.of(context).subPaused
                       else
-                        'Next ${AppDateFormatter.formatDate(item.nextPayment, df)}',
+                        L10n.of(context).subNext(
+                          AppDateFormatter.formatDate(item.nextPayment, df),
+                        ),
                       if (!item.autoPay) L10n.of(context).subAsksFirst,
                     ].join(' · '),
                     style: AppTypography.labelSmall.copyWith(
@@ -363,7 +372,11 @@ class _SubscriptionCard extends ConsumerWidget {
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: Icon(isPaused ? Icons.play_arrow : Icons.pause),
-                    title: Text(isPaused ? 'Resume' : 'Pause'),
+                    title: Text(
+                      isPaused
+                          ? L10n.of(context).subResume
+                          : L10n.of(context).subPause,
+                    ),
                   ),
                 ),
                 PopupMenuItem(
@@ -409,14 +422,14 @@ class _SubscriptionCard extends ConsumerWidget {
             const SizedBox(width: 12),
             Text(
               item.specialType == TransactionSpecialType.repetitive
-                  ? 'Cancel Recurring Bill'
-                  : 'Cancel Subscription',
+                  ? L10n.of(context).subCancelBillTitle
+                  : L10n.of(context).subCancelSubTitle,
               style: TextStyle(color: AppColors.textPrimary, fontSize: 18),
             ),
           ],
         ),
         content: Text(
-          'Are you sure you want to cancel "${item.name}"? This will stop all future recurring payments.',
+          L10n.of(context).subCancelConfirm(item.name),
           style: TextStyle(color: AppColors.textSecondary, height: 1.5),
         ),
         actions: [
@@ -435,7 +448,7 @@ class _SubscriptionCard extends ConsumerWidget {
                   .cancelSubscription(item.id);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('"${item.name}" cancelled'),
+                  content: Text(L10n.of(context).subCancelled(item.name)),
                   backgroundColor: AppColors.error,
                   behavior: SnackBarBehavior.floating,
                   shape: RoundedRectangleBorder(
@@ -452,8 +465,8 @@ class _SubscriptionCard extends ConsumerWidget {
             ),
             child: Text(
               item.specialType == TransactionSpecialType.repetitive
-                  ? 'Cancel Recurring Bill'
-                  : 'Cancel Subscription',
+                  ? L10n.of(context).subCancelBillTitle
+                  : L10n.of(context).subCancelSubTitle,
               style: const TextStyle(color: Colors.white),
             ),
           ),

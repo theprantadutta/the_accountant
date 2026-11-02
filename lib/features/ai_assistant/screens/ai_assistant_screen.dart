@@ -347,9 +347,9 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
   String _relativeTime(DateTime dt, L10n l10n) {
     final diff = DateTime.now().difference(dt);
     if (diff.inMinutes < 1) return l10n.aiJustNow;
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
-    if (diff.inHours < 24) return '${diff.inHours}h';
-    if (diff.inDays < 7) return '${diff.inDays}d';
+    if (diff.inMinutes < 60) return l10n.aiMinutesShort(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.aiHoursShort(diff.inHours);
+    if (diff.inDays < 7) return l10n.aiDaysShort(diff.inDays);
     return DateFormat(
       'MMM d',
       Localizations.localeOf(context).toString(),

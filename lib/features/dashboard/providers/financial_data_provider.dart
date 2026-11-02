@@ -5,6 +5,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/core/services/financial_calculation_service.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat_provider;
 
@@ -152,7 +153,7 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
       if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to load financial data: ${e.toString()}',
+        error: appL10n.dashLoadFailed(e.toString()),
       );
     }
   }
@@ -171,7 +172,7 @@ class FinancialDataNotifier extends Notifier<FinancialData> {
         (c) => c.id == categoryId,
         orElse: () => cat_provider.Category(
           id: categoryId,
-          name: 'Unknown',
+          name: appL10n.categoryUnknown,
           colorCode: '#999999',
           type: 'expense',
           isDefault: false,

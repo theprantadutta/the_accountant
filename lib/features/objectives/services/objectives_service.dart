@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart';
 
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Service for managing objectives (goals and savings tracking)
 class ObjectivesService {
@@ -145,7 +146,7 @@ class ObjectivesService {
   ) async {
     final objective = await _database.findObjectiveById(objectiveId);
     if (objective == null) {
-      throw Exception('Objective not found: $objectiveId');
+      throw Exception(appL10n.goalNotFound(objectiveId));
     }
 
     return await _calculateProgress(objective);
@@ -329,24 +330,23 @@ class ObjectiveWithProgress {
 
   String get progressText {
     if (isComplete) {
-      return isLoan ? 'Paid off!' : 'Completed!';
+      return isLoan ? appL10n.goalPaidOff : appL10n.goalCompleted;
     }
-    return '${progressPercent.toStringAsFixed(0)}% complete';
+    return appL10n.goalPercentComplete(progressPercent.toStringAsFixed(0));
   }
 
   String? get timeRemainingText {
     if (timeRemaining == null) return null;
     if (timeRemaining!.isNegative || timeRemaining == Duration.zero) {
-      return 'Overdue';
+      return appL10n.planStatusOverdue;
     }
 
     final days = timeRemaining!.inDays;
-    if (days == 0) return 'Due today';
-    if (days == 1) return '1 day left';
-    if (days < 7) return '$days days left';
-    if (days < 30) return '${(days / 7).ceil()} weeks left';
-    if (days < 365) return '${(days / 30).ceil()} months left';
-    return '${(days / 365).toStringAsFixed(1)} years left';
+    if (days == 0) return appL10n.cardStatusDueToday;
+    if (days < 7) return appL10n.budgetDaysLeft(days);
+    if (days < 30) return appL10n.goalWeeksLeft((days / 7).ceil());
+    if (days < 365) return appL10n.goalMonthsLeft((days / 30).ceil());
+    return appL10n.goalYearsLeft((days / 365).toStringAsFixed(1));
   }
 
   /// How often money is put toward a goal.
@@ -406,13 +406,18 @@ class ObjectiveWithProgress {
 
 /// How often a goal is paid into.
 enum InstallmentCadence {
-  weekly('Weekly', 7),
-  fortnightly('Fortnightly', 14),
-  monthly('Monthly', 30);
+  weekly(7),
+  fortnightly(14),
+  monthly(30);
 
-  const InstallmentCadence(this.label, this.days);
+  const InstallmentCadence(this.days);
 
-  final String label;
+  /// What the chip says, in the user's language.
+  String get label => switch (this) {
+    weekly => appL10n.planWeekly,
+    fortnightly => appL10n.budgetPeriodFortnightly,
+    monthly => appL10n.planMonthly,
+  };
 
   /// Approximate length in days. A month is taken as 30, which is close enough
   /// for "roughly this much, roughly this often" and avoids a plan that shifts

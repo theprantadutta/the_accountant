@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -107,9 +108,7 @@ class AccountDataKey {
     if (state.protected) throw const AccountDataKeyLocked();
     final bytes = base64Decode(state.key!);
     if (bytes.length != 32) {
-      throw const AccountDataKeyUnavailable(
-        'The server sent an unusable encryption key. Try again later.',
-      );
+      throw AccountDataKeyUnavailable(appL10n.backupKeyUnusable);
     }
     await _remember(userId, bytes);
     return bytes;
@@ -271,10 +270,7 @@ class AccountDataKey {
   Future<String> _requireUser() async {
     final userId = await _currentUserId();
     if (userId == null || userId.isEmpty) {
-      throw const AccountDataKeyUnavailable(
-        'Sign in to make or restore a backup — backups are encrypted with your '
-        'account.',
-      );
+      throw AccountDataKeyUnavailable(appL10n.backupKeyNeedsSignIn);
     }
     return userId;
   }
@@ -289,9 +285,8 @@ class AccountDataKey {
       }
       return state;
     } catch (_) {
-      throw const AccountDataKeyUnavailable(
-        'Connect to the internet once so your data can be encrypted, then try '
-        'again.',
+      throw AccountDataKeyUnavailable(
+        appL10n.backupKeyNeedsInternet,
         unreachable: true,
       );
     }
@@ -405,7 +400,5 @@ class AccountDataKeyLocked implements Exception {
   const AccountDataKeyLocked();
 
   @override
-  String toString() =>
-      'Your data is protected with a passphrase. Unlock it on this device '
-      'first.';
+  String toString() => appL10n.backupKeyLocked;
 }

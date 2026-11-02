@@ -13,6 +13,7 @@ import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/investments/services/investment_service.dart';
 import 'package:the_accountant/features/plans/domain/plan_terms.dart';
 import 'package:the_accountant/features/transactions/services/transfer_service.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// What someone fills in to start a plan.
 class PlanDraft {
@@ -192,12 +193,10 @@ class PlanService {
     _validate(d);
     final wallet = await _db.findWalletById(d.walletId);
     if (wallet == null || wallet.deletedAt != null) {
-      throw ArgumentError('That account no longer exists.');
+      throw ArgumentError(appL10n.planAccountGone);
     }
     if (wallet.walletType.isManaged) {
-      throw ArgumentError(
-        'A plan is paid from an ordinary account, not from a deposit.',
-      );
+      throw ArgumentError(appL10n.planPaidFromOrdinary);
     }
 
     // A SIP buys into a holding that already has its own account.
@@ -207,10 +206,10 @@ class PlanService {
           ? null
           : await _investments.find(d.investmentId!);
       if (investment == null || investment.deletedAt != null) {
-        throw ArgumentError('Choose the fund or share the SIP buys.');
+        throw ArgumentError(appL10n.planSipChooseHolding);
       }
       if (investment.walletId == d.walletId) {
-        throw ArgumentError('Pay for the SIP from another account.');
+        throw ArgumentError(appL10n.planSipPayFromOther);
       }
       investmentWallet = investment.walletId;
     }
@@ -313,22 +312,22 @@ class PlanService {
   }
 
   void _validate(PlanDraft d) {
-    if (d.name.trim().isEmpty) throw ArgumentError('Give the plan a name.');
+    if (d.name.trim().isEmpty) throw ArgumentError(appL10n.planNeedNameError);
     if (d.installmentCount < 1 || d.installmentCount > 1200) {
-      throw ArgumentError('The number of installments must be 1 to 1200.');
+      throw ArgumentError(appL10n.planInstallmentCountRange);
     }
-    if (d.interval < 1) throw ArgumentError('The interval must be at least 1.');
+    if (d.interval < 1) throw ArgumentError(appL10n.planIntervalMin);
     if (d.interestRate != null &&
         (d.interestRate! < 0 || d.interestRate! > 100)) {
-      throw ArgumentError('The rate must be between 0 and 100 percent.');
+      throw ArgumentError(appL10n.planRateRange);
     }
     if (d.taxRate != null && (d.taxRate! < 0 || d.taxRate! > 100)) {
-      throw ArgumentError('The tax must be between 0 and 100 percent.');
+      throw ArgumentError(appL10n.planTaxRange);
     }
     // The server keeps 100 characters of each.
     if ((d.provider?.trim().length ?? 0) > 100 ||
         (d.reference?.trim().length ?? 0) > 100) {
-      throw ArgumentError('Keep the company and number under 100 characters.');
+      throw ArgumentError(appL10n.planProviderTooLong);
     }
     switch (d.kind) {
       case PlanKind.emi:
@@ -339,22 +338,22 @@ class PlanService {
         if (d.installmentAmount <= 0) {
           throw ArgumentError(
             d.kind == PlanKind.insurance
-                ? 'Enter the premium.'
-                : 'Enter the amount of each installment.',
+                ? appL10n.planNeedPremium
+                : appL10n.planNeedInstallmentAmount,
           );
         }
       case PlanKind.fdr:
       case PlanKind.bond:
         if (d.principal <= 0) {
-          throw ArgumentError('Enter the amount deposited.');
+          throw ArgumentError(appL10n.planNeedDeposited);
         }
         if (d.frequency == PlanFrequency.weekly) {
-          throw ArgumentError('It runs for months or years.');
+          throw ArgumentError(appL10n.planTermMonthsOrYears);
         }
     }
     if ((d.kind == PlanKind.emi || d.kind == PlanKind.loan) &&
         d.principal < 0) {
-      throw ArgumentError('The amount cannot be negative.');
+      throw ArgumentError(appL10n.planAmountNotNegative);
     }
   }
 
@@ -386,8 +385,7 @@ class PlanService {
     if (next.type == PlanEventType.maturity &&
         next.date.isAfter(DateTime.now())) {
       throw ArgumentError(
-        '${plan.name} matures on ${_day(next.date)}. To take the money out '
-        'before then, close it early.',
+        appL10n.planMaturesOnCloseEarly(plan.name, _day(next.date)),
       );
     }
     await _record(plan, next, on: on ?? DateTime.now());
@@ -492,11 +490,11 @@ class PlanService {
   }) async {
     final plan = await findPlan(planId);
     if (plan == null || plan.deletedAt != null) {
-      throw ArgumentError('That plan no longer exists.');
+      throw ArgumentError(appL10n.planNoLongerExists);
     }
     if (reminderDaysBefore != null &&
         (reminderDaysBefore < 0 || reminderDaysBefore > 30)) {
-      throw ArgumentError('Reminders can be 0 (off) to 30 days before.');
+      throw ArgumentError(appL10n.planReminderDaysRange);
     }
     await (_db.update(_db.plans)..where((p) => p.id.equals(planId))).write(
       PlansCompanion(
@@ -532,9 +530,12 @@ class PlanService {
       if (holding != null &&
           holding.deletedAt == null &&
           holding.balance != 0) {
+        final account = (await _db.findWalletById(plan.walletId))?.name;
         throw ArgumentError(
-          '${plan.name} still holds money. Close it first, which moves the '
-          'money back to ${(await _db.findWalletById(plan.walletId))?.name ?? 'its account'}.',
+          appL10n.planStillHoldsMoney(
+            plan.name,
+            account ?? appL10n.planItsAccount,
+          ),
         );
       }
     }
@@ -566,10 +567,10 @@ class PlanService {
   Future<Plan> _activePlan(String planId) async {
     final plan = await findPlan(planId);
     if (plan == null || plan.deletedAt != null) {
-      throw ArgumentError('That plan no longer exists.');
+      throw ArgumentError(appL10n.planNoLongerExists);
     }
     if (plan.status != PlanStatus.active) {
-      throw ArgumentError('${plan.name} has already ended.');
+      throw ArgumentError(appL10n.planAlreadyEnded(plan.name));
     }
     return plan;
   }

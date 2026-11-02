@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Service for managing recurring transactions
 /// Handles processing due transactions, calculating next occurrences,
@@ -514,13 +515,13 @@ class RecurringService {
     if (periodLength == 1) {
       switch (reoccurrence.toLowerCase()) {
         case 'daily':
-          return 'Daily';
+          return appL10n.recurringDaily;
         case 'weekly':
-          return 'Weekly';
+          return appL10n.planWeekly;
         case 'monthly':
-          return 'Monthly';
+          return appL10n.planMonthly;
         case 'yearly':
-          return 'Yearly';
+          return appL10n.planYearly;
         default:
           return reoccurrence;
       }
@@ -528,15 +529,15 @@ class RecurringService {
 
     switch (reoccurrence.toLowerCase()) {
       case 'daily':
-        return 'Every $periodLength days';
+        return appL10n.recurringEveryDays(periodLength);
       case 'weekly':
-        return 'Every $periodLength weeks';
+        return appL10n.recurringEveryWeeks(periodLength);
       case 'monthly':
-        return 'Every $periodLength months';
+        return appL10n.recurringEveryMonths(periodLength);
       case 'yearly':
-        return 'Every $periodLength years';
+        return appL10n.recurringEveryYears(periodLength);
       default:
-        return 'Every $periodLength $reoccurrence';
+        return appL10n.recurringEveryOther(periodLength, reoccurrence);
     }
   }
 }
@@ -553,7 +554,7 @@ class RecurringConfigWithTransaction {
 
   String get displayTitle => baseTransaction.title.isNotEmpty
       ? baseTransaction.title
-      : 'Recurring Transaction';
+      : appL10n.recurringUntitled;
 
   /// What each payment from now on is for, in minor units.
   int get amount => config.amount ?? baseTransaction.amount;

@@ -3,6 +3,7 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 class PaymentMethod {
   final String id;
@@ -82,7 +83,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
       if (!silent) {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: 'Failed to load payment methods',
+          errorMessage: appL10n.txnLoadPaymentMethodsFailed,
         );
       }
     }
@@ -121,7 +122,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to add payment method',
+        errorMessage: appL10n.txnAddPaymentMethodFailed,
       );
     }
   }
@@ -139,7 +140,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
     try {
       final existing = await _db.findPaymentMethodById(id);
       if (existing == null) {
-        throw Exception('Payment method not found');
+        throw Exception(appL10n.txnPaymentMethodNotFound);
       }
 
       final updatedPaymentMethod = PaymentMethodsCompanion(
@@ -161,7 +162,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to update payment method',
+        errorMessage: appL10n.txnUpdatePaymentMethodFailed,
       );
     }
   }
@@ -177,7 +178,7 @@ class PaymentMethodNotifier extends StateNotifier<PaymentMethodState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to delete payment method',
+        errorMessage: appL10n.txnDeletePaymentMethodFailed,
       );
     }
   }

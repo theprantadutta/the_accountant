@@ -43,8 +43,9 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
   bool _isExpandingMonths = false;
 
   // Type-derived config
-  String get _title =>
-      widget.transactionType == 'income' ? 'Income' : 'Expenses';
+  String get _title => widget.transactionType == 'income'
+      ? L10n.of(context).moneyIncome
+      : L10n.of(context).dashExpenses;
 
   Color get _accentColor =>
       widget.transactionType == 'income' ? AppColors.success : AppColors.error;
@@ -250,11 +251,11 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
     final dayFormat = DateFormat('EEEE');
 
     if (date == today) {
-      return 'Today, $shortDate';
+      return L10n.of(context).txnDateHeaderToday(shortDate);
     } else if (date == yesterday) {
-      return 'Yesterday, $shortDate';
+      return L10n.of(context).txnDateHeaderYesterday(shortDate);
     } else if (date == tomorrow) {
-      return 'Tomorrow, $shortDate';
+      return L10n.of(context).txnDateHeaderTomorrow(shortDate);
     } else {
       return '${dayFormat.format(date)}, $shortDate';
     }
@@ -287,7 +288,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error deleting transaction: $e'),
+            content: Text(L10n.of(context).txnDeleteError('$e')),
             backgroundColor: AppColors.error,
           ),
         );
@@ -332,7 +333,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Filter $_title',
+                        L10n.of(context).txnFilterTitle(_title),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -512,8 +513,8 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
     final formatter = AppNumberFormatter.get(nf, useDecimals: useDecimals);
 
     final typeLabel = widget.transactionType == 'income'
-        ? 'Monthly Income'
-        : 'Monthly Expenses';
+        ? L10n.of(context).txnMonthlyIncome
+        : L10n.of(context).txnMonthlyExpenses;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -557,7 +558,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
               children: [
                 _buildStatItem(
                   '$count',
-                  count == 1 ? 'transaction' : 'transactions',
+                  L10n.of(context).txnStatTransactions(count),
                 ),
                 Container(
                   width: 1,
@@ -567,7 +568,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                 ),
                 _buildStatItem(
                   '$currencySymbol${formatter.format(useDecimals ? average : average.round())}',
-                  'avg per transaction',
+                  L10n.of(context).txnAvgPerTransaction,
                   sensitive: true,
                 ),
               ],
@@ -603,7 +604,9 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
     final isFutureMonth = month.isAfter(DateTime(now.year, now.month));
     final isCurrentMonth = month.year == now.year && month.month == now.month;
 
-    final typeName = widget.transactionType == 'income' ? 'income' : 'expenses';
+    final l10n = L10n.of(context);
+    final isIncome = widget.transactionType == 'income';
+    final monthYear = DateFormat('MMMM yyyy').format(month);
 
     IconData icon;
     String title;
@@ -611,21 +614,25 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
 
     if (isFutureMonth) {
       icon = Icons.event_available_outlined;
-      title = 'No planned $typeName';
-      subtitle =
-          'Add future $typeName for ${DateFormat('MMMM yyyy').format(month)}';
+      title = isIncome ? l10n.txnNoPlannedIncome : l10n.txnNoPlannedExpenses;
+      subtitle = isIncome
+          ? l10n.txnAddFutureIncome(monthYear)
+          : l10n.txnAddFutureExpenses(monthYear);
     } else if (isCurrentMonth) {
       icon = widget.transactionType == 'income'
           ? Icons.trending_up_rounded
           : Icons.receipt_long_outlined;
-      title = 'No $typeName yet this month';
-      subtitle = widget.transactionType == 'income'
-          ? 'Start tracking your income this month'
-          : 'Start tracking your expenses this month';
+      title = isIncome ? l10n.txnNoIncomeYet : l10n.txnNoExpensesYet;
+      subtitle = isIncome
+          ? l10n.txnStartTrackingIncome
+          : l10n.txnStartTrackingExpenses;
     } else {
       icon = Icons.history_outlined;
-      title = 'No $typeName in ${DateFormat('MMMM').format(month)}';
-      subtitle = 'No records for ${DateFormat('MMMM yyyy').format(month)}';
+      final monthName = DateFormat('MMMM').format(month);
+      title = isIncome
+          ? l10n.txnNoIncomeIn(monthName)
+          : l10n.txnNoExpensesIn(monthName);
+      subtitle = l10n.txnNoRecordsFor(monthYear);
     }
 
     return Center(
@@ -701,7 +708,7 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                     ? categoryState.categories.first
                     : Category(
                         id: '',
-                        name: 'Other',
+                        name: L10n.of(context).txnOtherCategory,
                         colorCode: '#4ECDC4',
                         type: 'expense',
                         isDefault: false,
@@ -787,8 +794,8 @@ class _TransactionTypeScreenState extends ConsumerState<TransactionTypeScreen> {
                   controller: _searchController,
                   query: _searchQuery,
                   hint: widget.transactionType == 'income'
-                      ? 'Search income'
-                      : 'Search expenses',
+                      ? L10n.of(context).txnSearchIncome
+                      : L10n.of(context).txnSearchExpenses,
                   onCleared: () {
                     _searchController.clear();
                     setState(() => _searchQuery = '');

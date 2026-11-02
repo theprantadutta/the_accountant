@@ -32,6 +32,7 @@ import 'package:the_accountant/features/plans/services/plan_service.dart';
 import 'package:the_accountant/features/recurring/services/recurring_service.dart';
 import 'package:the_accountant/features/zakat/services/zakat_reminder.dart';
 import 'package:the_accountant/features/notifications/services/bill_reminders.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Core background processing service.
 /// All methods are static and self-contained — they construct their own
@@ -99,10 +100,8 @@ class BackgroundTaskService {
         // A notification for every entry it wrote was noise.
         await LocalNotificationLog.record(
           type: NotificationType.custom,
-          title: 'EMI and savings updated',
-          body: planEvents == 1
-              ? '1 plan entry recorded on its day.'
-              : '$planEvents plan entries recorded on their day.',
+          title: appL10n.notifPlansUpdatedTitle,
+          body: appL10n.notifPlansUpdatedBody(planEvents),
         );
       }
       // With everything due now recorded, look a week ahead for a day the
@@ -153,10 +152,8 @@ class BackgroundTaskService {
         // Like the plan entries above: in the inbox, without a ping.
         await LocalNotificationLog.record(
           type: NotificationType.custom,
-          title: 'Recurring transactions recorded',
-          body: recorded == 1
-              ? '1 recurring transaction recorded.'
-              : '$recorded recurring transactions recorded.',
+          title: appL10n.notifRecurringRecordedTitle,
+          body: appL10n.notifRecurringRecordedBody(recorded),
         );
       }
 
@@ -168,11 +165,10 @@ class BackgroundTaskService {
             .join(', ');
         await notifier.showNotification(
           id: BackgroundTaskConstants.recurringNotificationIdBase + 1,
-          title:
-              '${awaiting.length} payment${awaiting.length == 1 ? '' : 's'} to confirm',
+          title: appL10n.notifPaymentsToConfirmTitle(awaiting.length),
           body: names.isEmpty
-              ? 'Confirm what was charged, or skip it, in Upcoming.'
-              : '$names — confirm what was charged, or skip it, in Upcoming.',
+              ? appL10n.notifPaymentsToConfirmBody
+              : appL10n.notifPaymentsToConfirmBodyNames(names),
           channelId: BackgroundTaskConstants.recurringChannelId,
           channelName: BackgroundTaskConstants.recurringChannelName,
           channelDesc: BackgroundTaskConstants.recurringChannelDesc,
@@ -254,15 +250,17 @@ class BackgroundTaskService {
         final t = dueUpcoming[i];
         final due = _dueKey(t.id, t.originalDueDate ?? t.date);
         if (!await NotifiedOnce.claim(due, prefs: prefs)) continue;
-        final title = t.title.isNotEmpty ? t.title : 'Upcoming Transaction';
+        final title = t.title.isNotEmpty
+            ? t.title
+            : appL10n.notifUpcomingFallbackTitle;
         await notifier.showNotificationWithActions(
           id:
               BackgroundTaskConstants.upcomingNotificationIdBase +
               (t.id.hashCode % 500),
-          title: 'Upcoming: $title',
-          body:
-              '${t.isIncome ? "Income" : "Expense"} of '
-              '${money(t.amount, t.walletId)} is due soon.',
+          title: appL10n.notifUpcomingTitle(title),
+          body: t.isIncome
+              ? appL10n.notifUpcomingIncomeBody(money(t.amount, t.walletId))
+              : appL10n.notifUpcomingExpenseBody(money(t.amount, t.walletId)),
           channelId: BackgroundTaskConstants.upcomingChannelId,
           channelName: BackgroundTaskConstants.upcomingChannelName,
           channelDesc: BackgroundTaskConstants.upcomingChannelDesc,
@@ -298,15 +296,19 @@ class BackgroundTaskService {
         final loanType = isCredit ? 'credit' : 'debt';
         final title = t.title.isNotEmpty
             ? t.title
-            : (isCredit ? 'Credit' : 'Debt');
+            : (isCredit
+                  ? appL10n.notifCreditFallback
+                  : appL10n.notifDebtFallback);
         await notifier.showNotificationWithActions(
           id:
               BackgroundTaskConstants.loanNotificationIdBase +
               (t.id.hashCode % 500),
-          title: 'Overdue ${isCredit ? "Credit" : "Debt"}: $title',
-          body:
-              '${money(TransactionPolicy.outstandingAmount(t), t.walletId)} '
-              'is still outstanding. Tap to review.',
+          title: isCredit
+              ? appL10n.notifOverdueCreditTitle(title)
+              : appL10n.notifOverdueDebtTitle(title),
+          body: appL10n.notifOutstandingBody(
+            money(TransactionPolicy.outstandingAmount(t), t.walletId),
+          ),
           channelId: BackgroundTaskConstants.loanChannelId,
           channelName: BackgroundTaskConstants.loanChannelName,
           channelDesc: BackgroundTaskConstants.loanChannelDesc,
@@ -340,16 +342,17 @@ class BackgroundTaskService {
         }
         final title = baseTx.title.isNotEmpty
             ? baseTx.title
-            : 'Recurring Transaction';
+            : appL10n.notifRecurringFallbackTitle;
         await notifier.showNotification(
           id:
               BackgroundTaskConstants.recurringNotificationIdBase +
               100 +
               (config.id.hashCode % 400),
-          title: 'Upcoming Recurring: $title',
-          body:
-              '${money(baseTx.amount, baseTx.walletId)} due on '
-              '${date(config.nextOccurrence)}.',
+          title: appL10n.notifUpcomingRecurringTitle(title),
+          body: appL10n.notifDueOnBody(
+            money(baseTx.amount, baseTx.walletId),
+            date(config.nextOccurrence),
+          ),
           channelId: BackgroundTaskConstants.recurringChannelId,
           channelName: BackgroundTaskConstants.recurringChannelName,
           channelDesc: BackgroundTaskConstants.recurringChannelDesc,
@@ -445,29 +448,37 @@ class BackgroundTaskService {
           channelId = BackgroundTaskConstants.loanChannelId;
           channelName = BackgroundTaskConstants.loanChannelName;
           channelDesc = BackgroundTaskConstants.loanChannelDesc;
-          notifTitle = 'Credit Due: ${title.isNotEmpty ? title : "Credit"}';
+          notifTitle = appL10n.notifCreditDueTitle(
+            title.isNotEmpty ? title : appL10n.notifCreditFallback,
+          );
         case 'debt':
           channelId = BackgroundTaskConstants.loanChannelId;
           channelName = BackgroundTaskConstants.loanChannelName;
           channelDesc = BackgroundTaskConstants.loanChannelDesc;
-          notifTitle = 'Debt Due: ${title.isNotEmpty ? title : "Debt"}';
+          notifTitle = appL10n.notifDebtDueTitle(
+            title.isNotEmpty ? title : appL10n.notifDebtFallback,
+          );
         case 'subscription':
           channelId = BackgroundTaskConstants.recurringChannelId;
           channelName = BackgroundTaskConstants.recurringChannelName;
           channelDesc = BackgroundTaskConstants.recurringChannelDesc;
-          notifTitle =
-              'Subscription Due: ${title.isNotEmpty ? title : "Subscription"}';
+          notifTitle = appL10n.notifSubscriptionDueTitle(
+            title.isNotEmpty ? title : appL10n.settingsSubscription,
+          );
         case 'repetitive':
           channelId = BackgroundTaskConstants.upcomingChannelId;
           channelName = BackgroundTaskConstants.upcomingChannelName;
           channelDesc = BackgroundTaskConstants.upcomingChannelDesc;
-          notifTitle =
-              'Bill Due: ${title.isNotEmpty ? title : "Repetitive Bill"}';
+          notifTitle = appL10n.notifBillDueTitle(
+            title.isNotEmpty ? title : appL10n.notifRepetitiveBillFallback,
+          );
         default: // 'upcoming'
           channelId = BackgroundTaskConstants.upcomingChannelId;
           channelName = BackgroundTaskConstants.upcomingChannelName;
           channelDesc = BackgroundTaskConstants.upcomingChannelDesc;
-          notifTitle = 'Due Soon: ${title.isNotEmpty ? title : "Transaction"}';
+          notifTitle = appL10n.notifDueSoonTitle(
+            title.isNotEmpty ? title : appL10n.entityTransaction,
+          );
       }
 
       final dueDateStr =
@@ -495,7 +506,7 @@ class BackgroundTaskService {
             BackgroundTaskConstants.dueDateNotificationIdBase +
             (transactionId.hashCode % 500),
         title: notifTitle,
-        body: '$shown is due soon. Tap to review.',
+        body: appL10n.notifDueSoonBody(shown),
         channelId: channelId,
         channelName: channelName,
         channelDesc: channelDesc,

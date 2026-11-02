@@ -1,6 +1,8 @@
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/features/zakat/domain/zakat_settings.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// A zakat reminder that is due to be shown.
 class ZakatReminder {
@@ -18,16 +20,17 @@ class ZakatReminder {
   String get key =>
       '${isToday ? 'day' : 'before'}:${ZakatCalendar.dayKey(date)}';
 
-  /// The text of the notification. In English, like the app's other
-  /// reminders worked out in the background, where there is no locale.
+  /// The text of the notification, in the user's language. [appL10n] works
+  /// in the background too, where there is no widget tree.
   String get title => isToday
-      ? 'Your zakat is due today'
-      : 'Zakat due in $daysLeft day${daysLeft == 1 ? '' : 's'}';
+      ? appL10n.zakatReminderTitleToday
+      : appL10n.zakatReminderTitleIn(daysLeft);
 
   String get body => isToday
-      ? 'Your zakat year completes today. Tap to see what is due.'
-      : 'Your zakat year completes on '
-            '${DateFormat('EEEE, MMM d').format(date)}. Tap to see what is due.';
+      ? appL10n.zakatReminderBodyToday
+      : appL10n.zakatReminderBodyOn(
+          DateFormat('EEEE, MMM d', appL10n.localeName).format(date),
+        );
 
   /// What a tap opens: the zakat screen.
   static const Map<String, String> payload = {'action': 'open_zakat'};
@@ -80,6 +83,9 @@ class ZakatReminders {
     final reminder = dueOn(settings, now ?? DateTime.now());
     if (reminder == null || p.getString(_sentKey) == reminder.key) return null;
     await p.setString(_sentKey, reminder.key);
+    // The body names a weekday and month in the user's language; in the
+    // background nothing has loaded that language's date names yet.
+    await initializeDateFormatting(appL10n.localeName);
     return reminder;
   }
 

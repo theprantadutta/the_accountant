@@ -7,6 +7,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Service for scheduling daily expense reminder notifications locally.
 /// Uses flutter_local_notifications with zonedSchedule for precise timing.
@@ -18,9 +19,9 @@ class DailyReminderScheduler {
 
   static const int _dailyReminderId = 1001;
   static const String _channelId = 'daily_reminder_channel';
-  static const String _channelName = 'Daily Reminders';
-  static const String _channelDescription =
-      'Daily expense reminder notifications';
+  static String get _channelName => appL10n.settingsDailyReminders2;
+  static String get _channelDescription =>
+      appL10n.notifChannelDailyRemindersDesc;
 
   // Local storage keys
   static const String _keyEnabled = 'daily_reminder_enabled';
@@ -166,7 +167,7 @@ class DailyReminderScheduler {
     }
 
     // Notification details - fullScreenIntent ensures heads-up display even in foreground
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
       channelDescription: _channelDescription,
@@ -187,7 +188,7 @@ class DailyReminderScheduler {
       presentSound: true,
     );
 
-    const notificationDetails = NotificationDetails(
+    final notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
@@ -202,9 +203,8 @@ class DailyReminderScheduler {
     try {
       await _notificationsPlugin.zonedSchedule(
         id: _dailyReminderId,
-        title: 'Daily Expense Reminder',
-        body:
-            "Don't forget to log your expenses today! Keep track of your spending.",
+        title: appL10n.notifDailyReminderTitle,
+        body: appL10n.notifDailyReminderBody,
         scheduledDate: scheduledDate,
         notificationDetails: notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -321,7 +321,7 @@ class DailyReminderScheduler {
 
   /// Show an immediate test notification to verify notifications work
   Future<void> showTestNotification() async {
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
       channelDescription: _channelDescription,
@@ -341,15 +341,15 @@ class DailyReminderScheduler {
       presentSound: true,
     );
 
-    const notificationDetails = NotificationDetails(
+    final notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
 
     await _notificationsPlugin.show(
       id: 9999, // Test notification ID
-      title: 'Test Notification',
-      body: 'If you see this, notifications are working!',
+      title: appL10n.notifTestTitle,
+      body: appL10n.notifTestBody,
       notificationDetails: notificationDetails,
     );
 

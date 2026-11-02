@@ -1,6 +1,7 @@
 import 'package:the_accountant/features/import/domain/column_mapping.dart';
 import 'package:the_accountant/features/import/domain/csv_reader.dart';
 import 'package:the_accountant/features/import/domain/import_values.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// One line of the file, read through a mapping.
 ///
@@ -119,9 +120,11 @@ class ImportReader {
       return ImportRow(
         lineNumber: lineNumber,
         problem: rawDate.isEmpty
-            ? 'No date'
-            : 'The date "$rawDate" does not match '
-                  '${mapping.dateFormat ?? 'any known format'}',
+            ? appL10n.importNoDate
+            : appL10n.importDateMismatch(
+                rawDate,
+                mapping.dateFormat ?? appL10n.importAnyKnownFormat,
+              ),
       );
     }
 
@@ -130,7 +133,7 @@ class ImportReader {
       return ImportRow(
         lineNumber: lineNumber,
         date: date,
-        problem: 'No amount',
+        problem: appL10n.importNoAmount,
       );
     }
 

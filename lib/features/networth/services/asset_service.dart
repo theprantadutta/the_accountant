@@ -7,6 +7,7 @@ import 'package:the_accountant/data/models/transaction.dart'
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/transactions/services/transfer_service.dart';
 import 'package:the_accountant/features/wallets/services/wallet_maintenance_service.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// What sort of thing is owned.
 ///
@@ -174,26 +175,28 @@ class AssetService {
     DateTime? date,
   }) async {
     final trimmed = name.trim();
-    if (trimmed.isEmpty) throw ArgumentError('Give the asset a name.');
+    if (trimmed.isEmpty) throw ArgumentError(appL10n.networthNeedAssetName);
     if (trimmed.length > 100) {
-      throw ArgumentError('Keep the name under 100 characters.');
+      throw ArgumentError(appL10n.investNameTooLong);
     }
-    if (value < 0) throw ArgumentError('A value cannot be negative.');
+    if (value < 0) throw ArgumentError(appL10n.networthValueNotNegative);
     final taken = (await all()).where(
       (a) => !a.isClosed && a.name.toLowerCase() == trimmed.toLowerCase(),
     );
-    if (taken.isNotEmpty) throw ArgumentError('$trimmed is already tracked.');
+    if (taken.isNotEmpty) {
+      throw ArgumentError(appL10n.investAlreadyTracked(trimmed));
+    }
 
     final bought = paidFromWalletId != null;
     final cost = paid ?? value;
     if (bought) {
-      if (cost <= 0) throw ArgumentError('Enter what was paid for it.');
+      if (cost <= 0) throw ArgumentError(appL10n.networthNeedPaidFor);
       final from = await _db.findWalletById(paidFromWalletId);
       if (from == null || from.isArchived || from.walletType.isManaged) {
-        throw ArgumentError('Pay for it from an ordinary account.');
+        throw ArgumentError(appL10n.networthPayFromOrdinary);
       }
     } else if (value == 0) {
-      throw ArgumentError('Enter what it is worth.');
+      throw ArgumentError(appL10n.networthNeedWorth);
     }
 
     final id = _uuid.v4();
@@ -239,7 +242,7 @@ class AssetService {
   /// spending: land rising in price has not put money in anyone's pocket.
   Future<void> revalue(String walletId, int newValue, {DateTime? date}) async {
     final a = await _live(walletId);
-    if (newValue < 0) throw ArgumentError('A value cannot be negative.');
+    if (newValue < 0) throw ArgumentError(appL10n.networthValueNotNegative);
     await _correct(
       a.id,
       a.name,
@@ -261,10 +264,10 @@ class AssetService {
     DateTime? date,
   }) async {
     final a = await _live(walletId);
-    if (amount <= 0) throw ArgumentError('Enter what it was sold for.');
+    if (amount <= 0) throw ArgumentError(appL10n.networthNeedSoldFor);
     final to = await _db.findWalletById(toWalletId);
     if (to == null || to.isArchived || to.walletType.isManaged) {
-      throw ArgumentError('Receive the money into an ordinary account.');
+      throw ArgumentError(appL10n.networthReceiveIntoOrdinary);
     }
     final when = _notAfterNow(date ?? DateTime.now());
     await _correct(a.id, a.name, amount, when);
@@ -287,10 +290,7 @@ class AssetService {
     final a = await find(walletId);
     if (a == null) return;
     if (a.value != 0) {
-      throw ArgumentError(
-        '${a.name} is still worth something. Sell it, or set its value to '
-        'zero, first.',
-      );
+      throw ArgumentError(appL10n.networthStillWorth(a.name));
     }
     if (!a.isClosed) await _archive(a.id);
   }
@@ -298,7 +298,7 @@ class AssetService {
   Future<void> rename(String walletId, String name) async {
     final a = await _live(walletId);
     final trimmed = name.trim();
-    if (trimmed.isEmpty) throw ArgumentError('Give the asset a name.');
+    if (trimmed.isEmpty) throw ArgumentError(appL10n.networthNeedAssetName);
     await (_db.update(_db.wallets)..where((w) => w.id.equals(a.id))).write(
       WalletsCompanion(
         name: Value(trimmed),
@@ -313,7 +313,7 @@ class AssetService {
   Future<AssetHolding> _live(String walletId) async {
     final a = await find(walletId);
     if (a == null || a.isClosed) {
-      throw ArgumentError('That asset is no longer tracked.');
+      throw ArgumentError(appL10n.networthAssetGone);
     }
     return a;
   }

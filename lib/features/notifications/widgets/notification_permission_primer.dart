@@ -74,8 +74,7 @@ class _NotificationPrimerContent extends StatelessWidget {
             ),
             AppSpacing.gapSm,
             Text(
-              'Turn on notifications and we\'ll give you a heads-up on the '
-              'things that matter.',
+              L10n.of(context).notifPrimerSheetBody,
               textAlign: TextAlign.center,
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
@@ -84,20 +83,20 @@ class _NotificationPrimerContent extends StatelessWidget {
             AppSpacing.gapXl,
             _benefit(
               Icons.pie_chart_rounded,
-              'Budget alerts',
-              'Know before you overspend a budget.',
+              L10n.of(context).notifChannelBudgets,
+              L10n.of(context).notifPrimerBudgetsBody,
             ),
             AppSpacing.gapLg,
             _benefit(
               Icons.event_repeat_rounded,
-              'Bill & subscription reminders',
-              'Never miss a recurring payment.',
+              L10n.of(context).notifPrimerBillsTitle,
+              L10n.of(context).notifPrimerBillsBody,
             ),
             AppSpacing.gapLg,
             _benefit(
               Icons.trending_up_rounded,
-              'Large transactions',
-              'Get notified about unusual activity.',
+              L10n.of(context).notifPrimerLargeTitle,
+              L10n.of(context).notifPrimerLargeBody,
             ),
             AppSpacing.gapXxl,
             NeoButton(

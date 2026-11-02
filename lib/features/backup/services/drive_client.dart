@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -126,13 +127,13 @@ class DriveBackupClient {
       headers = await _authorization.headers(interactive: interactive);
     } catch (e) {
       throw DriveException(
-        'Google Drive could not be reached: $e',
+        appL10n.backupDriveUnreachable(e.toString()),
         needsAuthorization: true,
       );
     }
     if (headers == null) {
-      throw const DriveException(
-        'The Accountant is not allowed to use Google Drive yet.',
+      throw DriveException(
+        appL10n.backupDriveNotAllowed,
         needsAuthorization: true,
       );
     }
@@ -180,9 +181,7 @@ class DriveBackupClient {
 
     final decoded = jsonDecode(created.body);
     if (decoded is! Map || decoded['id'] == null) {
-      throw const DriveException(
-        'Google Drive would not make a folder to keep backups in.',
-      );
+      throw DriveException(appL10n.backupDriveNoFolder);
     }
     return _folderId = '${decoded['id']}';
   }
@@ -257,9 +256,7 @@ class DriveBackupClient {
 
     final decoded = jsonDecode(response.body);
     if (decoded is! Map<String, Object?>) {
-      throw const DriveException(
-        'Google Drive accepted the backup but did not say where it put it.',
-      );
+      throw DriveException(appL10n.backupDriveNoFileId);
     }
     return DriveBackupFile.fromJson(decoded);
   }
@@ -304,30 +301,25 @@ class DriveBackupClient {
       // itself, and a scheduled backup would otherwise wait for minutes.
       response = await request(headers).timeout(_requestTimeout);
     } on TimeoutException {
-      throw const DriveException(
-        'Google Drive is taking too long to answer. Try again later.',
-      );
+      throw DriveException(appL10n.backupDriveTimeout);
     } on SocketException {
-      throw const DriveException(
-        'No connection to Google Drive. Try again once you are online.',
-      );
+      throw DriveException(appL10n.backupDriveOffline);
     } on http.ClientException catch (e) {
-      throw DriveException('Google Drive could not be reached: ${e.message}');
+      throw DriveException(appL10n.backupDriveUnreachable(e.message));
     }
 
     if (response.statusCode == 401 || response.statusCode == 403) {
-      throw const DriveException(
-        'Google Drive turned the request down. Grant access again and retry.',
-        needsAuthorization: true,
-      );
+      throw DriveException(appL10n.backupDriveDenied, needsAuthorization: true);
     }
     if (response.statusCode == 404) {
-      throw const DriveException('That backup is no longer in Google Drive.');
+      throw DriveException(appL10n.backupDriveFileGone);
     }
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw DriveException(
-        'Google Drive answered ${response.statusCode}. '
-        '${_reason(response.body)}',
+        appL10n.backupDriveHttpError(
+          response.statusCode,
+          _reason(response.body),
+        ),
       );
     }
     return response;
@@ -344,6 +336,6 @@ class DriveBackupClient {
       // The body was not the error envelope; the status code has to speak for
       // itself.
     }
-    return 'Try again in a moment.';
+    return appL10n.backupDriveTryAgainSoon;
   }
 }

@@ -162,8 +162,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                           icon: Icons.warning_amber_outlined,
                           iconColor: AppColors.warning,
                           title: L10n.of(context).settingsWarningThreshold,
-                          subtitle:
-                              '${prefsState.budgetWarningThreshold.toInt()}% of budget',
+                          subtitle: L10n.of(context).settingsPercentOfBudget(
+                            prefsState.budgetWarningThreshold.toInt(),
+                          ),
                           value: prefsState.budgetWarningThreshold,
                           min: 50,
                           max: 95,

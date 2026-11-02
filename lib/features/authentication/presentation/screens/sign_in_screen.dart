@@ -221,10 +221,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
           enableSuggestions: false,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your email';
+              return L10n.of(context).authEnterYourEmail;
             }
             if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-              return 'Please enter a valid email';
+              return L10n.of(context).authEnterValidEmail;
             }
             return null;
           },
@@ -240,10 +240,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
           onSubmitted: (_) => _signIn(),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter your password';
+              return L10n.of(context).authEnterYourPassword;
             }
             if (value.length < 6) {
-              return 'Password must be at least 6 characters';
+              return L10n.of(context).authPasswordMin6;
             }
             return null;
           },
@@ -305,7 +305,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Don't have an account? ",
+          L10n.of(context).authNoAccountPrompt,
           style: AppTypography.bodyMedium.copyWith(
             color: AppColors.textSecondary,
           ),

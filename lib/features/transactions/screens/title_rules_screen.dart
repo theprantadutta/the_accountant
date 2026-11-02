@@ -47,7 +47,8 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
     final categories = ref.watch(categoryProvider).categories;
 
     String categoryName(String id) =>
-        categories.where((c) => c.id == id).firstOrNull?.name ?? 'Unknown';
+        categories.where((c) => c.id == id).firstOrNull?.name ??
+        L10n.of(context).txnUnknownCategory;
 
     return Scaffold(
       appBar: AppBar(title: Text(L10n.of(context).rulesTitle)),
@@ -99,8 +100,12 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
                               ),
                             ),
                             subtitle: Text(
-                              '${rule.isExactMatch ? 'Exactly this' : 'Anything containing this'}'
-                              ' → ${categoryName(rule.categoryId)}',
+                              L10n.of(context).txnRuleSubtitle(
+                                rule.isExactMatch
+                                    ? L10n.of(context).txnRuleExactly
+                                    : L10n.of(context).txnRuleContaining,
+                                categoryName(rule.categoryId),
+                              ),
                               style: SunriseType.caption.copyWith(
                                 color: context.sunrise.muted,
                               ),
@@ -121,9 +126,7 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
                     child: Text(
-                      'A rule matches anywhere in the title unless you make it '
-                      'exact. The app adds one for you each time you file '
-                      'something by hand.',
+                      L10n.of(context).txnRulesFooter,
                       style: SunriseType.caption.copyWith(
                         color: context.sunrise.muted,
                       ),
@@ -163,8 +166,7 @@ class _TitleRulesScreenState extends ConsumerState<TitleRulesScreen> {
           ),
           AppSpacing.gapSm,
           Text(
-            'Teach the app where something belongs once, and it files it that '
-            'way from then on.',
+            L10n.of(context).txnRulesEmptyHint,
             textAlign: TextAlign.center,
             style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),
@@ -239,7 +241,11 @@ class _RuleDialogState extends State<_RuleDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.existing == null ? 'New rule' : 'Edit rule'),
+      title: Text(
+        widget.existing == null
+            ? L10n.of(context).txnRuleNew
+            : L10n.of(context).txnRuleEdit,
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -258,8 +264,8 @@ class _RuleDialogState extends State<_RuleDialog> {
             title: Text(L10n.of(context).rulesMatchExactly),
             subtitle: Text(
               _exact
-                  ? 'Only titles that are exactly this'
-                  : 'Any title containing it',
+                  ? L10n.of(context).txnRuleExactHint
+                  : L10n.of(context).txnRuleContainingHint,
             ),
           ),
         ],

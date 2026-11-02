@@ -37,10 +37,16 @@ class _ObjectivesListScreenState extends ConsumerState<ObjectivesListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_showArchived ? 'Archived goals' : 'Goals'),
+        title: Text(
+          _showArchived
+              ? L10n.of(context).goalArchivedTitle
+              : L10n.of(context).settingsGoals,
+        ),
         actions: [
           IconButton(
-            tooltip: _showArchived ? 'Show active' : 'Show archived',
+            tooltip: _showArchived
+                ? L10n.of(context).budgetShowActive
+                : L10n.of(context).budgetShowArchived,
             icon: Icon(
               _showArchived ? Icons.inbox_outlined : Icons.archive_outlined,
             ),
@@ -137,7 +143,9 @@ class _ObjectivesListScreenState extends ConsumerState<ObjectivesListScreen> {
                 objective.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
               ),
               title: Text(
-                objective.isPinned ? 'Hide from home' : 'Show on home',
+                objective.isPinned
+                    ? L10n.of(context).goalHideFromHome
+                    : L10n.of(context).goalShowOnHome,
               ),
               onTap: () => Navigator.pop(context, 'pin'),
             ),
@@ -147,7 +155,11 @@ class _ObjectivesListScreenState extends ConsumerState<ObjectivesListScreen> {
                     ? Icons.unarchive_outlined
                     : Icons.archive_outlined,
               ),
-              title: Text(objective.isArchived ? 'Restore' : 'Archive'),
+              title: Text(
+                objective.isArchived
+                    ? L10n.of(context).trashRestore
+                    : L10n.of(context).catArchive,
+              ),
               onTap: () => Navigator.pop(context, 'archive'),
             ),
             const SizedBox(height: 8),
@@ -247,7 +259,7 @@ class ObjectiveCard extends ConsumerWidget {
                       style: AppTypography.titleSmall,
                     ),
                     SensitiveText(
-                      '$saved of $target',
+                      L10n.of(context).goalSavedOfTarget(saved, target),
                       amounts: [saved, target],
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.textSecondary,
@@ -275,7 +287,9 @@ class ObjectiveCard extends ConsumerWidget {
             children: [
               Expanded(
                 child: SensitiveText(
-                  objective.isComplete ? 'Reached' : '$toGo to go',
+                  objective.isComplete
+                      ? L10n.of(context).goalReached
+                      : L10n.of(context).goalToGo(toGo),
                   amounts: [if (!objective.isComplete) toGo],
                   style: AppTypography.bodySmall.copyWith(
                     color: objective.isComplete
@@ -309,11 +323,12 @@ class _Empty extends StatelessWidget {
   Widget build(BuildContext context) => Center(
     child: EmptyState(
       icon: archived ? Symbols.archive_rounded : Symbols.flag_rounded,
-      title: archived ? 'Nothing archived' : 'No goals yet',
+      title: archived
+          ? L10n.of(context).budgetNothingArchived
+          : L10n.of(context).goalNoneYet,
       message: archived
-          ? 'Goals you archive are kept here.'
-          : 'Name something you are saving for, then link the '
-                'transactions that go toward it.',
+          ? L10n.of(context).goalArchivedEmptyHint
+          : L10n.of(context).goalEmptyHint,
       actionLabel: archived ? null : L10n.of(context).goalCreate,
       onAction: onCreate,
     ),

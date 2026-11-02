@@ -10,6 +10,7 @@ import 'package:the_accountant/data/models/transaction.dart'
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/transactions/services/transfer_service.dart';
 import 'package:the_accountant/features/wallets/services/wallet_maintenance_service.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// What someone fills in to start tracking a holding.
 class InvestmentDraft {
@@ -186,19 +187,19 @@ class InvestmentService {
   /// [buy] for that.
   Future<String> create(InvestmentDraft d) async {
     final name = d.name.trim();
-    if (name.isEmpty) throw ArgumentError('Give the investment a name.');
+    if (name.isEmpty) throw ArgumentError(appL10n.investNeedName);
     if (name.length > 100) {
-      throw ArgumentError('Keep the name under 100 characters.');
+      throw ArgumentError(appL10n.investNameTooLong);
     }
     if ((d.symbol?.trim().length ?? 0) > 20) {
-      throw ArgumentError('Keep the symbol under 20 characters.');
+      throw ArgumentError(appL10n.investSymbolTooLong);
     }
-    if (d.price < 0) throw ArgumentError('A price cannot be negative.');
+    if (d.price < 0) throw ArgumentError(appL10n.investPriceNotNegative);
     final existing = (await all()).where(
       (i) => i.name.toLowerCase() == name.toLowerCase(),
     );
     if (existing.isNotEmpty) {
-      throw ArgumentError('$name is already tracked.');
+      throw ArgumentError(appL10n.investAlreadyTracked(name));
     }
 
     final id = _uuid.v4();
@@ -268,12 +269,12 @@ class InvestmentService {
     int? planInstallment,
   }) async {
     final i = await _live(investmentId);
-    if (amount <= 0) throw ArgumentError('Enter what was paid.');
+    if (amount <= 0) throw ArgumentError(appL10n.investNeedPaid);
     if (units != null && units <= 0) {
-      throw ArgumentError('Units bought must be more than zero.');
+      throw ArgumentError(appL10n.investUnitsBoughtPositive);
     }
     if (fromWalletId == i.walletId) {
-      throw ArgumentError('Pay for it from another account.');
+      throw ArgumentError(appL10n.investPayFromOther);
     }
     if (key != null && await _keyTaken(key)) return;
     final when = _notAfterNow(date ?? DateTime.now());
@@ -312,15 +313,15 @@ class InvestmentService {
     DateTime? date,
   }) async {
     final i = await _live(investmentId);
-    if (amount <= 0) throw ArgumentError('Enter what the sale brought in.');
-    if (units <= 0) throw ArgumentError('Units sold must be more than zero.');
+    if (amount <= 0) throw ArgumentError(appL10n.investNeedSaleAmount);
+    if (units <= 0) throw ArgumentError(appL10n.investUnitsSoldPositive);
     if (toWalletId == i.walletId) {
-      throw ArgumentError('Sell into another account.');
+      throw ArgumentError(appL10n.investSellIntoOther);
     }
     final held = await unitsHeld(i.walletId);
     final sold = roundUnits(units);
     if (sold > held + 1e-6) {
-      throw ArgumentError('Only ${_units(held)} units of ${i.name} are held.');
+      throw ArgumentError(appL10n.investOnlyUnitsHeld(_units(held), i.name));
     }
     final when = _notAfterNow(date ?? DateTime.now());
     // What is in the wallet is what it was last valued at; the sale is
@@ -351,10 +352,10 @@ class InvestmentService {
     DateTime? date,
   }) async {
     final i = await _live(investmentId);
-    if (amount <= 0) throw ArgumentError('Enter the dividend received.');
+    if (amount <= 0) throw ArgumentError(appL10n.investNeedDividend);
     final wallet = await _db.findWalletById(toWalletId);
     if (wallet == null || wallet.walletType.isManaged) {
-      throw ArgumentError('Receive it into an ordinary account.');
+      throw ArgumentError(appL10n.investReceiveIntoOrdinary);
     }
     final now = DateTime.now();
     await _db.addTransaction(
@@ -385,7 +386,7 @@ class InvestmentService {
     DateTime? date,
   }) async {
     final i = await _live(investmentId);
-    if (price <= 0) throw ArgumentError('A price must be more than zero.');
+    if (price <= 0) throw ArgumentError(appL10n.investPricePositive);
     final when = _notAfterNow(date ?? DateTime.now());
     await _setPrice(i, price, when);
     await revalue(investmentId, date: when);
@@ -394,13 +395,13 @@ class InvestmentService {
   /// Correct the units recorded on one buy or sell, as a fund statement
   /// gives them. The holding is revalued at the price it already has.
   Future<void> correctUnits(String transactionId, double units) async {
-    if (units <= 0) throw ArgumentError('Units must be more than zero.');
+    if (units <= 0) throw ArgumentError(appL10n.investUnitsPositive);
     final row = await _db.findTransactionById(transactionId);
     final i = row == null ? null : await byWallet(row.walletId);
     if (row == null ||
         i == null ||
         TransactionPolicy.kindOf(row) != TransactionType.transfer) {
-      throw ArgumentError('That is not a trade of an investment.');
+      throw ArgumentError(appL10n.investNotATrade);
     }
     await _tag(transactionId, units: roundUnits(units));
     await revalue(i.id);
@@ -462,7 +463,7 @@ class InvestmentService {
     if (i == null || i.deletedAt != null) return;
     final wallet = await _db.findWalletById(i.walletId);
     if ((wallet?.balance ?? 0) != 0 || await unitsHeld(i.walletId) > 0) {
-      throw ArgumentError('${i.name} still holds units. Sell them first.');
+      throw ArgumentError(appL10n.investStillHoldsUnits(i.name));
     }
     final now = DateTime.now();
     await _db.transaction(() async {
@@ -492,7 +493,7 @@ class InvestmentService {
   Future<Investment> _live(String id) async {
     final i = await find(id);
     if (i == null || i.deletedAt != null) {
-      throw ArgumentError('That investment no longer exists.');
+      throw ArgumentError(appL10n.investNoLongerExists);
     }
     return i;
   }

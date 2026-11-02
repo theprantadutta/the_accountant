@@ -4,40 +4,41 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
 import 'package:the_accountant/data/models/transaction.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Extension for special type display properties
 extension TransactionSpecialTypeExtension on TransactionSpecialType {
   String get label {
     switch (this) {
       case TransactionSpecialType.none:
-        return 'Regular';
+        return appL10n.txnSpecialRegular;
       case TransactionSpecialType.upcoming:
-        return 'Upcoming';
+        return appL10n.forecastKindUpcoming;
       case TransactionSpecialType.subscription:
-        return 'Subscription';
+        return appL10n.forecastKindSubscription;
       case TransactionSpecialType.repetitive:
-        return 'Repetitive';
+        return appL10n.txnSpecialRepetitive;
       case TransactionSpecialType.credit:
-        return 'Lend';
+        return appL10n.txnSpecialLend;
       case TransactionSpecialType.debt:
-        return 'Borrow';
+        return appL10n.txnSpecialBorrow;
     }
   }
 
   String get description {
     switch (this) {
       case TransactionSpecialType.none:
-        return 'Normal transaction';
+        return appL10n.txnSpecialRegularDesc;
       case TransactionSpecialType.upcoming:
-        return 'Future payment to track';
+        return appL10n.txnSpecialUpcomingDesc;
       case TransactionSpecialType.subscription:
-        return 'Recurring service payment';
+        return appL10n.txnSpecialSubscriptionDesc;
       case TransactionSpecialType.repetitive:
-        return 'Repeating transaction';
+        return appL10n.txnSpecialRepetitiveDesc;
       case TransactionSpecialType.credit:
-        return 'Money you lent (they owe you)';
+        return appL10n.txnSpecialLendDesc;
       case TransactionSpecialType.debt:
-        return 'Money you borrowed (you owe them)';
+        return appL10n.txnSpecialBorrowDesc;
     }
   }
 

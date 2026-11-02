@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/recurring/services/recurring_service.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 part 'recurring_provider.g.dart';
 
@@ -166,10 +167,10 @@ class UpcomingRecurring {
   });
 
   String get dueDateDisplay {
-    if (daysUntilDue == 0) return 'Today';
-    if (daysUntilDue == 1) return 'Tomorrow';
-    if (daysUntilDue < 7) return 'In $daysUntilDue days';
-    if (daysUntilDue < 14) return 'Next week';
-    return 'In ${(daysUntilDue / 7).ceil()} weeks';
+    if (daysUntilDue == 0) return appL10n.dateToday;
+    if (daysUntilDue == 1) return appL10n.dateTomorrow;
+    if (daysUntilDue < 7) return appL10n.recurringInDays(daysUntilDue);
+    if (daysUntilDue < 14) return appL10n.recurringNextWeek;
+    return appL10n.recurringInWeeks((daysUntilDue / 7).ceil());
   }
 }

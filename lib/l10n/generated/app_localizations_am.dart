@@ -5495,4 +5495,4067 @@ class L10nAm extends L10n {
   @override
   String get backupLockedBody =>
       'ይህ ምትኬ በይለፍ ሐረግ የተጠበቀ ነው። ለመክፈት እሱን ወይም የመልሶ ማግኛ ኮድዎን ያስገቡ። ይህ ያለ በይነመረብ ግንኙነት ይሰራል።';
+
+  @override
+  String get settingsSupportDescribeFirst => 'እባክዎ መጀመሪያ ችግርዎን ይግለጹ';
+
+  @override
+  String get settingsSupportSent => 'እናመሰግናለን! መልእክትዎ ተልኳል።';
+
+  @override
+  String get settingsSupportSendFailed =>
+      'አሁን መላክ አልተቻለም። እባክዎ እንደገና ይሞክሩ ወይም በቀጥታ ኢሜይል ይላኩልን።';
+
+  @override
+  String get settingsSupportSubjectHint => 'ስለ ምንድን ነው?';
+
+  @override
+  String get settingsSupportMessageHint => 'ጥያቄዎን፣ ችግርዎን ወይም አስተያየትዎን ይግለጹ…';
+
+  @override
+  String get settingsSupportHeroBody =>
+      'ጥያቄዎች፣ ስህተቶች ወይም አስተያየቶች — ይላኩልን፣ እኛም መልስ እንሰጥዎታለን።';
+
+  @override
+  String get settingsSupportTipDescription => 'የችግርዎ ግልጽ መግለጫ';
+
+  @override
+  String get settingsSupportTipSteps =>
+      'ችግሩን እንደገና ለመፍጠር የሚረዱ ደረጃዎች (ስህተት ከሆነ)';
+
+  @override
+  String get settingsSupportTipDevice => 'የመሣሪያዎ ሞዴል እና የAndroid ስሪት';
+
+  @override
+  String settingsSupportPreferEmail(String email) {
+    return 'ኢሜይል ይመርጣሉ? $email';
+  }
+
+  @override
+  String get settingsSupportEmailCopied => 'ኢሜይሉ ወደ ቅንጥብ ሰሌዳ ተቀድቷል';
+
+  @override
+  String get settingsAboutTagline => 'የግል ፋይናንስ አጋርዎ';
+
+  @override
+  String settingsAboutVersion(String version) {
+    return 'ስሪት፦ $version';
+  }
+
+  @override
+  String get settingsAboutDescription =>
+      'በግላዊነት እና በሚያምር UI/UX ላይ\nያተኮረ የግል ፋይናንስ መተግበሪያ።';
+
+  @override
+  String settingsBaseCurrencyLabel(String currency) {
+    return 'መሠረታዊ ምንዛሪ፦ $currency';
+  }
+
+  @override
+  String settingsRatesLastUpdated(String when) {
+    return 'ለመጨረሻ ጊዜ የዘመነው፦ $when';
+  }
+
+  @override
+  String settingsEditRateTitle(String base, String target) {
+    return 'ተመን አርትዕ፦ $base → $target';
+  }
+
+  @override
+  String settingsCurrentApiRate(String rate) {
+    return 'የአሁኑ የAPI ተመን፦ $rate';
+  }
+
+  @override
+  String settingsMinutesAgo(int count) {
+    return 'ከ$count ደቂቃ በፊት';
+  }
+
+  @override
+  String settingsHoursAgo(int count) {
+    return 'ከ$count ሰዓት በፊት';
+  }
+
+  @override
+  String settingsDaysAgo(int count) {
+    return 'ከ$count ቀን በፊት';
+  }
+
+  @override
+  String get settingsExportSectionDateRange => 'የቀን ክልል';
+
+  @override
+  String get settingsExportSectionFormat => 'ቅርጸት';
+
+  @override
+  String get settingsExportSectionInclude => 'የሚካተቱ';
+
+  @override
+  String get settingsExportAllTime => 'ሁሉም ጊዜ';
+
+  @override
+  String get settingsExportThisMonth => 'በዚህ ወር';
+
+  @override
+  String get settingsExportLastMonth => 'ያለፈው ወር';
+
+  @override
+  String get settingsExportLast3Months => 'ያለፉት 3 ወራት';
+
+  @override
+  String get settingsExportThisYear => 'በዚህ ዓመት';
+
+  @override
+  String get settingsExportPdfPremiumBody =>
+      'CSV መላክ ነፃ ነው — ውሂብዎ ሁልጊዜ የእርስዎ ነው። ማጠቃለያዎችን እና የምድብ እና የቦርሳ ዝርዝሮችን የያዘው የተቀናጀ PDF ሪፖርት የPremium ባህሪ ነው።';
+
+  @override
+  String settingsExportButton(String format) {
+    return '$format ላክ';
+  }
+
+  @override
+  String settingsExportFailed(String error) {
+    return 'መላክ አልተሳካም፦ $error';
+  }
+
+  @override
+  String get settingsExportShareSubject => 'The Accountant - የተላከ ውሂብ';
+
+  @override
+  String settingsExportedCount(int count) {
+    return '$count ግብይቶች ተልከዋል';
+  }
+
+  @override
+  String get settingsExportPdfShareSubject => 'The Accountant - የፋይናንስ ሪፖርት';
+
+  @override
+  String settingsExportPdfGenerated(int count) {
+    return '$count ግብይቶችን የያዘ PDF ሪፖርት ተዘጋጅቷል';
+  }
+
+  @override
+  String get settingsNumberFormatCommaThousands => 'ለሺዎች ኮማ';
+
+  @override
+  String get settingsNumberFormatDotThousands => 'ለሺዎች ነጥብ';
+
+  @override
+  String get settingsNumberFormatSpaceThousands => 'ለሺዎች ክፍተት';
+
+  @override
+  String get settingsNumberFormatNoSeparator => 'መለያ ምልክት የለም';
+
+  @override
+  String get settingsAutoLockImmediately => 'ወዲያውኑ';
+
+  @override
+  String settingsAutoLockMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ደቂቃዎች',
+      one: '1 ደቂቃ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsAutoLockNever => 'በጭራሽ';
+
+  @override
+  String get settingsBiometricUnavailable => 'በዚህ መሣሪያ ላይ የባዮሜትሪክ ማረጋገጫ አይገኝም';
+
+  @override
+  String get settingsSetPassword => 'የይለፍ ቃል አዘጋጅ';
+
+  @override
+  String get settingsChangePassword => 'የይለፍ ቃል ቀይር';
+
+  @override
+  String get settingsAddPasswordSubtitle => 'ለመለያዎ የይለፍ ቃል ያክሉ';
+
+  @override
+  String get settingsPasswordChanged => 'የይለፍ ቃሉ በተሳካ ሁኔታ ተቀይሯል';
+
+  @override
+  String get settingsPasswordSet => 'የይለፍ ቃሉ በተሳካ ሁኔታ ተዘጋጅቷል';
+
+  @override
+  String get settingsClearCacheBody =>
+      'ይህ የተሸጎጠ ውሂብን ያጸዳል፤ መተግበሪያው በሚቀጥለው ሲከፈት እንደገና ያመሳስላል። ውሂብዎ አይሰረዝም።';
+
+  @override
+  String get settingsClearingCache => 'መሸጎጫ በማጽዳት ላይ...';
+
+  @override
+  String get settingsCacheCleared => 'መሸጎጫው ጸድቷል፣ ማመሳሰልም ተጀምሯል';
+
+  @override
+  String get settingsClearCacheFailed => 'መሸጎጫውን ማጽዳት አልተቻለም';
+
+  @override
+  String get settingsClearAllDataBody =>
+      'ይህ ሁሉንም ግብይቶችዎን፣ በጀቶችዎን፣ ቦርሳዎችዎን፣ ምድቦችዎን እና ቅንብሮችዎን እስከመጨረሻው ይሰርዛል። ይህ ሊቀለበስ አይችልም!';
+
+  @override
+  String get settingsClearAllDataConfirmBody =>
+      'ሁሉም የፋይናንስ ውሂብዎ እስከመጨረሻው ይጠፋል።';
+
+  @override
+  String get settingsClearingAllData => 'ሁሉንም ውሂብ በማጽዳት ላይ...';
+
+  @override
+  String get settingsAllDataCleared => 'ሁሉም ውሂብ በተሳካ ሁኔታ ጸድቷል';
+
+  @override
+  String settingsClearDataFailed(String error) {
+    return 'ውሂቡን ማጽዳት አልተቻለም፦ $error';
+  }
+
+  @override
+  String get settingsDeleteAccountBody =>
+      'መለያ እንዲሰረዝ ለመጠየቅ ወደ አንድ ቅጽ ይወሰዳሉ። ሂደቱ ለመጠናቀቅ ጥቂት ቀናት ይወስዳል። ከተጠናቀቀ በኋላ በአገልጋዩ ላይ ያለው ሁሉም ውሂብ እስከመጨረሻው ይሰረዛል።';
+
+  @override
+  String get settingsLockAuthFailed => 'ማረጋገጥ አልተሳካም። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String get settingsLockError => 'ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String get settingsLockAuthenticating => 'በማረጋገጥ ላይ...';
+
+  @override
+  String get settingsProfileNameEmpty => 'ስም ባዶ ሊሆን አይችልም';
+
+  @override
+  String get settingsProfileUpdated => 'መገለጫው በተሳካ ሁኔታ ዘምኗል';
+
+  @override
+  String get settingsProfileUpdateFailed => 'መገለጫውን ማዘመን አልተቻለም';
+
+  @override
+  String get settingsProfileSaveChanges => 'ለውጦችን አስቀምጥ';
+
+  @override
+  String get settingsProfileSaved => 'ተቀምጧል';
+
+  @override
+  String get settingsProfilePhotoSoon => 'ፎቶ መስቀል በቅርቡ ይመጣል';
+
+  @override
+  String get settingsProfileAccountInformation => 'የመለያ መረጃ';
+
+  @override
+  String get settingsProfileMemberSince => 'አባል የሆኑበት';
+
+  @override
+  String get settingsProfileUnknown => 'ያልታወቀ';
+
+  @override
+  String get settingsProfileFree => 'ነፃ';
+
+  @override
+  String get settingsProfileUserId => 'የተጠቃሚ መታወቂያ';
+
+  @override
+  String get settingsProfileUserIdCopied => 'የተጠቃሚ መታወቂያ ተቀድቷል';
+
+  @override
+  String get settingsPremiumMonthly => 'Premium ወርሃዊ';
+
+  @override
+  String get settingsPremiumYearly => 'Premium ዓመታዊ';
+
+  @override
+  String get settingsPremiumLifetime => 'Premium የዕድሜ ልክ';
+
+  @override
+  String get settingsUnsavedChangesBody =>
+      'ያልተቀመጡ ለውጦች አሉዎት። እርግጠኛ ነዎት መውጣት ይፈልጋሉ?';
+
+  @override
+  String settingsShareAppText(String url) {
+    return 'The Accountantን ይመልከቱ - የሚያምር የግል ፋይናንስ መተግበሪያ!\n\n$url';
+  }
+
+  @override
+  String get settingsShareAppSubject => 'The Accountant - የግል ፋይናንስ መተግበሪያ';
+
+  @override
+  String get settingsCloudSyncGateBody =>
+      'የፋይናንስ ውሂብዎን በሁሉም መሣሪያዎችዎ ላይ ተመሳስሎ ያቆዩ። ውሂብዎን ዳግመኛ አያጡም።';
+
+  @override
+  String settingsSyncPushed(int count) {
+    return '$count ተልከዋል';
+  }
+
+  @override
+  String settingsSyncPulled(int count) {
+    return '$count መጥተዋል';
+  }
+
+  @override
+  String settingsSyncConflicts(int count) {
+    return '$count ግጭቶች';
+  }
+
+  @override
+  String get settingsSyncNowSubtitle => 'ሁሉንም ለውጦች ላክ እና አምጣ';
+
+  @override
+  String settingsSyncComplete(int pushed, int pulled) {
+    return 'ማመሳሰል ተጠናቋል — $pushed ተልከዋል፣ $pulled መጥተዋል';
+  }
+
+  @override
+  String settingsSyncIncomplete(int count, String details) {
+    return 'ማመሳሰል አልተጠናቀቀም — $count መዝገብ(ቦች) ሊቀመጡ አልቻሉም፤ እንደገና ይሞከራሉ። $details';
+  }
+
+  @override
+  String settingsSyncFailed(String error) {
+    return 'ማመሳሰል አልተሳካም፦ $error';
+  }
+
+  @override
+  String get settingsRestoreFromCloudSubtitle => 'የዚህን መሣሪያ ውሂብ በደመና ውሂብዎ ይተኩ';
+
+  @override
+  String get settingsRestoreFromCloudBody =>
+      'ይህ በዚህ መሣሪያ ላይ ያለውን ሁሉንም ውሂብ አጥፍቶ በደመና ውሂብዎ ይተካዋል። በዚህ መሣሪያ ላይ ገና ያልተመሳሰሉ ለውጦች ይጠፋሉ። ይህ ሊቀለበስ አይችልም።';
+
+  @override
+  String settingsRestoredFromCloud(int count) {
+    return '$count ንጥሎች ከደመና ተመልሰዋል';
+  }
+
+  @override
+  String settingsRestoreCancelled(String details) {
+    return 'መመለሱ ተሰርዟል — በስልኩ ላይ ያለው ውሂብዎ አልተቀየረም። $details';
+  }
+
+  @override
+  String settingsRestoreFailed(String error) {
+    return 'መመለስ አልተሳካም፦ $error';
+  }
+
+  @override
+  String get settingsSyncInfoBody =>
+      'ውሂብዎ በየ15 ደቂቃው እና መተግበሪያውን ሲከፍቱ በራስ-ሰር ይመሳሰላል። መጠኖች፣ ስሞች እና ማስታወሻዎች ከመመሳሰላቸው በፊት በዚህ ስልክ ላይ ይመሰጠራሉ፤ ስለዚህ አገልጋያችን ሊያነባቸው አይችልም።';
+
+  @override
+  String settingsSyncCompletedSeconds(int seconds) {
+    return 'በ$seconds ሰከንድ ተጠናቋል';
+  }
+
+  @override
+  String settingsSyncCompletedMinutes(int minutes, int seconds) {
+    return 'በ$minutes ደቂቃ $seconds ሰከንድ ተጠናቋል';
+  }
+
+  @override
+  String settingsReconcileQuestion(String name) {
+    return 'ይህ የእርስዎ “$name” ምድብ ነው?';
+  }
+
+  @override
+  String get settingsReconcileSavedPending => 'ተቀምጧል። በሚቀጥለው ጊዜ ሲያመሳስሉ ይተገበራል።';
+
+  @override
+  String settingsReconcileBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'መለያዎ “$name” የሚባሉ $count ምድቦች አስቀድሞ አሉት። ከእነሱ አንዱን እንደ አብሮ የተሠራ ምድብ እንጠቀም ወይስ ለየብቻ እናቆየው ይንገሩን። እስኪመርጡ ድረስ ምንም አይቀየርም።',
+      one:
+          'መለያዎ “$name” የሚባል ምድብ አስቀድሞ አለው። እንደ አብሮ የተሠራ ምድብ እንጠቀምበት ወይስ ለየብቻ እናቆየው ይንገሩን። እስኪመርጡ ድረስ ምንም አይቀየርም።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepMine => 'አይ — የእኔን አቆይና ለየብቻ ሌላ አክል';
+
+  @override
+  String get settingsReconcileNoneOfThese => 'ከእነዚህ አንዱም አይደለም — ለየብቻ ሌላ አክል';
+
+  @override
+  String settingsReconcileKeepSeparateBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'ያሉት “$name” ምድቦችዎ ከሁሉም ግብይቶቻቸው ጋር እንዳሉ ይቆያሉ። ከጎናቸው አዲስ አብሮ የተሠራ “$name” ይታከላል።',
+      one:
+          'ያለው “$name” ምድብዎ ከሁሉም ግብይቶቹ ጋር እንዳለ ይቆያል። ከጎኑ አዲስ አብሮ የተሠራ “$name” ይታከላል።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepSeparate => 'ለየብቻ አቆይ';
+
+  @override
+  String settingsReconcileTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ግብይቶች',
+      one: '1 ግብይት',
+      zero: 'ምንም ግብይት የለም',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsReconcileUseTitle(String name) {
+    return '“$name” ይጠቀሙ?';
+  }
+
+  @override
+  String settingsReconcileUseBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'አብሮ የተሠራው “$name” ምድብ ይሆናል፤ ሁሉም $count ግብይቶቹ ከንዑስ ምድቦቹ ጋር ይቆያሉ። ምንም አይሰረዝም።',
+      zero:
+          'አብሮ የተሠራው “$name” ምድብ ይሆናል፤ በሥሩ የተመዘገበው ሁሉ ከንዑስ ምድቦቹ ጋር ይቆያል። ምንም አይሰረዝም።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileUseThisOne => 'ይህንን ተጠቀም';
+
+  @override
+  String settingsReconcileWillUse(String name) {
+    return '“$name” ጥቅም ላይ ይውላል።';
+  }
+
+  @override
+  String settingsReconcileWillAdd(String name) {
+    return 'ለየብቻ “$name” ይታከላል።';
+  }
+
+  @override
+  String get settingsChangePasswordSubtitle =>
+      'የአሁኑን የይለፍ ቃልዎን ያስገቡ እና አዲስ ይምረጡ';
+
+  @override
+  String get settingsSetPasswordSubtitle => 'ለተጨማሪ ደህንነት ለመለያዎ የይለፍ ቃል ያክሉ';
+
+  @override
+  String get settingsEnterCurrentPassword => 'እባክዎ የአሁኑን የይለፍ ቃልዎን ያስገቡ';
+
+  @override
+  String get settingsEnterNewPassword => 'እባክዎ አዲስ የይለፍ ቃል ያስገቡ';
+
+  @override
+  String get settingsPasswordMinLength => 'የይለፍ ቃል ቢያንስ 8 ቁምፊዎች መሆን አለበት';
+
+  @override
+  String get settingsConfirmYourPassword => 'እባክዎ የይለፍ ቃልዎን ያረጋግጡ';
+
+  @override
+  String get settingsPasswordsDoNotMatch => 'የይለፍ ቃሎቹ አይዛመዱም';
+
+  @override
+  String get settingsPleaseWait => 'እባክዎ ይጠብቁ...';
+
+  @override
+  String settingsTypeToConfirm(String word) {
+    return 'ለማረጋገጥ “$word” ብለው ይተይቡ';
+  }
+
+  @override
+  String settingsPercentOfBudget(int percent) {
+    return 'ከበጀቱ $percent%';
+  }
+
+  @override
+  String get authTooManyAttempts =>
+      'በጣም ብዙ ሙከራዎች። እባክዎ አንድ ደቂቃ ጠብቀው እንደገና ይሞክሩ።';
+
+  @override
+  String get authServerDown =>
+      'አገልጋዮቻችንን ማግኘት አልቻልንም። ችግሩ በእኛ በኩል ነው — እባክዎ ከጥቂት ደቂቃዎች በኋላ እንደገና ይሞክሩ።';
+
+  @override
+  String get authInitFailed => 'ማረጋገጫን ማስጀመር አልተቻለም';
+
+  @override
+  String get authSignInError => 'በመግባት ላይ ሳለ ስህተት ተፈጥሯል';
+
+  @override
+  String get authSignUpError => 'በመመዝገብ ላይ ሳለ ስህተት ተፈጥሯል';
+
+  @override
+  String get authGoogleCancelled => 'በGoogle መግባት ተሰርዟል ወይም አልተሳካም';
+
+  @override
+  String get authFirebaseTokenFailed => 'የFirebase ID ቶከን ማግኘት አልተቻለም';
+
+  @override
+  String get authGoogleSignInError => 'በGoogle በመግባት ላይ ሳለ ስህተት ተፈጥሯል';
+
+  @override
+  String get authAccountExistsDifferentCredential =>
+      'በዚሁ ኢሜይል አድራሻ ግን በተለየ የመግቢያ መረጃ የተከፈተ መለያ አስቀድሞ አለ።';
+
+  @override
+  String get authInvalidCredential =>
+      'የቀረበው የመግቢያ መረጃ የተበላሸ ነው ወይም ጊዜው አልፎበታል።';
+
+  @override
+  String get authGoogleDisabled => 'በGoogle መግባት ተሰናክሏል።';
+
+  @override
+  String get authUserDisabled => 'ይህ የተጠቃሚ መለያ ተሰናክሏል።';
+
+  @override
+  String get authAppleSignInError => 'በApple በመግባት ላይ ሳለ ስህተት ተፈጥሯል';
+
+  @override
+  String get authAppleDisabled => 'በApple መግባት ተሰናክሏል።';
+
+  @override
+  String get authNoPendingLink => 'ለማገናኘት የሚጠብቅ መለያ የለም';
+
+  @override
+  String get authLinkFailed => 'መለያውን ማገናኘት አልተቻለም';
+
+  @override
+  String get authIncorrectPassword => 'የይለፍ ቃሉ ትክክል አይደለም። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String get authSignOutError => 'በመውጣት ላይ ሳለ ስህተት ተፈጥሯል';
+
+  @override
+  String get authLinkSubtitle =>
+      'በዚህ ኢሜይል የተከፈተ መለያ አስቀድሞ አለ። የGoogle መለያዎን ለማገናኘት የይለፍ ቃልዎን ያስገቡ።';
+
+  @override
+  String get authEnterYourPasswordHint => 'የይለፍ ቃልዎን ያስገቡ';
+
+  @override
+  String get authEnterYourPassword => 'እባክዎ የይለፍ ቃልዎን ያስገቡ';
+
+  @override
+  String get authLinkInfo => 'ካገናኙ በኋላ በኢሜይል/የይለፍ ቃል ወይም በGoogle መግባት ይችላሉ።';
+
+  @override
+  String get authEnterYourEmail => 'እባክዎ ኢሜይልዎን ያስገቡ';
+
+  @override
+  String get authEnterValidEmail => 'እባክዎ ትክክለኛ ኢሜይል ያስገቡ';
+
+  @override
+  String get authPasswordMin6 => 'የይለፍ ቃል ቢያንስ 6 ቁምፊዎች መሆን አለበት';
+
+  @override
+  String get authNoAccountPrompt => 'መለያ የለዎትም? ';
+
+  @override
+  String get authForgotPasswordTitle => 'የይለፍ ቃል ረሱ';
+
+  @override
+  String get authCheckYourEmail => 'ኢሜይልዎን ይመልከቱ';
+
+  @override
+  String get authForgotPasswordSubtitle =>
+      'ኢሜይልዎን ያስገቡ፤ የይለፍ ቃልዎን ዳግም ለማስጀመር ኮድ እንልክልዎታለን።';
+
+  @override
+  String authCodeSentSubtitle(String email) {
+    return 'ወደ $email ባለ 6 አሃዝ ኮድ ልከናል። ከአዲሱ የይለፍ ቃልዎ ጋር ከታች ያስገቡት።';
+  }
+
+  @override
+  String get authEnterYourEmailHint => 'ኢሜይልዎን ያስገቡ';
+
+  @override
+  String get authSixDigitCodeHint => 'ባለ 6 አሃዝ ኮድ';
+
+  @override
+  String get authEnterTheCode => 'እባክዎ ኮዱን ያስገቡ';
+
+  @override
+  String get authCodeIsSixDigits => 'ኮዱ 6 አሃዝ ነው';
+
+  @override
+  String get authCreateNewPasswordHint => 'አዲስ የይለፍ ቃል ይፍጠሩ';
+
+  @override
+  String get authReenterNewPasswordHint => 'አዲሱን የይለፍ ቃልዎን እንደገና ያስገቡ';
+
+  @override
+  String get authEnterYourNameHint => 'ስምዎን ያስገቡ';
+
+  @override
+  String get authEnterFullName => 'እባክዎ ሙሉ ስምዎን ያስገቡ';
+
+  @override
+  String get authNameMin2 => 'ስም ቢያንስ 2 ቁምፊዎች መሆን አለበት';
+
+  @override
+  String get authCreatePasswordHint => 'የይለፍ ቃል ይፍጠሩ';
+
+  @override
+  String get authPasswordComplexity => 'ትልቅ ፊደል፣ ትንሽ ፊደል እና ቁጥር መያዝ አለበት';
+
+  @override
+  String get authReenterPasswordHint => 'የይለፍ ቃልዎን እንደገና ያስገቡ';
+
+  @override
+  String get authStrengthWeak => 'ደካማ';
+
+  @override
+  String get authStrengthFair => 'መካከለኛ';
+
+  @override
+  String get authStrengthGood => 'ጥሩ';
+
+  @override
+  String get authStrengthStrong => 'ጠንካራ';
+
+  @override
+  String authAgreeToTerms(String terms, String privacy) {
+    return 'በ$terms እና በ$privacy እስማማለሁ';
+  }
+
+  @override
+  String get authDefaultUserName => 'ተጠቃሚ';
+
+  @override
+  String authMemberSince(String date) {
+    return 'ከ$date ጀምሮ አባል';
+  }
+
+  @override
+  String get authFieldRequired => 'ይህ መስክ ያስፈልጋል';
+
+  @override
+  String authSignOutFailed(String error) {
+    return 'መውጣት አልተቻለም፦ $error';
+  }
+
+  @override
+  String authPickImageFailed(String error) {
+    return 'ምስል መምረጥ አልተቻለም፦ $error';
+  }
+
+  @override
+  String authUpdateProfileFailed(String error) {
+    return 'መገለጫውን ማዘመን አልተቻለም፦ $error';
+  }
+
+  @override
+  String get premiumSaveAbout44 => '~44% ይቆጥቡ';
+
+  @override
+  String get premiumBestValue => 'ምርጥ ዋጋ';
+
+  @override
+  String get premiumIapUnavailable => 'IAP አይገኝም';
+
+  @override
+  String get premiumProductNotFound => 'ምርቱ አልተገኘም';
+
+  @override
+  String get premiumPlanUnavailable => 'ይህ ዕቅድ አሁን በመለያዎ ላይ አይገኝም';
+
+  @override
+  String get premiumRestoreFailed => 'ግዢዎችን መመለስ አልተቻለም';
+
+  @override
+  String get premiumPurchaseFailed => 'ግዢው አልተሳካም';
+
+  @override
+  String get premiumVerificationFailed => 'ማረጋገጫው አልተሳካም';
+
+  @override
+  String premiumPeriodDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ቀናት',
+      one: '1 ቀን',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ሳምንታት',
+      one: '1 ሳምንት',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ወራት',
+      one: '1 ወር',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ዓመታት',
+      one: '1 ዓመት',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumLimitUsed(int count, int limit, String items) {
+    return 'ከ$limit ነፃ $items ውስጥ $countቱን ተጠቅመዋል።';
+  }
+
+  @override
+  String premiumLimitUpgrade(String items) {
+    return 'ገደብ ለሌላቸው $items እና ለሌሎችም ወደ Premium ያሻሽሉ!';
+  }
+
+  @override
+  String premiumFreeLimitMessage(int limit, String items) {
+    return 'የነፃው ዕቅድ ገደብ የሆነውን $limit $items ደርሰዋል። ገደብ ለሌላቸው $items ወደ Premium ያሻሽሉ።';
+  }
+
+  @override
+  String get premiumLimitWallets => 'ቦርሳዎች';
+
+  @override
+  String get premiumLimitCategories => 'የራስዎ ምድቦች';
+
+  @override
+  String get premiumLimitBudgets => 'ንቁ በጀቶች';
+
+  @override
+  String get premiumLimitObjectives => 'ንቁ ዓላማዎች';
+
+  @override
+  String get premiumLimitPaymentMethods => 'የመክፈያ ዘዴዎች';
+
+  @override
+  String get backupErrNotJson => 'ይህ ፋይል ምትኬ አይደለም — እንደ JSON ሊነበብ አልቻለም።';
+
+  @override
+  String get backupErrNotOurs => 'ይህ ፋይል የThe Accountant ምትኬ አይደለም።';
+
+  @override
+  String get backupErrNewerVersion =>
+      'ይህ ምትኬ የተሠራው በአዲስ የመተግበሪያው ስሪት ነው። The Accountantን አዘምነው እንደገና ይሞክሩ።';
+
+  @override
+  String backupErrTooOld(int version, int oldest) {
+    return 'ይህ ምትኬ ይህ ስሪት ሊያነበው ከሚችለው በላይ የቆየ የመተግበሪያው ስሪት ነው (የውሂብ ጎታ $version፣ የሚደገፈው በጣም የቆየ $oldest)።';
+  }
+
+  @override
+  String get backupErrNoData => 'ይህ ምትኬ ምንም ውሂብ የለውም።';
+
+  @override
+  String backupErrSectionDamaged(String section) {
+    return 'የዚህ ምትኬ “$section” ክፍል ተበላሽቷል።';
+  }
+
+  @override
+  String get backupErrNoHeader => 'ይህ ምትኬ ምን እንደሆነ የሚገልጸው ራስጌ ይጎድለዋል።';
+
+  @override
+  String get backupErrNoSchemaVersion =>
+      'ይህ ምትኬ ከየትኛው የውሂብ ጎታ ስሪት እንደተወሰደ አይገልጽም፤ ስለዚህ በደህና ሊመለስ አይችልም።';
+
+  @override
+  String get backupErrNoDate => 'ይህ ምትኬ መቼ እንደተወሰደ አይገልጽም።';
+
+  @override
+  String get backupErrDamaged => 'ይህ የምትኬ ፋይል ተበላሽቷል።';
+
+  @override
+  String get backupErrWrongKey =>
+      'ይህ ምትኬ የሌላ መለያ ነው፣ ወይም ፋይሉ ተቀይሯል። ለመመለስ በሠራው መለያ ይግቡ።';
+
+  @override
+  String get backupErrNoPassphraseLock => 'ይህ ምትኬ በይለፍ ሐረግ ሊከፈት አይችልም።';
+
+  @override
+  String get backupErrNeedsSecret =>
+      'ይህ ምትኬ በይለፍ ሐረግ የተጠበቀ ነው። ለመመለስ የይለፍ ሐረጉን ወይም የመልሶ ማግኛ ኮዱን ያስገቡ።';
+
+  @override
+  String get backupErrWrongSecret =>
+      'ያ የይለፍ ሐረግ ወይም የመልሶ ማግኛ ኮድ ይህንን ምትኬ አይከፍትም።';
+
+  @override
+  String backupErrNewerSchema(int version, int supported) {
+    return 'ይህ ምትኬ የተሠራው በአዲስ የመተግበሪያው ስሪት ነው (የውሂብ ጎታ $version፣ ይህ ስሪት እስከ $supported ድረስ ያነባል)። The Accountantን አዘምነው እንደገና ይሞክሩ።';
+  }
+
+  @override
+  String backupDriveUnreachable(String error) {
+    return 'Google Driveን ማግኘት አልተቻለም፦ $error';
+  }
+
+  @override
+  String get backupDriveNotAllowed =>
+      'The Accountant Google Driveን እንዲጠቀም ገና አልተፈቀደለትም።';
+
+  @override
+  String get backupDriveNoFolder =>
+      'Google Drive ምትኬዎችን የሚያስቀምጥበት አቃፊ መፍጠር አልፈቀደም።';
+
+  @override
+  String get backupDriveNoFileId =>
+      'Google Drive ምትኬውን ተቀብሏል፤ ነገር ግን የት እንዳስቀመጠው አልገለጸም።';
+
+  @override
+  String get backupDriveTimeout =>
+      'Google Drive ለመመለስ በጣም እየዘገየ ነው። ቆይተው እንደገና ይሞክሩ።';
+
+  @override
+  String get backupDriveOffline =>
+      'ከGoogle Drive ጋር ግንኙነት የለም። መስመር ላይ ሲሆኑ እንደገና ይሞክሩ።';
+
+  @override
+  String get backupDriveDenied =>
+      'Google Drive ጥያቄውን አልተቀበለም። እንደገና ፈቃድ ሰጥተው ይሞክሩ።';
+
+  @override
+  String get backupDriveFileGone => 'ያ ምትኬ ከአሁን በኋላ በGoogle Drive ውስጥ የለም።';
+
+  @override
+  String backupDriveHttpError(int status, String reason) {
+    return 'Google Drive $status የሚል ምላሽ ሰጥቷል። $reason';
+  }
+
+  @override
+  String get backupDriveTryAgainSoon => 'ትንሽ ቆይተው እንደገና ይሞክሩ።';
+
+  @override
+  String backupTakeFailed(String error) {
+    return 'ምትኬውን መውሰድ አልተቻለም፦ $error';
+  }
+
+  @override
+  String get backupUnrestorableNewer => 'በአዲስ የመተግበሪያው ስሪት የተሠራ።';
+
+  @override
+  String get backupUnrestorableOlder => 'ይህ የመተግበሪያው ስሪት ሊያነበው ከሚችለው በላይ የቆየ።';
+
+  @override
+  String get backupKeyUnusable =>
+      'አገልጋዩ ጥቅም ላይ ሊውል የማይችል የምስጠራ ቁልፍ ልኳል። ቆይተው እንደገና ይሞክሩ።';
+
+  @override
+  String get backupKeyNeedsSignIn =>
+      'ምትኬ ለመሥራት ወይም ለመመለስ ይግቡ — ምትኬዎች በመለያዎ ይመሰጠራሉ።';
+
+  @override
+  String get backupKeyNeedsInternet =>
+      'ውሂብዎ እንዲመሰጠር አንድ ጊዜ ከበይነመረብ ጋር ይገናኙ፣ ከዚያ እንደገና ይሞክሩ።';
+
+  @override
+  String get backupKeyLocked =>
+      'ውሂብዎ በይለፍ ሐረግ የተጠበቀ ነው። መጀመሪያ በዚህ መሣሪያ ላይ ይክፈቱት።';
+
+  @override
+  String get backupFrequencyManual => 'ስጠይቅ ብቻ';
+
+  @override
+  String get backupFrequencyDaily => 'በየቀኑ';
+
+  @override
+  String get backupFrequencyWeekly => 'በየሳምንቱ';
+
+  @override
+  String get backupFrequencyMonthly => 'በየወሩ';
+
+  @override
+  String get backupIntro =>
+      'ምትኬ በዚህ መሣሪያ ላይ ያለውን ሁሉ — እያንዳንዱን ግብይት፣ ሂሳብ፣ በጀት እና ግብ — የያዘ አንድ ፋይል ነው። አንዱን ደህንነቱ በተጠበቀ ቦታ ያስቀምጡ፤ እዚህ ያለ ምንም ነገር ለዘለቄታው አይጠፋም።';
+
+  @override
+  String get backupSectionOnDevice => 'በዚህ መሣሪያ ላይ';
+
+  @override
+  String get backupSectionGoogleDrive => 'GOOGLE DRIVE';
+
+  @override
+  String get backupSectionInDrive => 'በDRIVE ውስጥ ያሉ ምትኬዎች';
+
+  @override
+  String backupBackedUpCount(int count) {
+    return '$count መዝገቦች ምትኬ ተቀምጦላቸዋል።';
+  }
+
+  @override
+  String get backupSaveDialogTitle => 'ምትኬ አስቀምጥ';
+
+  @override
+  String get backupChooseFileTitle => 'የምትኬ ፋይል ይምረጡ';
+
+  @override
+  String backupFileUnreadable(String error) {
+    return 'ያ ፋይል ሊነበብ አልቻለም፦ $error';
+  }
+
+  @override
+  String backupTakenOn(String date) {
+    return '$date የተወሰደ።';
+  }
+
+  @override
+  String backupTakenOnDevice(String date, String device) {
+    return '$date በ$device ላይ የተወሰደ።';
+  }
+
+  @override
+  String backupBelongedTo(String email) {
+    return 'የ$email ነበር።';
+  }
+
+  @override
+  String get backupDifferentAccountWarning =>
+      'ይህ እዚህ የገቡበት መለያ አይደለም። መመለስ የሌላ ሰውን መዝገቦች ወደዚህ መሣሪያ ያመጣል።';
+
+  @override
+  String get backupRestoreEraseWarning =>
+      'አሁን በዚህ መሣሪያ ላይ ያለው ሁሉ ተሰርዞ ይተካል። ገና ያልተመሳሰለ ማንኛውም ነገር ይጠፋል። ይህ ሊቀለበስ አይችልም።';
+
+  @override
+  String backupRestoredCount(int count) {
+    return '$count መዝገቦች ተመልሰዋል።';
+  }
+
+  @override
+  String backupRestoredPartial(int count) {
+    return '$count መዝገቦች ተመልሰዋል። የፋይሉ የተወሰነ ክፍል ከዚህ ስሪት ጋር ስላልተስማማ ቀርቷል።';
+  }
+
+  @override
+  String backupRestoreFailed(String error) {
+    return 'ምንም አልተቀየረም — መመለሱ አልተሳካም፦ $error';
+  }
+
+  @override
+  String get backupConnectDriveSubtitle =>
+      'ምትኬዎች የሚቀመጡት ይህ መተግበሪያ ብቻ በሚከፍተው የግል አቃፊ ውስጥ ነው። ሌሎች ፋይሎችዎ በጭራሽ አይነበቡም።';
+
+  @override
+  String get backupDriveConnectedTitle => 'Google Drive ተገናኝቷል';
+
+  @override
+  String backupDriveFolderFirst(String folder) {
+    return 'ከዚህ መሣሪያ የሚወሰዱ ምትኬዎች በDriveዎ ውስጥ “$folder” ወደሚባል አቃፊ ይሄዳሉ።';
+  }
+
+  @override
+  String backupDriveFolder(String folder) {
+    return 'ምትኬዎች በDriveዎ ውስጥ ወደ “$folder” ይሄዳሉ።';
+  }
+
+  @override
+  String get backupNoneYet => 'ከዚህ መሣሪያ እስካሁን ምንም ምትኬ አልተላከም';
+
+  @override
+  String backupLastBackedUp(String date) {
+    return 'የመጨረሻው ምትኬ $date';
+  }
+
+  @override
+  String backupKeepSubtitle(int count) {
+    return '$count ምትኬዎች — አዲስ ሲገባ የቆዩት ይወገዳሉ';
+  }
+
+  @override
+  String get backupDisconnectSubtitle =>
+      'ራስ-ሰር ምትኬዎችን ያቆማል። አስቀድሞ የተቀመጠ ምንም ነገር አይሰረዝም።';
+
+  @override
+  String backupListFailed(String error) {
+    return 'ምትኬዎችዎን መዘርዘር አልተቻለም፦ $error';
+  }
+
+  @override
+  String get backupDriveNotGranted => 'የGoogle Drive ፈቃድ አልተሰጠም።';
+
+  @override
+  String get backupDriveConnected => 'Google Drive ተገናኝቷል።';
+
+  @override
+  String backupDriveConnectFailed(String error) {
+    return 'Google Driveን ማገናኘት አልተቻለም፦ $error';
+  }
+
+  @override
+  String get backupDisconnectBody =>
+      'ራስ-ሰር ምትኬዎች ይቆማሉ። አስቀድሞ በDrive ውስጥ ያሉ ምትኬዎች ባሉበት ይቆያሉ፤ በማንኛውም ጊዜ እንደገና ማገናኘት ይችላሉ።';
+
+  @override
+  String backupSavedToDrive(String name) {
+    return '$name በGoogle Drive ተቀምጧል።';
+  }
+
+  @override
+  String backupCopyFailed(String error) {
+    return 'ያ ምትኬ ሊቀመጥ አልቻለም፦ $error';
+  }
+
+  @override
+  String get backupDeleteBody => 'ከGoogle Drive እስከመጨረሻው ይወገዳል።';
+
+  @override
+  String get backupRefresh => 'አድስ';
+
+  @override
+  String get ppErrKdfParams => 'ተቀባይነት የሌላቸው የቁልፍ ማመንጫ መለኪያዎች።';
+
+  @override
+  String get ppErrKdfAlgorithm => 'ያልታወቀ የቁልፍ ማመንጫ ስልተ ቀመር።';
+
+  @override
+  String get onboardingIntroAccountsTitle => 'ሁሉም ሂሳቦች፣ አንድ ቀሪ ሂሳብ';
+
+  @override
+  String get onboardingIntroAccountsBody =>
+      'ጥሬ ገንዘብን፣ ካርዶችን እና ቁጠባን ጎን ለጎን ያስቀምጡ፤ በእርግጥ ምን ያህል እንደቀረዎት ይመልከቱ።';
+
+  @override
+  String get onboardingIntroBudgetsTitle => 'አስቀድመው የሚያስጠነቅቁ በጀቶች';
+
+  @override
+  String get onboardingIntroBudgetsBody =>
+      'ለእያንዳንዱ ምድብ ገደብ ያዘጋጁ። መተግበሪያው ድምሩን ይከታተላል፤ ገደቡን ከማለፍዎ በፊት ያስጠነቅቅዎታል፣ ካለፉ በኋላ ሳይሆን።';
+
+  @override
+  String get onboardingIntroAskTitle => 'ስለራስዎ ወጪ ይጠይቁ';
+
+  @override
+  String get onboardingIntroAskBody =>
+      'ደረሰኝ ይቃኙ፣ ወይም ባለፈው ወር ገንዘቡ የት እንደሄደ ይጠይቁ፤ ከመዝገቦችዎ የተወሰደ መልስ ያግኙ።';
+
+  @override
+  String get onboardingIntroThemeTitle => 'እንደ ምርጫዎ ያድርጉት';
+
+  @override
+  String get onboardingIntroThemeBody =>
+      'አሁን ገጽታ ይምረጡ፣ ወይም በፈለጉ ጊዜ ከቅንብሮች ይቀይሩት።';
+
+  @override
+  String get onboardingCreateYourAccount => 'መለያዎን ይፍጠሩ';
+
+  @override
+  String get onboardingNext => 'ቀጣይ';
+
+  @override
+  String get onboardingCurrencyInfo =>
+      'ይህ እንደ ዋና ምንዛሪዎ ጥቅም ላይ ይውላል። በተለያዩ ምንዛሪዎች ያሉ ሂሳቦችን በኋላ ማከል ይችላሉ።';
+
+  @override
+  String get onboardingTypeCash => 'ጥሬ ገንዘብ';
+
+  @override
+  String get onboardingTypeBank => 'የባንክ ሂሳብ';
+
+  @override
+  String get onboardingTypeCard => 'ክሬዲት ካርድ';
+
+  @override
+  String get onboardingTypeDeposit => 'ተቀማጭ';
+
+  @override
+  String get onboardingTypeInvestment => 'ኢንቨስትመንት';
+
+  @override
+  String get onboardingTypeAsset => 'ንብረት';
+
+  @override
+  String onboardingDayN(int day) {
+    return 'ቀን $day';
+  }
+
+  @override
+  String get onboardingAllSet => 'ሁሉም ዝግጁ ነው!';
+
+  @override
+  String onboardingCompleteFailed(String error) {
+    return 'መግቢያውን ማጠናቀቅ አልተቻለም፦ $error';
+  }
+
+  @override
+  String get onboardingSkipFailed => 'መግቢያውን መዝለል አልተቻለም';
+
+  @override
+  String get startupOfflineConfirmBody =>
+      'ውሂብዎ ባለበት ይቆያል — በዚህ መሣሪያ ላይም ሆነ በደመና ውስጥ ምንም አይሰረዝም።\n\nነገር ግን መለያው የተቀመጠ ውሂብ ካለው፣ አሁን የሚያክሉት ሁሉ ሲመልሱ ከእሱ ጎን ይቀመጣል — የሚያስተካክሏቸው ድግግሞሾች ሊኖሩ ይችላሉ።';
+
+  @override
+  String get startupDataInCloudTitle => 'ውሂብዎ በደመና ውስጥ እየጠበቀዎት ነው';
+
+  @override
+  String get startupLoadFailedTitle => 'መለያዎን ጭነን መጨረስ አልቻልንም';
+
+  @override
+  String get startupGenericReason => 'ይህን መለያ በማረጋገጥ ላይ ሳለ የሆነ ችግር ተፈጥሯል።';
+
+  @override
+  String get startupUseWithoutRestoring => 'ሳይመልሱ መተግበሪያውን ይጠቀሙ';
+
+  @override
+  String get legalTermsTab => 'ውሎች';
+
+  @override
+  String get legalConsent => 'የግላዊነት ፖሊሲውን እና ውሎቹንና ሁኔታዎቹን አንብቤ ተስማምቻለሁ';
+
+  @override
+  String get walkthroughGotIt => 'ገባኝ!';
+
+  @override
+  String get settingsFaqSectionGettingStarted => 'መጀመሪያ';
+
+  @override
+  String get settingsFaq01Question => 'ግብይት እንዴት እጨምራለሁ?';
+
+  @override
+  String get settingsFaq01Answer =>
+      'በመነሻ ገጹ ታች ያለውን + ቁልፍ ይንኩ። መጠኑን ያስገቡ፣ ምድብ ይምረጡ፣ ቦርሳ ይምረጡ፣ ከፈለጉም ማስታወሻ ያክሉ። ግብይቱን ለመመዝገብ አስቀምጥ የሚለውን ይንኩ።';
+
+  @override
+  String get settingsFaq02Question => 'በቦርሳዎች እና በምድቦች መካከል ያለው ልዩነት ምንድን ነው?';
+
+  @override
+  String get settingsFaq02Answer =>
+      'ቦርሳዎች ገንዘብዎ የት እንዳለ ያሳያሉ (ለምሳሌ ጥሬ ገንዘብ፣ የባንክ ሂሳብ፣ ክሬዲት ካርድ)። ምድቦች ገንዘቡ ለምን እንደወጣ ወይም ከየት እንደመጣ ይገልጻሉ (ለምሳሌ ምግብ፣ ደመወዝ፣ መዝናኛ)።';
+
+  @override
+  String get settingsFaq03Question => 'የቀን እና የቁጥር ቅርጸትን እንዴት እቀይራለሁ?';
+
+  @override
+  String get settingsFaq03Answer =>
+      'ወደ ቅንብሮች > የክልል ቅንብሮች ይሂዱ። ነባሪ ምንዛሪዎን፣ የቀን ቅርጸትን (ለምሳሌ DD/MM/YYYY ወይም MM/DD/YYYY) እና የቁጥር ቅርጸትን (ለምሳሌ 1,234.56 ወይም 1.234,56) መቀየር ይችላሉ። ቅንብሮችዎ ምን እንደሚመስሉ የቀጥታ ቅድመ እይታ ያሳያል።';
+
+  @override
+  String get settingsFaqSectionTransactions => 'ግብይቶች';
+
+  @override
+  String get settingsFaq04Question => 'ተደጋጋሚ ግብይቶችን መከታተል እችላለሁ?';
+
+  @override
+  String get settingsFaq04Answer =>
+      'አዎ! ግብይት ሲጨምሩ «ተደጋጋሚ» የሚለውን አማራጭ ያብሩ። በየቀኑ፣ በየሳምንቱ፣ በየወሩ ወይም በየዓመቱ እንዲደገም ማድረግ ይችላሉ። መተግበሪያው እነዚህን ግብይቶች በራሱ ይፈጥርልዎታል።';
+
+  @override
+  String get settingsFaq05Question => 'በቦርሳዎች መካከል ገንዘብ እንዴት አዘዋውራለሁ?';
+
+  @override
+  String get settingsFaq05Answer =>
+      'ግብይት ሲጨምሩ እንደ አይነት «ዝውውር» ይምረጡ። ገንዘቡ የሚወጣበትን እና የሚገባበትን ቦርሳ ይምረጡ፣ መጠኑንም ያስገቡ። መተግበሪያው ከአንዱ ቀንሶ ወደ ሌላው በራሱ ይጨምራል።';
+
+  @override
+  String get settingsFaq06Question => 'መጪ ግብይቶች ምንድን ናቸው?';
+
+  @override
+  String get settingsFaq06Answer =>
+      'መጪ ግብይቶች የሚጠብቋቸው ግን ገና ያልተከፈሉ የወደፊት ወጪዎች ወይም ገቢዎች ናቸው። እንደተከፈሉ ምልክት እስኪያደርጉባቸው ድረስ የቦርሳዎን ቀሪ ሂሳብ አይነኩም። ጊዜያቸው ያለፈባቸውን እና መጪ ነገሮችን በግብይቶች ክፍል ውስጥ ያገኟቸዋል።';
+
+  @override
+  String get settingsFaq07Question => 'ምዝገባዎችን እንዴት እከታተላለሁ?';
+
+  @override
+  String get settingsFaq07Answer =>
+      'ግብይት ሲጨምሩ ልዩ አይነቱን ምዝገባ ያድርጉት። ይህ እንደ ተደጋጋሚ የአገልግሎት ክፍያ ምልክት ያደርግበታል። ሁሉንም ምዝገባዎችዎን በአንድ ቦታ ማየት እና ለምዝገባዎች በወር የሚያወጡትን መከታተል ይችላሉ።';
+
+  @override
+  String get settingsFaq08Question => 'የብድር እና የዕዳ ክትትል እንዴት ይሰራል?';
+
+  @override
+  String get settingsFaq08Answer =>
+      'ለሌላ ሰው ያበደሩትን ገንዘብ ለመከታተል ብድርን፣ የተበደሩትን ገንዘብ ለመከታተል ደግሞ ዕዳን ይጠቀሙ። እያንዳንዱ መዝገብ መጠኑን፣ ማን ለማን እንደሚከፍል እና ክፍያው የት እንደደረሰ ይይዛል። ከፊል ክፍያዎችን መመዝገብ እና ሙሉ በሙሉ ሲከፈሉ ዕዳዎችን እንደተዘጉ ምልክት ማድረግ ይችላሉ።';
+
+  @override
+  String get settingsFaq09Question => 'በግብይቶች ላይ ማስታወሻ ወይም ደረሰኝ ማከል እችላለሁ?';
+
+  @override
+  String get settingsFaq09Answer =>
+      'አዎ! ግብይት ሲጨምሩ ወይም ሲያርትዑ በማስታወሻ ቦታው ላይ መጻፍ ይችላሉ። የPremium ተጠቃሚዎች ደግሞ መጠኑን እና የነጋዴውን ዝርዝር በራሱ በሚያወጣው የAI ደረሰኝ ቅኝት ደረሰኞችን መቃኘት ይችላሉ።';
+
+  @override
+  String get settingsFaqSectionWalletsCurrencies => 'ቦርሳዎች እና ምንዛሪዎች';
+
+  @override
+  String get settingsFaq10Question => 'ብዙ ሂሳቦችን እንዴት አስተዳድራለሁ?';
+
+  @override
+  String get settingsFaq10Answer =>
+      'መተግበሪያው አራት አይነት ሂሳቦችን ይደግፋል፦ ጥሬ ገንዘብ፣ የባንክ ሂሳብ፣ ክሬዲት ካርድ እና ምዝገባ። አዲስ ሂሳብ ለማከል በዳሽቦርዱ ላይ ወደ «ሂሳቦችዎ» ሄደው «ሂሳብ አክል» የሚለውን ይንኩ። እያንዳንዱ ሂሳብ የራሱ ስም፣ አዶ፣ ቀለም እና ምንዛሪ ሊኖረው ይችላል። የመጀመሪያው ሂሳብዎ በራሱ ነባሪ ይሆናል። ለክሬዲት ካርድ ሂሳቦች ደግሞ ያለዎትን ብድር ለመከታተል የብድር ገደብ እና የሂሳብ መክፈያ ቀን ማዘጋጀት ይችላሉ።';
+
+  @override
+  String get settingsFaq11Question => 'ብዙ ምንዛሪዎችን መጠቀም እችላለሁ?';
+
+  @override
+  String get settingsFaq11Answer =>
+      'አዎ! እያንዳንዱ ቦርሳ የራሱ ምንዛሪ ሊኖረው ይችላል። መተግበሪያው ወቅታዊ የምንዛሪ ተመኖችን ተጠቅሞ በራሱ ይቀይራል። በቅንብሮች > የክልል ቅንብሮች ውስጥ የራስዎን የምንዛሪ ተመኖችም ማዘጋጀት ይችላሉ።';
+
+  @override
+  String get settingsFaq12Question => 'የምንዛሪ ልወጣ እንዴት ይሰራል?';
+
+  @override
+  String get settingsFaq12Answer =>
+      'እያንዳንዱ ቦርሳ የተለየ ምንዛሪ ሊኖረው ይችላል፤ መተግበሪያው በየጥቂት ሰዓቱ የሚዘመኑ ወቅታዊ የምንዛሪ ተመኖችን ተጠቅሞ መጠኖችን በራሱ ይቀይራል። ለማንኛውም የምንዛሪ ጥንድ የራስዎን ተመን በቅንብሮች > የክልል ቅንብሮች ውስጥ ማዘጋጀት ይችላሉ። መተግበሪያው ከ150 በላይ ምንዛሪዎችን ይደግፋል፤ ተመኖችንም በራሱ ያመጣል።';
+
+  @override
+  String get settingsFaq13Question => 'ግብይቶች ያሉበትን ምድብ ብሰርዝ ምን ይሆናል?';
+
+  @override
+  String get settingsFaq13Answer =>
+      'እነዚያ ግብይቶች ወደ «ያልተመደበ» ይዛወራሉ። ከዚያ ወደ ሌላ ምድብ መመደብ ወይም ሳይመደቡ መተው ይችላሉ።';
+
+  @override
+  String get settingsFaq14Question => 'ንዑስ ምድቦች ምንድን ናቸው፣ እንዴትስ እጠቀምባቸዋለሁ?';
+
+  @override
+  String get settingsFaq14Answer =>
+      'በዝርዝር ለመከታተል በማንኛውም ዋና ምድብ ስር ንዑስ ምድቦችን መፍጠር ይችላሉ። ለምሳሌ በ«ምግብ» ስር «ሸቀጣሸቀጥ»፣ «ምግብ ቤቶች» እና «ቡና» ሊኖርዎት ይችላል። ንዑስ ምድቦች ገንዘብዎ በትክክል የት እንደሚሄድ ለማየት ይረዱዎታል።';
+
+  @override
+  String get settingsFaq15Question => 'የቀሪ ሂሳብ ማስተካከያ ምንድን ነው?';
+
+  @override
+  String get settingsFaq15Answer =>
+      'የቀሪ ሂሳብ ማስተካከያ የቦርሳ ቀሪ ሂሳብ ከትክክለኛው መጠን ጋር በማይጣጣምበት ጊዜ እንዲያስተካክሉ ያስችልዎታል። ገቢ ወይም ወጪ በእጅ ሳያስገቡ የተመዘገበውን ቀሪ ሂሳብ ከእውነታው ጋር የሚያስተካክል ልዩ ግብይት ይፈጥራል።';
+
+  @override
+  String get settingsFaqSectionBudgetsGoals => 'በጀቶች እና ግቦች';
+
+  @override
+  String get settingsFaq16Question => 'በጀት እንዴት አዘጋጃለሁ?';
+
+  @override
+  String get settingsFaq16Answer =>
+      'ወደ በጀቶች ትር ሄደው «አዲስ በጀት» የሚለውን ይንኩ። ስም ይምረጡ፣ የወጪ ገደብዎን ያስቀምጡ፣ የጊዜ ክፍሉን (ሳምንታዊ/ወርሃዊ) ይምረጡ፣ የሚከታተሉትንም ምድቦች ይምረጡ። ወደ ገደብዎ ሲቃረቡ መተግበሪያው ያሳውቅዎታል።';
+
+  @override
+  String get settingsFaq17Question => 'የቁጠባ ግቦች ምንድን ናቸው?';
+
+  @override
+  String get settingsFaq17Answer =>
+      'የቁጠባ ግቦች መቆጠብ የሚፈልጉትን መጠን እንዲያስቀምጡ ያስችሉዎታል። በግቦች ክፍል ውስጥ ግብ ይፍጠሩ፣ ዒላማዎን ያስቀምጡ፣ እድገትዎን ለመከታተልም ግብይቶችን ያገናኙ። መተግበሪያው የእድገት አሞሌ እና ወደ ዒላማዎ የደረሱበትን መቶኛ ያሳያል።';
+
+  @override
+  String get settingsFaq18Question => 'ብድርን እንዴት እከታተላለሁ?';
+
+  @override
+  String get settingsFaq18Answer =>
+      'በግቦች ክፍል ውስጥ ያለብዎትን ጠቅላላ መጠን የያዘ የብድር ግብ ይፍጠሩ። ክፍያ ሲፈጽሙ እነዚያን ግብይቶች ከብድሩ ጋር በማገናኘት የመመለስ እድገትዎን ይከታተሉ። መተግበሪያው ምን ያህል እንደከፈሉ እና ምን እንደቀረ ያሳያል።';
+
+  @override
+  String get settingsFaqSectionDataSync => 'ውሂብ እና ማመሳሰል';
+
+  @override
+  String get settingsFaq19Question => 'የደመና ማመሳሰል እንዴት ይሰራል?';
+
+  @override
+  String get settingsFaq19Answer =>
+      'የደመና ማመሳሰል ውሂብዎን በሁሉም መሣሪያዎች ላይ አንድ አይነት ያደርጋል። ለማብራት ወደ ቅንብሮች > የውሂብ አስተዳደር > የደመና ማመሳሰል ይሂዱ። ማመሳሰሉ በየ15 ደቂቃው እና መተግበሪያውን ሲከፍቱ በራሱ ይሰራል። ወዲያውኑ ለማመሳሰል «አሁን አመሳስል» የሚለውንም መንካት ይችላሉ። ይህ የPremium ባህሪ ነው።';
+
+  @override
+  String get settingsFaq20Question => 'ውሂቤን እንዴት እልካለሁ?';
+
+  @override
+  String get settingsFaq20Answer =>
+      'ወደ ቅንብሮች > የውሂብ አስተዳደር > ውሂብ ላክ ይሂዱ። የቀን ክልል ይምረጡ፣ CSV (ለተመን ሉሆች) ወይም PDF (ለተቀናጀ ሪፖርት) ይምረጡ፣ ከዚያ ላክ የሚለውን ይንኩ። በምድብ እና በቦርሳ የተከፋፈለ ዝርዝርን ማካተት ወይም መተው ይችላሉ። ይህ የPremium ባህሪ ነው።';
+
+  @override
+  String get settingsFaq21Question => 'ውሂቤን ባጸዳ ምን ይሆናል?';
+
+  @override
+  String get settingsFaq21Answer =>
+      'ወደ ቅንብሮች > ግላዊነት እና ደህንነት ይሂዱ። «መሸጎጫ አጽዳ» ግብይቶችዎን ሳይሰርዝ ጊዜያዊ ውሂብን ያስወግዳል፣ ዳግም ማመሳሰልንም ያስገድዳል። «ሁሉንም ውሂብ አጽዳ» ሁሉንም ነገር እስከመጨረሻው ይሰርዛል — ለማረጋገጥ DELETE ብለው መተየብ ያስፈልግዎታል። ይህ ድርጊት ሊቀለበስ አይችልም።';
+
+  @override
+  String get settingsFaqSectionPremiumAiFeatures => 'Premium እና የAI ባህሪያት';
+
+  @override
+  String get settingsFaq22Question => 'Premium ምን ባህሪያትን ያካትታል?';
+
+  @override
+  String get settingsFaq22Answer =>
+      'Premium የሚከፍተው፦ ያለ ማስታወቂያ ያልተገደበ AI (አማካሪው፣ ወርሃዊ ማጠቃለያዎች፣ ደረሰኝ ማንበብ እና ይግለጹት)፣ የደመና ማመሳሰል፣ PDF ሪፖርቶች፣ Premium ገጽታዎች፣ እንዲሁም በቦርሳዎች፣ በምድቦች፣ በበጀቶች፣ በግቦች እና በመክፈያ ዘዴዎች ላይ ያሉትን ገደቦች ያነሳል። ቅድሚያ የሚሰጠው ድጋፍም ያገኛሉ።';
+
+  @override
+  String get settingsFaq23Question => 'የነፃው ስሪት ገደቦች ምንድን ናቸው?';
+
+  @override
+  String get settingsFaq23Answer =>
+      'ነፃ ተጠቃሚዎች እስከ 3 ቦርሳዎች፣ 10 የራሳቸው ምድቦች፣ 3 ንቁ በጀቶች፣ 2 ንቁ ግቦች/ብድሮች እና 5 የመክፈያ ዘዴዎች መፍጠር ይችላሉ። ወደ Premium ማሻሻል እነዚህን ሁሉ ገደቦች ያነሳል።';
+
+  @override
+  String get settingsFaq24Question => 'የAI ረዳቱ ምን ማድረግ ይችላል?';
+
+  @override
+  String get settingsFaq24Answer =>
+      'የገንዘብ አማካሪው ስለ ራስዎ ገንዘብ ለሚያነሷቸው ጥያቄዎች መልስ ይሰጣል፦ ገንዘቡ የት እንደሄደ፣ በበጀቶችዎ እና በግቦችዎ ላይ በትክክለኛው መንገድ ላይ መሆንዎን፣ የትኞቹ ሂሳቦች እንደሚመጡ፣ እንዲሁም እንዴት ያነሰ ማውጣት ወይም የበለጠ መቆጠብ እንደሚችሉ። መልሶቹ እውነተኛ ቁጥሮችዎን እንዲጠቀሙ የቁጥሮችዎን ማጠቃለያ (ድምሮች፣ ምድቦች፣ በጀቶች፣ ግቦች፣ ሂሳቦች እና የቅርብ ጊዜ ግብይቶች) ያያል፤ ከእያንዳንዱ መልስ በኋላም ተከታይ ጥያቄዎችን ይጠቁማል። አጠቃላይ መመሪያ ይሰጣል እንጂ ሙያዊ የፋይናንስ ምክር አይደለም። ካቆሙበት እንዲቀጥሉ ውይይቶችዎ ይቀመጣሉ፤ በማንኛውም ጊዜ ሊሰርዟቸውም ይችላሉ።';
+
+  @override
+  String get settingsFaq25Question => 'የAI ግንዛቤዎች እንዴት ይሰራሉ?';
+
+  @override
+  String get settingsFaq25Answer =>
+      'ወርሃዊ ማጠቃለያው (ስታቲስቲክስ > የወጪ ግንዛቤዎች) ይህን ወር ካለፈው ወር ጋር ያነጻጽራል፦ ምን እንዳገኙ እና ምን እንዳወጡ፣ እያንዳንዱ ምድብም እንዴት እንደተቀየረ። ማጠቃለያዬን ጻፍ የሚለውን ይንኩ፤ AI ጎልተው የታዩትን ነገሮች ያወጣል፣ የሚሞክሩትንም አንድ ነገር ይጠቁማል። ቁጥሮቹ ለሁሉም ነፃ ናቸው፤ የAI ጽሑፉ አንድ የAI ጥያቄ ይጠቀማል።';
+
+  @override
+  String get settingsFaq26Question => 'ብልህ ምደባ ምንድን ነው?';
+
+  @override
+  String get settingsFaq26Answer =>
+      'ግብይትን በእጅ ሲመድቡ መተግበሪያው ያ ርዕስ የየትኛው ምድብ እንደሆነ ያስታውሳል፤ በሚቀጥለው ጊዜም በራሱ ይመርጥልዎታል (እነዚህን በየስያሜ ደንቦች ስር ማየት እና ማርትዕ ይችላሉ)። ለአዲስ ነገር በመጨመሪያ ገጹ ላይ ያለውን የብልጭታ ቁልፍ ይንኩ እና ይግለጹት የሚለውን ይጠቀሙ፦ ለምሳሌ «ምሳ 250 ትናንት ከbKash» ብለው ይጻፉ፤ AI መጠኑን፣ ቀኑን፣ ምድቡን እና ሂሳቡን እንዲያረጋግጡ ይሞላልዎታል።';
+
+  @override
+  String get settingsFaq27Question => 'የAI ደረሰኝ ቅኝት እንዴት ይሰራል?';
+
+  @override
+  String get settingsFaq27Answer =>
+      'የደረሰኝ ፎቶ ያንሱ ወይም ይምረጡ። ስልክዎ ጽሑፉን በመሣሪያው ላይ አንብቦ ነጋዴውን እና ድምሩን ይጠቁማል። በAI አንብብ የሚለውን ይንኩ፤ AI ደረሰኙ የተዘበራረቀ ቢሆንም እውነተኛውን ድምር፣ ቀኑን፣ እያንዳንዱን ዕቃ እና ትክክለኛውን ምድብ ያወጣል፤ የሚላከው ጽሑፉ ብቻ ነው፣ ፎቶው በጭራሽ አይላክም። ከማስቀመጥዎ በፊት መገምገም እና ማርትዕ ይችላሉ። በAI ማንበብ አንድ የAI ጥያቄ ይጠቀማል።';
+
+  @override
+  String get settingsFaq28Question =>
+      'ስንት የAI ጥያቄዎች አገኛለሁ? ማስታወቂያዎቹስ ለምንድን ናቸው?';
+
+  @override
+  String get settingsFaq28Answer =>
+      'ሁሉም ሰው በወር 10 ነፃ የAI ጥያቄዎች ያገኛል፤ በወሩ 1ኛ ቀን ይመለሳሉ። ተጨማሪ ከፈለጉ አጭር ማስታወቂያ በማየት አንድ ተጨማሪ ጥያቄ ማግኘት ይችላሉ፤ በወር እስከ 10 ተጨማሪ። ማስታወቂያዎች የ24 ሰዓት የPremium ገጽታ ሙከራን ወይም አንድ PDF መላክን ሊከፍቱም ይችላሉ። ማስታወቂያ የሚጫወተው ቁልፍ ነክተው ካረጋገጡ በኋላ ብቻ ነው፤ የባነር ማስታወቂያዎች የሉም፣ ምንም ነገር በራሱ አይመጣም። የPremium አባላት ያልተገደበ AI እና ሌሎቹን ሁሉ ያለ ምንም ማስታወቂያ ያገኛሉ።';
+
+  @override
+  String get settingsFaq29Question => 'የPremium ግዢዬን እንዴት አስተዳድራለሁ?';
+
+  @override
+  String get settingsFaq29Answer =>
+      'የPremium ግዢዎች የሚተዳደሩት በGoogle Play በኩል ነው። ዕቅድዎን ለማየት ወይም ለማስተዳደር ወደ Google Play የምዝገባ ቅንብሮች ይሂዱ። Premium በወርሃዊ፣ በዓመታዊ ወይም በአንድ ጊዜ የዕድሜ ልክ ግዢ ይገኛል።';
+
+  @override
+  String get settingsFaqSectionPrivacySecurity => 'ግላዊነት እና ደህንነት';
+
+  @override
+  String get settingsFaq30Question => 'ባዮሜትሪክ ቁልፍን እንዴት አዘጋጃለሁ?';
+
+  @override
+  String get settingsFaq30Answer =>
+      'ወደ ቅንብሮች > ግላዊነት እና ደህንነት ሄደው ባዮሜትሪክ ቁልፍን ያብሩ። ከበራ በኋላ መተግበሪያውን ለመክፈት የጣት አሻራዎ ወይም ፊትዎ ያስፈልጋል። ለተወሰነ ጊዜ ጥቅም ላይ ካልዋለ መተግበሪያው እንዲቆለፍ የራስ-ሰር ቁልፍ ጊዜ ቆጣሪም ማዘጋጀት ይችላሉ።';
+
+  @override
+  String get settingsFaq31Question => 'የፋይናንስ ውሂቤ ደህንነቱ የተጠበቀ ነው?';
+
+  @override
+  String get settingsFaq31Answer =>
+      'አዎ። ሁሉም ውሂብዎ በመሣሪያዎ ላይ ብቻ ይቀመጣል። የደመና ማመሳሰልን ካበሩ ውሂብዎ በሚተላለፍበት ጊዜ ይመሰጠራል። የፋይናንስ ውሂብዎን ለሶስተኛ ወገኖች በጭራሽ አናጋራም። የግላዊነት ፖሊሲያችንን በቅንብሮች > ስለ ውስጥ ማየት ይችላሉ።';
+
+  @override
+  String get txnLoadPaymentMethodsFailed => 'የመክፈያ ዘዴዎችን መጫን አልተቻለም';
+
+  @override
+  String get txnAddPaymentMethodFailed => 'የመክፈያ ዘዴ ማከል አልተቻለም';
+
+  @override
+  String get txnPaymentMethodNotFound => 'የመክፈያ ዘዴው አልተገኘም';
+
+  @override
+  String get txnUpdatePaymentMethodFailed => 'የመክፈያ ዘዴውን ማዘመን አልተቻለም';
+
+  @override
+  String get txnDeletePaymentMethodFailed => 'የመክፈያ ዘዴውን መሰረዝ አልተቻለም';
+
+  @override
+  String txnLoadFailed(String error) {
+    return 'ግብይቶችን መጫን አልተቻለም፦ $error';
+  }
+
+  @override
+  String get txnAddFailed => 'ግብይቱን ማከል አልተቻለም';
+
+  @override
+  String txnAddFailedWithError(String error) {
+    return 'ግብይቱን ማከል አልተቻለም፦ $error';
+  }
+
+  @override
+  String get txnNotFound => 'ግብይቱ አልተገኘም';
+
+  @override
+  String get txnUpdateFailed => 'ግብይቱን ማዘመን አልተቻለም';
+
+  @override
+  String txnNotATransfer(String id) {
+    return 'ግብይት $id ዝውውር አይደለም';
+  }
+
+  @override
+  String txnUpdateTransferFailed(String error) {
+    return 'ዝውውሩን ማዘመን አልተቻለም፦ $error';
+  }
+
+  @override
+  String get txnDeleteFailed => 'ግብይቱን መሰረዝ አልተቻለም';
+
+  @override
+  String txnLoadTransfersFailed(String error) {
+    return 'ዝውውሮችን መጫን አልተቻለም፦ $error';
+  }
+
+  @override
+  String txnCreateTransferFailed(String error) {
+    return 'ዝውውሩን መፍጠር አልተቻለም፦ $error';
+  }
+
+  @override
+  String txnDeleteTransferFailed(String error) {
+    return 'ዝውውሩን መሰረዝ አልተቻለም፦ $error';
+  }
+
+  @override
+  String txnLoadDataFailed(String error) {
+    return 'መረጃ መጫን አልተቻለም፦ $error';
+  }
+
+  @override
+  String txnMarkPaidFailed(String error) {
+    return 'እንደተከፈለ ምልክት ማድረግ አልተቻለም፦ $error';
+  }
+
+  @override
+  String txnMarkUnpaidFailed(String error) {
+    return 'እንዳልተከፈለ ምልክት ማድረግ አልተቻለም፦ $error';
+  }
+
+  @override
+  String txnSkipFailed(String error) {
+    return 'ግብይቱን መዝለል አልተቻለም፦ $error';
+  }
+
+  @override
+  String creditReceivedTitle(String title) {
+    return 'የተቀበልኩት፦ $title';
+  }
+
+  @override
+  String creditPaidTitle(String title) {
+    return 'የተከፈለ፦ $title';
+  }
+
+  @override
+  String creditReversedTitle(String title) {
+    return 'የተመለሰ፦ $title';
+  }
+
+  @override
+  String creditMarkSettledFailed(String error) {
+    return 'እንደተጠናቀቀ ምልክት ማድረግ አልተቻለም፦ $error';
+  }
+
+  @override
+  String get creditPaymentMustBePositive => 'የክፍያው መጠን ከዜሮ በላይ መሆን አለበት';
+
+  @override
+  String creditRecordPaymentFailed(String error) {
+    return 'ክፍያውን መመዝገብ አልተቻለም፦ $error';
+  }
+
+  @override
+  String creditMarkPendingFailed(String error) {
+    return 'እንደ በመጠባበቅ ላይ ምልክት ማድረግ አልተቻለም፦ $error';
+  }
+
+  @override
+  String creditRemaining(String amount) {
+    return 'ቀሪ፦ $amount';
+  }
+
+  @override
+  String creditPaymentRecorded(String amount) {
+    return 'የ$amount ክፍያ ተመዝግቧል';
+  }
+
+  @override
+  String creditMarkedCollected(String title) {
+    return 'ከ\"$title\" እንደተሰበሰበ ምልክት ተደርጓል';
+  }
+
+  @override
+  String get importFieldDescription => 'መግለጫ';
+
+  @override
+  String get importFieldDirection => 'ዓይነት (ገቢ/ወጪ)';
+
+  @override
+  String get importMissingDate => 'የቀን ዓምድ';
+
+  @override
+  String get importMissingAmount => 'የመጠን ዓምድ';
+
+  @override
+  String importColumnN(int index) {
+    return 'ዓምድ $index';
+  }
+
+  @override
+  String get importNoDate => 'ቀን የለም';
+
+  @override
+  String importDateMismatch(String date, String format) {
+    return 'ቀኑ \"$date\" ከ$format ጋር አይዛመድም';
+  }
+
+  @override
+  String get importAnyKnownFormat => 'ከማንኛውም የሚታወቅ ቅርጸት';
+
+  @override
+  String get importNoAmount => 'መጠን የለም';
+
+  @override
+  String get importIntro =>
+      'ከባንክዎ CSV ያውጡ እና እዚህ ይክፈቱት። ዓምዶቹ ለእርስዎ ይለያሉ፣ እና ምን እንደሚጨመር በትክክል እስኪያዩ ድረስ ምንም አይጨመርም።';
+
+  @override
+  String get importSavedBanks => 'የተቀመጡ ባንኮች';
+
+  @override
+  String get importChooseStatement => 'የሂሳብ መግለጫ ይምረጡ';
+
+  @override
+  String get importNoRows => 'በዚያ ፋይል ውስጥ ረድፎች የሉም።';
+
+  @override
+  String importUsingSavedMapping(String name) {
+    return 'ለ$name ያስቀመጡትን ካርታ በመጠቀም ላይ።';
+  }
+
+  @override
+  String importCouldNotRead(String error) {
+    return 'ያ ፋይል ሊነበብ አልቻለም፦ $error';
+  }
+
+  @override
+  String importForgetTitle(String name) {
+    return '$nameን ይርሱ?';
+  }
+
+  @override
+  String get importForgetBody => 'በሚቀጥለው ጊዜ ዓምዶቹን እንደገና እንዲያዛምዱ ይጠየቃሉ።';
+
+  @override
+  String get importColumnsHeader => 'ዓምዶች';
+
+  @override
+  String get importHowToRead => 'እሴቶቹን እንዴት ማንበብ';
+
+  @override
+  String get importWhereItGoes => 'የሚሄድበት';
+
+  @override
+  String get importWhatWillBeAdded => 'የሚጨመረው';
+
+  @override
+  String importRowsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ረድፎች',
+      one: '1 ረድፍ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importColumnsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ዓምዶች',
+      one: '1 ዓምድ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSeparatedBy(String separator) {
+    return 'በ$separator የተለየ';
+  }
+
+  @override
+  String importMappedAs(String name) {
+    return 'እንደ $name የተዛመደ';
+  }
+
+  @override
+  String get importDelimCommas => 'ኮማዎች';
+
+  @override
+  String get importDelimSemicolons => 'ሴሚኮሎኖች';
+
+  @override
+  String get importDelimTabs => 'ታቦች';
+
+  @override
+  String get importDelimPipes => 'ቋሚ መስመሮች (|)';
+
+  @override
+  String get importRequired => 'ያስፈልጋል';
+
+  @override
+  String get importNotImported => 'አይመጣም';
+
+  @override
+  String get importEmptySample => 'ባዶ';
+
+  @override
+  String get importPickDateColumnFirst => 'መጀመሪያ የቀን ዓምድ ይምረጡ።';
+
+  @override
+  String importDateDoesNotFit(String sample) {
+    return '\"$sample\" ከዚህ ቅርጸት ጋር አይስማማም።';
+  }
+
+  @override
+  String importDateReadsAs(String sample, String date) {
+    return '\"$sample\" እንደ $date ይነበባል';
+  }
+
+  @override
+  String get importDecimalAuto => 'ከፋይሉ የተለየ';
+
+  @override
+  String get importDecimalFullStop => 'ነጥብ፣ ለምሳሌ 1,234.56';
+
+  @override
+  String get importDecimalComma => 'ኮማ፣ ለምሳሌ 1.234,56';
+
+  @override
+  String get importDuplicatesHint =>
+      'በቀኑ፣ በመጠኑና በመግለጫው ይዛመዳል፣ ስለዚህ የሚደራረብ መግለጫ እንደገና ማስገባት ምንም አያባዛም';
+
+  @override
+  String importStillNeeds(String item) {
+    return 'ገና $item ያስፈልጋል።';
+  }
+
+  @override
+  String importStillNeedsBoth(String first, String second) {
+    return 'ገና $first እና $second ያስፈልጋሉ።';
+  }
+
+  @override
+  String get importNothingReadable =>
+      'በእነዚህ ቅንብሮች ከዚህ ፋይል ምንም ሊነበብ አይችልም። የቀን ቅርጸቱንና መጠኑ የትኛው ዓምድ እንዳለ ያረጋግጡ።';
+
+  @override
+  String importTransactionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ግብይቶች',
+      one: '1 ግብይት',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importAmountIn(String amount) {
+    return '$amount ገቢ';
+  }
+
+  @override
+  String importAmountOut(String amount) {
+    return '$amount ወጪ';
+  }
+
+  @override
+  String importAndMore(int count) {
+    return 'እና ሌሎች $count';
+  }
+
+  @override
+  String importLinesSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count መስመሮች ይዘለላሉ',
+      one: '1 መስመር ይዘለላል',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLinesSkippedSentence(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count መስመሮች ይዘለላሉ።',
+      one: '1 መስመር ይዘለላል።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLineProblem(int line, String problem) {
+    return 'መስመር $line፦ $problem';
+  }
+
+  @override
+  String get importAddAccountFirst => 'መጀመሪያ ሂሳብ ያክሉ';
+
+  @override
+  String importImportCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ግብይቶችን አስገባ',
+      one: '1 ግብይት አስገባ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ግብይቶች ይግቡ?',
+      one: '1 ግብይት ይግባ?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importConfirmBody => 'ወደ መዝገቦችዎ ይጨመራሉ እና በሚቀጥለው ሲንክ ይሰቀላሉ።';
+
+  @override
+  String get importConfirmDuplicates =>
+      'በዚያው ቀን፣ በዚያው መጠንና መግለጫ ቀደም ብሎ ያለ ማንኛውም ነገር አይነካም።';
+
+  @override
+  String importFailed(String error) {
+    return 'ማስገባቱ አልተሳካም፦ $error';
+  }
+
+  @override
+  String importImportedTitle(int count) {
+    return '$count ገብቷል';
+  }
+
+  @override
+  String importSkippedDuplicates(int count) {
+    return '$count ቀደም ብለው ነበሩ እና አልተነኩም።';
+  }
+
+  @override
+  String importUnreadableLines(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count መስመሮች ሊነበቡ አልቻሉም።',
+      one: '1 መስመር ሊነበብ አልቻለም።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importNewCategories(String names) {
+    return 'አዲስ ምድቦች፦ $names።';
+  }
+
+  @override
+  String importUnmatchedAccounts(String names) {
+    return 'እነዚህ የሂሳብ ስሞች እዚህ የሚዛመዱት አልነበራቸውም፣ ስለዚህ ረድፎቻቸው ወደ መረጡት ሂሳብ ሄደዋል፦ $names።';
+  }
+
+  @override
+  String get importRememberBody =>
+      'እነዚሁ ዓምዶች ያሉት ቀጣዩ ፋይል ሳይጠየቅ በዚህ መንገድ ይዛመዳል።';
+
+  @override
+  String get importNoHeaderCannotSave =>
+      'የዓምድ ርዕሶች የሌሉት ፋይል እንደገና ሊታወቅ አይችልም፣ ስለዚህ የሚዛመድበት ነገር የለም።';
+
+  @override
+  String get importTemplateSaved =>
+      'ተቀምጧል። እነዚህ ዓምዶች ያሏቸው ፋይሎች ከአሁን ጀምሮ ይጠቀሙበታል።';
+
+  @override
+  String get txnTransferSameWallet => 'መነሻውና መድረሻው ቦርሳ የተለያዩ መሆን አለባቸው';
+
+  @override
+  String get txnTransferAmountPositive => 'የዝውውሩ መጠን ከዜሮ በላይ መሆን አለበት';
+
+  @override
+  String get txnTransferFeeNegative => 'የዝውውር ክፍያ ከዜሮ በታች መሆን አይችልም';
+
+  @override
+  String txnSourceWalletNotFound(String id) {
+    return 'የመነሻ ቦርሳ አልተገኘም፦ $id';
+  }
+
+  @override
+  String txnDestinationWalletNotFound(String id) {
+    return 'የመድረሻ ቦርሳ አልተገኘም፦ $id';
+  }
+
+  @override
+  String txnTransferTitle(String from, String to) {
+    return 'ዝውውር፦ $from → $to';
+  }
+
+  @override
+  String txnTransferWalletsMissing(String source, String destination) {
+    return 'በመካከላቸው ለማዛወር ሁለቱም ቦርሳዎች መኖር አለባቸው (መነሻ፦ $source፣ መድረሻ፦ $destination)።';
+  }
+
+  @override
+  String txnTransferSameCurrencyReceived(
+    String source,
+    String destination,
+    String currency,
+  ) {
+    return 'በአንድ ምንዛሬ ውስጥ ያለ ዝውውር አንድ መጠን ብቻ ያንቀሳቅሳል፦ $source እና $destination ሁለቱም በ$currency ናቸው፣ ስለዚህ የተቀበለው መጠን ሊለያይ አይችልም።';
+  }
+
+  @override
+  String txnTransferNoRate(String from, String to, String destination) {
+    return 'በ$from እና በ$to መካከል የሚታወቅ ምንዛሬ ተመን የለም፣ ስለዚህ በ$destination ውስጥ በትክክል የገባውን ያስገቡ።';
+  }
+
+  @override
+  String txnTransferReceivedPositive(String destination) {
+    return 'የተቀበለው መጠን ከዜሮ በላይ መሆን አለበት። በ$destination ውስጥ በትክክል የገባውን ያስገቡ።';
+  }
+
+  @override
+  String txnFeeTitle(String title) {
+    return 'ክፍያ፦ $title';
+  }
+
+  @override
+  String txnNotFoundWithId(String id) {
+    return 'ግብይቱ አልተገኘም፦ $id';
+  }
+
+  @override
+  String get txnNotATransferNoPair => 'ግብይቱ ዝውውር አይደለም (ተጓዳኝ ግብይት የለም)';
+
+  @override
+  String txnPairedNotFound(String id) {
+    return 'ተጓዳኝ ግብይት $id አልተገኘም፤ የዝውውርን ግማሽ ብቻ ማስተካከል አይቻልም።';
+  }
+
+  @override
+  String walletNoSuchAccount(String id) {
+    return 'እንዲህ ያለ ሂሳብ የለም፦ $id';
+  }
+
+  @override
+  String get walletCorrectionTitle => 'የቀሪ ሂሳብ ማስተካከያ';
+
+  @override
+  String walletCorrectionNote(String name) {
+    return '$name ከትክክለኛው ቀሪ ሂሳቡ ጋር እንዲመሳሰል ተስተካክሏል።';
+  }
+
+  @override
+  String get walletMergeIntoItself => 'ሂሳብ ከራሱ ጋር ሊዋሀድ አይችልም።';
+
+  @override
+  String get walletMergeBothMustExist => 'ለማዋሀድ ሁለቱም ሂሳቦች መኖር አለባቸው።';
+
+  @override
+  String walletMergeNoRate(String from, String to) {
+    return 'በ$from እና በ$to መካከል የሚታወቅ ተመን የለም፣ ስለዚህ እነዚህ ሂሳቦች ገና ሊዋሀዱ አይችሉም።';
+  }
+
+  @override
+  String get walletMergeAdjustmentTitle => 'የውህደት ማስተካከያ';
+
+  @override
+  String walletMergeAdjustmentNote(String name) {
+    return 'በእነዚህ ሂሳቦች መካከል ዝውውር የተደረገበት ተመን $name ከተዋሀደበት ተመን ይለያል። ይህ ጠቅላላው እንዳይቀየር ልዩነቱን ይመዘግባል።';
+  }
+
+  @override
+  String get splitErrNoTotal => 'የሂሳቡን መጠን ያስገቡ።';
+
+  @override
+  String get splitErrNoPeople => 'የሚካፈሉትን ሰው ያክሉ።';
+
+  @override
+  String splitErrPayerNotOnBill(String name) {
+    return '$name በሂሳቡ ውስጥ የለም።';
+  }
+
+  @override
+  String get splitErrNothingToRecord =>
+      'ሌላ ሰው ከፍሏል እና እርስዎ ምንም አልተካፈሉም፣ ስለዚህ የሚመዘገብ ነገር የለም።';
+
+  @override
+  String get splitErrGiveOwnShare => 'የራስዎን ድርሻ ያስገቡ።';
+
+  @override
+  String splitErrGiveShare(String name) {
+    return 'የ$nameን ድርሻ ያስገቡ።';
+  }
+
+  @override
+  String get splitErrNegativeShare => 'ድርሻ ከዜሮ በታች መሆን አይችልም።';
+
+  @override
+  String splitErrSharesSum(String sum, String total) {
+    return 'ድርሻዎቹ ድምር $sum ነው፣ $total አይደለም።';
+  }
+
+  @override
+  String splitErrPercentSum(String sum) {
+    return 'መቶኛዎቹ ድምር $sum% ነው፣ 100% አይደለም።';
+  }
+
+  @override
+  String get splitErrNameTooLong => 'ስሞች ከ100 ቁምፊ በታች ይሁኑ።';
+
+  @override
+  String splitErrDuplicateName(String name) {
+    return '$name በሂሳቡ ላይ ሁለት ጊዜ አለ።';
+  }
+
+  @override
+  String get splitErrTitleTooLong => 'ርዕሱ ከ200 ቁምፊ በታች ይሁን።';
+
+  @override
+  String get splitErrChooseAccount => 'የተከፈለበትን ሂሳብ ይምረጡ።';
+
+  @override
+  String get splitErrOrdinaryAccount => 'መደበኛ ሂሳብ ይምረጡ።';
+
+  @override
+  String get splitErrYourShareNothing => 'የእርስዎ ድርሻ ምንም ነው፣ ስለዚህ የሚከፈል ዕዳ የለም።';
+
+  @override
+  String get splitErrEveryShareNothing => 'ሁሉም ድርሻዎች ምንም ናቸው።';
+
+  @override
+  String get recurringDaily => 'በየቀኑ';
+
+  @override
+  String recurringEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በየ$count ቀኑ',
+      one: 'በየቀኑ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በየ$count ሳምንቱ',
+      one: 'በየሳምንቱ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በየ$count ወሩ',
+      one: 'በየወሩ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በየ$count ዓመቱ',
+      one: 'በየዓመቱ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryOther(int count, String unit) {
+    return 'በየ$count $unit';
+  }
+
+  @override
+  String get recurringUntitled => 'ተደጋጋሚ ግብይት';
+
+  @override
+  String recurringInDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በ$count ቀናት ውስጥ',
+      one: 'በ1 ቀን ውስጥ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringNextWeek => 'በሚቀጥለው ሳምንት';
+
+  @override
+  String recurringInWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በ$count ሳምንታት ውስጥ',
+      one: 'በ1 ሳምንት ውስጥ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnPmKindCard => 'ካርድ';
+
+  @override
+  String get txnPmKindDigitalWallet => 'ዲጂታል ቦርሳ';
+
+  @override
+  String get txnPmEmptyHint =>
+      'የሚከፍሉባቸውን ካርዶችና ሂሳቦች ያክሉ፣ ከዚያ በግብይት ላይ አንዱን መምረጥ ይችላሉ።';
+
+  @override
+  String get txnPmDeleteBody =>
+      'ቀደም ሲል በእሱ የተመዘገቡ ግብይቶች መዝገባቸውን ይይዛሉ። የመክፈያ ዘዴ መጥቀሳቸውን ብቻ ያቆማሉ።';
+
+  @override
+  String get txnPmNew => 'አዲስ የመክፈያ ዘዴ';
+
+  @override
+  String get txnPmEdit => 'የመክፈያ ዘዴ አስተካክል';
+
+  @override
+  String get txnRecentlyDeletedFooter =>
+      'የተሰረዙ ግብይቶች ለሠላሳ ቀናት ይቆያሉ፣ ከዚያ ለዘለቄታው ይወገዳሉ።';
+
+  @override
+  String get txnUnknownCategory => 'ያልታወቀ';
+
+  @override
+  String txnRuleSubtitle(String match, String category) {
+    return '$match → $category';
+  }
+
+  @override
+  String get txnRuleExactly => 'በትክክል ይህ';
+
+  @override
+  String get txnRuleContaining => 'ይህን የያዘ ማንኛውም';
+
+  @override
+  String get txnRulesFooter =>
+      'ደንብ ትክክለኛ ካላደረጉት በርዕሱ ውስጥ በየትኛውም ቦታ ይዛመዳል። አንድን ነገር በእጅ በመደቡ ቁጥር መተግበሪያው አንድ ደንብ ያክልልዎታል።';
+
+  @override
+  String get txnRulesEmptyHint =>
+      'አንድ ነገር የት እንደሚገባ ለመተግበሪያው አንድ ጊዜ ያስተምሩ፣ ከዚያ ጀምሮ በዚያው ይመድበዋል።';
+
+  @override
+  String get txnRuleNew => 'አዲስ ደንብ';
+
+  @override
+  String get txnRuleEdit => 'ደንብ አስተካክል';
+
+  @override
+  String get txnRuleExactHint => 'በትክክል ይህ የሆኑ ርዕሶች ብቻ';
+
+  @override
+  String get txnRuleContainingHint => 'ይህን የያዘ ማንኛውም ርዕስ';
+
+  @override
+  String get txnKindTransfer => 'በሂሳቦች መካከል ዝውውር';
+
+  @override
+  String get txnKindRecurring => 'ከተደጋጋሚ ግቤት';
+
+  @override
+  String get txnMoneyIn => 'ገቢ ገንዘብ';
+
+  @override
+  String get txnMoneyOut => 'ወጪ ገንዘብ';
+
+  @override
+  String get txnNotYetPaid => 'ገና አልተከፈለም';
+
+  @override
+  String get txnLentOut => 'የተበደረ';
+
+  @override
+  String get txnSettledInFull => 'ሙሉ በሙሉ ተከፍሏል።';
+
+  @override
+  String txnLoanProgress(String paid, String owed) {
+    return '$paid ተመልሷል፣ $owed ገና ይቀራል።';
+  }
+
+  @override
+  String get txnUncategorised => 'ምድብ የሌለው';
+
+  @override
+  String get txnUnknownAccount => 'ያልታወቀ';
+
+  @override
+  String get txnTransferCannotCopy => 'ዝውውር ብቻውን ሊቀዳ አይችልም።';
+
+  @override
+  String get txnCopied => 'ተቀድቷል።';
+
+  @override
+  String get txnDeleteOneBody =>
+      'የሂሳቡ ቀሪ እንደገና ይሰላል። ይህ የዝውውር አንድ ክፍል ከሆነ፣ ሌላው ግማሽም አብሮ ይሄዳል።';
+
+  @override
+  String txnUpcomingTab(int count) {
+    return 'መጪ ($count)';
+  }
+
+  @override
+  String txnOverdueTab(int count) {
+    return 'ጊዜው ያለፈበት ($count)';
+  }
+
+  @override
+  String get txnNoOverdue => 'ጊዜው ያለፈበት ግብይት የለም';
+
+  @override
+  String get txnNoUpcoming => 'መጪ ግብይት የለም';
+
+  @override
+  String get txnNoOverdueBody => 'ሁሉም ክፍያዎችዎ በጊዜያቸው ናቸው!';
+
+  @override
+  String get txnNoUpcomingBody => 'የታቀደ በመጠባበቅ ላይ ያለ ክፍያ የለዎትም';
+
+  @override
+  String get txnTotalOverdue => 'ጠቅላላ ያለፈበት';
+
+  @override
+  String get txnTotalUpcoming => 'ጠቅላላ መጪ';
+
+  @override
+  String txnItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ንጥሎች',
+      one: '1 ንጥል',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnDaysOverdue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ቀናት አልፈዋል',
+      one: '1 ቀን አልፏል',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnMarkedPaid(String title) {
+    return '\"$title\" እንደተከፈለ ምልክት ተደርጓል';
+  }
+
+  @override
+  String txnSkippedTitle(String title) {
+    return '\"$title\" ታልፏል';
+  }
+
+  @override
+  String txnDateHeaderToday(String date) {
+    return 'ዛሬ፣ $date';
+  }
+
+  @override
+  String txnDateHeaderYesterday(String date) {
+    return 'ትናንት፣ $date';
+  }
+
+  @override
+  String txnDateHeaderTomorrow(String date) {
+    return 'ነገ፣ $date';
+  }
+
+  @override
+  String txnDeleteError(String error) {
+    return 'ግብይቱን በመሰረዝ ላይ ስህተት፦ $error';
+  }
+
+  @override
+  String txnFilterTitle(String title) {
+    return '$title አጣራ';
+  }
+
+  @override
+  String get txnMonthlyIncome => 'ወርሃዊ ገቢ';
+
+  @override
+  String get txnMonthlyExpenses => 'ወርሃዊ ወጪዎች';
+
+  @override
+  String txnStatTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ግብይቶች',
+      one: 'ግብይት',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnAvgPerTransaction => 'በአንድ ግብይት አማካይ';
+
+  @override
+  String get txnNoPlannedIncome => 'የታቀደ ገቢ የለም';
+
+  @override
+  String get txnNoPlannedExpenses => 'የታቀደ ወጪ የለም';
+
+  @override
+  String txnAddFutureIncome(String month) {
+    return 'ለ$month የወደፊት ገቢ ያክሉ';
+  }
+
+  @override
+  String txnAddFutureExpenses(String month) {
+    return 'ለ$month የወደፊት ወጪዎችን ያክሉ';
+  }
+
+  @override
+  String get txnNoIncomeYet => 'በዚህ ወር ገና ገቢ የለም';
+
+  @override
+  String get txnNoExpensesYet => 'በዚህ ወር ገና ወጪ የለም';
+
+  @override
+  String get txnStartTrackingIncome => 'በዚህ ወር ገቢዎን መከታተል ይጀምሩ';
+
+  @override
+  String get txnStartTrackingExpenses => 'በዚህ ወር ወጪዎችዎን መከታተል ይጀምሩ';
+
+  @override
+  String txnNoIncomeIn(String month) {
+    return 'በ$month ገቢ የለም';
+  }
+
+  @override
+  String txnNoExpensesIn(String month) {
+    return 'በ$month ወጪ የለም';
+  }
+
+  @override
+  String txnNoRecordsFor(String month) {
+    return 'ለ$month ምንም መዝገብ የለም';
+  }
+
+  @override
+  String get txnOtherCategory => 'ሌላ';
+
+  @override
+  String get txnSearchIncome => 'ገቢ ፈልግ';
+
+  @override
+  String get txnSearchExpenses => 'ወጪዎችን ፈልግ';
+
+  @override
+  String txnErrorWith(String error) {
+    return 'ስህተት፦ $error';
+  }
+
+  @override
+  String get txnTapToEditAmount => 'መጠኑን ለማስተካከል ይንኩ';
+
+  @override
+  String get txnTapToEnterAmount => 'መጠን ለማስገባት ይንኩ';
+
+  @override
+  String get txnSpecialDefault => 'መደበኛ';
+
+  @override
+  String get txnSpecialRepetitive => 'ተደጋጋሚ';
+
+  @override
+  String get txnRepeatSettings => 'የድግግሞሽ ቅንብሮች';
+
+  @override
+  String get txnSubscriptionSettings => 'የምዝገባ ቅንብሮች';
+
+  @override
+  String txnEndsOn(String date) {
+    return 'ያበቃል፦ $date';
+  }
+
+  @override
+  String get txnNoEndDate => 'የማብቂያ ቀን የለም';
+
+  @override
+  String get txnEditTransaction => 'ግብይት አስተካክል';
+
+  @override
+  String get txnNewTransaction => 'አዲስ ግብይት';
+
+  @override
+  String get txnFromAccount => 'ከሂሳብ';
+
+  @override
+  String get txnToAccount => 'ወደ ሂሳብ';
+
+  @override
+  String get txnAmountReceived => 'የተቀበለው መጠን';
+
+  @override
+  String txnAmountReceivedHint(String account) {
+    return 'እነዚህ ሂሳቦች በተለያዩ ምንዛሬዎች ይቆጥራሉ። በ$account ውስጥ በትክክል የገባውን ያስገቡ፣ ወይም የመተግበሪያውን ተመን ለመጠቀም ባዶ ይተዉት።';
+  }
+
+  @override
+  String txnInCurrency(String currency) {
+    return 'በ$currency';
+  }
+
+  @override
+  String get txnTransferTitleHint => 'ለምሳሌ ወደ ቁጠባ ማዛወር (አማራጭ)';
+
+  @override
+  String get txnTitleHint => 'ለምን ነበር?';
+
+  @override
+  String get txnUpdate => 'አዘምን';
+
+  @override
+  String get txnSelectCategory => 'ምድብ ይምረጡ';
+
+  @override
+  String get txnSearchTransactions => 'ግብይቶችን ፈልግ';
+
+  @override
+  String get txnSpecialRegular => 'መደበኛ';
+
+  @override
+  String get txnSpecialLend => 'አበድር';
+
+  @override
+  String get txnSpecialBorrow => 'ተበደር';
+
+  @override
+  String get txnSpecialRegularDesc => 'መደበኛ ግብይት';
+
+  @override
+  String get txnSpecialUpcomingDesc => 'የሚከታተሉት የወደፊት ክፍያ';
+
+  @override
+  String get txnSpecialSubscriptionDesc => 'ተደጋጋሚ የአገልግሎት ክፍያ';
+
+  @override
+  String get txnSpecialRepetitiveDesc => 'ተደጋጋሚ ግብይት';
+
+  @override
+  String get txnSpecialLendDesc => 'ያበደሩት ገንዘብ (ዕዳ አለባቸው)';
+
+  @override
+  String get txnSpecialBorrowDesc => 'የተበደሩት ገንዘብ (ዕዳ አለብዎት)';
+
+  @override
+  String txnFilterBoundsInverted(String min, String max) {
+    return 'ዝቅተኛው ገደብ ከከፍተኛው በላይ ነው፣ ስለዚህ ምንም ሊዛመድ አይችልም። $min እስከ $max።';
+  }
+
+  @override
+  String get walletMyWallet => 'የእኔ ቦርሳ';
+
+  @override
+  String walletCreateFailed(String error) {
+    return 'ቦርሳውን መፍጠር አልተቻለም፦ $error';
+  }
+
+  @override
+  String get walletTypeBankAccount => 'የባንክ ሂሳብ';
+
+  @override
+  String get walletTypeCreditCard => 'ክሬዲት ካርድ';
+
+  @override
+  String get walletTypeSubscription => 'ምዝገባ';
+
+  @override
+  String get walletTypeDeposit => 'ተቀማጭ';
+
+  @override
+  String get walletTypeInvestment => 'ኢንቨስትመንት';
+
+  @override
+  String get walletTypeAsset => 'ንብረት';
+
+  @override
+  String get walletEnterAccountName => 'እባክዎ የሂሳብ ስም ያስገቡ';
+
+  @override
+  String get walletCreditLimitRequired => 'የክሬዲት ገደብ ያስፈልጋል';
+
+  @override
+  String get walletEnterValidCreditLimit => 'እባክዎ ትክክለኛ የክሬዲት ገደብ ያስገቡ';
+
+  @override
+  String get walletEnterValidCreditLimitAboveZero =>
+      'እባክዎ ከ0 በላይ የሆነ ትክክለኛ የክሬዲት ገደብ ያስገቡ';
+
+  @override
+  String get walletEditWallet => 'ቦርሳ አስተካክል';
+
+  @override
+  String get walletAddNewWallet => 'አዲስ ቦርሳ ያክሉ';
+
+  @override
+  String get walletEnterWalletNameError => 'እባክዎ የቦርሳ ስም ያስገቡ';
+
+  @override
+  String get walletEnterValidNumber => 'እባክዎ ትክክለኛ ቁጥር ያስገቡ';
+
+  @override
+  String get walletShowCents => 'ሳንቲሞችን አሳይ (ለምሳሌ \$1,234.56)';
+
+  @override
+  String get walletWholeNumbersOnly => 'ሙሉ ቁጥሮች ብቻ (ለምሳሌ \$1,235)';
+
+  @override
+  String get walletCreateWallet => 'ቦርሳ ፍጠር';
+
+  @override
+  String get walletClosedPill => 'ተዘግቷል። ታሪኩ ይቀመጣል፣ ግን አይቀርብም ወይም አይቆጠርም።';
+
+  @override
+  String get walletExcludedPill => 'ከሁሉም ሂሳቦች ጠቅላላ ውጭ ተደርጓል።';
+
+  @override
+  String get walletReopen => 'እንደገና ክፈት';
+
+  @override
+  String get walletCloseAccount => 'ሂሳብ ዝጋ';
+
+  @override
+  String get walletReopenSubtitle => 'እንደገና አቅርበው እና ቁጠረው';
+
+  @override
+  String get walletCloseAccountSubtitle => 'ታሪኩን አቆይ፣ መቁጠር አቁም';
+
+  @override
+  String get walletIncludeInTotal => 'በጠቅላላው ውስጥ አካት';
+
+  @override
+  String get walletLeaveOutOfTotal => 'ከጠቅላላው ውጭ አድርግ';
+
+  @override
+  String get walletAlreadyTheBalance => 'ይህ አስቀድሞ ቀሪ ሂሳቡ ነው።';
+
+  @override
+  String get walletCorrectionRecorded => 'ልዩነቱ እንደ ማስተካከያ ተመዝግቧል።';
+
+  @override
+  String walletMergeConfirmBody(String name) {
+    return 'በ$name የተመዘገበው ሁሉ ይዛወራል፣ $name ይዘጋል። ምንም አይሰረዝም።';
+  }
+
+  @override
+  String walletMergeConfirmBodyConverted(String name, String from, String to) {
+    return 'መጠኖች ሲዛወሩ ከ$from ወደ $to ይቀየራሉ። ምንም አይሰረዝም፣ $name ከመወገድ ይልቅ ይዘጋል።';
+  }
+
+  @override
+  String walletCardInCredit(String amount, String available) {
+    return '$amount በክሬዲት · $available ይገኛል';
+  }
+
+  @override
+  String walletCardOwed(String amount, String available) {
+    return '$amount ዕዳ · $available ገና ይገኛል';
+  }
+
+  @override
+  String walletCorrectBalanceBody(String name) {
+    return '$name በትክክል የያዘውን ያስገቡ። ልዩነቱ እንደ ግብይት ይመዘገባል፣ ስለዚህ ሂሳቡ ከታሪኩ ጋር ይስማማል።';
+  }
+
+  @override
+  String get apiUpdateRequired =>
+      'ማመሳሰሉን ለመቀጠል The Accountantን ያዘምኑ። እስኪያዘምኑ ድረስ ሁሉም ነገር በዚህ ስልክ ላይ ይቆያል።';
+
+  @override
+  String get apiAccountExistsLink =>
+      'በዚህ ኢሜይል መለያ አስቀድሞ አለ። እባክዎ መለያዎችዎን ያገናኙ።';
+
+  @override
+  String get apiServerTrouble =>
+      'አገልጋያችን አሁን ችግር አጋጥሞታል። ሁሉም ነገር በዚህ ስልክ ላይ ደህና ነው፤ ከጥቂት ደቂቃዎች በኋላ እንደገና ይሞክሩ።';
+
+  @override
+  String apiRequestFailedHttp(String status) {
+    return 'ጥያቄው አልተሳካም (HTTP $status)።';
+  }
+
+  @override
+  String get apiServerTimeout =>
+      'አገልጋያችን ለመመለስ በጣም ዘገየ። ግንኙነትዎን ያረጋግጡ፣ ወይም ከጥቂት ደቂቃዎች በኋላ እንደገና ይሞክሩ።';
+
+  @override
+  String get apiCannotReachServer =>
+      'አገልጋያችንን ማግኘት አልተቻለም። ግንኙነትዎን ያረጋግጡ፤ ኢንተርኔት ካለዎት ከጥቂት ደቂቃዎች በኋላ እንደገና ይሞክሩ።';
+
+  @override
+  String get apiSomethingWentWrong =>
+      'ከአገልጋያችን ጋር ስንገናኝ ችግር ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String get syncAlreadyInProgress => 'ማመሳሰል አስቀድሞ በሂደት ላይ ነው';
+
+  @override
+  String get syncRequiresPremium => 'የክላውድ ማመሳሰል የPremium ምዝገባ ይፈልጋል';
+
+  @override
+  String get syncNoInternet => 'የኢንተርኔት ግንኙነት የለም';
+
+  @override
+  String get syncNotAuthenticated => 'አልገቡም';
+
+  @override
+  String get syncCouldNotFetchCloud =>
+      'የክላውድ ውሂብዎን ማምጣት አልተቻለም። በስልኩ ያለው ውሂብ አልተለወጠም።';
+
+  @override
+  String get syncAccountUnknown => 'የገባውን መለያ መለየት አልተቻለም፤ ማመሳሰሉ ተሰርዟል።';
+
+  @override
+  String get syncStoreOtherAccount =>
+      'የዚህ መሣሪያ ውሂብ የሌላ መለያ ነው። ከማመሳሰልዎ በፊት በዚያ መለያ ይግቡ፣ ወይም የመሣሪያውን ውሂብ ያጽዱ።';
+
+  @override
+  String syncRecordsNotSaved(String record) {
+    return 'አንዳንድ የክላውድ መዝገቦች በዚህ መሣሪያ ላይ ሊቀመጡ አልቻሉም፦ $record። በሚቀጥለው ማመሳሰል እንደገና ይሞከራሉ።';
+  }
+
+  @override
+  String syncRecordsNotSavedMore(String record, int count) {
+    return 'አንዳንድ የክላውድ መዝገቦች በዚህ መሣሪያ ላይ ሊቀመጡ አልቻሉም፦ $record (እና ሌሎች $count)። በሚቀጥለው ማመሳሰል እንደገና ይሞከራሉ።';
+  }
+
+  @override
+  String notifCardStatementReady(String name) {
+    return 'የ$name መግለጫ ዝግጁ ነው';
+  }
+
+  @override
+  String notifCardStatementPaid(String amount) {
+    return 'ድምሩ $amount ነው፤ አስቀድሞ ተከፍሏል። ሌላ የሚከፈል የለም።';
+  }
+
+  @override
+  String notifCardDueBy(String amount, String date) {
+    return '$amount እስከ $date መከፈል አለበት።';
+  }
+
+  @override
+  String notifCardPaidSoFar(String paid, String owed) {
+    return 'ከ$owed ውስጥ $paid አስቀድሞ ተከፍሏል።';
+  }
+
+  @override
+  String notifCardDueTomorrow(String name) {
+    return 'የ$name ሂሳብ ነገ ይከፈላል';
+  }
+
+  @override
+  String notifCardDueInDays(String name, int days) {
+    return 'የ$name ሂሳብ በ$days ቀናት ውስጥ ይከፈላል';
+  }
+
+  @override
+  String notifPayBy(String amount, String date) {
+    return '$amount እስከ $date ይክፈሉ።';
+  }
+
+  @override
+  String notifCardDueToday(String name) {
+    return 'የ$name ሂሳብ ዛሬ ይከፈላል';
+  }
+
+  @override
+  String notifCardStillUnpaid(String amount, String paidSoFar) {
+    return '$amount ገና አልተከፈለም።$paidSoFar ዛሬ መክፈል የዘገየ ክፍያ ቅጣትን ያስቀራል።';
+  }
+
+  @override
+  String get notifWhenToday => 'ዛሬ';
+
+  @override
+  String get notifWhenTomorrow => 'ነገ';
+
+  @override
+  String notifWhenInDays(int days) {
+    return 'በ$days ቀናት ውስጥ';
+  }
+
+  @override
+  String notifPlanPaysOut(String name, String when) {
+    return '$name $when ይከፈላል';
+  }
+
+  @override
+  String notifPlanPayoutBody(String amount, String account, String date) {
+    return '$amount በ$date ወደ $account ይገባል።';
+  }
+
+  @override
+  String notifPlanMatures(String name, String when) {
+    return '$name $when ይበስላል';
+  }
+
+  @override
+  String notifPlanMaturityBody(String amount, String account, String date) {
+    return '$amount በ$date ወደ $account ይመለሳል።';
+  }
+
+  @override
+  String notifPlanInstallmentDue(
+    String name,
+    String kind,
+    int number,
+    int total,
+    String when,
+  ) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'dps': 'ተቀማጭ',
+      'insurance': 'የኢንሹራንስ ክፍያ',
+      'sip': 'SIP',
+      'other': 'ክፍያ',
+    });
+    return '$name፦ $_temp0 $number ከ$total $when ይከፈላል';
+  }
+
+  @override
+  String notifInvestBy(String amount, String date) {
+    return '$amount እስከ $date ኢንቨስት ያድርጉ።';
+  }
+
+  @override
+  String notifWillBeInvested(String amount, String account, String date) {
+    return '$amount በ$date ከ$account ኢንቨስት ይደረጋል።';
+  }
+
+  @override
+  String notifWillBeRecorded(String amount, String account, String date) {
+    return '$amount በ$date ከ$account ይመዘገባል።';
+  }
+
+  @override
+  String get notifYourAccount => 'ሂሳብዎ';
+
+  @override
+  String get notifPlansUpdatedTitle => 'የተከፋፈለ ክፍያና ቁጠባ ተዘምኗል';
+
+  @override
+  String notifPlansUpdatedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count የዕቅድ ግቤቶች በቀናቸው ተመዝግበዋል።',
+      one: '1 የዕቅድ ግቤት በቀኑ ተመዝግቧል።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifRecurringRecordedTitle => 'ተደጋጋሚ ግብይቶች ተመዝግበዋል';
+
+  @override
+  String notifRecurringRecordedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ተደጋጋሚ ግብይቶች ተመዝግበዋል።',
+      one: '1 ተደጋጋሚ ግብይት ተመዝግቧል።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifPaymentsToConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'የሚረጋገጡ $count ክፍያዎች',
+      one: 'የሚረጋገጥ 1 ክፍያ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifPaymentsToConfirmBody => 'የተቆረጠውን ያረጋግጡ፣ ወይም ይዝለሉት፣ በመጪ ውስጥ።';
+
+  @override
+  String notifPaymentsToConfirmBodyNames(String names) {
+    return '$names — የተቆረጠውን ያረጋግጡ፣ ወይም ይዝለሉት፣ በመጪ ውስጥ።';
+  }
+
+  @override
+  String get notifUpcomingFallbackTitle => 'መጪ ግብይት';
+
+  @override
+  String notifUpcomingTitle(String title) {
+    return 'መጪ፦ $title';
+  }
+
+  @override
+  String notifUpcomingIncomeBody(String amount) {
+    return '$amount ገቢ በቅርቡ ይጠበቃል።';
+  }
+
+  @override
+  String notifUpcomingExpenseBody(String amount) {
+    return '$amount ወጪ በቅርቡ ይከፈላል።';
+  }
+
+  @override
+  String get notifCreditFallback => 'ብድር';
+
+  @override
+  String get notifDebtFallback => 'ዕዳ';
+
+  @override
+  String notifOverdueCreditTitle(String title) {
+    return 'ጊዜው ያለፈበት ብድር፦ $title';
+  }
+
+  @override
+  String notifOverdueDebtTitle(String title) {
+    return 'ጊዜው ያለፈበት ዕዳ፦ $title';
+  }
+
+  @override
+  String notifOutstandingBody(String amount) {
+    return '$amount ገና አልተከፈለም። ለማየት ይንኩ።';
+  }
+
+  @override
+  String get notifRecurringFallbackTitle => 'ተደጋጋሚ ግብይት';
+
+  @override
+  String notifUpcomingRecurringTitle(String title) {
+    return 'መጪ ተደጋጋሚ፦ $title';
+  }
+
+  @override
+  String notifDueOnBody(String amount, String date) {
+    return '$amount በ$date ይከፈላል።';
+  }
+
+  @override
+  String notifCreditDueTitle(String title) {
+    return 'የሚከፈል ብድር፦ $title';
+  }
+
+  @override
+  String notifDebtDueTitle(String title) {
+    return 'የሚከፈል ዕዳ፦ $title';
+  }
+
+  @override
+  String notifSubscriptionDueTitle(String title) {
+    return 'የሚከፈል ምዝገባ፦ $title';
+  }
+
+  @override
+  String notifBillDueTitle(String title) {
+    return 'የሚከፈል ሂሳብ፦ $title';
+  }
+
+  @override
+  String notifDueSoonTitle(String title) {
+    return 'በቅርቡ የሚከፈል፦ $title';
+  }
+
+  @override
+  String get notifRepetitiveBillFallback => 'ተደጋጋሚ ሂሳብ';
+
+  @override
+  String notifDueSoonBody(String amount) {
+    return '$amount በቅርቡ ይከፈላል። ለማየት ይንኩ።';
+  }
+
+  @override
+  String get notifChannelRecurring => 'ተደጋጋሚ ግብይቶች';
+
+  @override
+  String get notifChannelRecurringDesc => 'በራሱ ለተፈጠሩ ተደጋጋሚ ግብይቶች ማሳወቂያዎች';
+
+  @override
+  String get notifChannelUpcoming => 'የመጪ አስታዋሾች';
+
+  @override
+  String get notifChannelUpcomingDesc => 'ለመጪ ግብይቶች አስታዋሾች';
+
+  @override
+  String get notifChannelLoan => 'የብድር አስታዋሾች';
+
+  @override
+  String get notifChannelLoanDesc => 'ጊዜያቸው ላለፈ ብድሮችና ዕዳዎች አስታዋሾች';
+
+  @override
+  String get notifChannelDueDate => 'የመክፈያ ቀን አስታዋሾች';
+
+  @override
+  String get notifChannelDueDateDesc => 'ለተወሰኑ የግብይት መክፈያ ቀናት የአንድ ጊዜ አስታዋሾች';
+
+  @override
+  String get notifChannelBillsDesc => 'የሚደርሱ የክሬዲት ካርድ ሂሳቦችና የዕቅድ ክፍያዎች';
+
+  @override
+  String get notifOffset1Hour => 'ከ1 ሰዓት በፊት';
+
+  @override
+  String get notifOffset1Day => 'ከ1 ቀን በፊት';
+
+  @override
+  String get notifOffset3Days => 'ከ3 ቀናት በፊት';
+
+  @override
+  String get notifOffset1Week => 'ከ1 ሳምንት በፊት';
+
+  @override
+  String notifOffsetMinutes(int minutes) {
+    return 'ከ$minutes ደቂቃ በፊት';
+  }
+
+  @override
+  String get notifChannelGeneral => 'አጠቃላይ';
+
+  @override
+  String get notifChannelGeneralDesc => 'የመለያ እና የመተግበሪያ ማሳወቂያዎች';
+
+  @override
+  String get notifChannelReminders => 'ዕለታዊ አስታዋሾች';
+
+  @override
+  String get notifChannelRemindersDesc => 'የዕለቱን ወጪ ለመመዝገብ ማስታወሻ';
+
+  @override
+  String get notifChannelBillsStatementsDesc => 'የክሬዲት ካርድ መግለጫዎችና የመክፈያ ቀናት';
+
+  @override
+  String get notifChannelBudgets => 'የበጀት ማንቂያዎች';
+
+  @override
+  String get notifChannelBudgetsDesc => 'በጀት ሊያልቅ ሲቃረብ ወይም ሲያልቅ';
+
+  @override
+  String notifOverBudgetTitle(String name) {
+    return 'ከበጀት በላይ፦ $name';
+  }
+
+  @override
+  String notifBudgetAlertTitle(String name) {
+    return 'የበጀት ማንቂያ፦ $name';
+  }
+
+  @override
+  String notifOverBudgetBody(String percent, String name) {
+    return 'ለዚህ ጊዜ ከ$name በጀትዎ $percent% አውጥተዋል።';
+  }
+
+  @override
+  String notifBudgetAlertBody(String percent, String name) {
+    return 'ከ$name በጀትዎ $percent% ተጠቅመዋል።';
+  }
+
+  @override
+  String get notifPremiumEndingTitle => 'Premium በቅርቡ ያበቃል';
+
+  @override
+  String get notifPremiumEndsTomorrow =>
+      'Premiumዎ ነገ ያበቃል። የPremium ባህሪያትዎን ለማቆየት ያድሱ።';
+
+  @override
+  String notifPremiumEndsInDays(int days) {
+    return 'Premiumዎ በ$days ቀናት ውስጥ ያበቃል። የPremium ባህሪያትዎን ለማቆየት ያድሱ።';
+  }
+
+  @override
+  String get notifLargeIncomeTitle => 'የትልቅ ገቢ ማንቂያ';
+
+  @override
+  String get notifLargeExpenseTitle => 'የትልቅ ወጪ ማንቂያ';
+
+  @override
+  String notifLargeIncomeBodyTitled(String amount, String title) {
+    return '$amount ገቢ ተመዝግቧል፦ $title';
+  }
+
+  @override
+  String notifLargeIncomeBody(String amount) {
+    return '$amount ገቢ ተመዝግቧል';
+  }
+
+  @override
+  String notifLargeExpenseBodyTitled(String amount, String title) {
+    return '$amount ወጪ ተመዝግቧል፦ $title';
+  }
+
+  @override
+  String notifLargeExpenseBody(String amount) {
+    return '$amount ወጪ ተመዝግቧል';
+  }
+
+  @override
+  String get notifChannelDailyRemindersDesc => 'የዕለት ወጪ አስታዋሽ ማሳወቂያዎች';
+
+  @override
+  String get notifDailyReminderTitle => 'የዕለት ወጪ አስታዋሽ';
+
+  @override
+  String get notifDailyReminderBody => 'የዛሬ ወጪዎችዎን መመዝገብ አይርሱ! ወጪዎን ይከታተሉ።';
+
+  @override
+  String get notifTestTitle => 'የሙከራ ማሳወቂያ';
+
+  @override
+  String get notifTestBody => 'ይህን ካዩ፣ ማሳወቂያዎች እየሠሩ ነው!';
+
+  @override
+  String get notifActionSnooze1Day => '1 ቀን አቆይ';
+
+  @override
+  String get notifActionSnooze1Week => '1 ሳምንት አቆይ';
+
+  @override
+  String get notifGroupThisWeek => 'በዚህ ሳምንት';
+
+  @override
+  String get notifGroupThisMonth => 'በዚህ ወር';
+
+  @override
+  String notifDateAtTime(String date, String time) {
+    return '$date $time ላይ';
+  }
+
+  @override
+  String notifMinutesAgo(int count) {
+    return 'ከ$count ደቂቃ በፊት';
+  }
+
+  @override
+  String notifHoursAgo(int count) {
+    return 'ከ$count ሰዓት በፊት';
+  }
+
+  @override
+  String notifDaysAgo(int count) {
+    return 'ከ$count ቀን በፊት';
+  }
+
+  @override
+  String get notifPrimerSheetBody =>
+      'ማሳወቂያዎችን ያብሩ፤ አስፈላጊ ስለሆኑ ነገሮች አስቀድመን እናሳውቅዎታለን።';
+
+  @override
+  String get notifPrimerBudgetsBody => 'በጀትዎን ከማለፍዎ በፊት ይወቁ።';
+
+  @override
+  String get notifPrimerBillsTitle => 'የሂሳብ እና የምዝገባ አስታዋሾች';
+
+  @override
+  String get notifPrimerBillsBody => 'ተደጋጋሚ ክፍያ በጭራሽ አያምልጥዎ።';
+
+  @override
+  String get notifPrimerLargeTitle => 'ትልልቅ ግብይቶች';
+
+  @override
+  String get notifPrimerLargeBody => 'ስለ ያልተለመደ እንቅስቃሴ ማሳወቂያ ያግኙ።';
+
+  @override
+  String get notifLoadFailed => 'ማሳወቂያዎችን መጫን አልተቻለም';
+
+  @override
+  String get startupReasonSomethingWrong =>
+      'በመጀመር ላይ ችግር ተፈጥሯል። ውሂብዎ በዚህ መሣሪያ ላይ ደህና ነው።';
+
+  @override
+  String get startupReasonCouldNotOpenLocal =>
+      'የዚህን መለያ የመሣሪያ ውሂብ መክፈት አልተቻለም።';
+
+  @override
+  String get startupReasonSetupFailed =>
+      'ይህን መለያ በዚህ መሣሪያ ላይ ማዘጋጀት መጨረስ አልቻልንም። ምንም ነገር አልተሰረዘም።';
+
+  @override
+  String get startupReasonOffline =>
+      'መለያዎን ማግኘት አልቻልንም፤ ይህ መሣሪያም ገና ውሂቡ የለውም። ከዚህ በፊት The Accountantን ከተጠቀሙ፣ ከኢንተርኔት ጋር ይገናኙ፤ ውሂብዎን እንመልሳለን። አዲስ ነዎት? አሁኑኑ በዚህ መሣሪያ መጀመር ይችላሉ።';
+
+  @override
+  String get startupReasonNeedsSubscription =>
+      'ይህ መለያ በክላውድ የተቀመጠ ውሂብ አለው። ለመመለስ ንቁ ምዝገባ ያስፈልጋል። ምንም ነገር አልተሰረዘም።';
+
+  @override
+  String get startupReasonConfirmingSubscription =>
+      'ይህ መለያ በክላውድ ውሂብ አለው። ለመመለስ እንዲቻል ምዝገባዎን ገና እያረጋገጥን ነው።';
+
+  @override
+  String startupReasonRestoreFailed(String error) {
+    return 'መመለስ አልተሳካም፦ $error';
+  }
+
+  @override
+  String get startupReasonNotRestoredYet =>
+      'ይህ መለያ በክላውድ ውሂብ አለው፤ ግን ገና ሊመለስ አልቻለም።';
+
+  @override
+  String get commonBiometricReason => 'The Accountantን ለመክፈት ማንነትዎን ያረጋግጡ';
+
+  @override
+  String get commonLoadCurrenciesFailed => 'ምንዛሪዎችን መጫን አልተቻለም';
+
+  @override
+  String get commonLoadRatesFailed => 'የምንዛሪ ተመኖችን መጫን አልተቻለም';
+
+  @override
+  String get commonRefreshRatesFailed => 'የምንዛሪ ተመኖችን ማደስ አልተቻለም';
+
+  @override
+  String get commonAllCategories => 'ሁሉም ምድቦች';
+
+  @override
+  String commonCategoryCount(int count) {
+    return '$count ምድቦች';
+  }
+
+  @override
+  String get commonTierFree => 'ነፃ';
+
+  @override
+  String get commonTierMonthly => 'Premium ወርሃዊ';
+
+  @override
+  String get commonTierYearly => 'Premium ዓመታዊ';
+
+  @override
+  String get commonTierLifetime => 'Premium ዕድሜ ልክ';
+
+  @override
+  String get commonCategoryMergeSelf => 'ምድብ ከራሱ ጋር ሊዋሃድ አይችልም።';
+
+  @override
+  String get commonCategoryMergeMissing => 'ለማዋሃድ ሁለቱም ምድቦች መኖር አለባቸው።';
+
+  @override
+  String get commonCategoryMergeSystem => 'የመተግበሪያው የራሱ ምድቦች ሊዋሃዱ አይችሉም።';
+
+  @override
+  String get commonCategoryMergeKinds => 'የገቢ እና የወጪ ምድቦች ሊዋሃዱ አይችሉም።';
+
+  @override
+  String get commonCategoryOneLevel =>
+      'ያ ምድብ በሌላ ምድብ ውስጥ ነው፤ ምድቦች አንድ ደረጃ ብቻ ናቸው።';
+
+  @override
+  String get commonCategoryMoveSame => 'ለማዛወር የተለየ ምድብ ይምረጡ።';
+
+  @override
+  String get commonCategoryMoveMissing => 'በመካከላቸው ለማዛወር ሁለቱም ምድቦች መኖር አለባቸው።';
+
+  @override
+  String get commonCategoryMoveSystem => 'በመተግበሪያው የራሱ ምድቦች መካከል ማዛወር አይቻልም።';
+
+  @override
+  String get commonCategoryMoveKinds => 'የገቢ እና የወጪ ግብይቶች ምድብ ሊለዋወጡ አይችሉም።';
+
+  @override
+  String get commonCategoryGone => 'ያ ምድብ ከእንግዲህ የለም።';
+
+  @override
+  String get commonCategoryParentSystem => 'የመተግበሪያው የራሱ ምድቦች ሊዛወሩ አይችሉም።';
+
+  @override
+  String get commonCategoryParentSelf => 'ምድብ በራሱ ውስጥ ሊሆን አይችልም።';
+
+  @override
+  String get commonCategoryParentIntoSystem =>
+      'በመተግበሪያው የራሱ ምድቦች ውስጥ ምንም ማስቀመጥ አይቻልም።';
+
+  @override
+  String get commonCategoryParentKinds =>
+      'የገቢ ምድብ እና የወጪ ምድብ አንዱ በሌላው ውስጥ ሊሆኑ አይችሉም።';
+
+  @override
+  String get commonCategoryHasChildren =>
+      'ይህ ምድብ የራሱ ንዑስ ምድቦች ስላሉት በላይኛው ደረጃ ይቆያል።';
+
+  @override
+  String get commonTapToChange => 'ለመቀየር ይንኩ';
+
+  @override
+  String get commonSelectColor => 'ቀለም ይምረጡ';
+
+  @override
+  String get commonShowPalette => 'የቀለም ሰሌዳ አሳይ';
+
+  @override
+  String get commonCustomColor => 'ብጁ ቀለም';
+
+  @override
+  String get commonSelectCurrency => 'ምንዛሪ ይምረጡ';
+
+  @override
+  String get commonEnableCryptoHint =>
+      'የክሪፕቶ ቶከኖችን ለመፈለግ \'የክሪፕቶ ምንዛሪዎችን አካትት\'ን ያብሩ።';
+
+  @override
+  String get commonSearchHint => 'ፈልግ...';
+
+  @override
+  String get aiLoadConversationsFailed => 'ውይይቶችን መጫን አልተቻለም።';
+
+  @override
+  String get aiLoadHistoryFailed => 'የውይይት ታሪክን መጫን አልተቻለም።';
+
+  @override
+  String get aiPremiumRequired => 'ለAI ረዳት የPremium ምዝገባ ያስፈልጋል';
+
+  @override
+  String get aiUnexpectedError => 'ያልተጠበቀ ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String get aiResponseFailed => 'የAI ምላሽ ማግኘት አልተቻለም። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String get aiServiceNotAnswering => 'የAI አገልግሎቱ እየመለሰ አይደለም።';
+
+  @override
+  String get aiReplyCutOff => 'ምላሹ ተቋርጧል። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String get aiCouldNotReachServer =>
+      'አገልጋዩን ማግኘት አልተቻለም። ግንኙነትዎን ያረጋግጡና እንደገና ይሞክሩ።';
+
+  @override
+  String get aiSomethingWentWrong => 'ችግር ተፈጥሯል።';
+
+  @override
+  String get aiOpenConversationFailed => 'ውይይቱን መክፈት አልተቻለም።';
+
+  @override
+  String aiChangesSavedReplyLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count ለውጦችዎ ተቀምጠዋል፣ ግን አማካሪው ምላሹን መጨረስ አልቻለም። እንደገና ከመጠየቅዎ በፊት በመዝገቦችዎ ውስጥ ያረጋግጧቸው።',
+      one:
+          'ለውጥዎ ተቀምጧል፣ ግን አማካሪው ምላሹን መጨረስ አልቻለም። እንደገና ከመጠየቅዎ በፊት በመዝገቦችዎ ውስጥ ያረጋግጡት።',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiServiceNotAnsweringNow =>
+      'የAI አገልግሎቱ አሁን እየመለሰ አይደለም። እባክዎ እንደገና ይሞክሩ።';
+
+  @override
+  String aiMinutesShort(int count) {
+    return '$count ደ';
+  }
+
+  @override
+  String aiHoursShort(int count) {
+    return '$count ሰ';
+  }
+
+  @override
+  String aiDaysShort(int count) {
+    return '$count ቀ';
+  }
+
+  @override
+  String get aiOcrTextFailed => 'ከምስሉ ጽሑፍ ማውጣት አልተቻለም';
+
+  @override
+  String get aiOcrReceiptFailed => 'ከምስሉ የደረሰኝ መረጃ ማውጣት አልተቻለም';
+
+  @override
+  String get coachYes => 'አዎ';
+
+  @override
+  String get coachNo => 'አይ';
+
+  @override
+  String get coachTradeBuy => 'ግዢ';
+
+  @override
+  String get coachTradeSell => 'ሽያጭ';
+
+  @override
+  String get coachTradeDividend => 'ትርፍ ድርሻ';
+
+  @override
+  String get planAccountGone => 'ያ ሂሳብ ከእንግዲህ የለም።';
+
+  @override
+  String get planPaidFromOrdinary => 'ዕቅድ የሚከፈለው ከተራ ሂሳብ ነው፣ ከተቀማጭ አይደለም።';
+
+  @override
+  String get planSipChooseHolding => 'SIP የሚገዛውን ፈንድ ወይም አክሲዮን ይምረጡ።';
+
+  @override
+  String get planSipPayFromOther => 'ለSIP ከሌላ ሂሳብ ይክፈሉ።';
+
+  @override
+  String get planNeedNameError => 'ለዕቅዱ ስም ይስጡት።';
+
+  @override
+  String get planInstallmentCountRange => 'የክፍያ ክፍሎቹ ብዛት ከ1 እስከ 1200 መሆን አለበት።';
+
+  @override
+  String get planIntervalMin => 'ክፍተቱ ቢያንስ 1 መሆን አለበት።';
+
+  @override
+  String get planRateRange => 'መጠኑ ከ0 እስከ 100 በመቶ መሆን አለበት።';
+
+  @override
+  String get planTaxRange => 'ግብሩ ከ0 እስከ 100 በመቶ መሆን አለበት።';
+
+  @override
+  String get planProviderTooLong => 'የኩባንያውን ስም እና ቁጥሩን ከ100 ፊደላት በታች ያድርጉ።';
+
+  @override
+  String get planNeedPremium => 'አረቦኑን ያስገቡ።';
+
+  @override
+  String get planNeedInstallmentAmount => 'የእያንዳንዱን ክፍያ መጠን ያስገቡ።';
+
+  @override
+  String get planNeedDeposited => 'የተቀመጠውን መጠን ያስገቡ።';
+
+  @override
+  String get planTermMonthsOrYears => 'የሚቆየው ለወራት ወይም ለዓመታት ነው።';
+
+  @override
+  String get planAmountNotNegative => 'መጠኑ አሉታዊ መሆን አይችልም።';
+
+  @override
+  String planMaturesOnCloseEarly(String name, String date) {
+    return '$name በ$date ይበስላል። ከዚያ በፊት ገንዘቡን ለማውጣት ቀደም ብለው ይዝጉት።';
+  }
+
+  @override
+  String get planNoLongerExists => 'ያ ዕቅድ ከእንግዲህ የለም።';
+
+  @override
+  String get planReminderDaysRange =>
+      'አስታዋሾች ከ0 (ጠፍቷል) እስከ 30 ቀናት በፊት ሊሆኑ ይችላሉ።';
+
+  @override
+  String planStillHoldsMoney(String name, String account) {
+    return '$name አሁንም ገንዘብ ይዟል። መጀመሪያ ይዝጉት፤ ይህም ገንዘቡን ወደ $account ይመልሰዋል።';
+  }
+
+  @override
+  String get planItsAccount => 'ሂሳቡ';
+
+  @override
+  String planAlreadyEnded(String name) {
+    return '$name አስቀድሞ አብቅቷል።';
+  }
+
+  @override
+  String get investNeedName => 'ለኢንቨስትመንቱ ስም ይስጡት።';
+
+  @override
+  String get investNameTooLong => 'ስሙን ከ100 ፊደላት በታች ያድርጉ።';
+
+  @override
+  String get investSymbolTooLong => 'ምልክቱን ከ20 ፊደላት በታች ያድርጉ።';
+
+  @override
+  String get investPriceNotNegative => 'ዋጋ አሉታዊ መሆን አይችልም።';
+
+  @override
+  String investAlreadyTracked(String name) {
+    return '$name አስቀድሞ እየተከታተለ ነው።';
+  }
+
+  @override
+  String get investNeedPaid => 'የተከፈለውን ያስገቡ።';
+
+  @override
+  String get investUnitsBoughtPositive => 'የተገዙ ዩኒቶች ከዜሮ በላይ መሆን አለባቸው።';
+
+  @override
+  String get investPayFromOther => 'ከሌላ ሂሳብ ይክፈሉ።';
+
+  @override
+  String get investNeedSaleAmount => 'ሽያጩ ያስገኘውን ያስገቡ።';
+
+  @override
+  String get investUnitsSoldPositive => 'የተሸጡ ዩኒቶች ከዜሮ በላይ መሆን አለባቸው።';
+
+  @override
+  String get investSellIntoOther => 'ወደ ሌላ ሂሳብ ይሽጡ።';
+
+  @override
+  String investOnlyUnitsHeld(String units, String name) {
+    return 'ከ$name የተያዙት $units ዩኒቶች ብቻ ናቸው።';
+  }
+
+  @override
+  String get investNeedDividend => 'የተቀበሉትን ትርፍ ድርሻ ያስገቡ።';
+
+  @override
+  String get investReceiveIntoOrdinary => 'ወደ ተራ ሂሳብ ይቀበሉት።';
+
+  @override
+  String get investPricePositive => 'ዋጋ ከዜሮ በላይ መሆን አለበት።';
+
+  @override
+  String get investUnitsPositive => 'ዩኒቶች ከዜሮ በላይ መሆን አለባቸው።';
+
+  @override
+  String get investNotATrade => 'ያ የኢንቨስትመንት ግብይት አይደለም።';
+
+  @override
+  String investStillHoldsUnits(String name) {
+    return '$name አሁንም ዩኒቶች አሉት። መጀመሪያ ይሽጧቸው።';
+  }
+
+  @override
+  String get investNoLongerExists => 'ያ ኢንቨስትመንት ከእንግዲህ የለም።';
+
+  @override
+  String get networthNeedAssetName => 'ለንብረቱ ስም ይስጡት።';
+
+  @override
+  String get networthValueNotNegative => 'ዋጋ አሉታዊ መሆን አይችልም።';
+
+  @override
+  String get networthNeedPaidFor => 'ለእሱ የተከፈለውን ያስገቡ።';
+
+  @override
+  String get networthPayFromOrdinary => 'ከተራ ሂሳብ ይክፈሉ።';
+
+  @override
+  String get networthNeedWorth => 'ዋጋውን ያስገቡ።';
+
+  @override
+  String get networthNeedSoldFor => 'የተሸጠበትን ዋጋ ያስገቡ።';
+
+  @override
+  String get networthReceiveIntoOrdinary => 'ገንዘቡን ወደ ተራ ሂሳብ ይቀበሉ።';
+
+  @override
+  String networthStillWorth(String name) {
+    return '$name አሁንም ዋጋ አለው። መጀመሪያ ይሽጡት ወይም ዋጋውን ዜሮ ያድርጉት።';
+  }
+
+  @override
+  String get networthAssetGone => 'ያ ንብረት ከእንግዲህ አይከታተልም።';
+
+  @override
+  String get zakatNeedAmountPaid => 'የተከፈለውን መጠን ያስገቡ።';
+
+  @override
+  String get zakatPayFromOrdinary => 'ከተራ ሂሳብ ይክፈሉት።';
+
+  @override
+  String get zakatReminderTitleToday => 'ዘካዎ ዛሬ ይከፈላል';
+
+  @override
+  String zakatReminderTitleIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ዘካ በ$count ቀናት ውስጥ ይከፈላል',
+      one: 'ዘካ በ1 ቀን ውስጥ ይከፈላል',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get zakatReminderBodyToday => 'የዘካ ዓመትዎ ዛሬ ይጠናቀቃል። የሚከፈለውን ለማየት ይንኩ።';
+
+  @override
+  String zakatReminderBodyOn(String date) {
+    return 'የዘካ ዓመትዎ በ$date ይጠናቀቃል። የሚከፈለውን ለማየት ይንኩ።';
+  }
+
+  @override
+  String get budgetCheckFailed => 'በጀቶችን መፈተሽ አልተሳካም';
+
+  @override
+  String get budgetLoadFailed => 'በጀቶችን መጫን አልተሳካም';
+
+  @override
+  String get budgetAddFailed => 'በጀት ማከል አልተሳካም';
+
+  @override
+  String get budgetNotFound => 'በጀቱ አልተገኘም';
+
+  @override
+  String get budgetUpdateFailed => 'በጀቱን ማዘመን አልተሳካም';
+
+  @override
+  String get budgetDeleteFailed => 'በጀቱን መሰረዝ አልተሳካም';
+
+  @override
+  String get budgetEdit => 'በጀት አርትዕ';
+
+  @override
+  String get budgetNeedName => 'ለበጀቱ ስም ይስጡት';
+
+  @override
+  String get budgetEnterAmount => 'መጠን ያስገቡ';
+
+  @override
+  String get budgetAmountMoreThanZero => 'መጠኑ ከዜሮ በላይ መሆን አለበት';
+
+  @override
+  String get budgetTrackingEarnings => 'ገቢን መከታተል';
+
+  @override
+  String get budgetTrackingSpending => 'ወጪን መከታተል';
+
+  @override
+  String get budgetRepeats => 'ይደገማል';
+
+  @override
+  String get budgetTooBig => 'በጣም ትልቅ';
+
+  @override
+  String get budgetStarts => 'ይጀምራል';
+
+  @override
+  String get budgetEnds => 'ያበቃል';
+
+  @override
+  String get budgetStopsRepeating => 'መደገም ያቆማል';
+
+  @override
+  String get budgetNever => 'በፍጹም';
+
+  @override
+  String get budgetCategoriesAll => 'ምድቦች፦ ሁሉም';
+
+  @override
+  String budgetCategoriesSelected(int count) {
+    return 'ምድቦች፦ $count ተመርጠዋል';
+  }
+
+  @override
+  String get budgetNoIncomeCategories => 'እስካሁን የገቢ ምድቦች የሉም።';
+
+  @override
+  String get budgetNoExpenseCategories => 'እስካሁን የወጪ ምድቦች የሉም።';
+
+  @override
+  String get budgetCategoriesHint =>
+      'ሁሉንም ምድቦች ለመከታተል ባዶ ይተዉት። በተመረጠ ምድብ ውስጥ የተመዘገበ ማንኛውም ነገርም ይቆጠራል።';
+
+  @override
+  String get budgetAccountsAll => 'ሂሳቦች፦ ሁሉም';
+
+  @override
+  String budgetAccountsSelected(int count) {
+    return 'ሂሳቦች፦ $count ተመርጠዋል';
+  }
+
+  @override
+  String get budgetRolloverHint =>
+      'ያልወጣ ማንኛውም ገንዘብ ወደሚቀጥለው ጊዜ ይጨመራል። ማለፍ ግን ዕዳን ወደፊት አያሸጋግርም።';
+
+  @override
+  String get budgetPeriodDaily => 'ዕለታዊ';
+
+  @override
+  String get budgetPeriodFortnightly => 'በየሁለት ሳምንቱ';
+
+  @override
+  String get budgetPeriodOneOff => 'አንድ ጊዜ';
+
+  @override
+  String get budgetUnitDays => 'ቀናት';
+
+  @override
+  String get budgetUnitWeeks => 'ሳምንታት';
+
+  @override
+  String get budgetUnitFortnights => 'ሁለት ሳምንታት';
+
+  @override
+  String get budgetUnitMonths => 'ወራት';
+
+  @override
+  String get budgetUnitYears => 'ዓመታት';
+
+  @override
+  String get budgetOneOffNeedsEnd => 'የአንድ ጊዜ በጀት የማብቂያ ቀን ያስፈልገዋል።';
+
+  @override
+  String get budgetEndAfterStart => 'የማብቂያ ቀኑ ከመጀመሪያው ቀን በኋላ መሆን አለበት።';
+
+  @override
+  String get budgetSaveFailed => 'በጀቱን ማስቀመጥ አልተቻለም።';
+
+  @override
+  String get budgetThisPeriod => 'ይህ ጊዜ';
+
+  @override
+  String budgetPeriodsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ከ$count ጊዜያት በፊት',
+      one: 'ከ1 ጊዜ በፊት',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetDateRange(String start, String end) {
+    return 'ከ$start እስከ $end';
+  }
+
+  @override
+  String budgetOfLimit(String limit) {
+    return 'ከ$limit';
+  }
+
+  @override
+  String budgetOfLimitCarried(String limit, String carried) {
+    return 'ከ$limit፣ ከቀዳሚው የተሸጋገረ $carriedን ጨምሮ';
+  }
+
+  @override
+  String get budgetUncategorised => 'ያልተመደበ';
+
+  @override
+  String budgetOverTheLimit(String amount) {
+    return 'ከገደቡ $amount በላይ።';
+  }
+
+  @override
+  String budgetLeftPerDay(String left, String daily) {
+    return '$left ቀርቷል፣ በቀን $daily ገደማ።';
+  }
+
+  @override
+  String budgetLeftPlain(String left) {
+    return '$left ቀርቷል።';
+  }
+
+  @override
+  String budgetAveraging(String amount) {
+    return 'በአማካይ በየጊዜው $amount።';
+  }
+
+  @override
+  String budgetHeadingOver(String amount) {
+    return 'ወደ $amount ብልጫ እያመራ ነው';
+  }
+
+  @override
+  String budgetForecastScheduled(String scheduled) {
+    return 'በዚህ ፍጥነት፣ ጊዜው ከማብቃቱ በፊት አስቀድሞ የታቀደውን $scheduled ጨምሮ።';
+  }
+
+  @override
+  String get budgetForecastPlain => 'በዚህ ፍጥነት፣ በጊዜው መጨረሻ።';
+
+  @override
+  String get budgetCapsExplain =>
+      'በጀት ጊዜው ከመጠን በላይ ወጪ እንደተደረገበት ይነግራል። ገደብ ደግሞ የት እንደሆነ ይነግራል፦ በአጠቃላይ በትክክለኛ መንገድ ላይ ያለ የምግብ በጀት አብዛኛው አሁንም ከውጭ የታዘዘ ምግብ ሊሆን ይችላል።';
+
+  @override
+  String get budgetPercentOfBudget => 'የበጀቱ መቶኛ';
+
+  @override
+  String get budgetArchivedTitle => 'በማህደር የተቀመጡ በጀቶች';
+
+  @override
+  String get budgetShowActive => 'ንቁዎቹን አሳይ';
+
+  @override
+  String get budgetShowArchived => 'በማህደር የተቀመጡትን አሳይ';
+
+  @override
+  String get budgetUnpin => 'ንቀል';
+
+  @override
+  String get budgetPinToTop => 'ከላይ ሰካ';
+
+  @override
+  String get budgetStartCounting => 'እንደገና መቁጠር ጀምር';
+
+  @override
+  String get budgetStopCounting => 'ታሪኩን አቆይ፣ መቁጠሩን አቁም';
+
+  @override
+  String get budgetDeleteBody =>
+      'በጀቱ ይሰረዛል፣ ግብይቶችዎ ይቀራሉ። የመዘገቡት ምንም ነገር አይወገድም።';
+
+  @override
+  String get budgetNothingArchived => 'በማህደር የተቀመጠ ነገር የለም';
+
+  @override
+  String get budgetNoneYet => 'እስካሁን በጀት የለም';
+
+  @override
+  String get budgetArchivedEmptyHint => 'በማህደር ያስቀመጧቸው በጀቶች እዚህ ይቀመጣሉ።';
+
+  @override
+  String get budgetEmptyHint =>
+      'ለአንድ ምድብ ገደብ ያስቀምጡ እና ወሩ እንዴት እየሄደ እንደሆነ ይመልከቱ።';
+
+  @override
+  String dashLoadFailed(String error) {
+    return 'የፋይናንስ መረጃን መጫን አልተሳካም፦ $error';
+  }
+
+  @override
+  String get categoryUnknown => 'ያልታወቀ';
+
+  @override
+  String dashCardAvailable(String amount) {
+    return 'ያለ፦ $amount';
+  }
+
+  @override
+  String dashCardInCreditAvailable(String amount) {
+    return 'በትርፍ ላይ · ያለ፦ $amount';
+  }
+
+  @override
+  String get dashTypeBank => 'ባንክ';
+
+  @override
+  String get dashTypeCredit => 'ክሬዲት';
+
+  @override
+  String get dashTypeSubs => 'ምዝገባ';
+
+  @override
+  String get dashTypeDeposit => 'ተቀማጭ';
+
+  @override
+  String get dashTypeInvest => 'ኢንቨስት';
+
+  @override
+  String get dashTypeAsset => 'ንብረት';
+
+  @override
+  String get dashAddAccountTile => 'ሂሳብ\nአክል';
+
+  @override
+  String get categoryLoadFailed => 'ምድቦችን መጫን አልተሳካም';
+
+  @override
+  String get categoryAddFailed => 'ምድብ ማከል አልተሳካም';
+
+  @override
+  String get categoryNotFound => 'ምድቡ አልተገኘም';
+
+  @override
+  String get categoryUpdateFailed => 'ምድቡን ማዘመን አልተሳካም';
+
+  @override
+  String get categoryCannotDeleteSystem => 'የመተግበሪያውን የራሱ ምድቦች መሰረዝ አይቻልም';
+
+  @override
+  String get categoryCannotDeleteWithTransactions =>
+      'ግብይቶች ያሉበትን ምድብ መሰረዝ አይቻልም፤ መጀመሪያ ያዛውሯቸው ወይም ይሰርዟቸው';
+
+  @override
+  String get categoryDeleteFailed => 'ምድቡን መሰረዝ አልተሳካም';
+
+  @override
+  String categorySaveFailed(String error) {
+    return 'ምድቡን ማስቀመጥ አልተሳካም፦ $error';
+  }
+
+  @override
+  String get categoryEditTitle => 'ምድብ አርትዕ';
+
+  @override
+  String get categoryNewTitle => 'አዲስ ምድብ';
+
+  @override
+  String get categoryPartOf => 'የዚህ አካል';
+
+  @override
+  String get categoryNamePlaceholder => 'የምድብ ስም';
+
+  @override
+  String get categoryUpdate => 'ምድቡን አዘምን';
+
+  @override
+  String get categoryCreate => 'ምድብ ፍጠር';
+
+  @override
+  String reportLoadFailed(String error) {
+    return 'ሪፖርቶችን መጫን አልተሳካም፦ $error';
+  }
+
+  @override
+  String get goalEdit => 'ግብ አርትዕ';
+
+  @override
+  String get goalNeedName => 'ለግቡ ስም ይስጡት';
+
+  @override
+  String get goalTargetMoreThanZero => 'ዒላማው ከዜሮ በላይ መሆን አለበት';
+
+  @override
+  String get goalNoDeadline => 'የጊዜ ገደብ የለም';
+
+  @override
+  String get goalTargetDateAfterStart => 'የዒላማው ቀን ከመጀመሪያው ቀን በኋላ መሆን አለበት።';
+
+  @override
+  String get goalSaveFailed => 'ግቡን ማስቀመጥ አልተቻለም።';
+
+  @override
+  String get goalArchivedTitle => 'በማህደር የተቀመጡ ግቦች';
+
+  @override
+  String get goalHideFromHome => 'ከመነሻ ገጽ ደብቅ';
+
+  @override
+  String get goalShowOnHome => 'በመነሻ ገጽ አሳይ';
+
+  @override
+  String get goalReached => 'ደርሷል';
+
+  @override
+  String goalToGo(String amount) {
+    return '$amount ቀርቷል';
+  }
+
+  @override
+  String get goalNoneYet => 'እስካሁን ግብ የለም';
+
+  @override
+  String get goalArchivedEmptyHint => 'በማህደር ያስቀመጧቸው ግቦች እዚህ ይቀመጣሉ።';
+
+  @override
+  String get goalEmptyHint => 'የሚቆጥቡለትን ነገር ይሰይሙ፣ ከዚያ ወደ እሱ የሚሄዱትን ግብይቶች ያገናኙ።';
+
+  @override
+  String goalSavedOfTarget(String saved, String target) {
+    return 'ከ$target $saved';
+  }
+
+  @override
+  String goalOfTarget(String target) {
+    return 'ከ$target';
+  }
+
+  @override
+  String get goalReachedNicelyDone => 'ደርሷል። ጥሩ ሠርተዋል።';
+
+  @override
+  String goalStillToGo(String amount) {
+    return 'አሁንም $amount ቀርቷል።';
+  }
+
+  @override
+  String goalDailyToArrive(String amount) {
+    return 'በሰዓቱ ለመድረስ በቀን $amount።';
+  }
+
+  @override
+  String get goalNothingLinked =>
+      'እስካሁን ምንም አልተገናኘም። በአንድ ግብይት ላይ ይህን ግብ ይምረጡ፣ እዚህ ይታያል።';
+
+  @override
+  String get goalDeleteBody => 'ግቡ ይሰረዛል፣ ግብይቶችዎ ይቀራሉ። ከእንግዲህ ለእሱ አይቆጠሩም።';
+
+  @override
+  String goalPaymentsOf(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ክፍያዎች፣ እያንዳንዱ $amount',
+      one: '1 ክፍያ፣ $amount',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalFinishingAround(String date) {
+    return 'በ$date አካባቢ ይጠናቀቃል።';
+  }
+
+  @override
+  String goalNotFound(String id) {
+    return 'ግቡ አልተገኘም፦ $id';
+  }
+
+  @override
+  String get goalPaidOff => 'ተከፍሎ አልቋል!';
+
+  @override
+  String get goalCompleted => 'ተጠናቋል!';
+
+  @override
+  String goalPercentComplete(String percent) {
+    return '$percent% ተጠናቋል';
+  }
+
+  @override
+  String goalWeeksLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ሳምንታት ቀርተዋል',
+      one: '1 ሳምንት ቀርቷል',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalMonthsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ወራት ቀርተዋል',
+      one: '1 ወር ቀርቷል',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalYearsLeft(String years) {
+    return '$years ዓመታት ቀርተዋል';
+  }
+
+  @override
+  String get subRecurringBill => 'ተደጋጋሚ ሂሳብ';
+
+  @override
+  String subEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በየ$count ቀናት',
+      one: 'በየ1 ቀኑ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በየ$count ሳምንታት',
+      one: 'በየ1 ሳምንቱ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በየ$count ወራት',
+      one: 'በየ1 ወሩ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'በየ$count ዓመታት',
+      one: 'በየ1 ዓመቱ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryOther(int count, String unit) {
+    return 'በየ$count $unit';
+  }
+
+  @override
+  String subLoadFailed(String error) {
+    return 'ምዝገባዎችን መጫን አልተሳካም፦ $error';
+  }
+
+  @override
+  String subPauseFailed(String error) {
+    return 'ምዝገባውን ማቆም አልተሳካም፦ $error';
+  }
+
+  @override
+  String subResumeFailed(String error) {
+    return 'ምዝገባውን መቀጠል አልተሳካም፦ $error';
+  }
+
+  @override
+  String subUpdateFailed(String error) {
+    return 'ምዝገባውን ማዘመን አልተሳካም፦ $error';
+  }
+
+  @override
+  String subCancelFailed(String error) {
+    return 'ምዝገባውን መሰረዝ አልተሳካም፦ $error';
+  }
+
+  @override
+  String subActiveCount(int count) {
+    return 'ንቁ ($count)';
+  }
+
+  @override
+  String subPausedCount(int count) {
+    return 'የቆሙ ($count)';
+  }
+
+  @override
+  String get subEmptyTitle => 'ምዝገባዎች ወይም ሂሳቦች የሉም';
+
+  @override
+  String get subEmptyBody => 'እዚህ ለመከታተል የምዝገባ ወይም ተደጋጋሚ ሂሳብ ግብይቶችን ያክሉ';
+
+  @override
+  String get subRecurringCost => 'ተደጋጋሚ ወጪ';
+
+  @override
+  String subPerYear(String amount) {
+    return '$amount / ዓመት';
+  }
+
+  @override
+  String get subActive => 'ንቁ';
+
+  @override
+  String subNext(String date) {
+    return 'ቀጣይ $date';
+  }
+
+  @override
+  String get subResume => 'ቀጥል';
+
+  @override
+  String get subPause => 'አቁም';
+
+  @override
+  String get subCancelBillTitle => 'ተደጋጋሚ ሂሳብ ሰርዝ';
+
+  @override
+  String get subCancelSubTitle => 'ምዝገባ ሰርዝ';
+
+  @override
+  String subCancelConfirm(String name) {
+    return '\"$name\"ን መሰረዝ እንደሚፈልጉ እርግጠኛ ነዎት? ይህ ሁሉንም የወደፊት ተደጋጋሚ ክፍያዎች ያቆማል።';
+  }
+
+  @override
+  String subCancelled(String name) {
+    return '\"$name\" ተሰርዟል';
+  }
+
+  @override
+  String subSaveError(String error) {
+    return 'ስህተት፦ $error';
+  }
+
+  @override
+  String get subEditBill => 'ተደጋጋሚ ሂሳብ አርትዕ';
+
+  @override
+  String get subEditSub => 'ምዝገባ አርትዕ';
+
+  @override
+  String subUnitDay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ቀናት',
+      one: 'ቀን',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ሳምንታት',
+      one: 'ሳምንት',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitMonth(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ወራት',
+      one: 'ወር',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitYear(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ዓመታት',
+      one: 'ዓመት',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEndsOn(String date) {
+    return 'ያበቃል፦ $date';
+  }
+
+  @override
+  String get subNoEndDate => 'የማብቂያ ቀን የለም';
 }

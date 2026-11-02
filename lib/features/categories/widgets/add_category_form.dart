@@ -160,7 +160,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to save category: $e'),
+            content: Text(L10n.of(context).categorySaveFailed('$e')),
             backgroundColor: AppColors.error,
           ),
         );
@@ -202,7 +202,9 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
               child: Row(
                 children: [
                   Text(
-                    widget.category != null ? 'Edit Category' : 'New Category',
+                    widget.category != null
+                        ? L10n.of(context).categoryEditTitle
+                        : L10n.of(context).categoryNewTitle,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
@@ -242,24 +244,24 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                     const SizedBox(height: 28),
 
                     // Category name input
-                    _buildSectionLabel('Name'),
+                    _buildSectionLabel(L10n.of(context).payName),
                     const SizedBox(height: 10),
                     _buildNameInput(),
                     const SizedBox(height: 24),
 
-                    _buildSectionLabel('Part of'),
+                    _buildSectionLabel(L10n.of(context).categoryPartOf),
                     const SizedBox(height: 10),
                     _buildParentSelector(),
                     const SizedBox(height: 24),
 
                     // Color selection
-                    _buildSectionLabel('Color'),
+                    _buildSectionLabel(L10n.of(context).walletColor),
                     const SizedBox(height: 10),
                     _buildColorGrid(),
                     const SizedBox(height: 24),
 
                     // Icon selection
-                    _buildSectionLabel('Icon'),
+                    _buildSectionLabel(L10n.of(context).walletIcon),
                     const SizedBox(height: 10),
                     _buildIconGrid(),
                     const SizedBox(height: 32),
@@ -317,7 +319,7 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
               children: [
                 Text(
                   _nameController.text.isEmpty
-                      ? 'Category Name'
+                      ? L10n.of(context).categoryNamePlaceholder
                       : _nameController.text,
                   style: TextStyle(
                     fontSize: 18,
@@ -639,7 +641,9 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                 ),
               )
             : Text(
-                widget.category != null ? 'Update Category' : 'Create Category',
+                widget.category != null
+                    ? L10n.of(context).categoryUpdate
+                    : L10n.of(context).categoryCreate,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,

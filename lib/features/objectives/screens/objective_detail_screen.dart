@@ -131,7 +131,7 @@ class ObjectiveDetailScreen extends ConsumerWidget {
                               ),
                             ),
                             SensitiveText(
-                              'of $target',
+                              L10n.of(context).goalOfTarget(target),
                               amounts: [target],
                               style: AppTypography.bodySmall.copyWith(
                                 color: AppColors.textSecondary,
@@ -155,15 +155,15 @@ class ObjectiveDetailScreen extends ConsumerWidget {
                   AppSpacing.gapMd,
                   SensitiveText(
                     objective.isComplete
-                        ? 'Reached. Nicely done.'
-                        : '$toGo still to go.',
+                        ? L10n.of(context).goalReachedNicelyDone
+                        : L10n.of(context).goalStillToGo(toGo),
                     amounts: [if (!objective.isComplete) toGo],
                     style: AppTypography.bodyMedium,
                   ),
                   if (!objective.isComplete && dailyTarget != null) ...[
                     AppSpacing.gapSm,
                     SensitiveText(
-                      '$daily a day to arrive on time.',
+                      L10n.of(context).goalDailyToArrive(daily),
                       amounts: [daily],
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.textSecondary,
@@ -209,8 +209,7 @@ class ObjectiveDetailScreen extends ConsumerWidget {
                   AppSpacing.gapSm,
                   if (objective.linkedTransactions.isEmpty)
                     Text(
-                      'Nothing linked yet. Pick this goal on a transaction and '
-                      'it will show up here.',
+                      L10n.of(context).goalNothingLinked,
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.textMuted,
                       ),
@@ -226,7 +225,9 @@ class ObjectiveDetailScreen extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    t.title.isEmpty ? 'Transaction' : t.title,
+                                    t.title.isEmpty
+                                        ? L10n.of(context).entityTransaction
+                                        : t.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: AppTypography.bodyMedium,
@@ -276,10 +277,8 @@ class ObjectiveDetailScreen extends ConsumerWidget {
   ) async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Delete ${objective.name}?',
-      message:
-          'The goal goes, your transactions stay. They are simply no longer '
-          'counted toward it.',
+      title: L10n.of(context).budgetDeleteTitle(objective.name),
+      message: L10n.of(context).goalDeleteBody,
       confirmText: L10n.of(context).actionDelete,
       isDangerous: true,
     );
@@ -360,14 +359,20 @@ class _PlanCardState extends ConsumerState<_PlanCard> {
             else ...[
               // Hidden too: times the payments, it is what is left to save.
               SensitiveText(
-                '${plan.payments} payments of ${money(plan.amountCents)}',
+                L10n.of(
+                  context,
+                ).goalPaymentsOf(plan.payments, money(plan.amountCents)),
                 amounts: [money(plan.amountCents)],
                 style: AppTypography.titleMedium,
               ),
               AppSpacing.gapSm,
               Text(
-                'Finishing around '
-                '${AppDateFormatter.formatShortDate(plan.finishesAround, dateFormat)}.',
+                L10n.of(context).goalFinishingAround(
+                  AppDateFormatter.formatShortDate(
+                    plan.finishesAround,
+                    dateFormat,
+                  ),
+                ),
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                 ),

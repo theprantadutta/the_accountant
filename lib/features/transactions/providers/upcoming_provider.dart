@@ -4,6 +4,7 @@ import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// State for upcoming and overdue transactions
 class UpcomingState {
@@ -73,7 +74,7 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to load data: ${e.toString()}',
+        error: appL10n.txnLoadDataFailed(e.toString()),
       );
     }
   }
@@ -94,7 +95,7 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
 
       await loadData(); // Refresh the list
     } catch (e) {
-      state = state.copyWith(error: 'Failed to mark as paid: ${e.toString()}');
+      state = state.copyWith(error: appL10n.txnMarkPaidFailed(e.toString()));
     }
   }
 
@@ -116,9 +117,7 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
 
       await loadData(); // Refresh the list
     } catch (e) {
-      state = state.copyWith(
-        error: 'Failed to mark as unpaid: ${e.toString()}',
-      );
+      state = state.copyWith(error: appL10n.txnMarkUnpaidFailed(e.toString()));
     }
   }
 
@@ -132,9 +131,7 @@ class UpcomingNotifier extends StateNotifier<UpcomingState> {
       await _db.skipTransaction(transactionId);
       await loadData();
     } catch (e) {
-      state = state.copyWith(
-        error: 'Failed to skip transaction: ${e.toString()}',
-      );
+      state = state.copyWith(error: appL10n.txnSkipFailed(e.toString()));
     }
   }
 

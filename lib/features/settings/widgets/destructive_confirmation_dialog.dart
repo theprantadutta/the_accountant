@@ -108,7 +108,9 @@ class _DestructiveConfirmationDialogState
           SunriseTextField(
             controller: _controller,
             autofocus: true,
-            label: 'Type "${widget.confirmationWord}" to confirm',
+            label: L10n.of(
+              context,
+            ).settingsTypeToConfirm(widget.confirmationWord),
             hint: widget.confirmationWord,
             textCapitalization: TextCapitalization.characters,
           ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// A CSV file that has been read, however the bank chose to write it.
 class CsvDocument {
@@ -19,7 +20,7 @@ class CsvDocument {
   List<String> get header {
     if (rows.isEmpty) return const [];
     if (hasHeader) return rows.first;
-    return [for (var i = 1; i <= columnCount; i++) 'Column $i'];
+    return [for (var i = 1; i <= columnCount; i++) appL10n.importColumnN(i)];
   }
 
   List<List<String>> get body => hasHeader ? rows.skip(1).toList() : rows;

@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:the_accountant/features/backup/domain/backup_document.dart';
 import 'package:the_accountant/features/backup/domain/backup_seal.dart';
 import 'package:the_accountant/features/backup/services/account_data_key.dart';
@@ -69,9 +70,7 @@ class BackupCodec {
   }) async {
     final locks = BackupSeal.locksOf(source);
     if (locks == null) {
-      throw const BackupFormatException(
-        'This backup cannot be opened with a passphrase.',
-      );
+      throw BackupFormatException(appL10n.backupErrNoPassphraseLock);
     }
     final key = isRecoveryCode
         ? await locks.openWithRecoveryCode(secret)
@@ -83,15 +82,16 @@ class BackupCodec {
 
 /// The backup can be opened with its passphrase or recovery code; ask for it.
 class BackupNeedsSecret extends BackupFormatException {
-  const BackupNeedsSecret()
-    : super(
-        'This backup is protected with a passphrase. Enter it, or the '
-        'recovery code, to restore it.',
-      );
+  const BackupNeedsSecret() : super('');
+
+  @override
+  String get message => appL10n.backupErrNeedsSecret;
 }
 
 /// What was typed does not open the backup.
 class BackupWrongSecret extends BackupFormatException {
-  const BackupWrongSecret()
-    : super('That passphrase or recovery code does not open this backup.');
+  const BackupWrongSecret() : super('');
+
+  @override
+  String get message => appL10n.backupErrWrongSecret;
 }

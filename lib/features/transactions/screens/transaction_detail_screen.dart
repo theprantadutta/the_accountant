@@ -120,15 +120,15 @@ class _TransactionDetailScreenState
         ? Symbols.sync_alt_rounded
         : IconRegistry.getIcon(category?.iconName);
     final kind = switch (row.transactionType) {
-      'transfer' => 'Transfer between accounts',
-      'recurring_instance' => 'From a repeating entry',
-      _ => row.isIncome ? 'Money in' : 'Money out',
+      'transfer' => l10n.txnKindTransfer,
+      'recurring_instance' => l10n.txnKindRecurring,
+      _ => row.isIncome ? l10n.txnMoneyIn : l10n.txnMoneyOut,
     };
     final state = row.skipPaid
-        ? 'Skipped'
+        ? l10n.filterSkipped
         : row.isPaid
-        ? 'Paid'
-        : 'Not yet paid';
+        ? l10n.filterPaid
+        : l10n.txnNotYetPaid;
     final amount = isTransfer
         ? money(row.amount)
         : '${row.isIncome ? '+' : '−'}${money(row.amount)}';
@@ -234,8 +234,8 @@ class _TransactionDetailScreenState
                   children: [
                     Text(
                       specialType == TransactionSpecialType.credit
-                          ? 'Lent out'
-                          : 'Borrowed',
+                          ? l10n.txnLentOut
+                          : l10n.netWorthBorrowed,
                       style: SunriseType.rowTitle.copyWith(color: c.ink),
                     ),
                     const Spacer(),
@@ -262,9 +262,11 @@ class _TransactionDetailScreenState
                 const SizedBox(height: 10),
                 Text(
                   outstanding <= 0
-                      ? 'Settled in full.'
-                      : '${money(row.paidAmount)} back, '
-                            '${money(outstanding)} still owed.',
+                      ? l10n.txnSettledInFull
+                      : l10n.txnLoanProgress(
+                          money(row.paidAmount),
+                          money(outstanding),
+                        ),
                   style: SunriseType.body.copyWith(color: c.muted),
                 ),
               ],
@@ -285,7 +287,7 @@ class _TransactionDetailScreenState
               title: l10n.entityCategory,
               value: isTransfer
                   ? l10n.txTransfer
-                  : (category?.name ?? 'Uncategorised'),
+                  : (category?.name ?? l10n.txnUncategorised),
               trailing: SettingsTrailing.none,
             ),
             SettingsRow(
@@ -294,7 +296,7 @@ class _TransactionDetailScreenState
                   ? c.accent
                   : ColorUtils.hexToColor(wallet.color),
               title: l10n.entityAccount,
-              value: wallet?.name ?? 'Unknown',
+              value: wallet?.name ?? l10n.txnUnknownAccount,
               trailing: SettingsTrailing.none,
             ),
             SettingsRow(
@@ -419,8 +421,8 @@ class _TransactionDetailScreenState
           copy == null
               // The only rows this refuses are transfer legs, and saying so
               // is better than a copy silently not appearing.
-              ? 'A transfer cannot be copied on its own.'
-              : 'Copied.',
+              ? L10n.of(context).txnTransferCannotCopy
+              : L10n.of(context).txnCopied,
           tone: copy == null ? SnackTone.info : SnackTone.success,
         );
         if (copy != null && mounted) {
@@ -458,9 +460,7 @@ class _TransactionDetailScreenState
         final confirmed = await showConfirmationDialog(
           context: context,
           title: L10n.of(context).txDeleteOneTitle,
-          message:
-              'The account balance is recalculated. If this is one leg of a '
-              'transfer, the other half goes with it.',
+          message: L10n.of(context).txnDeleteOneBody,
           confirmText: L10n.of(context).actionDelete,
           isDangerous: true,
         );

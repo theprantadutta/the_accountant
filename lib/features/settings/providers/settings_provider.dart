@@ -1,7 +1,9 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/domain/regional_preferences.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/constants/app_constants.dart';
+import 'package:the_accountant/core/providers/locale_provider.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:drift/drift.dart' show Value;
@@ -290,22 +292,40 @@ final dateFormatsProvider = Provider<List<Map<String, String>>>((ref) {
 
 // Number format options
 final numberFormatsProvider = Provider<List<Map<String, String>>>((ref) {
+  // Rebuild the labels when the app language changes.
+  ref.watch(localeProvider);
+  final l10n = appL10n;
   return [
-    {'value': 'comma_dot', 'label': '1,234.56 (Comma for thousands)'},
-    {'value': 'dot_comma', 'label': '1.234,56 (Dot for thousands)'},
-    {'value': 'space_comma', 'label': '1 234,56 (Space for thousands)'},
-    {'value': 'none_dot', 'label': '1234.56 (No separator)'},
+    {
+      'value': 'comma_dot',
+      'label': '1,234.56 (${l10n.settingsNumberFormatCommaThousands})',
+    },
+    {
+      'value': 'dot_comma',
+      'label': '1.234,56 (${l10n.settingsNumberFormatDotThousands})',
+    },
+    {
+      'value': 'space_comma',
+      'label': '1 234,56 (${l10n.settingsNumberFormatSpaceThousands})',
+    },
+    {
+      'value': 'none_dot',
+      'label': '1234.56 (${l10n.settingsNumberFormatNoSeparator})',
+    },
   ];
 });
 
 // Auto-lock timeout options
 final autoLockTimeoutsProvider = Provider<List<Map<String, dynamic>>>((ref) {
+  // Rebuild the labels when the app language changes.
+  ref.watch(localeProvider);
+  final l10n = appL10n;
   return [
-    {'value': 0, 'label': 'Immediately'},
-    {'value': 1, 'label': '1 minute'},
-    {'value': 5, 'label': '5 minutes'},
-    {'value': 15, 'label': '15 minutes'},
-    {'value': 30, 'label': '30 minutes'},
-    {'value': -1, 'label': 'Never'},
+    {'value': 0, 'label': l10n.settingsAutoLockImmediately},
+    {'value': 1, 'label': l10n.settingsAutoLockMinutes(1)},
+    {'value': 5, 'label': l10n.settingsAutoLockMinutes(5)},
+    {'value': 15, 'label': l10n.settingsAutoLockMinutes(15)},
+    {'value': 30, 'label': l10n.settingsAutoLockMinutes(30)},
+    {'value': -1, 'label': l10n.settingsAutoLockNever},
   ];
 });

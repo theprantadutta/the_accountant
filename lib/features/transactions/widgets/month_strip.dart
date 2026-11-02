@@ -5,6 +5,7 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/shared/widgets/neo_text_field.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 
 /// The horizontal month picker above a transaction list.
 ///
@@ -190,14 +191,14 @@ class TransactionSearchField extends StatelessWidget {
     required this.controller,
     required this.query,
     required this.onCleared,
-    this.hint = 'Search transactions',
+    this.hint,
     this.trailing,
   });
 
   final TextEditingController controller;
   final String query;
   final VoidCallback onCleared;
-  final String hint;
+  final String? hint;
   final Widget? trailing;
 
   @override
@@ -214,7 +215,7 @@ class TransactionSearchField extends StatelessWidget {
           Expanded(
             child: NeoTextField(
               controller: controller,
-              hint: hint,
+              hint: hint ?? L10n.of(context).txnSearchTransactions,
               prefixIcon: Icons.search,
               textInputAction: TextInputAction.search,
               suffixIcon: query.isEmpty

@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
@@ -109,7 +110,7 @@ class WalkthroughTooltip extends StatelessWidget {
                             vertical: AppSpacing.xs,
                           ),
                           child: Text(
-                            'Skip',
+                            L10n.of(context).txSkip,
                             style: AppTypography.labelMedium.copyWith(
                               color: AppColors.textMuted,
                             ),
@@ -131,7 +132,9 @@ class WalkthroughTooltip extends StatelessWidget {
                           borderRadius: AppSpacing.borderRadiusFull,
                         ),
                         child: Text(
-                          isLastStep ? 'Got it!' : 'Next',
+                          isLastStep
+                              ? L10n.of(context).walkthroughGotIt
+                              : L10n.of(context).onboardingNext,
                           style: AppTypography.labelMedium.copyWith(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w600,

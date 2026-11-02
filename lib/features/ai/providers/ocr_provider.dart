@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/features/ai/services/ocr_service.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 class OcrState {
   final bool isProcessing;
@@ -47,7 +48,7 @@ class OcrNotifier extends StateNotifier<OcrState> {
       } else {
         state = state.copyWith(
           isProcessing: false,
-          errorMessage: 'Failed to extract text from image',
+          errorMessage: appL10n.aiOcrTextFailed,
         );
       }
     } catch (e) {
@@ -67,7 +68,7 @@ class OcrNotifier extends StateNotifier<OcrState> {
       } else {
         state = state.copyWith(
           isProcessing: false,
-          errorMessage: 'Failed to extract receipt data from image',
+          errorMessage: appL10n.aiOcrReceiptFailed,
         );
       }
     } catch (e) {

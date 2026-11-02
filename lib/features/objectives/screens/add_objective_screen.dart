@@ -81,7 +81,11 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isEditing ? 'Edit goal' : 'New goal'),
+        title: Text(
+          widget.isEditing
+              ? L10n.of(context).goalEdit
+              : L10n.of(context).goalNew,
+        ),
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,
@@ -110,7 +114,7 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Give the goal a name'
+                    ? L10n.of(context).goalNeedName
                     : null,
               ),
               AppSpacing.gapLg,
@@ -127,8 +131,10 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
                 ),
                 validator: (v) {
                   final cents = (v ?? '').toCentsOrNull();
-                  if (cents == null) return 'Enter an amount';
-                  if (cents <= 0) return 'The target must be more than zero';
+                  if (cents == null) return L10n.of(context).budgetEnterAmount;
+                  if (cents <= 0) {
+                    return L10n.of(context).goalTargetMoreThanZero;
+                  }
                   return null;
                 },
               ),
@@ -172,7 +178,7 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
               AppSpacing.gapSm,
               _DateRow(
                 label: _endDate == null
-                    ? 'No deadline'
+                    ? L10n.of(context).goalNoDeadline
                     : AppDateFormatter.formatDate(_endDate!, dateFormat),
                 onClear: _endDate == null
                     ? null
@@ -225,7 +231,7 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
     if (cents == null) return;
 
     if (_endDate != null && !_endDate!.isAfter(_startDate)) {
-      _showMessage('The target date has to come after the start date.');
+      _showMessage(L10n.of(context).goalTargetDateAfterStart);
       return;
     }
 
@@ -259,7 +265,7 @@ class _AddObjectiveScreenState extends ConsumerState<AddObjectiveScreen> {
     } on PremiumLimitException catch (e) {
       if (mounted) await UpgradeLimitDialog.showFromException(context, e);
     } catch (e) {
-      if (mounted) _showMessage('Could not save the goal.');
+      if (mounted) _showMessage(L10n.of(context).goalSaveFailed);
     } finally {
       if (mounted) setState(() => _saving = false);
     }

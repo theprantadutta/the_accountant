@@ -110,9 +110,7 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
                         child: AuthBrandHeader(
                           icon: Icons.link_rounded,
                           title: L10n.of(context).authLinkYourAccount,
-                          subtitle:
-                              'An account with this email already exists. '
-                              'Enter your password to link your Google account.',
+                          subtitle: L10n.of(context).authLinkSubtitle,
                           showWordmark: false,
                         ),
                       ),
@@ -167,14 +165,14 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
           NeoTextField(
             controller: _passwordController,
             label: L10n.of(context).authPassword,
-            hint: 'Enter your password',
+            hint: L10n.of(context).authEnterYourPasswordHint,
             prefixIcon: Icons.lock_outline,
             obscureText: true,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _linkAccount(),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your password';
+                return L10n.of(context).authEnterYourPassword;
               }
               return null;
             },
@@ -214,8 +212,7 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen>
           AppSpacing.gapHMd,
           Expanded(
             child: Text(
-              'After linking, you can use either email/password or Google to '
-              'sign in.',
+              L10n.of(context).authLinkInfo,
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.textSecondary,
               ),

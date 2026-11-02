@@ -21,9 +21,8 @@ class SyncSettingsScreenGated extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return PremiumGate(
       featureId: PremiumFeatureIds.cloudSync,
-      featureName: 'Cloud Sync',
-      featureDescription:
-          'Keep your financial data synchronized across all your devices. Never lose your data again.',
+      featureName: L10n.of(context).settingsCloudSync,
+      featureDescription: L10n.of(context).settingsCloudSyncGateBody,
       featureIcon: Icons.sync,
       child: const SyncSettingsScreen(),
     );
@@ -206,20 +205,22 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
               children: [
                 _buildCountChip(
                   Icons.cloud_upload_outlined,
-                  'Pushed ${lastResult.pushedCount}',
+                  L10n.of(context).settingsSyncPushed(lastResult.pushedCount),
                   AppColors.primaryAccent,
                 ),
                 SizedBox(width: AppSpacing.md),
                 _buildCountChip(
                   Icons.cloud_download_outlined,
-                  'Pulled ${lastResult.pulledCount}',
+                  L10n.of(context).settingsSyncPulled(lastResult.pulledCount),
                   AppColors.neonCyan,
                 ),
                 if (lastResult.conflictCount > 0) ...[
                   SizedBox(width: AppSpacing.md),
                   _buildCountChip(
                     Icons.warning_amber_rounded,
-                    '${lastResult.conflictCount} conflicts',
+                    L10n.of(
+                      context,
+                    ).settingsSyncConflicts(lastResult.conflictCount),
                     AppColors.warning,
                   ),
                 ],
@@ -284,7 +285,9 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
         ),
       ),
       subtitle: Text(
-        isSyncing ? 'Syncing...' : 'Push and pull all changes',
+        isSyncing
+            ? L10n.of(context).settingsSyncing
+            : L10n.of(context).settingsSyncNowSubtitle,
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
       onTap: isSyncing
@@ -299,12 +302,18 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
                 SnackBar(
                   content: Text(
                     result.success
-                        ? 'Sync complete — pushed ${result.pushedCount}, pulled ${result.pulledCount}'
+                        ? L10n.of(context).settingsSyncComplete(
+                            result.pushedCount,
+                            result.pulledCount,
+                          )
                         : (result.isPartial
-                              ? 'Sync incomplete — ${result.applyFailures.length} '
-                                    'record(s) could not be saved and will be retried. '
-                                    '${result.userMessage}'
-                              : 'Sync failed: ${result.error}'),
+                              ? L10n.of(context).settingsSyncIncomplete(
+                                  result.applyFailures.length,
+                                  '${result.userMessage}',
+                                )
+                              : L10n.of(
+                                  context,
+                                ).settingsSyncFailed('${result.error}')),
                   ),
                   duration: result.success
                       ? const Duration(seconds: 4)
@@ -343,7 +352,7 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
         ),
       ),
       subtitle: Text(
-        "Replace this device's data with your cloud data",
+        L10n.of(context).settingsRestoreFromCloudSubtitle,
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
       onTap: isSyncing ? null : _confirmAndRestore,
@@ -355,10 +364,7 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
     final confirmed = await showConfirmationDialog(
       context: context,
       title: L10n.of(context).settingsRestoreFromCloud,
-      message:
-          'This erases ALL data on this device and replaces it with your cloud '
-          'data. Any changes on this device that have not synced yet will be '
-          'lost. This cannot be undone.',
+      message: L10n.of(context).settingsRestoreFromCloudBody,
       confirmText: L10n.of(context).backupEraseRestore,
       isDangerous: true,
     );
@@ -372,12 +378,15 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
       SnackBar(
         content: Text(
           result.success
-              ? 'Restored ${result.pulledCount} items from the cloud'
+              ? L10n.of(context).settingsRestoredFromCloud(result.pulledCount)
               : (result.isPartial
                     // The restore transaction rolled back, so nothing was lost.
-                    ? 'Restore cancelled — your local data was left unchanged. '
-                          '${result.userMessage}'
-                    : 'Restore failed: ${result.error}'),
+                    ? L10n.of(
+                        context,
+                      ).settingsRestoreCancelled('${result.userMessage}')
+                    : L10n.of(
+                        context,
+                      ).settingsRestoreFailed('${result.error}')),
         ),
         duration: result.success
             ? const Duration(seconds: 4)
@@ -422,9 +431,7 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
           SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
-              'Your data syncs automatically every 15 minutes and when you open the app. '
-              'Amounts, names and notes are encrypted on this phone before they '
-              'sync, so our server cannot read them.',
+              L10n.of(context).settingsSyncInfoBody,
               style: TextStyle(
                 color: AppColors.primaryAccent,
                 fontSize: 13,
@@ -474,9 +481,11 @@ class _SyncSettingsScreenState extends ConsumerState<SyncSettingsScreen> {
 
   String _formatLastSyncTime(Duration duration) {
     if (duration.inSeconds < 60) {
-      return 'Completed in ${duration.inSeconds}s';
+      return L10n.of(context).settingsSyncCompletedSeconds(duration.inSeconds);
     }
-    return 'Completed in ${duration.inMinutes}m ${duration.inSeconds % 60}s';
+    return L10n.of(
+      context,
+    ).settingsSyncCompletedMinutes(duration.inMinutes, duration.inSeconds % 60);
   }
 }
 

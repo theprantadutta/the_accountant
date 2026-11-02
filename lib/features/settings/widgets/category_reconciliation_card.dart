@@ -77,7 +77,7 @@ class _ReconciliationTile extends ConsumerWidget {
               SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
-                  'Is this your "${item.catalogName}" category?',
+                  L10n.of(context).settingsReconcileQuestion(item.catalogName),
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -89,13 +89,11 @@ class _ReconciliationTile extends ConsumerWidget {
           SizedBox(height: AppSpacing.sm),
           Text(
             item.isAwaitingSync
-                ? 'Saved. This will be applied the next time you sync.'
-                : 'Your account already has '
-                      '${item.candidates.length == 1 ? "a category" : "${item.candidates.length} categories"} '
-                      'called "${item.catalogName}". Tell us whether to use '
-                      '${item.candidates.length == 1 ? "it" : "one of them"} as the '
-                      'built-in category, or keep it separate. Nothing changes '
-                      'until you choose.',
+                ? L10n.of(context).settingsReconcileSavedPending
+                : L10n.of(context).settingsReconcileBody(
+                    item.candidates.length,
+                    item.catalogName,
+                  ),
             style: TextStyle(fontSize: 13, color: AppColors.textMuted),
           ),
           SizedBox(height: AppSpacing.md),
@@ -110,8 +108,8 @@ class _ReconciliationTile extends ConsumerWidget {
               icon: const Icon(Icons.add, size: 18),
               label: Text(
                 item.candidates.length == 1
-                    ? 'No — keep mine and add a separate one'
-                    : 'None of these — add a separate one',
+                    ? L10n.of(context).settingsReconcileKeepMine
+                    : L10n.of(context).settingsReconcileNoneOfThese,
               ),
             ),
           ],
@@ -124,13 +122,11 @@ class _ReconciliationTile extends ConsumerWidget {
     final confirmed = await _confirm(
       context,
       title: L10n.of(context).settingsKeepThemSeparate,
-      body:
-          'Your existing "${item.catalogName}" '
-          '${item.candidates.length == 1 ? "category stays" : "categories stay"} '
-          'exactly as ${item.candidates.length == 1 ? "it is" : "they are"}, '
-          'with all its transactions. A new built-in "${item.catalogName}" will '
-          'be added alongside.',
-      action: 'Keep separate',
+      body: L10n.of(context).settingsReconcileKeepSeparateBody(
+        item.candidates.length,
+        item.catalogName,
+      ),
+      action: L10n.of(context).settingsReconcileKeepSeparate,
     );
     if (!confirmed) return;
     await ref
@@ -164,9 +160,7 @@ class _CandidateRow extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  count == 0
-                      ? 'No transactions'
-                      : '$count transaction${count == 1 ? "" : "s"}',
+                  L10n.of(context).settingsReconcileTransactionCount(count),
                   style: TextStyle(fontSize: 12, color: AppColors.textMuted),
                 ),
               ],
@@ -185,12 +179,9 @@ class _CandidateRow extends ConsumerWidget {
     final count = candidate.transactionCount;
     final confirmed = await _confirm(
       context,
-      title: 'Use "${candidate.name}"?',
-      body:
-          'It becomes the built-in "${item.catalogName}" category and keeps '
-          '${count == 0 ? "everything filed under it" : "all $count of its transactions"}, '
-          'along with its subcategories. Nothing is deleted.',
-      action: 'Use this one',
+      title: L10n.of(context).settingsReconcileUseTitle(candidate.name),
+      body: L10n.of(context).settingsReconcileUseBody(count, item.catalogName),
+      action: L10n.of(context).settingsReconcileUseThisOne,
     );
     if (!confirmed) return;
     await ref
@@ -222,8 +213,10 @@ class _PendingDecision extends ConsumerWidget {
         Expanded(
           child: Text(
             adopted
-                ? 'Will use "${chosen ?? item.catalogName}".'
-                : 'Will add a separate "${item.catalogName}".',
+                ? L10n.of(
+                    context,
+                  ).settingsReconcileWillUse(chosen ?? item.catalogName)
+                : L10n.of(context).settingsReconcileWillAdd(item.catalogName),
             style: TextStyle(fontSize: 13, color: AppColors.textMuted),
           ),
         ),

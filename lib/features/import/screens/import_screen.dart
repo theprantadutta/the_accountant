@@ -20,6 +20,7 @@ import 'package:the_accountant/features/import/services/import_template_service.
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/settings/widgets/confirmation_dialog.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Bringing a bank statement in.
 ///
@@ -67,11 +68,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   Widget _chooseFile() => ListView(
     padding: EdgeInsets.all(AppSpacing.md),
     children: [
-      _info(
-        'Export a CSV from your bank and open it here. The columns are worked '
-        'out for you, and nothing is added until you have seen exactly what it '
-        'will be.',
-      ),
+      _info(L10n.of(context).importIntro),
       SizedBox(height: AppSpacing.lg),
       SunriseButton(
         label: L10n.of(context).importChooseACsvFile,
@@ -92,7 +89,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _header('SAVED BANKS'),
+        _header(L10n.of(context).importSavedBanks),
         _card([
           for (var i = 0; i < list.length; i++) ...[
             if (i > 0) _divider(),
@@ -121,7 +118,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     final picked = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: const ['csv', 'txt', 'tsv'],
-      dialogTitle: 'Choose a statement',
+      dialogTitle: L10n.of(context).importChooseStatement,
     );
     if (picked == null) return;
 
@@ -133,7 +130,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       final document = CsvReader.read(bytes);
 
       if (document.body.isEmpty) {
-        _say('There are no rows in that file.', bad: true);
+        if (!mounted) return;
+        _say(L10n.of(context).importNoRows, bad: true);
         return;
       }
 
@@ -154,11 +152,11 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             ref.read(selectableWalletsProvider).firstOrNull?.id;
       });
 
-      if (template != null) {
-        _say('Using your saved mapping for ${template.name}.');
+      if (template != null && mounted) {
+        _say(L10n.of(context).importUsingSavedMapping(template.name));
       }
     } catch (e) {
-      _say('That file could not be read: $e', bad: true);
+      if (mounted) _say(L10n.of(context).importCouldNotRead('$e'), bad: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -167,8 +165,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   Future<void> _deleteTemplate(ImportTemplate template) async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Forget ${template.name}?',
-      message: 'You will be asked to map the columns again next time.',
+      title: L10n.of(context).importForgetTitle(template.name),
+      message: L10n.of(context).importForgetBody,
       confirmText: L10n.of(context).importForget,
       isDangerous: true,
     );
@@ -190,7 +188,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         _fileCard(document),
         SizedBox(height: AppSpacing.lg),
 
-        _header('COLUMNS'),
+        _header(L10n.of(context).importColumnsHeader),
         _card([
           for (var i = 0; i < ImportField.values.length; i++) ...[
             if (i > 0) _divider(),
@@ -199,7 +197,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         ]),
         SizedBox(height: AppSpacing.lg),
 
-        _header('HOW TO READ THE VALUES'),
+        _header(L10n.of(context).importHowToRead),
         _card([
           _dateFormatTile(),
           _divider(),
@@ -209,7 +207,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         ]),
         SizedBox(height: AppSpacing.lg),
 
-        _header('WHERE IT GOES'),
+        _header(L10n.of(context).importWhereItGoes),
         _card([
           _walletTile(),
           _divider(),
@@ -219,7 +217,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         ]),
         SizedBox(height: AppSpacing.lg),
 
-        _header('WHAT WILL BE ADDED'),
+        _header(L10n.of(context).importWhatWillBeAdded),
         _summary(preview),
         SizedBox(height: AppSpacing.md),
         _rowsPreview(preview),
@@ -251,10 +249,13 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       ),
       subtitle: Text(
         [
-          '${document.body.length} rows',
-          '${document.columnCount} columns',
-          'separated by ${_delimiterName(document.delimiter)}',
-          if (_template != null) 'mapped as ${_template!.name}',
+          L10n.of(context).importRowsCount(document.body.length),
+          L10n.of(context).importColumnsCount(document.columnCount),
+          L10n.of(
+            context,
+          ).importSeparatedBy(_delimiterName(document.delimiter)),
+          if (_template != null)
+            L10n.of(context).importMappedAs(_template!.name),
         ].join(' · '),
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
@@ -279,7 +280,9 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       title: Text(field.label, style: TextStyle(color: AppColors.textPrimary)),
       subtitle: selected == null
           ? Text(
-              field.required ? 'Required' : 'Not imported',
+              field.required
+                  ? L10n.of(context).importRequired
+                  : L10n.of(context).importNotImported,
               style: TextStyle(
                 color: field.required ? AppColors.warning : AppColors.textMuted,
                 fontSize: 13,
@@ -320,7 +323,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       final value = CsvDocument.cell(row, index);
       if (value.isNotEmpty) return value;
     }
-    return 'empty';
+    return L10n.of(context).importEmptySample;
   }
 
   /// The date format, with the guess shown against a real value from the file.
@@ -364,11 +367,13 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
           ),
           Text(
             sample.isEmpty
-                ? 'Pick a date column first.'
+                ? L10n.of(context).importPickDateColumnFirst
                 : parsed == null
-                ? '"$sample" does not fit this format.'
-                : '"$sample" reads as '
-                      '${AppDateFormatter.formatDate(parsed, dateFormat)}',
+                ? L10n.of(context).importDateDoesNotFit(sample)
+                : L10n.of(context).importDateReadsAs(
+                    sample,
+                    AppDateFormatter.formatDate(parsed, dateFormat),
+                  ),
             style: TextStyle(
               color: parsed == null && sample.isNotEmpty
                   ? AppColors.error
@@ -390,10 +395,10 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       ),
       subtitle: Text(
         separator == null
-            ? 'Worked out from the file'
+            ? L10n.of(context).importDecimalAuto
             : separator == '.'
-            ? 'A full stop, as in 1,234.56'
-            : 'A comma, as in 1.234,56',
+            ? L10n.of(context).importDecimalFullStop
+            : L10n.of(context).importDecimalComma,
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ),
       trailing: DropdownButton<String?>(
@@ -464,8 +469,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       style: TextStyle(color: AppColors.textPrimary),
     ),
     subtitle: Text(
-      'Matches on the day, the amount and the description, so re-importing an '
-      'overlapping statement does not double anything',
+      L10n.of(context).importDuplicatesHint,
       style: TextStyle(color: AppColors.textMuted, fontSize: 13),
     ),
   );
@@ -487,13 +491,15 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
 
   Widget _summary(ImportPreview preview) {
     if (!_mapping.isUsable) {
-      return _warning('Still needs ${_mapping.missing.join(' and ')}.');
+      final missing = _mapping.missing;
+      return _warning(
+        missing.length > 1
+            ? L10n.of(context).importStillNeedsBoth(missing[0], missing[1])
+            : L10n.of(context).importStillNeeds(missing.first),
+      );
     }
     if (preview.usableCount == 0) {
-      return _warning(
-        'Nothing in this file can be read with these settings. Check the date '
-        'format and which column holds the amount.',
-      );
+      return _warning(L10n.of(context).importNothingReadable);
     }
 
     final currency = ref
@@ -513,7 +519,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       ListTile(
         leading: _leading(Icons.playlist_add_check, AppColors.success),
         title: Text(
-          '${preview.usableCount} transactions',
+          L10n.of(context).importTransactionsCount(preview.usableCount),
           style: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w600,
@@ -524,8 +530,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             if (from != null && to != null)
               '${AppDateFormatter.formatDate(from, dateFormat)} — '
                   '${AppDateFormatter.formatDate(to, dateFormat)}',
-            '${money(preview.incomeCents)} in',
-            '${money(preview.expenseCents)} out',
+            L10n.of(context).importAmountIn(money(preview.incomeCents)),
+            L10n.of(context).importAmountOut(money(preview.expenseCents)),
           ].join('\n'),
           style: TextStyle(color: AppColors.textMuted, fontSize: 13),
         ),
@@ -591,7 +597,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         Padding(
           padding: EdgeInsets.all(AppSpacing.sm),
           child: Text(
-            'and ${preview.usableCount - rows.length} more',
+            L10n.of(context).importAndMore(preview.usableCount - rows.length),
             style: TextStyle(color: AppColors.textMuted, fontSize: 13),
           ),
         ),
@@ -605,15 +611,19 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       ListTile(
         leading: _leading(Icons.report_problem_outlined, AppColors.warning),
         title: Text(
-          '${preview.unusableCount} lines will be skipped',
+          L10n.of(context).importLinesSkipped(preview.unusableCount),
           style: TextStyle(color: AppColors.textPrimary),
         ),
         subtitle: Text(
           [
             for (final row in problems)
-              'Line ${row.lineNumber}: ${row.problem}',
+              L10n.of(
+                context,
+              ).importLineProblem(row.lineNumber, '${row.problem}'),
             if (preview.unusableCount > problems.length)
-              'and ${preview.unusableCount - problems.length} more',
+              L10n.of(
+                context,
+              ).importAndMore(preview.unusableCount - problems.length),
           ].join('\n'),
           style: TextStyle(color: AppColors.textMuted, fontSize: 13),
         ),
@@ -644,8 +654,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             )
           : Text(
               _walletId == null
-                  ? 'Add an account first'
-                  : 'Import ${preview.usableCount} transactions',
+                  ? L10n.of(context).importAddAccountFirst
+                  : L10n.of(context).importImportCount(preview.usableCount),
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
     );
@@ -657,14 +667,12 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     final preview = _preview;
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Import ${preview.usableCount} transactions?',
+      title: L10n.of(context).importConfirmTitle(preview.usableCount),
       message: [
-        'They are added to your records and uploaded on the next sync.',
+        L10n.of(context).importConfirmBody,
         if (preview.unusableCount > 0)
-          '${preview.unusableCount} lines will be skipped.',
-        if (_skipDuplicates)
-          'Anything already here on the same day, for the same amount and '
-              'description, is left alone.',
+          L10n.of(context).importLinesSkippedSentence(preview.unusableCount),
+        if (_skipDuplicates) L10n.of(context).importConfirmDuplicates,
       ].join('\n\n'),
       confirmText: L10n.of(context).importImport,
     );
@@ -685,7 +693,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       reloadAllData(ref);
       await _showOutcome(result);
     } catch (e) {
-      _say('The import failed: $e', bad: true);
+      if (mounted) _say(L10n.of(context).importFailed('$e'), bad: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -700,23 +708,26 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Imported ${result.imported}'),
+        title: Text(L10n.of(context).importImportedTitle(result.imported)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             for (final line in [
               if (result.skippedAsDuplicates > 0)
-                '${result.skippedAsDuplicates} were already here and were left '
-                    'alone.',
+                L10n.of(
+                  context,
+                ).importSkippedDuplicates(result.skippedAsDuplicates),
               if (result.unusable > 0)
-                '${result.unusable} lines could not be read.',
+                L10n.of(context).importUnreadableLines(result.unusable),
               if (result.createdCategories.isNotEmpty)
-                'New categories: ${result.createdCategories.join(', ')}.',
+                L10n.of(
+                  context,
+                ).importNewCategories(result.createdCategories.join(', ')),
               if (result.unmatchedAccounts.isNotEmpty)
-                'These account names had nothing here to match, so their rows '
-                    'went to the account you chose: '
-                    '${result.unmatchedAccounts.join(', ')}.',
+                L10n.of(
+                  context,
+                ).importUnmatchedAccounts(result.unmatchedAccounts.join(', ')),
             ])
               Padding(
                 padding: EdgeInsets.only(bottom: AppSpacing.sm),
@@ -753,8 +764,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'The next file with these same columns will be mapped this way '
-              'without asking.',
+              L10n.of(context).importRememberBody,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
             ),
             SizedBox(height: AppSpacing.sm),
@@ -781,11 +791,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     if (name == null || name.isEmpty || !mounted) return;
 
     if (!_document!.hasHeader) {
-      _say(
-        'A file with no column titles cannot be recognised again, so there is '
-        'nothing to match on.',
-        bad: true,
-      );
+      _say(L10n.of(context).importNoHeaderCannotSave, bad: true);
       return;
     }
 
@@ -802,16 +808,16 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     if (!mounted) return;
     setState(() => _template = saved);
     ref.invalidate(importTemplatesProvider);
-    _say('Saved. Files with these columns will use it from now on.');
+    _say(L10n.of(context).importTemplateSaved);
   }
 
   // ---------------------------------------------------------------- chrome
 
   static String _delimiterName(String delimiter) => switch (delimiter) {
-    ',' => 'commas',
-    ';' => 'semicolons',
-    '\t' => 'tabs',
-    '|' => 'pipes',
+    ',' => appL10n.importDelimCommas,
+    ';' => appL10n.importDelimSemicolons,
+    '\t' => appL10n.importDelimTabs,
+    '|' => appL10n.importDelimPipes,
     _ => '"$delimiter"',
   };
 

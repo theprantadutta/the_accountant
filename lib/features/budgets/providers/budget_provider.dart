@@ -8,6 +8,7 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/budget.dart' show BudgetPeriod;
 import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
 import 'package:uuid/uuid.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// One budget, as the UI needs it.
 ///
@@ -150,7 +151,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
       if (!silent) {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: 'Failed to load budgets',
+          errorMessage: appL10n.budgetLoadFailed,
         );
       }
     }
@@ -222,7 +223,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
         isLoading: false,
         errorMessage: e is PremiumLimitException
             ? e.message
-            : 'Failed to add budget',
+            : appL10n.budgetAddFailed,
       );
       rethrow;
     }
@@ -256,7 +257,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
 
     try {
       final existing = await _db.findBudgetById(id);
-      if (existing == null) throw Exception('Budget not found');
+      if (existing == null) throw Exception(appL10n.budgetNotFound);
 
       await _db.writeBudget(
         id,
@@ -292,7 +293,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to update budget',
+        errorMessage: appL10n.budgetUpdateFailed,
       );
       rethrow;
     }
@@ -307,7 +308,7 @@ class BudgetNotifier extends StateNotifier<BudgetState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to delete budget',
+        errorMessage: appL10n.budgetDeleteFailed,
       );
       rethrow;
     }

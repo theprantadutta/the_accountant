@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'dart:convert';
 import 'dart:isolate';
 import 'dart:math';
@@ -169,7 +170,7 @@ class KdfParams {
         memoryKiB > 1048576 ||
         iterations > 20 ||
         parallelism > 8) {
-      throw const FormatException('Unacceptable key-derivation parameters.');
+      throw FormatException(appL10n.ppErrKdfParams);
     }
   }
 
@@ -184,7 +185,7 @@ class KdfParams {
   static KdfParams decode(String json) {
     final raw = jsonDecode(json);
     if (raw is! Map || raw['alg'] != 'argon2id') {
-      throw const FormatException('Unknown key-derivation algorithm.');
+      throw FormatException(appL10n.ppErrKdfAlgorithm);
     }
     final params = KdfParams(
       memoryKiB: raw['m'] as int,

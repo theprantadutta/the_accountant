@@ -1,4 +1,5 @@
 import 'package:local_auth/local_auth.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 class BiometricService {
   static final BiometricService _instance = BiometricService._internal();
@@ -20,7 +21,7 @@ class BiometricService {
   Future<bool> authenticate() async {
     try {
       return await _auth.authenticate(
-        localizedReason: 'Authenticate to unlock The Accountant',
+        localizedReason: appL10n.commonBiometricReason,
         persistAcrossBackgrounding: true,
       );
     } on LocalAuthException {

@@ -893,9 +893,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _shareApp() async {
     await SharePlus.instance.share(
       ShareParams(
-        text:
-            'Check out The Accountant - a beautiful personal finance app!\n\nhttps://play.google.com/store/apps/details?id=com.pranta.theaccountant',
-        subject: 'The Accountant - Personal Finance App',
+        text: L10n.of(context).settingsShareAppText(
+          'https://play.google.com/store/apps/details?id=com.pranta.theaccountant',
+        ),
+        subject: L10n.of(context).settingsShareAppSubject,
       ),
     );
   }

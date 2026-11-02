@@ -1,3 +1,5 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
+
 /// A single AI chat conversation/thread, summarised for the chats list.
 class Conversation {
   final String id;
@@ -31,7 +33,7 @@ class Conversation {
       id: (json['id']) as String,
       title: (json['title'] as String?)?.trim().isNotEmpty == true
           ? (json['title'] as String).trim()
-          : 'New chat',
+          : appL10n.aiNewChat,
       lastMessageAt: DateTime.parse(
         (json['last_message_at'] ?? json['lastMessageAt']) as String,
       ),

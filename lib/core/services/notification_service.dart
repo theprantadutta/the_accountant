@@ -13,6 +13,7 @@ import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/notification_action_handler.dart';
 import 'package:the_accountant/features/notifications/models/notification_item.dart';
 import 'package:the_accountant/features/notifications/services/local_notification_log.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// The Android channels notifications are shown on.
 ///
@@ -23,32 +24,39 @@ import 'package:the_accountant/features/notifications/services/local_notificatio
 class NotificationChannels {
   NotificationChannels._();
 
-  static const general = AndroidNotificationChannel(
+  // Getters, not constants: the names are in the user's language, and
+  // re-creating a channel with a new name renames it in the system settings.
+  static AndroidNotificationChannel get general => AndroidNotificationChannel(
     'general',
-    'General',
-    description: 'Account and app notifications',
+    appL10n.notifChannelGeneral,
+    description: appL10n.notifChannelGeneralDesc,
     importance: Importance.high,
   );
-  static const reminders = AndroidNotificationChannel(
+  static AndroidNotificationChannel get reminders => AndroidNotificationChannel(
     'reminders',
-    'Daily reminders',
-    description: 'A nudge to log the day\'s spending',
+    appL10n.notifChannelReminders,
+    description: appL10n.notifChannelRemindersDesc,
     importance: Importance.high,
   );
-  static const bills = AndroidNotificationChannel(
+  static AndroidNotificationChannel get bills => AndroidNotificationChannel(
     'bills',
-    'Card bills',
-    description: 'Credit card statements and due dates',
+    appL10n.cardBillsTitle,
+    description: appL10n.notifChannelBillsStatementsDesc,
     importance: Importance.max,
   );
-  static const budgets = AndroidNotificationChannel(
+  static AndroidNotificationChannel get budgets => AndroidNotificationChannel(
     'budget_channel',
-    'Budget alerts',
-    description: 'When a budget is nearly or fully spent',
+    appL10n.notifChannelBudgets,
+    description: appL10n.notifChannelBudgetsDesc,
     importance: Importance.high,
   );
 
-  static const all = [general, reminders, bills, budgets];
+  static List<AndroidNotificationChannel> get all => [
+    general,
+    reminders,
+    bills,
+    budgets,
+  ];
 
   static AndroidNotificationChannel byId(String? id) =>
       all.firstWhere((c) => c.id == id, orElse: () => general);
@@ -329,9 +337,10 @@ class NotificationService {
     String body, {
     int? id,
     required NotificationType type,
-    AndroidNotificationChannel channel = NotificationChannels.budgets,
+    AndroidNotificationChannel? channel,
     Map<String, dynamic>? data,
   }) async {
+    channel ??= NotificationChannels.budgets;
     final notificationDetails = NotificationDetails(
       android: AndroidNotificationDetails(
         channel.id,
@@ -446,13 +455,12 @@ class NotificationService {
     // Past the limit and merely close to it are different situations, and one
     // wording for both makes the serious case read like the routine one.
     final title = exceeded
-        ? 'Over budget: $budgetName'
-        : 'Budget alert: $budgetName';
+        ? appL10n.notifOverBudgetTitle(budgetName)
+        : appL10n.notifBudgetAlertTitle(budgetName);
+    final percent = percentage.toStringAsFixed(0);
     final body = exceeded
-        ? 'You have spent ${percentage.toStringAsFixed(0)}% of your '
-              '$budgetName budget for this period.'
-        : 'You have used ${percentage.toStringAsFixed(0)}% of your '
-              '$budgetName budget.';
+        ? appL10n.notifOverBudgetBody(percent, budgetName)
+        : appL10n.notifBudgetAlertBody(percent, budgetName);
 
     await _showLocalNotification(
       title,
@@ -486,11 +494,10 @@ class NotificationService {
       return;
     }
 
-    const title = 'Premium is ending soon';
+    final title = appL10n.notifPremiumEndingTitle;
     final body = daysRemaining <= 1
-        ? 'Your Premium ends tomorrow. Renew to keep your Premium features.'
-        : 'Your Premium ends in $daysRemaining days. Renew to keep your '
-              'Premium features.';
+        ? appL10n.notifPremiumEndsTomorrow
+        : appL10n.notifPremiumEndsInDays(daysRemaining);
 
     await _showLocalNotification(
       title,
@@ -508,10 +515,17 @@ class NotificationService {
     String title,
     bool isIncome,
   ) async {
-    final alertTitle = isIncome ? 'Large Income Alert' : 'Large Expense Alert';
-    final body = title.isNotEmpty
-        ? '${isIncome ? "Income" : "Expense"} of ${amount.toStringAsFixed(2)} recorded: $title'
-        : '${isIncome ? "Income" : "Expense"} of ${amount.toStringAsFixed(2)} recorded';
+    final alertTitle = isIncome
+        ? appL10n.notifLargeIncomeTitle
+        : appL10n.notifLargeExpenseTitle;
+    final shown = amount.toStringAsFixed(2);
+    final body = isIncome
+        ? (title.isNotEmpty
+              ? appL10n.notifLargeIncomeBodyTitled(shown, title)
+              : appL10n.notifLargeIncomeBody(shown))
+        : (title.isNotEmpty
+              ? appL10n.notifLargeExpenseBodyTitled(shown, title)
+              : appL10n.notifLargeExpenseBody(shown));
 
     await _showLocalNotification(
       alertTitle,

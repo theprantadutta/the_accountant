@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,7 +35,7 @@ class _PostSignupOnboardingScreenState
 
   // Step 2: Wallet creation
   final TextEditingController _walletNameController = TextEditingController(
-    text: 'Main Account',
+    text: appL10n.onboardMainAccount,
   );
   final TextEditingController _balanceController = TextEditingController();
   final TextEditingController _creditLimitController = TextEditingController();
@@ -104,7 +105,7 @@ class _PostSignupOnboardingScreenState
         .completeOnboarding(
           defaultCurrency: _selectedCurrency,
           walletName: _walletNameController.text.trim().isEmpty
-              ? 'Main Account'
+              ? L10n.of(context).onboardMainAccount
               : _walletNameController.text.trim(),
           walletIcon: _selectedIcon,
           walletColor: _selectedColor,
@@ -275,7 +276,7 @@ class _PostSignupOnboardingScreenState
                 AppSpacing.gapHMd,
                 Expanded(
                   child: Text(
-                    'This will be used as your primary currency. You can add accounts with different currencies later.',
+                    L10n.of(context).onboardingCurrencyInfo,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -378,13 +379,17 @@ class _PostSignupOnboardingScreenState
               children: WalletType.creatable.map((type) {
                 final isSelected = _walletType == type;
                 final label = switch (type) {
-                  WalletType.cash => 'Cash',
-                  WalletType.bankAccount => 'Bank Account',
-                  WalletType.creditCard => 'Credit Card',
-                  WalletType.subscription => 'Subscription',
-                  WalletType.deposit => 'Deposit',
-                  WalletType.investment => 'Investment',
-                  WalletType.asset => 'Asset',
+                  WalletType.cash => L10n.of(context).onboardingTypeCash,
+                  WalletType.bankAccount => L10n.of(context).onboardingTypeBank,
+                  WalletType.creditCard => L10n.of(context).onboardingTypeCard,
+                  WalletType.subscription => L10n.of(
+                    context,
+                  ).settingsSubscription,
+                  WalletType.deposit => L10n.of(context).onboardingTypeDeposit,
+                  WalletType.investment => L10n.of(
+                    context,
+                  ).onboardingTypeInvestment,
+                  WalletType.asset => L10n.of(context).onboardingTypeAsset,
                 };
                 final icon = switch (type) {
                   WalletType.cash => Icons.wallet,
@@ -532,8 +537,10 @@ class _PostSignupOnboardingScreenState
               style: AppTypography.bodyLarge,
               items: List.generate(31, (i) => i + 1)
                   .map(
-                    (day) =>
-                        DropdownMenuItem(value: day, child: Text('Day $day')),
+                    (day) => DropdownMenuItem(
+                      value: day,
+                      child: Text(L10n.of(context).onboardingDayN(day)),
+                    ),
                   )
                   .toList(),
               onChanged: (value) => setState(() => _billingCycleDay = value),
@@ -603,7 +610,7 @@ class _PostSignupOnboardingScreenState
 
           // Title
           Text(
-            "You're All Set!",
+            L10n.of(context).onboardingAllSet,
             style: AppTypography.displaySmall,
             textAlign: TextAlign.center,
           ),
@@ -652,7 +659,7 @@ class _PostSignupOnboardingScreenState
                         children: [
                           Text(
                             _walletNameController.text.isEmpty
-                                ? 'Main Account'
+                                ? L10n.of(context).onboardMainAccount
                                 : _walletNameController.text,
                             style: AppTypography.titleMedium,
                           ),

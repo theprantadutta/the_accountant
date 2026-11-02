@@ -5640,4 +5640,4177 @@ class L10nMs extends L10n {
   @override
   String get backupLockedBody =>
       'Sandaran ini dilindungi dengan frasa laluan. Masukkannya, atau kod pemulihan anda, untuk membukanya. Ini berfungsi tanpa sambungan internet.';
+
+  @override
+  String get settingsSupportDescribeFirst =>
+      'Sila terangkan masalah anda dahulu';
+
+  @override
+  String get settingsSupportSent => 'Terima kasih! Mesej anda telah dihantar.';
+
+  @override
+  String get settingsSupportSendFailed =>
+      'Tidak dapat menghantar sekarang. Sila cuba lagi atau e-mel kami terus.';
+
+  @override
+  String get settingsSupportSubjectHint => 'Tentang apa?';
+
+  @override
+  String get settingsSupportMessageHint =>
+      'Terangkan soalan, masalah atau maklum balas anda…';
+
+  @override
+  String get settingsSupportHeroBody =>
+      'Soalan, pepijat atau maklum balas — hantarkan kepada kami dan kami akan membalas.';
+
+  @override
+  String get settingsSupportTipDescription =>
+      'Penerangan yang jelas tentang masalah anda';
+
+  @override
+  String get settingsSupportTipSteps =>
+      'Langkah untuk menghasilkan semula (jika ia pepijat)';
+
+  @override
+  String get settingsSupportTipDevice => 'Model peranti dan versi Android anda';
+
+  @override
+  String settingsSupportPreferEmail(String email) {
+    return 'Lebih suka e-mel? $email';
+  }
+
+  @override
+  String get settingsSupportEmailCopied => 'E-mel disalin ke papan keratan';
+
+  @override
+  String get settingsAboutTagline => 'Teman Kewangan Peribadi Anda';
+
+  @override
+  String settingsAboutVersion(String version) {
+    return 'Versi: $version';
+  }
+
+  @override
+  String get settingsAboutDescription =>
+      'Aplikasi kewangan peribadi yang mengutamakan\nprivasi dan reka bentuk yang cantik.';
+
+  @override
+  String settingsBaseCurrencyLabel(String currency) {
+    return 'Mata Wang Asas: $currency';
+  }
+
+  @override
+  String settingsRatesLastUpdated(String when) {
+    return 'Kali terakhir dikemas kini: $when';
+  }
+
+  @override
+  String settingsEditRateTitle(String base, String target) {
+    return 'Edit Kadar: $base → $target';
+  }
+
+  @override
+  String settingsCurrentApiRate(String rate) {
+    return 'Kadar API semasa: $rate';
+  }
+
+  @override
+  String settingsMinutesAgo(int count) {
+    return '$count minit lalu';
+  }
+
+  @override
+  String settingsHoursAgo(int count) {
+    return '$count jam lalu';
+  }
+
+  @override
+  String settingsDaysAgo(int count) {
+    return '$count hari lalu';
+  }
+
+  @override
+  String get settingsExportSectionDateRange => 'JULAT TARIKH';
+
+  @override
+  String get settingsExportSectionFormat => 'FORMAT';
+
+  @override
+  String get settingsExportSectionInclude => 'SERTAKAN';
+
+  @override
+  String get settingsExportAllTime => 'Sepanjang Masa';
+
+  @override
+  String get settingsExportThisMonth => 'Bulan Ini';
+
+  @override
+  String get settingsExportLastMonth => 'Bulan Lepas';
+
+  @override
+  String get settingsExportLast3Months => '3 Bulan Lepas';
+
+  @override
+  String get settingsExportThisYear => 'Tahun Ini';
+
+  @override
+  String get settingsExportPdfPremiumBody =>
+      'Eksport CSV adalah percuma — data anda sentiasa milik anda. Laporan PDF berformat, dengan ringkasan serta pecahan mengikut kategori dan dompet, ialah ciri Premium.';
+
+  @override
+  String settingsExportButton(String format) {
+    return 'Eksport $format';
+  }
+
+  @override
+  String settingsExportFailed(String error) {
+    return 'Eksport gagal: $error';
+  }
+
+  @override
+  String get settingsExportShareSubject => 'The Accountant - Eksport';
+
+  @override
+  String settingsExportedCount(int count) {
+    return '$count transaksi dieksport';
+  }
+
+  @override
+  String get settingsExportPdfShareSubject =>
+      'The Accountant - Laporan Kewangan';
+
+  @override
+  String settingsExportPdfGenerated(int count) {
+    return 'Laporan PDF dijana dengan $count transaksi';
+  }
+
+  @override
+  String get settingsNumberFormatCommaThousands => 'Koma untuk ribuan';
+
+  @override
+  String get settingsNumberFormatDotThousands => 'Titik untuk ribuan';
+
+  @override
+  String get settingsNumberFormatSpaceThousands => 'Ruang untuk ribuan';
+
+  @override
+  String get settingsNumberFormatNoSeparator => 'Tiada pemisah';
+
+  @override
+  String get settingsAutoLockImmediately => 'Serta-merta';
+
+  @override
+  String settingsAutoLockMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minit',
+      one: '1 minit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsAutoLockNever => 'Tidak sekali-kali';
+
+  @override
+  String get settingsBiometricUnavailable =>
+      'Pengesahan biometrik tidak tersedia pada peranti ini';
+
+  @override
+  String get settingsSetPassword => 'Tetapkan Kata Laluan';
+
+  @override
+  String get settingsChangePassword => 'Tukar Kata Laluan';
+
+  @override
+  String get settingsAddPasswordSubtitle =>
+      'Tambah kata laluan pada akaun anda';
+
+  @override
+  String get settingsPasswordChanged => 'Kata laluan berjaya ditukar';
+
+  @override
+  String get settingsPasswordSet => 'Kata laluan berjaya ditetapkan';
+
+  @override
+  String get settingsClearCacheBody =>
+      'Ini akan mengosongkan data cache dan memaksa segerak semula apabila aplikasi dibuka seterusnya. Data anda tidak akan dipadam.';
+
+  @override
+  String get settingsClearingCache => 'Mengosongkan cache...';
+
+  @override
+  String get settingsCacheCleared => 'Cache dikosongkan dan segerak dimulakan';
+
+  @override
+  String get settingsClearCacheFailed => 'Gagal mengosongkan cache';
+
+  @override
+  String get settingsClearAllDataBody =>
+      'Ini akan memadam SEMUA transaksi, bajet, dompet, kategori dan tetapan anda secara kekal. Tindakan ini tidak boleh dibuat asal!';
+
+  @override
+  String get settingsClearAllDataConfirmBody =>
+      'Semua data kewangan anda akan dipadam secara kekal.';
+
+  @override
+  String get settingsClearingAllData => 'Mengosongkan semua data...';
+
+  @override
+  String get settingsAllDataCleared => 'Semua data berjaya dikosongkan';
+
+  @override
+  String settingsClearDataFailed(String error) {
+    return 'Gagal mengosongkan data: $error';
+  }
+
+  @override
+  String get settingsDeleteAccountBody =>
+      'Anda akan dibawa ke borang untuk meminta pemadaman akaun. Proses ini mengambil masa beberapa hari. Setelah diproses, semua data di pelayan akan dipadam secara kekal.';
+
+  @override
+  String get settingsLockAuthFailed => 'Pengesahan gagal. Sila cuba lagi.';
+
+  @override
+  String get settingsLockError => 'Ralat berlaku. Sila cuba lagi.';
+
+  @override
+  String get settingsLockAuthenticating => 'Mengesahkan...';
+
+  @override
+  String get settingsProfileNameEmpty => 'Nama tidak boleh kosong';
+
+  @override
+  String get settingsProfileUpdated => 'Profil berjaya dikemas kini';
+
+  @override
+  String get settingsProfileUpdateFailed => 'Gagal mengemas kini profil';
+
+  @override
+  String get settingsProfileSaveChanges => 'Simpan perubahan';
+
+  @override
+  String get settingsProfileSaved => 'Disimpan';
+
+  @override
+  String get settingsProfilePhotoSoon => 'Muat naik foto akan datang';
+
+  @override
+  String get settingsProfileAccountInformation => 'Maklumat Akaun';
+
+  @override
+  String get settingsProfileMemberSince => 'Ahli Sejak';
+
+  @override
+  String get settingsProfileUnknown => 'Tidak diketahui';
+
+  @override
+  String get settingsProfileFree => 'Percuma';
+
+  @override
+  String get settingsProfileUserId => 'ID Pengguna';
+
+  @override
+  String get settingsProfileUserIdCopied => 'ID Pengguna disalin';
+
+  @override
+  String get settingsPremiumMonthly => 'Premium Bulanan';
+
+  @override
+  String get settingsPremiumYearly => 'Premium Tahunan';
+
+  @override
+  String get settingsPremiumLifetime => 'Premium Seumur Hidup';
+
+  @override
+  String get settingsUnsavedChangesBody =>
+      'Anda ada perubahan yang belum disimpan. Adakah anda pasti mahu keluar?';
+
+  @override
+  String settingsShareAppText(String url) {
+    return 'Cuba The Accountant - aplikasi kewangan peribadi yang cantik!\n\n$url';
+  }
+
+  @override
+  String get settingsShareAppSubject =>
+      'The Accountant - Aplikasi Kewangan Peribadi';
+
+  @override
+  String get settingsCloudSyncGateBody =>
+      'Pastikan data kewangan anda sentiasa tersegerak merentas semua peranti anda. Jangan sekali-kali kehilangan data lagi.';
+
+  @override
+  String settingsSyncPushed(int count) {
+    return 'Dihantar $count';
+  }
+
+  @override
+  String settingsSyncPulled(int count) {
+    return 'Diterima $count';
+  }
+
+  @override
+  String settingsSyncConflicts(int count) {
+    return '$count konflik';
+  }
+
+  @override
+  String get settingsSyncNowSubtitle => 'Hantar dan terima semua perubahan';
+
+  @override
+  String settingsSyncComplete(int pushed, int pulled) {
+    return 'Segerak selesai — dihantar $pushed, diterima $pulled';
+  }
+
+  @override
+  String settingsSyncIncomplete(int count, String details) {
+    return 'Segerak tidak lengkap — $count rekod tidak dapat disimpan dan akan dicuba semula. $details';
+  }
+
+  @override
+  String settingsSyncFailed(String error) {
+    return 'Segerak gagal: $error';
+  }
+
+  @override
+  String get settingsRestoreFromCloudSubtitle =>
+      'Gantikan data peranti ini dengan data awan anda';
+
+  @override
+  String get settingsRestoreFromCloudBody =>
+      'Ini memadam SEMUA data pada peranti ini dan menggantikannya dengan data awan anda. Sebarang perubahan pada peranti ini yang belum disegerakkan akan hilang. Ini tidak boleh dibuat asal.';
+
+  @override
+  String settingsRestoredFromCloud(int count) {
+    return '$count item dipulihkan daripada awan';
+  }
+
+  @override
+  String settingsRestoreCancelled(String details) {
+    return 'Pemulihan dibatalkan — data tempatan anda tidak diubah. $details';
+  }
+
+  @override
+  String settingsRestoreFailed(String error) {
+    return 'Pemulihan gagal: $error';
+  }
+
+  @override
+  String get settingsSyncInfoBody =>
+      'Data anda disegerakkan secara automatik setiap 15 minit dan apabila anda membuka aplikasi. Amaun, nama dan nota disulitkan pada telefon ini sebelum disegerakkan, jadi pelayan kami tidak dapat membacanya.';
+
+  @override
+  String settingsSyncCompletedSeconds(int seconds) {
+    return 'Selesai dalam ${seconds}s';
+  }
+
+  @override
+  String settingsSyncCompletedMinutes(int minutes, int seconds) {
+    return 'Selesai dalam ${minutes}m ${seconds}s';
+  }
+
+  @override
+  String settingsReconcileQuestion(String name) {
+    return 'Adakah ini kategori \"$name\" anda?';
+  }
+
+  @override
+  String get settingsReconcileSavedPending =>
+      'Disimpan. Ini akan digunakan apabila anda menyegerak seterusnya.';
+
+  @override
+  String settingsReconcileBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Akaun anda sudah mempunyai $count kategori bernama \"$name\". Beritahu kami sama ada mahu menggunakan salah satu daripadanya sebagai kategori terbina dalam, atau mengekalkannya berasingan. Tiada apa yang berubah sehingga anda memilih.',
+      one:
+          'Akaun anda sudah mempunyai kategori bernama \"$name\". Beritahu kami sama ada mahu menggunakannya sebagai kategori terbina dalam, atau mengekalkannya berasingan. Tiada apa yang berubah sehingga anda memilih.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepMine =>
+      'Tidak — kekalkan milik saya dan tambah yang berasingan';
+
+  @override
+  String get settingsReconcileNoneOfThese =>
+      'Tiada satu pun —tambah yang berasingan';
+
+  @override
+  String settingsReconcileKeepSeparateBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Kategori \"$name\" sedia ada anda kekal seperti sekarang, dengan semua transaksinya. \"$name\" terbina dalam yang baharu akan ditambah di sebelahnya.',
+      one:
+          'Kategori \"$name\" sedia ada anda kekal seperti sekarang, dengan semua transaksinya. \"$name\" terbina dalam yang baharu akan ditambah di sebelahnya.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepSeparate => 'Kekalkan berasingan';
+
+  @override
+  String settingsReconcileTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transaksi',
+      one: '1 transaksi',
+      zero: 'Tiada transaksi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsReconcileUseTitle(String name) {
+    return 'Gunakan \"$name\"?';
+  }
+
+  @override
+  String settingsReconcileUseBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Ia menjadi kategori \"$name\" terbina dalam dan mengekalkan kesemua $count transaksinya, bersama subkategorinya. Tiada apa yang dipadam.',
+      zero:
+          'Ia menjadi kategori \"$name\" terbina dalam dan mengekalkan semua yang difailkan di bawahnya, bersama subkategorinya. Tiada apa yang dipadam.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileUseThisOne => 'Gunakan yang ini';
+
+  @override
+  String settingsReconcileWillUse(String name) {
+    return 'Akan menggunakan \"$name\".';
+  }
+
+  @override
+  String settingsReconcileWillAdd(String name) {
+    return 'Akan menambah \"$name\" yang berasingan.';
+  }
+
+  @override
+  String get settingsChangePasswordSubtitle =>
+      'Masukkan kata laluan semasa dan pilih yang baharu';
+
+  @override
+  String get settingsSetPasswordSubtitle =>
+      'Tambah kata laluan pada akaun anda untuk keselamatan tambahan';
+
+  @override
+  String get settingsEnterCurrentPassword =>
+      'Sila masukkan kata laluan semasa anda';
+
+  @override
+  String get settingsEnterNewPassword => 'Sila masukkan kata laluan baharu';
+
+  @override
+  String get settingsPasswordMinLength =>
+      'Kata laluan mestilah sekurang-kurangnya 8 aksara';
+
+  @override
+  String get settingsConfirmYourPassword => 'Sila sahkan kata laluan anda';
+
+  @override
+  String get settingsPasswordsDoNotMatch => 'Kata laluan tidak sepadan';
+
+  @override
+  String get settingsPleaseWait => 'Sila tunggu...';
+
+  @override
+  String settingsTypeToConfirm(String word) {
+    return 'Taip \"$word\" untuk mengesahkan';
+  }
+
+  @override
+  String settingsPercentOfBudget(int percent) {
+    return '$percent% daripada bajet';
+  }
+
+  @override
+  String get authTooManyAttempts =>
+      'Terlalu banyak percubaan. Sila tunggu seminit dan cuba lagi.';
+
+  @override
+  String get authServerDown =>
+      'Kami tidak dapat menghubungi pelayan kami. Masalah ini di pihak kami — sila cuba lagi dalam beberapa minit.';
+
+  @override
+  String get authInitFailed => 'Gagal memulakan pengesahan';
+
+  @override
+  String get authSignInError => 'Ralat berlaku semasa log masuk';
+
+  @override
+  String get authSignUpError => 'Ralat berlaku semasa mendaftar';
+
+  @override
+  String get authGoogleCancelled => 'Log masuk Google dibatalkan atau gagal';
+
+  @override
+  String get authFirebaseTokenFailed => 'Gagal mendapatkan token ID Firebase';
+
+  @override
+  String get authGoogleSignInError =>
+      'Ralat berlaku semasa log masuk dengan Google';
+
+  @override
+  String get authAccountExistsDifferentCredential =>
+      'Akaun dengan alamat e-mel yang sama tetapi kaedah log masuk berbeza sudah wujud.';
+
+  @override
+  String get authInvalidCredential =>
+      'Bukti kelayakan yang diberikan tidak sah atau telah tamat tempoh.';
+
+  @override
+  String get authGoogleDisabled => 'Log masuk Google dinyahdayakan.';
+
+  @override
+  String get authUserDisabled => 'Akaun pengguna ini telah dinyahdayakan.';
+
+  @override
+  String get authAppleSignInError =>
+      'Ralat berlaku semasa log masuk dengan Apple';
+
+  @override
+  String get authAppleDisabled => 'Log masuk Apple dinyahdayakan.';
+
+  @override
+  String get authNoPendingLink => 'Tiada akaun yang menunggu untuk dipautkan';
+
+  @override
+  String get authLinkFailed => 'Gagal memautkan akaun';
+
+  @override
+  String get authIncorrectPassword => 'Kata laluan salah. Sila cuba lagi.';
+
+  @override
+  String get authSignOutError => 'Ralat berlaku semasa log keluar';
+
+  @override
+  String get authLinkSubtitle =>
+      'Akaun dengan e-mel ini sudah wujud. Masukkan kata laluan anda untuk memautkan akaun Google anda.';
+
+  @override
+  String get authEnterYourPasswordHint => 'Masukkan kata laluan anda';
+
+  @override
+  String get authEnterYourPassword => 'Sila masukkan kata laluan anda';
+
+  @override
+  String get authLinkInfo =>
+      'Selepas dipautkan, anda boleh log masuk menggunakan e-mel/kata laluan atau Google.';
+
+  @override
+  String get authEnterYourEmail => 'Sila masukkan e-mel anda';
+
+  @override
+  String get authEnterValidEmail => 'Sila masukkan e-mel yang sah';
+
+  @override
+  String get authPasswordMin6 =>
+      'Kata laluan mestilah sekurang-kurangnya 6 aksara';
+
+  @override
+  String get authNoAccountPrompt => 'Tiada akaun? ';
+
+  @override
+  String get authForgotPasswordTitle => 'Lupa Kata Laluan';
+
+  @override
+  String get authCheckYourEmail => 'Semak E-mel Anda';
+
+  @override
+  String get authForgotPasswordSubtitle =>
+      'Masukkan e-mel anda dan kami akan menghantar kod untuk menetapkan semula kata laluan anda.';
+
+  @override
+  String authCodeSentSubtitle(String email) {
+    return 'Kami telah menghantar kod 6 digit ke $email. Masukkan kod itu di bawah bersama kata laluan baharu anda.';
+  }
+
+  @override
+  String get authEnterYourEmailHint => 'Masukkan e-mel anda';
+
+  @override
+  String get authSixDigitCodeHint => 'Kod 6 digit';
+
+  @override
+  String get authEnterTheCode => 'Sila masukkan kod';
+
+  @override
+  String get authCodeIsSixDigits => 'Kod mempunyai 6 digit';
+
+  @override
+  String get authCreateNewPasswordHint => 'Cipta kata laluan baharu';
+
+  @override
+  String get authReenterNewPasswordHint =>
+      'Masukkan semula kata laluan baharu anda';
+
+  @override
+  String get authEnterYourNameHint => 'Masukkan nama anda';
+
+  @override
+  String get authEnterFullName => 'Sila masukkan nama penuh anda';
+
+  @override
+  String get authNameMin2 => 'Nama mestilah sekurang-kurangnya 2 aksara';
+
+  @override
+  String get authCreatePasswordHint => 'Cipta kata laluan';
+
+  @override
+  String get authPasswordComplexity =>
+      'Mesti mengandungi huruf besar, huruf kecil dan nombor';
+
+  @override
+  String get authReenterPasswordHint => 'Masukkan semula kata laluan anda';
+
+  @override
+  String get authStrengthWeak => 'Lemah';
+
+  @override
+  String get authStrengthFair => 'Sederhana';
+
+  @override
+  String get authStrengthGood => 'Baik';
+
+  @override
+  String get authStrengthStrong => 'Kuat';
+
+  @override
+  String authAgreeToTerms(String terms, String privacy) {
+    return 'Saya bersetuju dengan $terms dan $privacy';
+  }
+
+  @override
+  String get authDefaultUserName => 'Pengguna';
+
+  @override
+  String authMemberSince(String date) {
+    return 'Ahli sejak $date';
+  }
+
+  @override
+  String get authFieldRequired => 'Medan ini wajib diisi';
+
+  @override
+  String authSignOutFailed(String error) {
+    return 'Gagal log keluar: $error';
+  }
+
+  @override
+  String authPickImageFailed(String error) {
+    return 'Gagal memilih imej: $error';
+  }
+
+  @override
+  String authUpdateProfileFailed(String error) {
+    return 'Gagal mengemas kini profil: $error';
+  }
+
+  @override
+  String get premiumSaveAbout44 => 'Jimat ~44%';
+
+  @override
+  String get premiumBestValue => 'Nilai Terbaik';
+
+  @override
+  String get premiumIapUnavailable => 'IAP tidak tersedia';
+
+  @override
+  String get premiumProductNotFound => 'Produk tidak ditemui';
+
+  @override
+  String get premiumPlanUnavailable =>
+      'Pelan ini tidak tersedia untuk akaun anda buat masa ini';
+
+  @override
+  String get premiumRestoreFailed => 'Gagal memulihkan pembelian';
+
+  @override
+  String get premiumPurchaseFailed => 'Pembelian gagal';
+
+  @override
+  String get premiumVerificationFailed => 'Pengesahan gagal';
+
+  @override
+  String premiumPeriodDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hari',
+      one: '1 hari',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minggu',
+      one: '1 minggu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bulan',
+      one: '1 bulan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tahun',
+      one: '1 tahun',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumLimitUsed(int count, int limit, String items) {
+    return 'Anda telah menggunakan $count daripada $limit $items percuma.';
+  }
+
+  @override
+  String premiumLimitUpgrade(String items) {
+    return 'Naik taraf ke Premium untuk $items tanpa had dan banyak lagi!';
+  }
+
+  @override
+  String premiumFreeLimitMessage(int limit, String items) {
+    return 'Anda telah mencapai had peringkat percuma iaitu $limit $items. Naik taraf ke Premium untuk $items tanpa had.';
+  }
+
+  @override
+  String get premiumLimitWallets => 'dompet';
+
+  @override
+  String get premiumLimitCategories => 'kategori tersuai';
+
+  @override
+  String get premiumLimitBudgets => 'bajet aktif';
+
+  @override
+  String get premiumLimitObjectives => 'objektif aktif';
+
+  @override
+  String get premiumLimitPaymentMethods => 'kaedah pembayaran';
+
+  @override
+  String get backupErrNotJson =>
+      'Fail ini bukan sandaran — ia tidak dapat dibaca sebagai JSON.';
+
+  @override
+  String get backupErrNotOurs =>
+      'Fail ini bukan sandaran daripada The Accountant.';
+
+  @override
+  String get backupErrNewerVersion =>
+      'Sandaran ini dibuat oleh versi aplikasi yang lebih baharu. Kemas kini The Accountant dan cuba lagi.';
+
+  @override
+  String backupErrTooOld(int version, int oldest) {
+    return 'Sandaran ini daripada versi aplikasi yang lebih lama daripada yang boleh dibaca oleh versi ini (pangkalan data $version, paling lama disokong $oldest).';
+  }
+
+  @override
+  String get backupErrNoData => 'Sandaran ini tidak mengandungi data.';
+
+  @override
+  String backupErrSectionDamaged(String section) {
+    return 'Bahagian \"$section\" dalam sandaran ini rosak.';
+  }
+
+  @override
+  String get backupErrNoHeader =>
+      'Sandaran ini tiada pengepala yang menyatakan jenisnya.';
+
+  @override
+  String get backupErrNoSchemaVersion =>
+      'Sandaran ini tidak menyatakan versi pangkalan data asalnya, jadi ia tidak boleh dipulihkan dengan selamat.';
+
+  @override
+  String get backupErrNoDate => 'Sandaran ini tidak menyatakan bila ia dibuat.';
+
+  @override
+  String get backupErrDamaged => 'Fail sandaran ini rosak.';
+
+  @override
+  String get backupErrWrongKey =>
+      'Sandaran ini milik akaun lain, atau fail telah diubah. Log masuk dengan akaun yang membuatnya untuk memulihkannya.';
+
+  @override
+  String get backupErrNoPassphraseLock =>
+      'Sandaran ini tidak boleh dibuka dengan frasa laluan.';
+
+  @override
+  String get backupErrNeedsSecret =>
+      'Sandaran ini dilindungi dengan frasa laluan. Masukkan frasa laluan, atau kod pemulihan, untuk memulihkannya.';
+
+  @override
+  String get backupErrWrongSecret =>
+      'Frasa laluan atau kod pemulihan itu tidak dapat membuka sandaran ini.';
+
+  @override
+  String backupErrNewerSchema(int version, int supported) {
+    return 'Sandaran ini dibuat oleh versi aplikasi yang lebih baharu (pangkalan data $version, binaan ini membaca sehingga $supported). Kemas kini The Accountant dan cuba lagi.';
+  }
+
+  @override
+  String backupDriveUnreachable(String error) {
+    return 'Google Drive tidak dapat dihubungi: $error';
+  }
+
+  @override
+  String get backupDriveNotAllowed =>
+      'The Accountant belum dibenarkan menggunakan Google Drive.';
+
+  @override
+  String get backupDriveNoFolder =>
+      'Google Drive tidak membuat folder untuk menyimpan sandaran.';
+
+  @override
+  String get backupDriveNoFileId =>
+      'Google Drive menerima sandaran tetapi tidak menyatakan di mana ia disimpan.';
+
+  @override
+  String get backupDriveTimeout =>
+      'Google Drive mengambil masa terlalu lama untuk menjawab. Cuba lagi nanti.';
+
+  @override
+  String get backupDriveOffline =>
+      'Tiada sambungan ke Google Drive. Cuba lagi apabila anda dalam talian.';
+
+  @override
+  String get backupDriveDenied =>
+      'Google Drive menolak permintaan. Beri akses semula dan cuba lagi.';
+
+  @override
+  String get backupDriveFileGone =>
+      'Sandaran itu sudah tiada dalam Google Drive.';
+
+  @override
+  String backupDriveHttpError(int status, String reason) {
+    return 'Google Drive menjawab $status. $reason';
+  }
+
+  @override
+  String get backupDriveTryAgainSoon => 'Cuba lagi sebentar nanti.';
+
+  @override
+  String backupTakeFailed(String error) {
+    return 'Sandaran tidak dapat dibuat: $error';
+  }
+
+  @override
+  String get backupUnrestorableNewer =>
+      'Dibuat oleh versi aplikasi yang lebih baharu.';
+
+  @override
+  String get backupUnrestorableOlder =>
+      'Lebih lama daripada yang boleh dibaca oleh versi aplikasi ini.';
+
+  @override
+  String get backupKeyUnusable =>
+      'Pelayan menghantar kunci penyulitan yang tidak boleh digunakan. Cuba lagi nanti.';
+
+  @override
+  String get backupKeyNeedsSignIn =>
+      'Log masuk untuk membuat atau memulihkan sandaran — sandaran disulitkan dengan akaun anda.';
+
+  @override
+  String get backupKeyNeedsInternet =>
+      'Sambung ke internet sekali supaya data anda boleh disulitkan, kemudian cuba lagi.';
+
+  @override
+  String get backupKeyLocked =>
+      'Data anda dilindungi dengan frasa laluan. Buka kuncinya pada peranti ini dahulu.';
+
+  @override
+  String get backupFrequencyManual => 'Hanya apabila saya minta';
+
+  @override
+  String get backupFrequencyDaily => 'Setiap hari';
+
+  @override
+  String get backupFrequencyWeekly => 'Setiap minggu';
+
+  @override
+  String get backupFrequencyMonthly => 'Setiap bulan';
+
+  @override
+  String get backupIntro =>
+      'Sandaran ialah satu fail yang menyimpan segala-galanya pada peranti ini — setiap transaksi, akaun, bajet dan matlamat. Simpan satu di tempat yang selamat dan tiada apa di sini akan hilang buat selamanya.';
+
+  @override
+  String get backupSectionOnDevice => 'PADA PERANTI INI';
+
+  @override
+  String get backupSectionGoogleDrive => 'GOOGLE DRIVE';
+
+  @override
+  String get backupSectionInDrive => 'SANDARAN DALAM DRIVE';
+
+  @override
+  String backupBackedUpCount(int count) {
+    return '$count rekod disandarkan.';
+  }
+
+  @override
+  String get backupSaveDialogTitle => 'Simpan sandaran';
+
+  @override
+  String get backupChooseFileTitle => 'Pilih fail sandaran';
+
+  @override
+  String backupFileUnreadable(String error) {
+    return 'Fail itu tidak dapat dibaca: $error';
+  }
+
+  @override
+  String backupTakenOn(String date) {
+    return 'Dibuat pada $date.';
+  }
+
+  @override
+  String backupTakenOnDevice(String date, String device) {
+    return 'Dibuat pada $date di $device.';
+  }
+
+  @override
+  String backupBelongedTo(String email) {
+    return 'Ia milik $email.';
+  }
+
+  @override
+  String get backupDifferentAccountWarning =>
+      'Itu bukan akaun yang log masuk di sini. Pemulihan akan meletakkan rekod orang lain pada peranti ini.';
+
+  @override
+  String get backupRestoreEraseWarning =>
+      'Semua yang ada pada peranti ini sekarang akan dipadam dan digantikan. Apa-apa yang belum disegerakkan akan hilang. Ini tidak boleh dibuat asal.';
+
+  @override
+  String backupRestoredCount(int count) {
+    return '$count rekod dipulihkan.';
+  }
+
+  @override
+  String backupRestoredPartial(int count) {
+    return '$count rekod dipulihkan. Sebahagian fail tidak sesuai dengan versi ini dan telah ditinggalkan.';
+  }
+
+  @override
+  String backupRestoreFailed(String error) {
+    return 'Tiada apa yang diubah — pemulihan gagal: $error';
+  }
+
+  @override
+  String get backupConnectDriveSubtitle =>
+      'Sandaran disimpan dalam folder peribadi yang hanya boleh dibuka oleh aplikasi ini. Fail anda yang lain tidak pernah dibaca.';
+
+  @override
+  String get backupDriveConnectedTitle => 'Google Drive disambungkan';
+
+  @override
+  String backupDriveFolderFirst(String folder) {
+    return 'Sandaran daripada peranti ini akan disimpan dalam folder bernama \"$folder\" dalam Drive anda.';
+  }
+
+  @override
+  String backupDriveFolder(String folder) {
+    return 'Sandaran disimpan dalam \"$folder\" dalam Drive anda.';
+  }
+
+  @override
+  String get backupNoneYet =>
+      'Belum ada sandaran dimuat naik daripada peranti ini';
+
+  @override
+  String backupLastBackedUp(String date) {
+    return 'Sandaran terakhir $date';
+  }
+
+  @override
+  String backupKeepSubtitle(int count) {
+    return '$count sandaran — yang lebih lama dibuang selepas yang baharu tiba';
+  }
+
+  @override
+  String get backupDisconnectSubtitle =>
+      'Menghentikan sandaran automatik. Apa-apa yang sudah disimpan tidak dipadam.';
+
+  @override
+  String backupListFailed(String error) {
+    return 'Tidak dapat menyenaraikan sandaran anda: $error';
+  }
+
+  @override
+  String get backupDriveNotGranted => 'Akses Google Drive tidak diberikan.';
+
+  @override
+  String get backupDriveConnected => 'Google Drive disambungkan.';
+
+  @override
+  String backupDriveConnectFailed(String error) {
+    return 'Google Drive tidak dapat disambungkan: $error';
+  }
+
+  @override
+  String get backupDisconnectBody =>
+      'Sandaran automatik berhenti. Sandaran yang sudah ada dalam Drive kekal di situ, dan anda boleh menyambung semula pada bila-bila masa.';
+
+  @override
+  String backupSavedToDrive(String name) {
+    return '$name disimpan ke Google Drive.';
+  }
+
+  @override
+  String backupCopyFailed(String error) {
+    return 'Sandaran itu tidak dapat disimpan: $error';
+  }
+
+  @override
+  String get backupDeleteBody =>
+      'Ia akan dibuang dari Google Drive buat selamanya.';
+
+  @override
+  String get backupRefresh => 'Muat semula';
+
+  @override
+  String get ppErrKdfParams => 'Parameter terbitan kunci tidak boleh diterima.';
+
+  @override
+  String get ppErrKdfAlgorithm => 'Algoritma terbitan kunci tidak diketahui.';
+
+  @override
+  String get onboardingIntroAccountsTitle => 'Setiap akaun, satu baki';
+
+  @override
+  String get onboardingIntroAccountsBody =>
+      'Letakkan tunai, kad dan simpanan bersebelahan, dan lihat berapa banyak yang sebenarnya tinggal.';
+
+  @override
+  String get onboardingIntroBudgetsTitle => 'Bajet yang memberi amaran awal';
+
+  @override
+  String get onboardingIntroBudgetsBody =>
+      'Tetapkan had bagi setiap kategori. Aplikasi memantau jumlahnya dan memberi amaran sebelum anda melepasinya, bukan selepas.';
+
+  @override
+  String get onboardingIntroAskTitle =>
+      'Tanya tentang perbelanjaan anda sendiri';
+
+  @override
+  String get onboardingIntroAskBody =>
+      'Imbas resit, atau tanya ke mana wang anda pergi bulan lepas, dan dapatkan jawapan berdasarkan rekod anda.';
+
+  @override
+  String get onboardingIntroThemeTitle => 'Jadikan ia gaya anda';
+
+  @override
+  String get onboardingIntroThemeBody =>
+      'Pilih tema sekarang, atau tukar bila-bila masa anda suka dalam tetapan.';
+
+  @override
+  String get onboardingCreateYourAccount => 'Cipta akaun anda';
+
+  @override
+  String get onboardingNext => 'Seterusnya';
+
+  @override
+  String get onboardingCurrencyInfo =>
+      'Ini akan digunakan sebagai mata wang utama anda. Anda boleh menambah akaun dengan mata wang lain kemudian.';
+
+  @override
+  String get onboardingTypeCash => 'Tunai';
+
+  @override
+  String get onboardingTypeBank => 'Akaun Bank';
+
+  @override
+  String get onboardingTypeCard => 'Kad Kredit';
+
+  @override
+  String get onboardingTypeDeposit => 'Deposit';
+
+  @override
+  String get onboardingTypeInvestment => 'Pelaburan';
+
+  @override
+  String get onboardingTypeAsset => 'Aset';
+
+  @override
+  String onboardingDayN(int day) {
+    return 'Hari $day';
+  }
+
+  @override
+  String get onboardingAllSet => 'Anda Sudah Bersedia!';
+
+  @override
+  String onboardingCompleteFailed(String error) {
+    return 'Gagal melengkapkan persediaan: $error';
+  }
+
+  @override
+  String get onboardingSkipFailed => 'Gagal melangkau persediaan';
+
+  @override
+  String get startupOfflineConfirmBody =>
+      'Data anda kekal di tempatnya — tiada apa pada peranti ini atau dalam awan akan dipadam.\n\nTetapi jika akaun itu memang ada data tersimpan, apa-apa yang anda tambah sekarang akan berada bersama data itu selepas anda memulihkannya — anda mungkin perlu mengemas data pendua.';
+
+  @override
+  String get startupDataInCloudTitle => 'Data anda sedang menunggu dalam awan';
+
+  @override
+  String get startupLoadFailedTitle =>
+      'Kami tidak dapat selesai memuatkan akaun anda';
+
+  @override
+  String get startupGenericReason =>
+      'Sesuatu tidak kena semasa menyemak akaun ini.';
+
+  @override
+  String get startupUseWithoutRestoring => 'Guna aplikasi tanpa memulihkan';
+
+  @override
+  String get legalTermsTab => 'Terma';
+
+  @override
+  String get legalConsent =>
+      'Saya telah membaca dan bersetuju dengan Dasar Privasi dan Terma & Syarat';
+
+  @override
+  String get walkthroughGotIt => 'Faham!';
+
+  @override
+  String get settingsFaqSectionGettingStarted => 'Bermula';
+
+  @override
+  String get settingsFaq01Question => 'Bagaimana saya menambah transaksi?';
+
+  @override
+  String get settingsFaq01Answer =>
+      'Ketik butang + di bahagian bawah skrin utama. Isi jumlah, pilih kategori, pilih dompet dan tambah nota jika mahu. Ketik Simpan untuk merekod transaksi anda.';
+
+  @override
+  String get settingsFaq02Question => 'Apakah beza antara dompet dan kategori?';
+
+  @override
+  String get settingsFaq02Answer =>
+      'Dompet menunjukkan di mana wang anda disimpan (cth. Tunai, Akaun bank, Kad kredit). Kategori menerangkan untuk apa wang dibelanjakan atau dari mana ia datang (cth. Makanan, Gaji, Hiburan).';
+
+  @override
+  String get settingsFaq03Question =>
+      'Bagaimana saya menukar format tarikh dan nombor?';
+
+  @override
+  String get settingsFaq03Answer =>
+      'Pergi ke Tetapan > Tetapan Serantau. Anda boleh menukar mata wang lalai, format tarikh (cth. DD/MM/YYYY atau MM/DD/YYYY) dan format nombor (cth. 1,234.56 atau 1.234,56). Pratonton langsung menunjukkan rupa tetapan anda.';
+
+  @override
+  String get settingsFaqSectionTransactions => 'Transaksi';
+
+  @override
+  String get settingsFaq04Question =>
+      'Bolehkah saya menjejak transaksi berulang?';
+
+  @override
+  String get settingsFaq04Answer =>
+      'Boleh! Semasa menambah transaksi, hidupkan pilihan \"Berulang\". Anda boleh tetapkan ia berulang setiap hari, minggu, bulan atau tahun. Aplikasi akan mencipta transaksi ini secara automatik untuk anda.';
+
+  @override
+  String get settingsFaq05Question =>
+      'Bagaimana saya memindahkan wang antara dompet?';
+
+  @override
+  String get settingsFaq05Answer =>
+      'Semasa menambah transaksi, pilih \"Pindahan\" sebagai jenis. Pilih dompet sumber, dompet destinasi dan masukkan jumlah. Aplikasi akan menolak daripada satu dompet dan menambah ke dompet yang lain secara automatik.';
+
+  @override
+  String get settingsFaq06Question => 'Apakah transaksi akan datang?';
+
+  @override
+  String get settingsFaq06Answer =>
+      'Transaksi akan datang ialah perbelanjaan atau pendapatan masa depan yang anda jangka tetapi belum dibayar. Ia tidak menjejaskan baki dompet sehingga anda tandakannya sebagai sudah dibayar. Item tertunggak dan akan datang boleh didapati di bahagian transaksi.';
+
+  @override
+  String get settingsFaq07Question => 'Bagaimana saya menjejak langganan?';
+
+  @override
+  String get settingsFaq07Answer =>
+      'Semasa menambah transaksi, tetapkan jenis khas kepada Langganan. Ini menandakannya sebagai bayaran perkhidmatan yang berulang. Anda boleh lihat semua langganan di satu tempat dan menjejak perbelanjaan langganan bulanan anda.';
+
+  @override
+  String get settingsFaq08Question =>
+      'Bagaimana penjejakan kredit dan hutang berfungsi?';
+
+  @override
+  String get settingsFaq08Answer =>
+      'Gunakan Kredit untuk wang yang anda pinjamkan kepada orang lain, dan Hutang untuk wang yang anda pinjam. Setiap entri merekod jumlah, siapa berhutang dengan siapa dan kemajuan bayaran. Anda boleh merekod bayaran separa dan menandakan hutang sebagai selesai apabila sudah dibayar penuh.';
+
+  @override
+  String get settingsFaq09Question =>
+      'Bolehkah saya menambah nota atau resit pada transaksi?';
+
+  @override
+  String get settingsFaq09Answer =>
+      'Boleh! Semasa menambah atau mengedit transaksi, anda boleh menaip dalam ruangan nota. Pengguna Premium juga boleh mengimbas resit dengan pengimbas resit AI, yang mengambil jumlah dan butiran peniaga secara automatik.';
+
+  @override
+  String get settingsFaqSectionWalletsCurrencies => 'Dompet & Mata Wang';
+
+  @override
+  String get settingsFaq10Question => 'Bagaimana saya mengurus beberapa akaun?';
+
+  @override
+  String get settingsFaq10Answer =>
+      'Aplikasi ini menyokong empat jenis akaun: Tunai, Akaun bank, Kad kredit dan Langganan. Untuk menambah akaun baharu, pergi ke \"Akaun Anda\" di papan pemuka dan ketik \"Tambah Akaun\". Setiap akaun boleh ada nama, ikon, warna dan mata wangnya sendiri. Akaun pertama anda dijadikan akaun lalai secara automatik. Untuk kad kredit, anda juga boleh tetapkan had kredit dan hari kitaran bil supaya dapat menjejak baki kredit yang ada.';
+
+  @override
+  String get settingsFaq11Question =>
+      'Bolehkah saya menggunakan beberapa mata wang?';
+
+  @override
+  String get settingsFaq11Answer =>
+      'Boleh! Setiap dompet boleh ada mata wangnya sendiri. Aplikasi menukar mata wang secara automatik menggunakan kadar pertukaran terkini. Anda juga boleh tetapkan kadar pertukaran sendiri dalam Tetapan > Tetapan Serantau.';
+
+  @override
+  String get settingsFaq12Question =>
+      'Bagaimana penukaran mata wang berfungsi?';
+
+  @override
+  String get settingsFaq12Answer =>
+      'Setiap dompet boleh ada mata wang yang berbeza, dan aplikasi menukar jumlah secara automatik menggunakan kadar pertukaran terkini yang dikemas kini setiap beberapa jam. Anda juga boleh tetapkan kadar sendiri untuk mana-mana pasangan mata wang dalam Tetapan > Tetapan Serantau. Aplikasi menyokong lebih 150 mata wang dengan kadar yang diambil secara automatik.';
+
+  @override
+  String get settingsFaq13Question =>
+      'Apa yang berlaku jika saya memadam kategori yang ada transaksi?';
+
+  @override
+  String get settingsFaq13Answer =>
+      'Transaksi tersebut akan dipindahkan ke \"Tiada kategori\". Anda boleh menetapkannya semula ke kategori lain atau membiarkannya tanpa kategori.';
+
+  @override
+  String get settingsFaq14Question =>
+      'Apakah subkategori dan bagaimana menggunakannya?';
+
+  @override
+  String get settingsFaq14Answer =>
+      'Anda boleh mencipta subkategori di bawah mana-mana kategori utama untuk penjejakan yang lebih terperinci. Contohnya, di bawah \"Makanan\", anda boleh ada \"Barang dapur\", \"Restoran\" dan \"Kopi\". Subkategori membantu anda melihat dengan tepat ke mana wang anda pergi.';
+
+  @override
+  String get settingsFaq15Question => 'Apakah pembetulan baki?';
+
+  @override
+  String get settingsFaq15Answer =>
+      'Pembetulan baki membolehkan anda melaraskan baki dompet apabila ia tidak sama dengan jumlah sebenar. Ini mencipta transaksi khas yang menyamakan baki yang dijejak dengan baki sebenar, tanpa perlu menambah pendapatan atau perbelanjaan secara manual.';
+
+  @override
+  String get settingsFaqSectionBudgetsGoals => 'Bajet & Matlamat';
+
+  @override
+  String get settingsFaq16Question => 'Bagaimana saya menyediakan bajet?';
+
+  @override
+  String get settingsFaq16Answer =>
+      'Pergi ke tab Bajet dan ketik \"Bajet baharu\". Pilih nama, tetapkan had perbelanjaan, pilih tempoh (mingguan/bulanan) dan pilih kategori yang mahu dijejak. Aplikasi akan memberi amaran apabila anda menghampiri had.';
+
+  @override
+  String get settingsFaq17Question => 'Apakah matlamat simpanan?';
+
+  @override
+  String get settingsFaq17Answer =>
+      'Matlamat simpanan membolehkan anda menetapkan jumlah sasaran yang mahu disimpan. Cipta matlamat di bahagian Matlamat, tetapkan sasaran dan pautkan transaksi untuk menjejak kemajuan. Aplikasi menunjukkan bar kemajuan dan peratusan ke arah sasaran anda.';
+
+  @override
+  String get settingsFaq18Question => 'Bagaimana saya menjejak pinjaman?';
+
+  @override
+  String get settingsFaq18Answer =>
+      'Cipta objektif Pinjaman di bahagian Matlamat dengan jumlah keseluruhan yang perlu dibayar. Setiap kali anda membuat bayaran, pautkan transaksi itu kepada pinjaman untuk menjejak kemajuan bayaran balik. Aplikasi menunjukkan berapa yang sudah dibayar dan berapa yang masih berbaki.';
+
+  @override
+  String get settingsFaqSectionDataSync => 'Data & Segerak';
+
+  @override
+  String get settingsFaq19Question => 'Bagaimana Segerak Awan berfungsi?';
+
+  @override
+  String get settingsFaq19Answer =>
+      'Segerak Awan memastikan data anda sama di semua peranti. Pergi ke Tetapan > Pengurusan Data > Segerak Awan untuk menghidupkannya. Segerak berjalan secara automatik setiap 15 minit dan apabila anda membuka aplikasi. Anda juga boleh ketik \"Segerak Sekarang\" untuk segerak serta-merta. Ini ciri Premium.';
+
+  @override
+  String get settingsFaq20Question => 'Bagaimana saya mengeksport data?';
+
+  @override
+  String get settingsFaq20Answer =>
+      'Pergi ke Tetapan > Pengurusan Data > Eksport Data. Pilih julat tarikh, pilih CSV (untuk hamparan) atau PDF (untuk laporan berformat) dan ketik Eksport. Anda boleh memasukkan atau mengecualikan pecahan mengikut kategori dan dompet. Ini ciri Premium.';
+
+  @override
+  String get settingsFaq21Question =>
+      'Apa yang berlaku jika saya mengosongkan data?';
+
+  @override
+  String get settingsFaq21Answer =>
+      'Pergi ke Tetapan > Privasi & Keselamatan. \"Kosongkan Cache\" membuang data sementara dan memaksa segerak semula tanpa memadam transaksi anda. \"Kosongkan Semua Data\" memadam segala-galanya secara kekal — anda perlu menaip DELETE untuk mengesahkan. Tindakan ini tidak boleh dibuat asal.';
+
+  @override
+  String get settingsFaqSectionPremiumAiFeatures => 'Premium & Ciri AI';
+
+  @override
+  String get settingsFaq22Question =>
+      'Apakah ciri yang termasuk dalam Premium?';
+
+  @override
+  String get settingsFaq22Answer =>
+      'Premium membuka: AI tanpa had (jurulatih, ringkasan bulanan, bacaan resit dan Terangkan) tanpa iklan, Segerak Awan, laporan PDF, Tema Premium, dan membuang had pada dompet, kategori, bajet, matlamat dan kaedah pembayaran. Anda juga mendapat sokongan keutamaan.';
+
+  @override
+  String get settingsFaq23Question => 'Apakah had untuk pengguna percuma?';
+
+  @override
+  String get settingsFaq23Answer =>
+      'Pengguna percuma boleh mencipta sehingga 3 dompet, 10 kategori sendiri, 3 bajet aktif, 2 matlamat/pinjaman aktif dan 5 kaedah pembayaran. Naik taraf ke Premium membuang semua had ini.';
+
+  @override
+  String get settingsFaq24Question =>
+      'Apa yang boleh dilakukan oleh Pembantu AI?';
+
+  @override
+  String get settingsFaq24Answer =>
+      'Jurulatih kewangan menjawab soalan tentang wang anda sendiri: ke mana ia pergi, sama ada anda masih di landasan dengan bajet dan matlamat, bil mana yang akan tiba, dan cara berbelanja kurang atau menyimpan lebih. Ia melihat ringkasan angka anda (jumlah, kategori, bajet, matlamat, bil dan transaksi terkini) supaya jawapannya menggunakan angka sebenar anda, dan ia mencadangkan soalan susulan selepas setiap jawapan. Ia memberi panduan umum, bukan nasihat kewangan profesional. Perbualan anda disimpan supaya anda boleh sambung di tempat anda berhenti, dan anda boleh memadamnya bila-bila masa.';
+
+  @override
+  String get settingsFaq25Question => 'Bagaimana Analisis AI berfungsi?';
+
+  @override
+  String get settingsFaq25Answer =>
+      'Ringkasan bulanan (Statistik > Analisis Perbelanjaan) membandingkan bulan ini dengan bulan lepas: berapa yang anda peroleh dan belanjakan, dan bagaimana setiap kategori berubah. Ketik Tulis ringkasan saya dan AI akan menonjolkan perkara yang ketara serta mencadangkan satu perkara untuk dicuba. Angka-angka itu percuma untuk semua; tulisan AI menggunakan satu permintaan AI.';
+
+  @override
+  String get settingsFaq26Question => 'Apakah Pengkategorian Pintar?';
+
+  @override
+  String get settingsFaq26Answer =>
+      'Apabila anda mengkategorikan transaksi sendiri, aplikasi mengingati kategori bagi tajuk itu dan memilihnya untuk anda pada kali seterusnya (anda boleh melihat dan mengeditnya di bawah Peraturan penamaan). Untuk sesuatu yang baharu, ketik butang kilauan pada skrin tambah dan gunakan Terangkan: taip sesuatu seperti \"makan tengah hari 250 semalam dari bKash\" dan AI akan mengisi jumlah, tarikh, kategori dan akaun untuk anda semak.';
+
+  @override
+  String get settingsFaq27Question => 'Bagaimana pengimbas resit AI berfungsi?';
+
+  @override
+  String get settingsFaq27Answer =>
+      'Ambil atau pilih foto resit. Telefon anda membaca teks pada peranti itu sendiri dan mencadangkan peniaga serta jumlah. Ketik Baca dengan AI dan AI akan mengenal pasti jumlah sebenar, tarikh, setiap item dan kategori yang betul, walaupun resit itu bersepah; hanya teks yang dihantar, bukan foto. Anda boleh semak dan edit sebelum menyimpan. Membaca dengan AI menggunakan satu permintaan AI.';
+
+  @override
+  String get settingsFaq28Question =>
+      'Berapa banyak permintaan AI yang saya dapat, dan untuk apa iklan?';
+
+  @override
+  String get settingsFaq28Answer =>
+      'Semua orang mendapat 10 permintaan AI percuma sebulan, dan ia kembali pada 1 haribulan. Jika mahu lebih, anda boleh memilih untuk menonton iklan pendek bagi satu permintaan tambahan, sehingga 10 lagi sebulan. Iklan juga boleh membuka percubaan tema premium selama 24 jam atau satu eksport PDF. Iklan hanya dimainkan selepas anda mengetik butang dan mengesahkan; tiada iklan sepanduk dan tiada apa yang muncul dengan sendiri. Ahli Premium mendapat AI tanpa had dan semua yang lain tanpa iklan langsung.';
+
+  @override
+  String get settingsFaq29Question =>
+      'Bagaimana saya mengurus pembelian Premium?';
+
+  @override
+  String get settingsFaq29Answer =>
+      'Pembelian Premium diurus melalui Google Play. Pergi ke tetapan langganan Google Play anda untuk melihat atau mengurus pelan anda. Premium tersedia sebagai pembelian bulanan, tahunan atau sekali bayar seumur hidup.';
+
+  @override
+  String get settingsFaqSectionPrivacySecurity => 'Privasi & Keselamatan';
+
+  @override
+  String get settingsFaq30Question =>
+      'Bagaimana saya menyediakan kunci biometrik?';
+
+  @override
+  String get settingsFaq30Answer =>
+      'Pergi ke Tetapan > Privasi & Keselamatan dan hidupkan Kunci Biometrik. Selepas itu, anda perlukan cap jari atau wajah untuk membuka aplikasi. Anda juga boleh menetapkan pemasa kunci automatik supaya aplikasi dikunci selepas tidak digunakan untuk satu tempoh.';
+
+  @override
+  String get settingsFaq31Question => 'Adakah data kewangan saya selamat?';
+
+  @override
+  String get settingsFaq31Answer =>
+      'Ya. Semua data anda disimpan secara setempat pada peranti anda. Jika anda menghidupkan Segerak Awan, data anda disulitkan semasa dipindahkan. Kami tidak sekali-kali berkongsi data kewangan anda dengan pihak ketiga. Anda boleh membaca Dasar Privasi kami dalam Tetapan > Perihal.';
+
+  @override
+  String get txnLoadPaymentMethodsFailed => 'Gagal memuatkan kaedah pembayaran';
+
+  @override
+  String get txnAddPaymentMethodFailed => 'Gagal menambah kaedah pembayaran';
+
+  @override
+  String get txnPaymentMethodNotFound => 'Kaedah pembayaran tidak ditemui';
+
+  @override
+  String get txnUpdatePaymentMethodFailed =>
+      'Gagal mengemas kini kaedah pembayaran';
+
+  @override
+  String get txnDeletePaymentMethodFailed => 'Gagal memadam kaedah pembayaran';
+
+  @override
+  String txnLoadFailed(String error) {
+    return 'Gagal memuatkan transaksi: $error';
+  }
+
+  @override
+  String get txnAddFailed => 'Gagal menambah transaksi';
+
+  @override
+  String txnAddFailedWithError(String error) {
+    return 'Gagal menambah transaksi: $error';
+  }
+
+  @override
+  String get txnNotFound => 'Transaksi tidak ditemui';
+
+  @override
+  String get txnUpdateFailed => 'Gagal mengemas kini transaksi';
+
+  @override
+  String txnNotATransfer(String id) {
+    return 'Transaksi $id bukan pindahan';
+  }
+
+  @override
+  String txnUpdateTransferFailed(String error) {
+    return 'Gagal mengemas kini pindahan: $error';
+  }
+
+  @override
+  String get txnDeleteFailed => 'Gagal memadam transaksi';
+
+  @override
+  String txnLoadTransfersFailed(String error) {
+    return 'Gagal memuatkan pindahan: $error';
+  }
+
+  @override
+  String txnCreateTransferFailed(String error) {
+    return 'Gagal mencipta pindahan: $error';
+  }
+
+  @override
+  String txnDeleteTransferFailed(String error) {
+    return 'Gagal memadam pindahan: $error';
+  }
+
+  @override
+  String txnLoadDataFailed(String error) {
+    return 'Gagal memuatkan data: $error';
+  }
+
+  @override
+  String txnMarkPaidFailed(String error) {
+    return 'Gagal menandakan sebagai dibayar: $error';
+  }
+
+  @override
+  String txnMarkUnpaidFailed(String error) {
+    return 'Gagal menandakan sebagai belum dibayar: $error';
+  }
+
+  @override
+  String txnSkipFailed(String error) {
+    return 'Gagal melangkau transaksi: $error';
+  }
+
+  @override
+  String creditReceivedTitle(String title) {
+    return 'Diterima: $title';
+  }
+
+  @override
+  String creditPaidTitle(String title) {
+    return 'Dibayar: $title';
+  }
+
+  @override
+  String creditReversedTitle(String title) {
+    return 'Dibatalkan: $title';
+  }
+
+  @override
+  String creditMarkSettledFailed(String error) {
+    return 'Gagal menandakan sebagai selesai: $error';
+  }
+
+  @override
+  String get creditPaymentMustBePositive => 'Jumlah bayaran mesti positif';
+
+  @override
+  String creditRecordPaymentFailed(String error) {
+    return 'Gagal merekodkan bayaran: $error';
+  }
+
+  @override
+  String creditMarkPendingFailed(String error) {
+    return 'Gagal menandakan sebagai belum selesai: $error';
+  }
+
+  @override
+  String creditRemaining(String amount) {
+    return 'Baki: $amount';
+  }
+
+  @override
+  String creditPaymentRecorded(String amount) {
+    return 'Bayaran $amount direkodkan';
+  }
+
+  @override
+  String creditMarkedCollected(String title) {
+    return 'Ditandakan sebagai dikutip daripada \"$title\"';
+  }
+
+  @override
+  String get importFieldDescription => 'Keterangan';
+
+  @override
+  String get importFieldDirection => 'Jenis (kredit/debit)';
+
+  @override
+  String get importMissingDate => 'lajur tarikh';
+
+  @override
+  String get importMissingAmount => 'lajur jumlah';
+
+  @override
+  String importColumnN(int index) {
+    return 'Lajur $index';
+  }
+
+  @override
+  String get importNoDate => 'Tiada tarikh';
+
+  @override
+  String importDateMismatch(String date, String format) {
+    return 'Tarikh \"$date\" tidak sepadan dengan $format';
+  }
+
+  @override
+  String get importAnyKnownFormat => 'mana-mana format yang dikenali';
+
+  @override
+  String get importNoAmount => 'Tiada jumlah';
+
+  @override
+  String get importIntro =>
+      'Eksport CSV daripada bank anda dan buka di sini. Lajur dikenal pasti untuk anda, dan tiada yang ditambah sehingga anda lihat dengan tepat apa yang akan ditambah.';
+
+  @override
+  String get importSavedBanks => 'BANK DISIMPAN';
+
+  @override
+  String get importChooseStatement => 'Pilih penyata';
+
+  @override
+  String get importNoRows => 'Tiada baris dalam fail itu.';
+
+  @override
+  String importUsingSavedMapping(String name) {
+    return 'Menggunakan pemetaan disimpan anda untuk $name.';
+  }
+
+  @override
+  String importCouldNotRead(String error) {
+    return 'Fail itu tidak dapat dibaca: $error';
+  }
+
+  @override
+  String importForgetTitle(String name) {
+    return 'Lupakan $name?';
+  }
+
+  @override
+  String get importForgetBody =>
+      'Anda akan diminta memetakan lajur semula lain kali.';
+
+  @override
+  String get importColumnsHeader => 'LAJUR';
+
+  @override
+  String get importHowToRead => 'CARA MEMBACA NILAI';
+
+  @override
+  String get importWhereItGoes => 'DESTINASI';
+
+  @override
+  String get importWhatWillBeAdded => 'APA YANG AKAN DITAMBAH';
+
+  @override
+  String importRowsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count baris',
+      one: '1 baris',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importColumnsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lajur',
+      one: '1 lajur',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSeparatedBy(String separator) {
+    return 'dipisahkan oleh $separator';
+  }
+
+  @override
+  String importMappedAs(String name) {
+    return 'dipetakan sebagai $name';
+  }
+
+  @override
+  String get importDelimCommas => 'koma';
+
+  @override
+  String get importDelimSemicolons => 'koma bertitik';
+
+  @override
+  String get importDelimTabs => 'tab';
+
+  @override
+  String get importDelimPipes => 'paip (|)';
+
+  @override
+  String get importRequired => 'Diperlukan';
+
+  @override
+  String get importNotImported => 'Tidak diimport';
+
+  @override
+  String get importEmptySample => 'kosong';
+
+  @override
+  String get importPickDateColumnFirst => 'Pilih lajur tarikh dahulu.';
+
+  @override
+  String importDateDoesNotFit(String sample) {
+    return '\"$sample\" tidak sesuai dengan format ini.';
+  }
+
+  @override
+  String importDateReadsAs(String sample, String date) {
+    return '\"$sample\" dibaca sebagai $date';
+  }
+
+  @override
+  String get importDecimalAuto => 'Dikenal pasti daripada fail';
+
+  @override
+  String get importDecimalFullStop => 'Titik, seperti 1,234.56';
+
+  @override
+  String get importDecimalComma => 'Koma, seperti 1.234,56';
+
+  @override
+  String get importDuplicatesHint =>
+      'Dipadankan mengikut hari, jumlah dan keterangan, jadi mengimport semula penyata yang bertindih tidak menggandakan apa-apa';
+
+  @override
+  String importStillNeeds(String item) {
+    return 'Masih perlukan $item.';
+  }
+
+  @override
+  String importStillNeedsBoth(String first, String second) {
+    return 'Masih perlukan $first dan $second.';
+  }
+
+  @override
+  String get importNothingReadable =>
+      'Tiada apa dalam fail ini boleh dibaca dengan tetapan ini. Semak format tarikh dan lajur yang mengandungi jumlah.';
+
+  @override
+  String importTransactionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transaksi',
+      one: '1 transaksi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importAmountIn(String amount) {
+    return '$amount masuk';
+  }
+
+  @override
+  String importAmountOut(String amount) {
+    return '$amount keluar';
+  }
+
+  @override
+  String importAndMore(int count) {
+    return 'dan $count lagi';
+  }
+
+  @override
+  String importLinesSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count baris akan dilangkau',
+      one: '1 baris akan dilangkau',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLinesSkippedSentence(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count baris akan dilangkau.',
+      one: '1 baris akan dilangkau.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLineProblem(int line, String problem) {
+    return 'Baris $line: $problem';
+  }
+
+  @override
+  String get importAddAccountFirst => 'Tambah akaun dahulu';
+
+  @override
+  String importImportCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Import $count transaksi',
+      one: 'Import 1 transaksi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Import $count transaksi?',
+      one: 'Import 1 transaksi?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importConfirmBody =>
+      'Ia ditambah ke rekod anda dan dimuat naik pada penyegerakan seterusnya.';
+
+  @override
+  String get importConfirmDuplicates =>
+      'Apa-apa yang sudah ada pada hari yang sama, dengan jumlah dan keterangan yang sama, dibiarkan.';
+
+  @override
+  String importFailed(String error) {
+    return 'Import gagal: $error';
+  }
+
+  @override
+  String importImportedTitle(int count) {
+    return '$count diimport';
+  }
+
+  @override
+  String importSkippedDuplicates(int count) {
+    return '$count sudah ada dan dibiarkan.';
+  }
+
+  @override
+  String importUnreadableLines(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count baris tidak dapat dibaca.',
+      one: '1 baris tidak dapat dibaca.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importNewCategories(String names) {
+    return 'Kategori baharu: $names.';
+  }
+
+  @override
+  String importUnmatchedAccounts(String names) {
+    return 'Nama akaun ini tiada padanan di sini, jadi baris mereka masuk ke akaun yang anda pilih: $names.';
+  }
+
+  @override
+  String get importRememberBody =>
+      'Fail seterusnya dengan lajur yang sama akan dipetakan begini tanpa bertanya.';
+
+  @override
+  String get importNoHeaderCannotSave =>
+      'Fail tanpa tajuk lajur tidak dapat dikenali semula, jadi tiada apa untuk dipadankan.';
+
+  @override
+  String get importTemplateSaved =>
+      'Disimpan. Fail dengan lajur ini akan menggunakannya mulai sekarang.';
+
+  @override
+  String get txnTransferSameWallet =>
+      'Dompet sumber dan destinasi mesti berbeza';
+
+  @override
+  String get txnTransferAmountPositive => 'Jumlah pindahan mesti positif';
+
+  @override
+  String get txnTransferFeeNegative => 'Yuran pindahan tidak boleh negatif';
+
+  @override
+  String txnSourceWalletNotFound(String id) {
+    return 'Dompet sumber tidak ditemui: $id';
+  }
+
+  @override
+  String txnDestinationWalletNotFound(String id) {
+    return 'Dompet destinasi tidak ditemui: $id';
+  }
+
+  @override
+  String txnTransferTitle(String from, String to) {
+    return 'Pindahan: $from → $to';
+  }
+
+  @override
+  String txnTransferWalletsMissing(String source, String destination) {
+    return 'Kedua-dua dompet mesti wujud untuk membuat pindahan (sumber: $source, destinasi: $destination).';
+  }
+
+  @override
+  String txnTransferSameCurrencyReceived(
+    String source,
+    String destination,
+    String currency,
+  ) {
+    return 'Pindahan dalam satu mata wang memindahkan satu angka: $source dan $destination kedua-duanya dalam $currency, jadi jumlah diterima tidak boleh berbeza.';
+  }
+
+  @override
+  String txnTransferNoRate(String from, String to, String destination) {
+    return 'Tiada kadar diketahui antara $from dan $to, jadi masukkan jumlah yang benar-benar masuk ke $destination.';
+  }
+
+  @override
+  String txnTransferReceivedPositive(String destination) {
+    return 'Jumlah diterima mesti lebih daripada sifar. Masukkan jumlah yang benar-benar masuk ke $destination.';
+  }
+
+  @override
+  String txnFeeTitle(String title) {
+    return 'Yuran: $title';
+  }
+
+  @override
+  String txnNotFoundWithId(String id) {
+    return 'Transaksi tidak ditemui: $id';
+  }
+
+  @override
+  String get txnNotATransferNoPair =>
+      'Transaksi bukan pindahan (tiada transaksi berpasangan)';
+
+  @override
+  String txnPairedNotFound(String id) {
+    return 'Transaksi berpasangan $id tidak ditemui; separuh pindahan tidak akan disunting.';
+  }
+
+  @override
+  String walletNoSuchAccount(String id) {
+    return 'Tiada akaun sebegitu: $id';
+  }
+
+  @override
+  String get walletCorrectionTitle => 'Pembetulan baki';
+
+  @override
+  String walletCorrectionNote(String name) {
+    return '$name dilaraskan mengikut baki sebenar.';
+  }
+
+  @override
+  String get walletMergeIntoItself =>
+      'Akaun tidak boleh digabungkan ke dalam dirinya sendiri.';
+
+  @override
+  String get walletMergeBothMustExist =>
+      'Kedua-dua akaun mesti wujud untuk digabungkan.';
+
+  @override
+  String walletMergeNoRate(String from, String to) {
+    return 'Tiada kadar diketahui antara $from dan $to, jadi akaun ini belum boleh digabungkan.';
+  }
+
+  @override
+  String get walletMergeAdjustmentTitle => 'Pelarasan penggabungan';
+
+  @override
+  String walletMergeAdjustmentNote(String name) {
+    return 'Kadar pindahan antara akaun ini berbeza daripada kadar $name digabungkan. Ini merekodkan perbezaan supaya jumlah tidak berubah.';
+  }
+
+  @override
+  String get splitErrNoTotal => 'Masukkan jumlah bil.';
+
+  @override
+  String get splitErrNoPeople => 'Tambah seseorang untuk berkongsi.';
+
+  @override
+  String splitErrPayerNotOnBill(String name) {
+    return '$name tiada dalam bil ini.';
+  }
+
+  @override
+  String get splitErrNothingToRecord =>
+      'Orang lain yang membayar dan anda tiada bahagian, jadi tiada apa untuk direkodkan.';
+
+  @override
+  String get splitErrGiveOwnShare => 'Nyatakan bahagian anda sendiri.';
+
+  @override
+  String splitErrGiveShare(String name) {
+    return 'Nyatakan bahagian $name.';
+  }
+
+  @override
+  String get splitErrNegativeShare => 'Bahagian tidak boleh negatif.';
+
+  @override
+  String splitErrSharesSum(String sum, String total) {
+    return 'Jumlah bahagian ialah $sum, bukan $total.';
+  }
+
+  @override
+  String splitErrPercentSum(String sum) {
+    return 'Jumlah peratusan ialah $sum%, bukan 100%.';
+  }
+
+  @override
+  String get splitErrNameTooLong => 'Nama mesti kurang daripada 100 aksara.';
+
+  @override
+  String splitErrDuplicateName(String name) {
+    return '$name ada dua kali dalam bil.';
+  }
+
+  @override
+  String get splitErrTitleTooLong => 'Tajuk mesti kurang daripada 200 aksara.';
+
+  @override
+  String get splitErrChooseAccount =>
+      'Pilih akaun yang digunakan untuk membayar.';
+
+  @override
+  String get splitErrOrdinaryAccount => 'Pilih akaun biasa.';
+
+  @override
+  String get splitErrYourShareNothing =>
+      'Bahagian anda kosong, jadi tiada hutang.';
+
+  @override
+  String get splitErrEveryShareNothing => 'Semua bahagian kosong.';
+
+  @override
+  String get recurringDaily => 'Harian';
+
+  @override
+  String recurringEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Setiap $count hari',
+      one: 'Setiap hari',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Setiap $count minggu',
+      one: 'Setiap minggu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Setiap $count bulan',
+      one: 'Setiap bulan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Setiap $count tahun',
+      one: 'Setiap tahun',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryOther(int count, String unit) {
+    return 'Setiap $count $unit';
+  }
+
+  @override
+  String get recurringUntitled => 'Transaksi Berulang';
+
+  @override
+  String recurringInDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Dalam $count hari',
+      one: 'Dalam 1 hari',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringNextWeek => 'Minggu depan';
+
+  @override
+  String recurringInWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Dalam $count minggu',
+      one: 'Dalam 1 minggu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnPmKindCard => 'Kad';
+
+  @override
+  String get txnPmKindDigitalWallet => 'Dompet digital';
+
+  @override
+  String get txnPmEmptyHint =>
+      'Tambah kad dan akaun yang anda guna untuk membayar, dan anda boleh memilih satu pada transaksi.';
+
+  @override
+  String get txnPmDeleteBody =>
+      'Transaksi yang sudah direkodkan dengannya kekal. Cuma tiada lagi kaedah pembayaran dinyatakan.';
+
+  @override
+  String get txnPmNew => 'Kaedah pembayaran baharu';
+
+  @override
+  String get txnPmEdit => 'Sunting kaedah pembayaran';
+
+  @override
+  String get txnRecentlyDeletedFooter =>
+      'Transaksi yang dipadam disimpan selama tiga puluh hari, kemudian dibuang terus.';
+
+  @override
+  String get txnUnknownCategory => 'Tidak diketahui';
+
+  @override
+  String txnRuleSubtitle(String match, String category) {
+    return '$match → $category';
+  }
+
+  @override
+  String get txnRuleExactly => 'Tepat ini';
+
+  @override
+  String get txnRuleContaining => 'Apa-apa yang mengandungi ini';
+
+  @override
+  String get txnRulesFooter =>
+      'Peraturan sepadan di mana-mana dalam tajuk melainkan anda menjadikannya tepat. Aplikasi menambah satu untuk anda setiap kali anda mengkategorikan sesuatu sendiri.';
+
+  @override
+  String get txnRulesEmptyHint =>
+      'Ajar aplikasi sekali di mana sesuatu patut diletakkan, dan ia akan mengkategorikannya begitu selepas itu.';
+
+  @override
+  String get txnRuleNew => 'Peraturan baharu';
+
+  @override
+  String get txnRuleEdit => 'Sunting peraturan';
+
+  @override
+  String get txnRuleExactHint => 'Hanya tajuk yang tepat seperti ini';
+
+  @override
+  String get txnRuleContainingHint => 'Mana-mana tajuk yang mengandunginya';
+
+  @override
+  String get txnKindTransfer => 'Pindahan antara akaun';
+
+  @override
+  String get txnKindRecurring => 'Daripada entri berulang';
+
+  @override
+  String get txnMoneyIn => 'Wang masuk';
+
+  @override
+  String get txnMoneyOut => 'Wang keluar';
+
+  @override
+  String get txnNotYetPaid => 'Belum dibayar';
+
+  @override
+  String get txnLentOut => 'Dipinjamkan';
+
+  @override
+  String get txnSettledInFull => 'Selesai sepenuhnya.';
+
+  @override
+  String txnLoanProgress(String paid, String owed) {
+    return '$paid dibayar balik, $owed masih terhutang.';
+  }
+
+  @override
+  String get txnUncategorised => 'Tanpa kategori';
+
+  @override
+  String get txnUnknownAccount => 'Tidak diketahui';
+
+  @override
+  String get txnTransferCannotCopy =>
+      'Pindahan tidak boleh disalin secara bersendirian.';
+
+  @override
+  String get txnCopied => 'Disalin.';
+
+  @override
+  String get txnDeleteOneBody =>
+      'Baki akaun dikira semula. Jika ini satu bahagian pindahan, bahagian satu lagi turut dipadam.';
+
+  @override
+  String txnUpcomingTab(int count) {
+    return 'Akan datang ($count)';
+  }
+
+  @override
+  String txnOverdueTab(int count) {
+    return 'Tertunggak ($count)';
+  }
+
+  @override
+  String get txnNoOverdue => 'Tiada transaksi tertunggak';
+
+  @override
+  String get txnNoUpcoming => 'Tiada transaksi akan datang';
+
+  @override
+  String get txnNoOverdueBody => 'Semua bayaran anda terkini!';
+
+  @override
+  String get txnNoUpcomingBody => 'Tiada bayaran tertangguh dijadualkan';
+
+  @override
+  String get txnTotalOverdue => 'Jumlah Tertunggak';
+
+  @override
+  String get txnTotalUpcoming => 'Jumlah Akan Datang';
+
+  @override
+  String txnItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count item',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnDaysOverdue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Lewat $count hari',
+      one: 'Lewat 1 hari',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnMarkedPaid(String title) {
+    return '\"$title\" ditandakan sebagai dibayar';
+  }
+
+  @override
+  String txnSkippedTitle(String title) {
+    return '\"$title\" dilangkau';
+  }
+
+  @override
+  String txnDateHeaderToday(String date) {
+    return 'Hari ini, $date';
+  }
+
+  @override
+  String txnDateHeaderYesterday(String date) {
+    return 'Semalam, $date';
+  }
+
+  @override
+  String txnDateHeaderTomorrow(String date) {
+    return 'Esok, $date';
+  }
+
+  @override
+  String txnDeleteError(String error) {
+    return 'Ralat memadam transaksi: $error';
+  }
+
+  @override
+  String txnFilterTitle(String title) {
+    return 'Tapis $title';
+  }
+
+  @override
+  String get txnMonthlyIncome => 'Pendapatan Bulanan';
+
+  @override
+  String get txnMonthlyExpenses => 'Perbelanjaan Bulanan';
+
+  @override
+  String txnStatTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'transaksi',
+      one: 'transaksi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnAvgPerTransaction => 'purata setiap transaksi';
+
+  @override
+  String get txnNoPlannedIncome => 'Tiada pendapatan dirancang';
+
+  @override
+  String get txnNoPlannedExpenses => 'Tiada perbelanjaan dirancang';
+
+  @override
+  String txnAddFutureIncome(String month) {
+    return 'Tambah pendapatan akan datang untuk $month';
+  }
+
+  @override
+  String txnAddFutureExpenses(String month) {
+    return 'Tambah perbelanjaan akan datang untuk $month';
+  }
+
+  @override
+  String get txnNoIncomeYet => 'Belum ada pendapatan bulan ini';
+
+  @override
+  String get txnNoExpensesYet => 'Belum ada perbelanjaan bulan ini';
+
+  @override
+  String get txnStartTrackingIncome => 'Mula jejaki pendapatan anda bulan ini';
+
+  @override
+  String get txnStartTrackingExpenses =>
+      'Mula jejaki perbelanjaan anda bulan ini';
+
+  @override
+  String txnNoIncomeIn(String month) {
+    return 'Tiada pendapatan pada $month';
+  }
+
+  @override
+  String txnNoExpensesIn(String month) {
+    return 'Tiada perbelanjaan pada $month';
+  }
+
+  @override
+  String txnNoRecordsFor(String month) {
+    return 'Tiada rekod untuk $month';
+  }
+
+  @override
+  String get txnOtherCategory => 'Lain-lain';
+
+  @override
+  String get txnSearchIncome => 'Cari pendapatan';
+
+  @override
+  String get txnSearchExpenses => 'Cari perbelanjaan';
+
+  @override
+  String txnErrorWith(String error) {
+    return 'Ralat: $error';
+  }
+
+  @override
+  String get txnTapToEditAmount => 'Ketik untuk menyunting jumlah';
+
+  @override
+  String get txnTapToEnterAmount => 'Ketik untuk memasukkan jumlah';
+
+  @override
+  String get txnSpecialDefault => 'Lalai';
+
+  @override
+  String get txnSpecialRepetitive => 'Berulang';
+
+  @override
+  String get txnRepeatSettings => 'Tetapan Ulangan';
+
+  @override
+  String get txnSubscriptionSettings => 'Tetapan Langganan';
+
+  @override
+  String txnEndsOn(String date) {
+    return 'Tamat: $date';
+  }
+
+  @override
+  String get txnNoEndDate => 'Tiada tarikh tamat';
+
+  @override
+  String get txnEditTransaction => 'Sunting Transaksi';
+
+  @override
+  String get txnNewTransaction => 'Transaksi Baharu';
+
+  @override
+  String get txnFromAccount => 'Dari akaun';
+
+  @override
+  String get txnToAccount => 'Ke akaun';
+
+  @override
+  String get txnAmountReceived => 'Jumlah diterima';
+
+  @override
+  String txnAmountReceivedHint(String account) {
+    return 'Akaun ini menggunakan mata wang berbeza. Masukkan jumlah yang benar-benar masuk ke $account, atau biarkan kosong untuk guna kadar aplikasi.';
+  }
+
+  @override
+  String txnInCurrency(String currency) {
+    return 'Dalam $currency';
+  }
+
+  @override
+  String get txnTransferTitleHint => 'cth. Pindah ke simpanan (pilihan)';
+
+  @override
+  String get txnTitleHint => 'Untuk apa?';
+
+  @override
+  String get txnUpdate => 'Kemas kini';
+
+  @override
+  String get txnSelectCategory => 'Pilih kategori';
+
+  @override
+  String get txnSearchTransactions => 'Cari transaksi';
+
+  @override
+  String get txnSpecialRegular => 'Biasa';
+
+  @override
+  String get txnSpecialLend => 'Pinjamkan';
+
+  @override
+  String get txnSpecialBorrow => 'Pinjam';
+
+  @override
+  String get txnSpecialRegularDesc => 'Transaksi biasa';
+
+  @override
+  String get txnSpecialUpcomingDesc => 'Bayaran akan datang untuk dijejaki';
+
+  @override
+  String get txnSpecialSubscriptionDesc => 'Bayaran perkhidmatan berulang';
+
+  @override
+  String get txnSpecialRepetitiveDesc => 'Transaksi berulang';
+
+  @override
+  String get txnSpecialLendDesc =>
+      'Wang yang anda pinjamkan (mereka berhutang dengan anda)';
+
+  @override
+  String get txnSpecialBorrowDesc =>
+      'Wang yang anda pinjam (anda berhutang dengan mereka)';
+
+  @override
+  String txnFilterBoundsInverted(String min, String max) {
+    return 'Had bawah melebihi had atas, jadi tiada yang sepadan. $min hingga $max.';
+  }
+
+  @override
+  String get walletMyWallet => 'Dompet Saya';
+
+  @override
+  String walletCreateFailed(String error) {
+    return 'Gagal mencipta dompet: $error';
+  }
+
+  @override
+  String get walletTypeBankAccount => 'Akaun Bank';
+
+  @override
+  String get walletTypeCreditCard => 'Kad Kredit';
+
+  @override
+  String get walletTypeSubscription => 'Langganan';
+
+  @override
+  String get walletTypeDeposit => 'Simpanan Tetap';
+
+  @override
+  String get walletTypeInvestment => 'Pelaburan';
+
+  @override
+  String get walletTypeAsset => 'Aset';
+
+  @override
+  String get walletEnterAccountName => 'Sila masukkan nama akaun';
+
+  @override
+  String get walletCreditLimitRequired => 'Had kredit diperlukan';
+
+  @override
+  String get walletEnterValidCreditLimit => 'Sila masukkan had kredit yang sah';
+
+  @override
+  String get walletEnterValidCreditLimitAboveZero =>
+      'Sila masukkan had kredit yang sah melebihi 0';
+
+  @override
+  String get walletEditWallet => 'Sunting Dompet';
+
+  @override
+  String get walletAddNewWallet => 'Tambah Dompet Baharu';
+
+  @override
+  String get walletEnterWalletNameError => 'Sila masukkan nama dompet';
+
+  @override
+  String get walletEnterValidNumber => 'Sila masukkan nombor yang sah';
+
+  @override
+  String get walletShowCents => 'Tunjuk sen (cth. \$1,234.56)';
+
+  @override
+  String get walletWholeNumbersOnly => 'Nombor bulat sahaja (cth. \$1,235)';
+
+  @override
+  String get walletCreateWallet => 'Cipta Dompet';
+
+  @override
+  String get walletClosedPill =>
+      'Ditutup. Sejarahnya disimpan, tetapi ia tidak ditawarkan atau dikira.';
+
+  @override
+  String get walletExcludedPill => 'Tidak dikira dalam jumlah semua akaun.';
+
+  @override
+  String get walletReopen => 'Buka semula';
+
+  @override
+  String get walletCloseAccount => 'Tutup akaun';
+
+  @override
+  String get walletReopenSubtitle => 'Tawarkan semula dan kira';
+
+  @override
+  String get walletCloseAccountSubtitle =>
+      'Simpan sejarahnya, berhenti mengiranya';
+
+  @override
+  String get walletIncludeInTotal => 'Masukkan dalam jumlah';
+
+  @override
+  String get walletLeaveOutOfTotal => 'Keluarkan daripada jumlah';
+
+  @override
+  String get walletAlreadyTheBalance => 'Itu sudah bakinya.';
+
+  @override
+  String get walletCorrectionRecorded =>
+      'Perbezaan direkodkan sebagai pembetulan.';
+
+  @override
+  String walletMergeConfirmBody(String name) {
+    return 'Semua yang direkodkan dalam $name dipindahkan, dan $name ditutup. Tiada yang dipadam.';
+  }
+
+  @override
+  String walletMergeConfirmBodyConverted(String name, String from, String to) {
+    return 'Jumlah ditukar daripada $from kepada $to semasa dipindahkan. Tiada yang dipadam, dan $name ditutup, bukan dibuang.';
+  }
+
+  @override
+  String walletCardInCredit(String amount, String available) {
+    return '$amount dalam kredit · $available tersedia';
+  }
+
+  @override
+  String walletCardOwed(String amount, String available) {
+    return '$amount terhutang · $available masih tersedia';
+  }
+
+  @override
+  String walletCorrectBalanceBody(String name) {
+    return 'Masukkan jumlah sebenar dalam $name. Perbezaannya direkodkan sebagai transaksi, supaya akaun masih sepadan dengan sejarahnya.';
+  }
+
+  @override
+  String get apiUpdateRequired =>
+      'Kemas kini The Accountant untuk terus menyegerak. Semuanya kekal pada telefon ini sehingga anda berbuat demikian.';
+
+  @override
+  String get apiAccountExistsLink =>
+      'Akaun dengan e-mel ini sudah wujud. Sila pautkan akaun anda.';
+
+  @override
+  String get apiServerTrouble =>
+      'Pelayan kami sedang bermasalah sekarang. Semuanya selamat pada telefon ini; cuba lagi dalam beberapa minit.';
+
+  @override
+  String apiRequestFailedHttp(String status) {
+    return 'Permintaan gagal (HTTP $status).';
+  }
+
+  @override
+  String get apiServerTimeout =>
+      'Pelayan kami mengambil masa terlalu lama untuk menjawab. Semak sambungan anda, atau cuba lagi dalam beberapa minit.';
+
+  @override
+  String get apiCannotReachServer =>
+      'Tidak dapat menghubungi pelayan kami. Semak sambungan anda; jika anda dalam talian, cuba lagi dalam beberapa minit.';
+
+  @override
+  String get apiSomethingWentWrong =>
+      'Ada yang tidak kena semasa berhubung dengan pelayan kami. Sila cuba lagi.';
+
+  @override
+  String get syncAlreadyInProgress => 'Penyegerakan sedang berjalan';
+
+  @override
+  String get syncRequiresPremium =>
+      'Penyegerakan awan memerlukan langganan Premium';
+
+  @override
+  String get syncNoInternet => 'Tiada sambungan internet';
+
+  @override
+  String get syncNotAuthenticated => 'Tidak log masuk';
+
+  @override
+  String get syncCouldNotFetchCloud =>
+      'Tidak dapat mengambil data awan anda. Data setempat tidak berubah.';
+
+  @override
+  String get syncAccountUnknown =>
+      'Tidak dapat menentukan akaun yang log masuk; penyegerakan dibatalkan.';
+
+  @override
+  String get syncStoreOtherAccount =>
+      'Data peranti ini milik akaun lain. Log masuk sebagai akaun itu, atau kosongkan data setempat, sebelum menyegerak.';
+
+  @override
+  String syncRecordsNotSaved(String record) {
+    return 'Sesetengah rekod awan tidak dapat disimpan pada peranti ini: $record. Ia akan dicuba semula pada penyegerakan seterusnya.';
+  }
+
+  @override
+  String syncRecordsNotSavedMore(String record, int count) {
+    return 'Sesetengah rekod awan tidak dapat disimpan pada peranti ini: $record (dan $count lagi). Ia akan dicuba semula pada penyegerakan seterusnya.';
+  }
+
+  @override
+  String notifCardStatementReady(String name) {
+    return 'Penyata $name sudah sedia';
+  }
+
+  @override
+  String notifCardStatementPaid(String amount) {
+    return 'Jumlahnya $amount, sudah dibayar. Tiada lagi yang perlu dibayar.';
+  }
+
+  @override
+  String notifCardDueBy(String amount, String date) {
+    return '$amount perlu dibayar sebelum $date.';
+  }
+
+  @override
+  String notifCardPaidSoFar(String paid, String owed) {
+    return '$paid daripada $owed sudah dibayar.';
+  }
+
+  @override
+  String notifCardDueTomorrow(String name) {
+    return 'Bil $name perlu dibayar esok';
+  }
+
+  @override
+  String notifCardDueInDays(String name, int days) {
+    return 'Bil $name perlu dibayar dalam $days hari';
+  }
+
+  @override
+  String notifPayBy(String amount, String date) {
+    return 'Bayar $amount sebelum $date.';
+  }
+
+  @override
+  String notifCardDueToday(String name) {
+    return 'Bil $name perlu dibayar hari ini';
+  }
+
+  @override
+  String notifCardStillUnpaid(String amount, String paidSoFar) {
+    return '$amount masih belum dibayar.$paidSoFar Bayar hari ini untuk mengelakkan caj lewat.';
+  }
+
+  @override
+  String get notifWhenToday => 'hari ini';
+
+  @override
+  String get notifWhenTomorrow => 'esok';
+
+  @override
+  String notifWhenInDays(int days) {
+    return 'dalam $days hari';
+  }
+
+  @override
+  String notifPlanPaysOut(String name, String when) {
+    return '$name membayar $when';
+  }
+
+  @override
+  String notifPlanPayoutBody(String amount, String account, String date) {
+    return '$amount dijangka masuk ke $account pada $date.';
+  }
+
+  @override
+  String notifPlanMatures(String name, String when) {
+    return '$name matang $when';
+  }
+
+  @override
+  String notifPlanMaturityBody(String amount, String account, String date) {
+    return '$amount kembali ke $account pada $date.';
+  }
+
+  @override
+  String notifPlanInstallmentDue(
+    String name,
+    String kind,
+    int number,
+    int total,
+    String when,
+  ) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'dps': 'deposit',
+      'insurance': 'premium',
+      'sip': 'SIP',
+      'other': 'ansuran',
+    });
+    return '$name: $_temp0 $number daripada $total perlu dibayar $when';
+  }
+
+  @override
+  String notifInvestBy(String amount, String date) {
+    return 'Laburkan $amount sebelum $date.';
+  }
+
+  @override
+  String notifWillBeInvested(String amount, String account, String date) {
+    return '$amount akan dilaburkan daripada $account pada $date.';
+  }
+
+  @override
+  String notifWillBeRecorded(String amount, String account, String date) {
+    return '$amount akan direkodkan daripada $account pada $date.';
+  }
+
+  @override
+  String get notifYourAccount => 'akaun anda';
+
+  @override
+  String get notifPlansUpdatedTitle => 'Ansuran dan simpanan dikemas kini';
+
+  @override
+  String notifPlansUpdatedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entri pelan direkodkan pada harinya.',
+      one: '1 entri pelan direkodkan pada harinya.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifRecurringRecordedTitle => 'Transaksi berulang direkodkan';
+
+  @override
+  String notifRecurringRecordedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transaksi berulang direkodkan.',
+      one: '1 transaksi berulang direkodkan.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifPaymentsToConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bayaran untuk disahkan',
+      one: '1 bayaran untuk disahkan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifPaymentsToConfirmBody =>
+      'Sahkan jumlah yang dicaj, atau langkau, dalam Akan Datang.';
+
+  @override
+  String notifPaymentsToConfirmBodyNames(String names) {
+    return '$names — sahkan jumlah yang dicaj, atau langkau, dalam Akan Datang.';
+  }
+
+  @override
+  String get notifUpcomingFallbackTitle => 'Transaksi Akan Datang';
+
+  @override
+  String notifUpcomingTitle(String title) {
+    return 'Akan datang: $title';
+  }
+
+  @override
+  String notifUpcomingIncomeBody(String amount) {
+    return 'Pendapatan $amount akan tiba tidak lama lagi.';
+  }
+
+  @override
+  String notifUpcomingExpenseBody(String amount) {
+    return 'Perbelanjaan $amount perlu dibayar tidak lama lagi.';
+  }
+
+  @override
+  String get notifCreditFallback => 'Kredit';
+
+  @override
+  String get notifDebtFallback => 'Hutang';
+
+  @override
+  String notifOverdueCreditTitle(String title) {
+    return 'Kredit Tertunggak: $title';
+  }
+
+  @override
+  String notifOverdueDebtTitle(String title) {
+    return 'Hutang Tertunggak: $title';
+  }
+
+  @override
+  String notifOutstandingBody(String amount) {
+    return '$amount masih tertunggak. Ketik untuk menyemak.';
+  }
+
+  @override
+  String get notifRecurringFallbackTitle => 'Transaksi Berulang';
+
+  @override
+  String notifUpcomingRecurringTitle(String title) {
+    return 'Berulang Akan Datang: $title';
+  }
+
+  @override
+  String notifDueOnBody(String amount, String date) {
+    return '$amount perlu dibayar pada $date.';
+  }
+
+  @override
+  String notifCreditDueTitle(String title) {
+    return 'Kredit Perlu Dibayar: $title';
+  }
+
+  @override
+  String notifDebtDueTitle(String title) {
+    return 'Hutang Perlu Dibayar: $title';
+  }
+
+  @override
+  String notifSubscriptionDueTitle(String title) {
+    return 'Langganan Perlu Dibayar: $title';
+  }
+
+  @override
+  String notifBillDueTitle(String title) {
+    return 'Bil Perlu Dibayar: $title';
+  }
+
+  @override
+  String notifDueSoonTitle(String title) {
+    return 'Hampir Tiba: $title';
+  }
+
+  @override
+  String get notifRepetitiveBillFallback => 'Bil Berulang';
+
+  @override
+  String notifDueSoonBody(String amount) {
+    return '$amount perlu dibayar tidak lama lagi. Ketik untuk menyemak.';
+  }
+
+  @override
+  String get notifChannelRecurring => 'Transaksi Berulang';
+
+  @override
+  String get notifChannelRecurringDesc =>
+      'Pemberitahuan untuk transaksi berulang yang dicipta secara automatik';
+
+  @override
+  String get notifChannelUpcoming => 'Peringatan Akan Datang';
+
+  @override
+  String get notifChannelUpcomingDesc =>
+      'Peringatan untuk transaksi akan datang';
+
+  @override
+  String get notifChannelLoan => 'Peringatan Pinjaman';
+
+  @override
+  String get notifChannelLoanDesc =>
+      'Peringatan untuk kredit dan hutang tertunggak';
+
+  @override
+  String get notifChannelDueDate => 'Peringatan Tarikh Akhir';
+
+  @override
+  String get notifChannelDueDateDesc =>
+      'Peringatan sekali untuk tarikh akhir transaksi tertentu';
+
+  @override
+  String get notifChannelBillsDesc =>
+      'Bil kad kredit dan ansuran pelan yang akan tiba';
+
+  @override
+  String get notifOffset1Hour => '1 jam sebelum';
+
+  @override
+  String get notifOffset1Day => '1 hari sebelum';
+
+  @override
+  String get notifOffset3Days => '3 hari sebelum';
+
+  @override
+  String get notifOffset1Week => '1 minggu sebelum';
+
+  @override
+  String notifOffsetMinutes(int minutes) {
+    return '$minutes minit sebelum';
+  }
+
+  @override
+  String get notifChannelGeneral => 'Umum';
+
+  @override
+  String get notifChannelGeneralDesc => 'Pemberitahuan akaun dan aplikasi';
+
+  @override
+  String get notifChannelReminders => 'Peringatan harian';
+
+  @override
+  String get notifChannelRemindersDesc =>
+      'Peringatan untuk merekod perbelanjaan hari ini';
+
+  @override
+  String get notifChannelBillsStatementsDesc =>
+      'Penyata dan tarikh akhir kad kredit';
+
+  @override
+  String get notifChannelBudgets => 'Amaran bajet';
+
+  @override
+  String get notifChannelBudgetsDesc =>
+      'Apabila bajet hampir atau sudah habis dibelanjakan';
+
+  @override
+  String notifOverBudgetTitle(String name) {
+    return 'Melebihi bajet: $name';
+  }
+
+  @override
+  String notifBudgetAlertTitle(String name) {
+    return 'Amaran bajet: $name';
+  }
+
+  @override
+  String notifOverBudgetBody(String percent, String name) {
+    return 'Anda telah membelanjakan $percent% daripada bajet $name anda untuk tempoh ini.';
+  }
+
+  @override
+  String notifBudgetAlertBody(String percent, String name) {
+    return 'Anda telah menggunakan $percent% daripada bajet $name anda.';
+  }
+
+  @override
+  String get notifPremiumEndingTitle => 'Premium akan tamat tidak lama lagi';
+
+  @override
+  String get notifPremiumEndsTomorrow =>
+      'Premium anda tamat esok. Perbaharui untuk mengekalkan ciri Premium anda.';
+
+  @override
+  String notifPremiumEndsInDays(int days) {
+    return 'Premium anda tamat dalam $days hari. Perbaharui untuk mengekalkan ciri Premium anda.';
+  }
+
+  @override
+  String get notifLargeIncomeTitle => 'Amaran Pendapatan Besar';
+
+  @override
+  String get notifLargeExpenseTitle => 'Amaran Perbelanjaan Besar';
+
+  @override
+  String notifLargeIncomeBodyTitled(String amount, String title) {
+    return 'Pendapatan $amount direkodkan: $title';
+  }
+
+  @override
+  String notifLargeIncomeBody(String amount) {
+    return 'Pendapatan $amount direkodkan';
+  }
+
+  @override
+  String notifLargeExpenseBodyTitled(String amount, String title) {
+    return 'Perbelanjaan $amount direkodkan: $title';
+  }
+
+  @override
+  String notifLargeExpenseBody(String amount) {
+    return 'Perbelanjaan $amount direkodkan';
+  }
+
+  @override
+  String get notifChannelDailyRemindersDesc =>
+      'Pemberitahuan peringatan perbelanjaan harian';
+
+  @override
+  String get notifDailyReminderTitle => 'Peringatan Perbelanjaan Harian';
+
+  @override
+  String get notifDailyReminderBody =>
+      'Jangan lupa rekod perbelanjaan anda hari ini! Pantau perbelanjaan anda.';
+
+  @override
+  String get notifTestTitle => 'Pemberitahuan Ujian';
+
+  @override
+  String get notifTestBody => 'Jika anda nampak ini, pemberitahuan berfungsi!';
+
+  @override
+  String get notifActionSnooze1Day => 'Tunda 1h';
+
+  @override
+  String get notifActionSnooze1Week => 'Tunda 1m';
+
+  @override
+  String get notifGroupThisWeek => 'Minggu Ini';
+
+  @override
+  String get notifGroupThisMonth => 'Bulan Ini';
+
+  @override
+  String notifDateAtTime(String date, String time) {
+    return '$date pada $time';
+  }
+
+  @override
+  String notifMinutesAgo(int count) {
+    return '${count}m lalu';
+  }
+
+  @override
+  String notifHoursAgo(int count) {
+    return '${count}j lalu';
+  }
+
+  @override
+  String notifDaysAgo(int count) {
+    return '${count}h lalu';
+  }
+
+  @override
+  String get notifPrimerSheetBody =>
+      'Hidupkan pemberitahuan dan kami akan memaklumkan anda tentang perkara penting.';
+
+  @override
+  String get notifPrimerBudgetsBody =>
+      'Ketahui sebelum anda berbelanja melebihi bajet.';
+
+  @override
+  String get notifPrimerBillsTitle => 'Peringatan bil & langganan';
+
+  @override
+  String get notifPrimerBillsBody => 'Jangan terlepas bayaran berulang.';
+
+  @override
+  String get notifPrimerLargeTitle => 'Transaksi besar';
+
+  @override
+  String get notifPrimerLargeBody =>
+      'Dapatkan pemberitahuan tentang aktiviti luar biasa.';
+
+  @override
+  String get notifLoadFailed => 'Gagal memuatkan pemberitahuan';
+
+  @override
+  String get startupReasonSomethingWrong =>
+      'Ada yang tidak kena semasa memulakan. Data anda selamat pada peranti ini.';
+
+  @override
+  String get startupReasonCouldNotOpenLocal =>
+      'Tidak dapat membuka data setempat untuk akaun ini.';
+
+  @override
+  String get startupReasonSetupFailed =>
+      'Kami tidak dapat menyelesaikan persediaan akaun ini pada peranti ini. Tiada apa yang dipadam.';
+
+  @override
+  String get startupReasonOffline =>
+      'Kami tidak dapat menghubungi akaun anda, dan peranti ini belum mempunyai datanya. Jika anda pernah menggunakan The Accountant, sambung ke internet dan kami akan memulihkan data anda. Baru di sini? Anda boleh mula pada peranti ini sekarang.';
+
+  @override
+  String get startupReasonNeedsSubscription =>
+      'Akaun ini mempunyai data yang disimpan dalam awan. Memulihkannya memerlukan langganan aktif. Tiada apa yang dipadam.';
+
+  @override
+  String get startupReasonConfirmingSubscription =>
+      'Akaun ini mempunyai data dalam awan. Kami masih mengesahkan langganan anda supaya ia boleh dipulihkan.';
+
+  @override
+  String startupReasonRestoreFailed(String error) {
+    return 'Pemulihan gagal: $error';
+  }
+
+  @override
+  String get startupReasonNotRestoredYet =>
+      'Akaun ini mempunyai data dalam awan tetapi ia belum dapat dipulihkan.';
+
+  @override
+  String get commonBiometricReason =>
+      'Sahkan identiti untuk membuka kunci The Accountant';
+
+  @override
+  String get commonLoadCurrenciesFailed => 'Gagal memuatkan mata wang';
+
+  @override
+  String get commonLoadRatesFailed => 'Gagal memuatkan kadar pertukaran';
+
+  @override
+  String get commonRefreshRatesFailed => 'Gagal menyegarkan kadar pertukaran';
+
+  @override
+  String get commonAllCategories => 'Semua kategori';
+
+  @override
+  String commonCategoryCount(int count) {
+    return '$count kategori';
+  }
+
+  @override
+  String get commonTierFree => 'Percuma';
+
+  @override
+  String get commonTierMonthly => 'Premium Bulanan';
+
+  @override
+  String get commonTierYearly => 'Premium Tahunan';
+
+  @override
+  String get commonTierLifetime => 'Premium Seumur Hidup';
+
+  @override
+  String get commonCategoryMergeSelf =>
+      'Kategori tidak boleh digabungkan dengan dirinya sendiri.';
+
+  @override
+  String get commonCategoryMergeMissing =>
+      'Kedua-dua kategori mesti wujud untuk digabungkan.';
+
+  @override
+  String get commonCategoryMergeSystem =>
+      'Kategori milik aplikasi tidak boleh digabungkan.';
+
+  @override
+  String get commonCategoryMergeKinds =>
+      'Kategori pendapatan dan perbelanjaan tidak boleh digabungkan.';
+
+  @override
+  String get commonCategoryOneLevel =>
+      'Kategori itu berada di dalam kategori lain, dan kategori hanya satu peringkat.';
+
+  @override
+  String get commonCategoryMoveSame =>
+      'Pilih kategori lain untuk memindahkannya.';
+
+  @override
+  String get commonCategoryMoveMissing =>
+      'Kedua-dua kategori mesti wujud untuk memindahkan antaranya.';
+
+  @override
+  String get commonCategoryMoveSystem =>
+      'Tidak boleh memindahkan antara kategori milik aplikasi.';
+
+  @override
+  String get commonCategoryMoveKinds =>
+      'Transaksi pendapatan dan perbelanjaan tidak boleh bertukar kategori.';
+
+  @override
+  String get commonCategoryGone => 'Kategori itu tidak wujud lagi.';
+
+  @override
+  String get commonCategoryParentSystem =>
+      'Kategori milik aplikasi tidak boleh dipindahkan.';
+
+  @override
+  String get commonCategoryParentSelf =>
+      'Kategori tidak boleh berada di dalam dirinya sendiri.';
+
+  @override
+  String get commonCategoryParentIntoSystem =>
+      'Tiada apa boleh diletakkan di dalam kategori milik aplikasi.';
+
+  @override
+  String get commonCategoryParentKinds =>
+      'Kategori pendapatan dan kategori perbelanjaan tidak boleh disarangkan.';
+
+  @override
+  String get commonCategoryHasChildren =>
+      'Kategori ini mempunyai subkategorinya sendiri, jadi ia kekal di peringkat atas.';
+
+  @override
+  String get commonTapToChange => 'Ketik untuk menukar';
+
+  @override
+  String get commonSelectColor => 'Pilih warna';
+
+  @override
+  String get commonShowPalette => 'Tunjuk palet';
+
+  @override
+  String get commonCustomColor => 'Warna tersuai';
+
+  @override
+  String get commonSelectCurrency => 'Pilih mata wang';
+
+  @override
+  String get commonEnableCryptoHint =>
+      'Hidupkan \'Sertakan mata wang kripto\' untuk mencari token kripto.';
+
+  @override
+  String get commonSearchHint => 'Cari...';
+
+  @override
+  String get aiLoadConversationsFailed => 'Gagal memuatkan perbualan.';
+
+  @override
+  String get aiLoadHistoryFailed => 'Gagal memuatkan sejarah sembang.';
+
+  @override
+  String get aiPremiumRequired =>
+      'Langganan Premium diperlukan untuk Pembantu AI';
+
+  @override
+  String get aiUnexpectedError =>
+      'Ralat tidak dijangka berlaku. Sila cuba lagi.';
+
+  @override
+  String get aiResponseFailed =>
+      'Gagal mendapatkan respons AI. Sila cuba lagi.';
+
+  @override
+  String get aiServiceNotAnswering => 'Perkhidmatan AI tidak menjawab.';
+
+  @override
+  String get aiReplyCutOff => 'Balasan terputus. Sila cuba lagi.';
+
+  @override
+  String get aiCouldNotReachServer =>
+      'Tidak dapat menghubungi pelayan. Semak sambungan anda dan cuba lagi.';
+
+  @override
+  String get aiSomethingWentWrong => 'Ada yang tidak kena.';
+
+  @override
+  String get aiOpenConversationFailed => 'Gagal membuka perbualan.';
+
+  @override
+  String aiChangesSavedReplyLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count perubahan anda telah disimpan, tetapi jurulatih tidak dapat menghabiskan balasannya. Semak dalam rekod anda sebelum bertanya lagi.',
+      one:
+          'Perubahan anda telah disimpan, tetapi jurulatih tidak dapat menghabiskan balasannya. Semak dalam rekod anda sebelum bertanya lagi.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiServiceNotAnsweringNow =>
+      'Perkhidmatan AI tidak menjawab sekarang. Sila cuba lagi.';
+
+  @override
+  String aiMinutesShort(int count) {
+    return '${count}m';
+  }
+
+  @override
+  String aiHoursShort(int count) {
+    return '${count}j';
+  }
+
+  @override
+  String aiDaysShort(int count) {
+    return '${count}h';
+  }
+
+  @override
+  String get aiOcrTextFailed => 'Gagal mengekstrak teks daripada imej';
+
+  @override
+  String get aiOcrReceiptFailed => 'Gagal mengekstrak data resit daripada imej';
+
+  @override
+  String get coachYes => 'ya';
+
+  @override
+  String get coachNo => 'tidak';
+
+  @override
+  String get coachTradeBuy => 'beli';
+
+  @override
+  String get coachTradeSell => 'jual';
+
+  @override
+  String get coachTradeDividend => 'dividen';
+
+  @override
+  String get planAccountGone => 'Akaun itu sudah tiada.';
+
+  @override
+  String get planPaidFromOrdinary =>
+      'Pelan dibayar daripada akaun biasa, bukan daripada deposit.';
+
+  @override
+  String get planSipChooseHolding =>
+      'Pilih dana atau saham yang dibeli oleh SIP.';
+
+  @override
+  String get planSipPayFromOther => 'Bayar SIP daripada akaun lain.';
+
+  @override
+  String get planNeedNameError => 'Berikan nama kepada pelan.';
+
+  @override
+  String get planInstallmentCountRange =>
+      'Bilangan ansuran mestilah 1 hingga 1200.';
+
+  @override
+  String get planIntervalMin => 'Selang mestilah sekurang-kurangnya 1.';
+
+  @override
+  String get planRateRange => 'Kadar mestilah antara 0 hingga 100 peratus.';
+
+  @override
+  String get planTaxRange => 'Cukai mestilah antara 0 hingga 100 peratus.';
+
+  @override
+  String get planProviderTooLong =>
+      'Pastikan nama syarikat dan nombor kurang daripada 100 aksara.';
+
+  @override
+  String get planNeedPremium => 'Masukkan premium.';
+
+  @override
+  String get planNeedInstallmentAmount => 'Masukkan jumlah setiap ansuran.';
+
+  @override
+  String get planNeedDeposited => 'Masukkan jumlah yang didepositkan.';
+
+  @override
+  String get planTermMonthsOrYears => 'Tempohnya dalam bulan atau tahun.';
+
+  @override
+  String get planAmountNotNegative => 'Jumlah tidak boleh negatif.';
+
+  @override
+  String planMaturesOnCloseEarly(String name, String date) {
+    return '$name matang pada $date. Untuk mengeluarkan wang sebelum itu, tutupnya lebih awal.';
+  }
+
+  @override
+  String get planNoLongerExists => 'Pelan itu sudah tiada.';
+
+  @override
+  String get planReminderDaysRange =>
+      'Peringatan boleh 0 (mati) hingga 30 hari sebelumnya.';
+
+  @override
+  String planStillHoldsMoney(String name, String account) {
+    return '$name masih ada wang. Tutupnya dahulu, yang akan memindahkan wang kembali ke $account.';
+  }
+
+  @override
+  String get planItsAccount => 'akaunnya';
+
+  @override
+  String planAlreadyEnded(String name) {
+    return '$name sudah tamat.';
+  }
+
+  @override
+  String get investNeedName => 'Berikan nama kepada pelaburan.';
+
+  @override
+  String get investNameTooLong => 'Pastikan nama kurang daripada 100 aksara.';
+
+  @override
+  String get investSymbolTooLong =>
+      'Pastikan simbol kurang daripada 20 aksara.';
+
+  @override
+  String get investPriceNotNegative => 'Harga tidak boleh negatif.';
+
+  @override
+  String investAlreadyTracked(String name) {
+    return '$name sudah dijejaki.';
+  }
+
+  @override
+  String get investNeedPaid => 'Masukkan jumlah yang dibayar.';
+
+  @override
+  String get investUnitsBoughtPositive =>
+      'Unit dibeli mestilah lebih daripada sifar.';
+
+  @override
+  String get investPayFromOther => 'Bayar daripada akaun lain.';
+
+  @override
+  String get investNeedSaleAmount => 'Masukkan hasil jualan.';
+
+  @override
+  String get investUnitsSoldPositive =>
+      'Unit dijual mestilah lebih daripada sifar.';
+
+  @override
+  String get investSellIntoOther => 'Jual ke akaun lain.';
+
+  @override
+  String investOnlyUnitsHeld(String units, String name) {
+    return 'Hanya $units unit $name dipegang.';
+  }
+
+  @override
+  String get investNeedDividend => 'Masukkan dividen yang diterima.';
+
+  @override
+  String get investReceiveIntoOrdinary => 'Terima ke dalam akaun biasa.';
+
+  @override
+  String get investPricePositive => 'Harga mestilah lebih daripada sifar.';
+
+  @override
+  String get investUnitsPositive => 'Unit mestilah lebih daripada sifar.';
+
+  @override
+  String get investNotATrade => 'Itu bukan dagangan pelaburan.';
+
+  @override
+  String investStillHoldsUnits(String name) {
+    return '$name masih memegang unit. Jual dahulu.';
+  }
+
+  @override
+  String get investNoLongerExists => 'Pelaburan itu sudah tiada.';
+
+  @override
+  String get networthNeedAssetName => 'Berikan nama kepada aset.';
+
+  @override
+  String get networthValueNotNegative => 'Nilai tidak boleh negatif.';
+
+  @override
+  String get networthNeedPaidFor => 'Masukkan jumlah yang dibayar untuknya.';
+
+  @override
+  String get networthPayFromOrdinary => 'Bayar daripada akaun biasa.';
+
+  @override
+  String get networthNeedWorth => 'Masukkan nilainya.';
+
+  @override
+  String get networthNeedSoldFor => 'Masukkan harga jualannya.';
+
+  @override
+  String get networthReceiveIntoOrdinary => 'Terima wang ke dalam akaun biasa.';
+
+  @override
+  String networthStillWorth(String name) {
+    return '$name masih bernilai. Jual dahulu, atau tetapkan nilainya kepada sifar.';
+  }
+
+  @override
+  String get networthAssetGone => 'Aset itu tidak lagi dijejaki.';
+
+  @override
+  String get zakatNeedAmountPaid => 'Masukkan jumlah yang dibayar.';
+
+  @override
+  String get zakatPayFromOrdinary => 'Bayar daripada akaun biasa.';
+
+  @override
+  String get zakatReminderTitleToday => 'Zakat anda perlu dibayar hari ini';
+
+  @override
+  String zakatReminderTitleIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Zakat perlu dibayar dalam $count hari',
+      one: 'Zakat perlu dibayar dalam 1 hari',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get zakatReminderBodyToday =>
+      'Tahun zakat anda lengkap hari ini. Ketik untuk melihat jumlah yang perlu dibayar.';
+
+  @override
+  String zakatReminderBodyOn(String date) {
+    return 'Tahun zakat anda lengkap pada $date. Ketik untuk melihat jumlah yang perlu dibayar.';
+  }
+
+  @override
+  String get budgetCheckFailed => 'Gagal menyemak bajet';
+
+  @override
+  String get budgetLoadFailed => 'Gagal memuatkan bajet';
+
+  @override
+  String get budgetAddFailed => 'Gagal menambah bajet';
+
+  @override
+  String get budgetNotFound => 'Bajet tidak ditemui';
+
+  @override
+  String get budgetUpdateFailed => 'Gagal mengemas kini bajet';
+
+  @override
+  String get budgetDeleteFailed => 'Gagal memadam bajet';
+
+  @override
+  String get budgetEdit => 'Sunting bajet';
+
+  @override
+  String get budgetNeedName => 'Berikan nama kepada bajet';
+
+  @override
+  String get budgetEnterAmount => 'Masukkan jumlah';
+
+  @override
+  String get budgetAmountMoreThanZero => 'Jumlah mestilah lebih daripada sifar';
+
+  @override
+  String get budgetTrackingEarnings => 'Menjejak pendapatan';
+
+  @override
+  String get budgetTrackingSpending => 'Menjejak perbelanjaan';
+
+  @override
+  String get budgetRepeats => 'Berulang';
+
+  @override
+  String get budgetTooBig => 'Terlalu besar';
+
+  @override
+  String get budgetStarts => 'Bermula';
+
+  @override
+  String get budgetEnds => 'Berakhir';
+
+  @override
+  String get budgetStopsRepeating => 'Berhenti berulang';
+
+  @override
+  String get budgetNever => 'Tidak pernah';
+
+  @override
+  String get budgetCategoriesAll => 'Kategori: semuanya';
+
+  @override
+  String budgetCategoriesSelected(int count) {
+    return 'Kategori: $count dipilih';
+  }
+
+  @override
+  String get budgetNoIncomeCategories => 'Belum ada kategori pendapatan.';
+
+  @override
+  String get budgetNoExpenseCategories => 'Belum ada kategori perbelanjaan.';
+
+  @override
+  String get budgetCategoriesHint =>
+      'Biarkan kosong untuk memantau setiap kategori. Apa-apa yang difailkan dalam kategori yang dipilih turut dikira.';
+
+  @override
+  String get budgetAccountsAll => 'Akaun: semuanya';
+
+  @override
+  String budgetAccountsSelected(int count) {
+    return 'Akaun: $count dipilih';
+  }
+
+  @override
+  String get budgetRolloverHint =>
+      'Apa-apa yang tidak dibelanjakan ditambah ke tempoh seterusnya. Terlebih belanja tidak dibawa sebagai hutang.';
+
+  @override
+  String get budgetPeriodDaily => 'Harian';
+
+  @override
+  String get budgetPeriodFortnightly => 'Dua minggu sekali';
+
+  @override
+  String get budgetPeriodOneOff => 'Sekali sahaja';
+
+  @override
+  String get budgetUnitDays => 'hari';
+
+  @override
+  String get budgetUnitWeeks => 'minggu';
+
+  @override
+  String get budgetUnitFortnights => 'dua minggu';
+
+  @override
+  String get budgetUnitMonths => 'bulan';
+
+  @override
+  String get budgetUnitYears => 'tahun';
+
+  @override
+  String get budgetOneOffNeedsEnd =>
+      'Bajet sekali sahaja memerlukan tarikh tamat.';
+
+  @override
+  String get budgetEndAfterStart =>
+      'Tarikh tamat mestilah selepas tarikh mula.';
+
+  @override
+  String get budgetSaveFailed => 'Tidak dapat menyimpan bajet.';
+
+  @override
+  String get budgetThisPeriod => 'Tempoh ini';
+
+  @override
+  String budgetPeriodsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tempoh lalu',
+      one: '1 tempoh lalu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetDateRange(String start, String end) {
+    return '$start hingga $end';
+  }
+
+  @override
+  String budgetOfLimit(String limit) {
+    return 'daripada $limit';
+  }
+
+  @override
+  String budgetOfLimitCarried(String limit, String carried) {
+    return 'daripada $limit termasuk $carried dibawa ke hadapan';
+  }
+
+  @override
+  String get budgetUncategorised => 'Tiada kategori';
+
+  @override
+  String budgetOverTheLimit(String amount) {
+    return '$amount melebihi had.';
+  }
+
+  @override
+  String budgetLeftPerDay(String left, String daily) {
+    return '$left berbaki, kira-kira $daily sehari.';
+  }
+
+  @override
+  String budgetLeftPlain(String left) {
+    return '$left berbaki.';
+  }
+
+  @override
+  String budgetAveraging(String amount) {
+    return 'Purata $amount setiap tempoh.';
+  }
+
+  @override
+  String budgetHeadingOver(String amount) {
+    return 'Menuju lebihan $amount';
+  }
+
+  @override
+  String budgetForecastScheduled(String scheduled) {
+    return 'Pada kadar ini, termasuk $scheduled yang sudah dijadualkan sebelum tempoh tamat.';
+  }
+
+  @override
+  String get budgetForecastPlain => 'Pada kadar ini, menjelang akhir tempoh.';
+
+  @override
+  String get budgetCapsExplain =>
+      'Bajet memberitahu sama ada tempoh itu terlebih belanja. Had memberitahu di mana: bajet makanan yang terkawal secara keseluruhan masih boleh kebanyakannya makanan bungkus.';
+
+  @override
+  String get budgetPercentOfBudget => 'Peratus bajet';
+
+  @override
+  String get budgetArchivedTitle => 'Bajet diarkibkan';
+
+  @override
+  String get budgetShowActive => 'Tunjuk yang aktif';
+
+  @override
+  String get budgetShowArchived => 'Tunjuk yang diarkibkan';
+
+  @override
+  String get budgetUnpin => 'Nyahsemat';
+
+  @override
+  String get budgetPinToTop => 'Semat di atas';
+
+  @override
+  String get budgetStartCounting => 'Mula mengiranya semula';
+
+  @override
+  String get budgetStopCounting => 'Simpan sejarahnya, berhenti mengiranya';
+
+  @override
+  String get budgetDeleteBody =>
+      'Bajet dibuang, transaksi anda kekal. Tiada apa yang anda rekodkan dibuang.';
+
+  @override
+  String get budgetNothingArchived => 'Tiada yang diarkibkan';
+
+  @override
+  String get budgetNoneYet => 'Belum ada bajet';
+
+  @override
+  String get budgetArchivedEmptyHint =>
+      'Bajet yang anda arkibkan disimpan di sini.';
+
+  @override
+  String get budgetEmptyHint =>
+      'Tetapkan had untuk satu kategori dan lihat bagaimana bulan ini berjalan.';
+
+  @override
+  String dashLoadFailed(String error) {
+    return 'Gagal memuatkan data kewangan: $error';
+  }
+
+  @override
+  String get categoryUnknown => 'Tidak diketahui';
+
+  @override
+  String dashCardAvailable(String amount) {
+    return 'Tersedia: $amount';
+  }
+
+  @override
+  String dashCardInCreditAvailable(String amount) {
+    return 'Dalam kredit · Tersedia: $amount';
+  }
+
+  @override
+  String get dashTypeBank => 'Bank';
+
+  @override
+  String get dashTypeCredit => 'Kredit';
+
+  @override
+  String get dashTypeSubs => 'Langganan';
+
+  @override
+  String get dashTypeDeposit => 'Deposit';
+
+  @override
+  String get dashTypeInvest => 'Pelaburan';
+
+  @override
+  String get dashTypeAsset => 'Aset';
+
+  @override
+  String get dashAddAccountTile => 'Tambah\nAkaun';
+
+  @override
+  String get categoryLoadFailed => 'Gagal memuatkan kategori';
+
+  @override
+  String get categoryAddFailed => 'Gagal menambah kategori';
+
+  @override
+  String get categoryNotFound => 'Kategori tidak ditemui';
+
+  @override
+  String get categoryUpdateFailed => 'Gagal mengemas kini kategori';
+
+  @override
+  String get categoryCannotDeleteSystem =>
+      'Tidak boleh memadam kategori milik aplikasi';
+
+  @override
+  String get categoryCannotDeleteWithTransactions =>
+      'Tidak boleh memadam kategori yang ada transaksi; pindahkan atau padamkannya dahulu';
+
+  @override
+  String get categoryDeleteFailed => 'Gagal memadam kategori';
+
+  @override
+  String categorySaveFailed(String error) {
+    return 'Gagal menyimpan kategori: $error';
+  }
+
+  @override
+  String get categoryEditTitle => 'Sunting Kategori';
+
+  @override
+  String get categoryNewTitle => 'Kategori Baharu';
+
+  @override
+  String get categoryPartOf => 'Sebahagian daripada';
+
+  @override
+  String get categoryNamePlaceholder => 'Nama Kategori';
+
+  @override
+  String get categoryUpdate => 'Kemas Kini Kategori';
+
+  @override
+  String get categoryCreate => 'Cipta Kategori';
+
+  @override
+  String reportLoadFailed(String error) {
+    return 'Gagal memuatkan laporan: $error';
+  }
+
+  @override
+  String get goalEdit => 'Sunting matlamat';
+
+  @override
+  String get goalNeedName => 'Berikan nama kepada matlamat';
+
+  @override
+  String get goalTargetMoreThanZero => 'Sasaran mestilah lebih daripada sifar';
+
+  @override
+  String get goalNoDeadline => 'Tiada tarikh akhir';
+
+  @override
+  String get goalTargetDateAfterStart =>
+      'Tarikh sasaran mestilah selepas tarikh mula.';
+
+  @override
+  String get goalSaveFailed => 'Tidak dapat menyimpan matlamat.';
+
+  @override
+  String get goalArchivedTitle => 'Matlamat diarkibkan';
+
+  @override
+  String get goalHideFromHome => 'Sembunyikan dari utama';
+
+  @override
+  String get goalShowOnHome => 'Tunjuk di utama';
+
+  @override
+  String get goalReached => 'Tercapai';
+
+  @override
+  String goalToGo(String amount) {
+    return '$amount lagi';
+  }
+
+  @override
+  String get goalNoneYet => 'Belum ada matlamat';
+
+  @override
+  String get goalArchivedEmptyHint =>
+      'Matlamat yang anda arkibkan disimpan di sini.';
+
+  @override
+  String get goalEmptyHint =>
+      'Namakan sesuatu yang anda simpan untuknya, kemudian pautkan transaksi yang menyumbang kepadanya.';
+
+  @override
+  String goalSavedOfTarget(String saved, String target) {
+    return '$saved daripada $target';
+  }
+
+  @override
+  String goalOfTarget(String target) {
+    return 'daripada $target';
+  }
+
+  @override
+  String get goalReachedNicelyDone => 'Tercapai. Syabas.';
+
+  @override
+  String goalStillToGo(String amount) {
+    return 'Masih $amount lagi.';
+  }
+
+  @override
+  String goalDailyToArrive(String amount) {
+    return '$amount sehari untuk sampai tepat pada masanya.';
+  }
+
+  @override
+  String get goalNothingLinked =>
+      'Belum ada yang dipautkan. Pilih matlamat ini pada transaksi dan ia akan muncul di sini.';
+
+  @override
+  String get goalDeleteBody =>
+      'Matlamat dibuang, transaksi anda kekal. Ia cuma tidak lagi dikira untuknya.';
+
+  @override
+  String goalPaymentsOf(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bayaran sebanyak $amount',
+      one: '1 bayaran sebanyak $amount',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalFinishingAround(String date) {
+    return 'Selesai sekitar $date.';
+  }
+
+  @override
+  String goalNotFound(String id) {
+    return 'Matlamat tidak ditemui: $id';
+  }
+
+  @override
+  String get goalPaidOff => 'Selesai dibayar!';
+
+  @override
+  String get goalCompleted => 'Selesai!';
+
+  @override
+  String goalPercentComplete(String percent) {
+    return '$percent% selesai';
+  }
+
+  @override
+  String goalWeeksLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minggu lagi',
+      one: '1 minggu lagi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalMonthsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bulan lagi',
+      one: '1 bulan lagi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalYearsLeft(String years) {
+    return '$years tahun lagi';
+  }
+
+  @override
+  String get subRecurringBill => 'Bil Berulang';
+
+  @override
+  String subEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Setiap $count hari',
+      one: 'Setiap 1 hari',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Setiap $count minggu',
+      one: 'Setiap 1 minggu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Setiap $count bulan',
+      one: 'Setiap 1 bulan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Setiap $count tahun',
+      one: 'Setiap 1 tahun',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryOther(int count, String unit) {
+    return 'Setiap $count $unit';
+  }
+
+  @override
+  String subLoadFailed(String error) {
+    return 'Gagal memuatkan langganan: $error';
+  }
+
+  @override
+  String subPauseFailed(String error) {
+    return 'Gagal menjeda langganan: $error';
+  }
+
+  @override
+  String subResumeFailed(String error) {
+    return 'Gagal menyambung langganan: $error';
+  }
+
+  @override
+  String subUpdateFailed(String error) {
+    return 'Gagal mengemas kini langganan: $error';
+  }
+
+  @override
+  String subCancelFailed(String error) {
+    return 'Gagal membatalkan langganan: $error';
+  }
+
+  @override
+  String subActiveCount(int count) {
+    return 'Aktif ($count)';
+  }
+
+  @override
+  String subPausedCount(int count) {
+    return 'Dijeda ($count)';
+  }
+
+  @override
+  String get subEmptyTitle => 'Tiada langganan atau bil';
+
+  @override
+  String get subEmptyBody =>
+      'Tambah transaksi langganan atau bil berulang untuk menjejakinya di sini';
+
+  @override
+  String get subRecurringCost => 'Kos Berulang';
+
+  @override
+  String subPerYear(String amount) {
+    return '$amount / tahun';
+  }
+
+  @override
+  String get subActive => 'Aktif';
+
+  @override
+  String subNext(String date) {
+    return 'Seterusnya $date';
+  }
+
+  @override
+  String get subResume => 'Sambung';
+
+  @override
+  String get subPause => 'Jeda';
+
+  @override
+  String get subCancelBillTitle => 'Batalkan Bil Berulang';
+
+  @override
+  String get subCancelSubTitle => 'Batalkan Langganan';
+
+  @override
+  String subCancelConfirm(String name) {
+    return 'Adakah anda pasti mahu membatalkan \"$name\"? Ini akan menghentikan semua bayaran berulang akan datang.';
+  }
+
+  @override
+  String subCancelled(String name) {
+    return '\"$name\" dibatalkan';
+  }
+
+  @override
+  String subSaveError(String error) {
+    return 'Ralat: $error';
+  }
+
+  @override
+  String get subEditBill => 'Sunting Bil Berulang';
+
+  @override
+  String get subEditSub => 'Sunting Langganan';
+
+  @override
+  String subUnitDay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'hari',
+      one: 'hari',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'minggu',
+      one: 'minggu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitMonth(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'bulan',
+      one: 'bulan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitYear(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'tahun',
+      one: 'tahun',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEndsOn(String date) {
+    return 'Tamat: $date';
+  }
+
+  @override
+  String get subNoEndDate => 'Tiada tarikh tamat';
 }

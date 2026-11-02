@@ -11,6 +11,7 @@ import 'package:the_accountant/data/models/transaction.dart'
 import 'package:the_accountant/core/services/reminder_scheduler_service.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// State for credit and debt transactions
 class CreditDebtState {
@@ -120,7 +121,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to load data: ${e.toString()}',
+        error: appL10n.txnLoadDataFailed(e.toString()),
       );
     }
   }
@@ -149,7 +150,9 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
             parent: transaction,
             amount: remaining,
             isIncome: isCredit,
-            label: '${isCredit ? "Received" : "Paid"}: ${transaction.title}',
+            label: isCredit
+                ? appL10n.creditReceivedTitle(transaction.title)
+                : appL10n.creditPaidTitle(transaction.title),
             note:
                 'Settlement for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
             paidOn: paidOn,
@@ -180,7 +183,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
       await loadData();
     } catch (e) {
       state = state.copyWith(
-        error: 'Failed to mark as settled: ${e.toString()}',
+        error: appL10n.creditMarkSettledFailed(e.toString()),
       );
     }
   }
@@ -198,7 +201,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     DateTime? paidOn,
   }) async {
     if (paymentAmount <= 0) {
-      state = state.copyWith(error: 'Payment amount must be positive');
+      state = state.copyWith(error: appL10n.creditPaymentMustBePositive);
       return;
     }
     try {
@@ -226,7 +229,9 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
           // Credit repayment = income (money comes back in).
           // Debt repayment = expense (money goes out).
           isIncome: isCredit,
-          label: '${isCredit ? "Received" : "Paid"}: ${transaction.title}',
+          label: isCredit
+              ? appL10n.creditReceivedTitle(transaction.title)
+              : appL10n.creditPaidTitle(transaction.title),
           note:
               'Partial payment for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
           paidOn: paidOn,
@@ -257,7 +262,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
       await loadData();
     } catch (e) {
       state = state.copyWith(
-        error: 'Failed to record payment: ${e.toString()}',
+        error: appL10n.creditRecordPaymentFailed(e.toString()),
       );
     }
   }
@@ -337,7 +342,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
             amount: unaccounted,
             // Opposite direction to the repayments being undone.
             isIncome: !isCredit,
-            label: 'Reversed: ${transaction.title}',
+            label: appL10n.creditReversedTitle(transaction.title),
             note: 'Reversal of repayments for: ${transaction.title}',
           );
         }
@@ -359,7 +364,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
       await loadData();
     } catch (e) {
       state = state.copyWith(
-        error: 'Failed to mark as pending: ${e.toString()}',
+        error: appL10n.creditMarkPendingFailed(e.toString()),
       );
     }
   }

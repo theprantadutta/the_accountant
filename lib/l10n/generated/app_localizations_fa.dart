@@ -5612,4 +5612,4138 @@ class L10nFa extends L10n {
   @override
   String get backupLockedBody =>
       'این نسخهٔ پشتیبان با یک عبارت عبور محافظت شده است. برای باز کردنش آن را یا کد بازیابی‌تان را وارد کنید. این کار بدون اتصال اینترنت هم انجام می‌شود.';
+
+  @override
+  String get settingsSupportDescribeFirst => 'لطفاً اول مشکلتان را توضیح دهید';
+
+  @override
+  String get settingsSupportSent => 'ممنون! پیامتان ارسال شد.';
+
+  @override
+  String get settingsSupportSendFailed =>
+      'الان ارسال نشد. لطفاً دوباره امتحان کنید یا مستقیم به ما ایمیل بزنید.';
+
+  @override
+  String get settingsSupportSubjectHint => 'موضوع چیست؟';
+
+  @override
+  String get settingsSupportMessageHint =>
+      'سؤال، مشکل یا بازخوردتان را بنویسید…';
+
+  @override
+  String get settingsSupportHeroBody =>
+      'سؤال، باگ یا بازخورد — برایمان بفرستید تا پاسخ دهیم.';
+
+  @override
+  String get settingsSupportTipDescription => 'توضیح روشنی از مشکلتان';
+
+  @override
+  String get settingsSupportTipSteps => 'مراحل تکرار مشکل (اگر باگ است)';
+
+  @override
+  String get settingsSupportTipDevice => 'مدل دستگاه و نسخه Android شما';
+
+  @override
+  String settingsSupportPreferEmail(String email) {
+    return 'ایمیل را ترجیح می‌دهید؟ $email';
+  }
+
+  @override
+  String get settingsSupportEmailCopied => 'ایمیل در کلیپ‌بورد کپی شد';
+
+  @override
+  String get settingsAboutTagline => 'همراه مالی شخصی شما';
+
+  @override
+  String settingsAboutVersion(String version) {
+    return 'نسخه: $version';
+  }
+
+  @override
+  String get settingsAboutDescription =>
+      'یک برنامه مالی شخصی با تمرکز\nبر حریم خصوصی و طراحی زیبا.';
+
+  @override
+  String settingsBaseCurrencyLabel(String currency) {
+    return 'ارز پایه: $currency';
+  }
+
+  @override
+  String settingsRatesLastUpdated(String when) {
+    return 'آخرین به‌روزرسانی: $when';
+  }
+
+  @override
+  String settingsEditRateTitle(String base, String target) {
+    return 'ویرایش نرخ: $base → $target';
+  }
+
+  @override
+  String settingsCurrentApiRate(String rate) {
+    return 'نرخ فعلی API: $rate';
+  }
+
+  @override
+  String settingsMinutesAgo(int count) {
+    return '$count دقیقه پیش';
+  }
+
+  @override
+  String settingsHoursAgo(int count) {
+    return '$count ساعت پیش';
+  }
+
+  @override
+  String settingsDaysAgo(int count) {
+    return '$count روز پیش';
+  }
+
+  @override
+  String get settingsExportSectionDateRange => 'بازه زمانی';
+
+  @override
+  String get settingsExportSectionFormat => 'قالب';
+
+  @override
+  String get settingsExportSectionInclude => 'شامل';
+
+  @override
+  String get settingsExportAllTime => 'همه زمان‌ها';
+
+  @override
+  String get settingsExportThisMonth => 'این ماه';
+
+  @override
+  String get settingsExportLastMonth => 'ماه گذشته';
+
+  @override
+  String get settingsExportLast3Months => '3 ماه گذشته';
+
+  @override
+  String get settingsExportThisYear => 'امسال';
+
+  @override
+  String get settingsExportPdfPremiumBody =>
+      'خروجی CSV رایگان است — داده‌هایتان همیشه مال خودتان است. گزارش PDF قالب‌بندی‌شده، با خلاصه‌ها و تفکیک بر اساس دسته و کیف پول، از قابلیت‌های Premium است.';
+
+  @override
+  String settingsExportButton(String format) {
+    return 'خروجی $format';
+  }
+
+  @override
+  String settingsExportFailed(String error) {
+    return 'خروجی گرفتن ناموفق بود: $error';
+  }
+
+  @override
+  String get settingsExportShareSubject => 'The Accountant - خروجی';
+
+  @override
+  String settingsExportedCount(int count) {
+    return '$count تراکنش خروجی گرفته شد';
+  }
+
+  @override
+  String get settingsExportPdfShareSubject => 'The Accountant - گزارش مالی';
+
+  @override
+  String settingsExportPdfGenerated(int count) {
+    return 'گزارش PDF با $count تراکنش ساخته شد';
+  }
+
+  @override
+  String get settingsNumberFormatCommaThousands => 'ویرگول برای هزارگان';
+
+  @override
+  String get settingsNumberFormatDotThousands => 'نقطه برای هزارگان';
+
+  @override
+  String get settingsNumberFormatSpaceThousands => 'فاصله برای هزارگان';
+
+  @override
+  String get settingsNumberFormatNoSeparator => 'بدون جداکننده';
+
+  @override
+  String get settingsAutoLockImmediately => 'فوراً';
+
+  @override
+  String settingsAutoLockMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دقیقه',
+      one: '1 دقیقه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsAutoLockNever => 'هرگز';
+
+  @override
+  String get settingsBiometricUnavailable =>
+      'احراز هویت بیومتریک روی این دستگاه در دسترس نیست';
+
+  @override
+  String get settingsSetPassword => 'تنظیم رمز عبور';
+
+  @override
+  String get settingsChangePassword => 'تغییر رمز عبور';
+
+  @override
+  String get settingsAddPasswordSubtitle => 'برای حسابتان رمز عبور بگذارید';
+
+  @override
+  String get settingsPasswordChanged => 'رمز عبور با موفقیت تغییر کرد';
+
+  @override
+  String get settingsPasswordSet => 'رمز عبور با موفقیت تنظیم شد';
+
+  @override
+  String get settingsClearCacheBody =>
+      'این کار داده‌های موقت را پاک می‌کند و در اجرای بعدی برنامه، همگام‌سازی دوباره انجام می‌شود. داده‌هایتان حذف نمی‌شود.';
+
+  @override
+  String get settingsClearingCache => 'در حال پاک کردن حافظه موقت...';
+
+  @override
+  String get settingsCacheCleared => 'حافظه موقت پاک شد و همگام‌سازی آغاز شد';
+
+  @override
+  String get settingsClearCacheFailed => 'پاک کردن حافظه موقت ناموفق بود';
+
+  @override
+  String get settingsClearAllDataBody =>
+      'این کار همه تراکنش‌ها، بودجه‌ها، کیف پول‌ها، دسته‌ها و تنظیمات شما را برای همیشه حذف می‌کند. این کار قابل بازگشت نیست!';
+
+  @override
+  String get settingsClearAllDataConfirmBody =>
+      'همه داده‌های مالی شما برای همیشه پاک خواهد شد.';
+
+  @override
+  String get settingsClearingAllData => 'در حال پاک کردن همه داده‌ها...';
+
+  @override
+  String get settingsAllDataCleared => 'همه داده‌ها با موفقیت پاک شد';
+
+  @override
+  String settingsClearDataFailed(String error) {
+    return 'پاک کردن داده‌ها ناموفق بود: $error';
+  }
+
+  @override
+  String get settingsDeleteAccountBody =>
+      'به فرمی هدایت می‌شوید تا درخواست حذف حساب بدهید. این فرایند چند روز طول می‌کشد. پس از انجام، همه داده‌ها روی سرور برای همیشه حذف می‌شود.';
+
+  @override
+  String get settingsLockAuthFailed =>
+      'احراز هویت ناموفق بود. لطفاً دوباره امتحان کنید.';
+
+  @override
+  String get settingsLockError => 'خطایی رخ داد. لطفاً دوباره امتحان کنید.';
+
+  @override
+  String get settingsLockAuthenticating => 'در حال احراز هویت...';
+
+  @override
+  String get settingsProfileNameEmpty => 'نام نمی‌تواند خالی باشد';
+
+  @override
+  String get settingsProfileUpdated => 'پروفایل با موفقیت به‌روز شد';
+
+  @override
+  String get settingsProfileUpdateFailed => 'به‌روزرسانی پروفایل ناموفق بود';
+
+  @override
+  String get settingsProfileSaveChanges => 'ذخیره تغییرات';
+
+  @override
+  String get settingsProfileSaved => 'ذخیره شد';
+
+  @override
+  String get settingsProfilePhotoSoon => 'بارگذاری عکس به‌زودی';
+
+  @override
+  String get settingsProfileAccountInformation => 'اطلاعات حساب';
+
+  @override
+  String get settingsProfileMemberSince => 'عضو از';
+
+  @override
+  String get settingsProfileUnknown => 'نامشخص';
+
+  @override
+  String get settingsProfileFree => 'رایگان';
+
+  @override
+  String get settingsProfileUserId => 'شناسه کاربر';
+
+  @override
+  String get settingsProfileUserIdCopied => 'شناسه کاربر کپی شد';
+
+  @override
+  String get settingsPremiumMonthly => 'Premium ماهانه';
+
+  @override
+  String get settingsPremiumYearly => 'Premium سالانه';
+
+  @override
+  String get settingsPremiumLifetime => 'Premium مادام‌العمر';
+
+  @override
+  String get settingsUnsavedChangesBody =>
+      'تغییرات ذخیره‌نشده دارید. مطمئنید می‌خواهید خارج شوید؟';
+
+  @override
+  String settingsShareAppText(String url) {
+    return 'The Accountant را ببین - یک برنامه مالی شخصی زیبا!\n\n$url';
+  }
+
+  @override
+  String get settingsShareAppSubject => 'The Accountant - برنامه مالی شخصی';
+
+  @override
+  String get settingsCloudSyncGateBody =>
+      'داده‌های مالی‌تان را روی همه دستگاه‌هایتان همگام نگه دارید. دیگر هرگز داده‌هایتان را از دست ندهید.';
+
+  @override
+  String settingsSyncPushed(int count) {
+    return '$count ارسال شد';
+  }
+
+  @override
+  String settingsSyncPulled(int count) {
+    return '$count دریافت شد';
+  }
+
+  @override
+  String settingsSyncConflicts(int count) {
+    return '$count تعارض';
+  }
+
+  @override
+  String get settingsSyncNowSubtitle => 'ارسال و دریافت همه تغییرات';
+
+  @override
+  String settingsSyncComplete(int pushed, int pulled) {
+    return 'همگام‌سازی کامل شد — $pushed ارسال، $pulled دریافت';
+  }
+
+  @override
+  String settingsSyncIncomplete(int count, String details) {
+    return 'همگام‌سازی ناقص ماند — $count مورد ذخیره نشد و دوباره تلاش می‌شود. $details';
+  }
+
+  @override
+  String settingsSyncFailed(String error) {
+    return 'همگام‌سازی ناموفق بود: $error';
+  }
+
+  @override
+  String get settingsRestoreFromCloudSubtitle =>
+      'جایگزینی داده‌های این دستگاه با داده‌های ابری شما';
+
+  @override
+  String get settingsRestoreFromCloudBody =>
+      'این کار همه داده‌های این دستگاه را پاک می‌کند و داده‌های ابری‌تان را جایگزین آن می‌کند. هر تغییری روی این دستگاه که هنوز همگام نشده از دست می‌رود. این کار قابل بازگشت نیست.';
+
+  @override
+  String settingsRestoredFromCloud(int count) {
+    return '$count مورد از فضای ابری بازیابی شد';
+  }
+
+  @override
+  String settingsRestoreCancelled(String details) {
+    return 'بازیابی لغو شد — داده‌های این دستگاه دست‌نخورده ماند. $details';
+  }
+
+  @override
+  String settingsRestoreFailed(String error) {
+    return 'بازیابی ناموفق بود: $error';
+  }
+
+  @override
+  String get settingsSyncInfoBody =>
+      'داده‌هایتان هر 15 دقیقه و هر بار که برنامه را باز می‌کنید خودکار همگام می‌شود. مبالغ، نام‌ها و یادداشت‌ها پیش از همگام‌سازی روی همین گوشی رمزگذاری می‌شوند، پس سرور ما نمی‌تواند آن‌ها را بخواند.';
+
+  @override
+  String settingsSyncCompletedSeconds(int seconds) {
+    return 'در $seconds ثانیه انجام شد';
+  }
+
+  @override
+  String settingsSyncCompletedMinutes(int minutes, int seconds) {
+    return 'در $minutes دقیقه و $seconds ثانیه انجام شد';
+  }
+
+  @override
+  String settingsReconcileQuestion(String name) {
+    return 'آیا این دسته «$name» شماست؟';
+  }
+
+  @override
+  String get settingsReconcileSavedPending =>
+      'ذخیره شد. در همگام‌سازی بعدی اعمال می‌شود.';
+
+  @override
+  String settingsReconcileBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'حساب شما از قبل $count دسته به نام «$name» دارد. بگویید یکی از آن‌ها را به‌عنوان دسته پیش‌فرض استفاده کنیم یا جدا نگه داریم. تا انتخاب نکنید چیزی تغییر نمی‌کند.',
+      one:
+          'حساب شما از قبل دسته‌ای به نام «$name» دارد. بگویید آن را به‌عنوان دسته پیش‌فرض استفاده کنیم یا جدا نگه داریم. تا انتخاب نکنید چیزی تغییر نمی‌کند.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepMine =>
+      'نه — مال خودم بماند و یک دسته جدا اضافه شود';
+
+  @override
+  String get settingsReconcileNoneOfThese => 'هیچ‌کدام — یک دسته جدا اضافه شود';
+
+  @override
+  String settingsReconcileKeepSeparateBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'دسته‌های «$name» فعلی شما با همه تراکنش‌هایشان دقیقاً همان‌طور که هستند می‌مانند. یک «$name» پیش‌فرض جدید کنارشان اضافه می‌شود.',
+      one:
+          'دسته «$name» فعلی شما با همه تراکنش‌هایش دقیقاً همان‌طور که هست می‌ماند. یک «$name» پیش‌فرض جدید کنارش اضافه می‌شود.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepSeparate => 'جدا نگه دار';
+
+  @override
+  String settingsReconcileTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تراکنش',
+      one: '1 تراکنش',
+      zero: 'بدون تراکنش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsReconcileUseTitle(String name) {
+    return 'از «$name» استفاده شود؟';
+  }
+
+  @override
+  String settingsReconcileUseBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'به دسته پیش‌فرض «$name» تبدیل می‌شود و هر $count تراکنش آن، همراه با زیردسته‌هایش، حفظ می‌شود. چیزی حذف نمی‌شود.',
+      zero:
+          'به دسته پیش‌فرض «$name» تبدیل می‌شود و هرچه زیر آن ثبت شده، همراه با زیردسته‌هایش، حفظ می‌شود. چیزی حذف نمی‌شود.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileUseThisOne => 'از این استفاده شود';
+
+  @override
+  String settingsReconcileWillUse(String name) {
+    return 'از «$name» استفاده می‌شود.';
+  }
+
+  @override
+  String settingsReconcileWillAdd(String name) {
+    return 'یک «$name» جدا اضافه می‌شود.';
+  }
+
+  @override
+  String get settingsChangePasswordSubtitle =>
+      'رمز عبور فعلی را وارد کنید و یک رمز جدید انتخاب کنید';
+
+  @override
+  String get settingsSetPasswordSubtitle =>
+      'برای امنیت بیشتر، برای حسابتان رمز عبور بگذارید';
+
+  @override
+  String get settingsEnterCurrentPassword =>
+      'لطفاً رمز عبور فعلی‌تان را وارد کنید';
+
+  @override
+  String get settingsEnterNewPassword => 'لطفاً یک رمز عبور جدید وارد کنید';
+
+  @override
+  String get settingsPasswordMinLength => 'رمز عبور باید دست‌کم 8 نویسه باشد';
+
+  @override
+  String get settingsConfirmYourPassword => 'لطفاً رمز عبورتان را تأیید کنید';
+
+  @override
+  String get settingsPasswordsDoNotMatch => 'رمزهای عبور یکسان نیستند';
+
+  @override
+  String get settingsPleaseWait => 'لطفاً صبر کنید...';
+
+  @override
+  String settingsTypeToConfirm(String word) {
+    return 'برای تأیید «$word» را تایپ کنید';
+  }
+
+  @override
+  String settingsPercentOfBudget(int percent) {
+    return '$percent% بودجه';
+  }
+
+  @override
+  String get authTooManyAttempts =>
+      'تلاش‌ها بیش از حد بوده است. لطفاً یک دقیقه صبر کنید و دوباره امتحان کنید.';
+
+  @override
+  String get authServerDown =>
+      'به سرورهای ما دسترسی پیدا نکردیم. مشکل از طرف ماست — لطفاً چند دقیقه دیگر دوباره امتحان کنید.';
+
+  @override
+  String get authInitFailed => 'راه‌اندازی احراز هویت ناموفق بود';
+
+  @override
+  String get authSignInError => 'هنگام ورود خطایی رخ داد';
+
+  @override
+  String get authSignUpError => 'هنگام ثبت‌نام خطایی رخ داد';
+
+  @override
+  String get authGoogleCancelled => 'ورود با Google لغو شد یا ناموفق بود';
+
+  @override
+  String get authFirebaseTokenFailed => 'دریافت توکن شناسه Firebase ناموفق بود';
+
+  @override
+  String get authGoogleSignInError => 'هنگام ورود با Google خطایی رخ داد';
+
+  @override
+  String get authAccountExistsDifferentCredential =>
+      'حسابی با همین آدرس ایمیل ولی با روش ورود دیگری از قبل وجود دارد.';
+
+  @override
+  String get authInvalidCredential =>
+      'اطلاعات ورود ارائه‌شده نادرست است یا منقضی شده است.';
+
+  @override
+  String get authGoogleDisabled => 'ورود با Google غیرفعال است.';
+
+  @override
+  String get authUserDisabled => 'این حساب کاربری غیرفعال شده است.';
+
+  @override
+  String get authAppleSignInError => 'هنگام ورود با Apple خطایی رخ داد';
+
+  @override
+  String get authAppleDisabled => 'ورود با Apple غیرفعال است.';
+
+  @override
+  String get authNoPendingLink => 'حسابی برای پیوند دادن در انتظار نیست';
+
+  @override
+  String get authLinkFailed => 'پیوند دادن حساب ناموفق بود';
+
+  @override
+  String get authIncorrectPassword =>
+      'رمز عبور نادرست است. لطفاً دوباره امتحان کنید.';
+
+  @override
+  String get authSignOutError => 'هنگام خروج از حساب خطایی رخ داد';
+
+  @override
+  String get authLinkSubtitle =>
+      'حسابی با این ایمیل از قبل وجود دارد. رمز عبورتان را وارد کنید تا حساب Google شما پیوند داده شود.';
+
+  @override
+  String get authEnterYourPasswordHint => 'رمز عبورتان را وارد کنید';
+
+  @override
+  String get authEnterYourPassword => 'لطفاً رمز عبورتان را وارد کنید';
+
+  @override
+  String get authLinkInfo =>
+      'پس از پیوند، می‌توانید با ایمیل/رمز عبور یا Google وارد شوید.';
+
+  @override
+  String get authEnterYourEmail => 'لطفاً ایمیلتان را وارد کنید';
+
+  @override
+  String get authEnterValidEmail => 'لطفاً یک ایمیل معتبر وارد کنید';
+
+  @override
+  String get authPasswordMin6 => 'رمز عبور باید دست‌کم 6 نویسه باشد';
+
+  @override
+  String get authNoAccountPrompt => 'حساب ندارید؟ ';
+
+  @override
+  String get authForgotPasswordTitle => 'فراموشی رمز عبور';
+
+  @override
+  String get authCheckYourEmail => 'ایمیلتان را بررسی کنید';
+
+  @override
+  String get authForgotPasswordSubtitle =>
+      'ایمیلتان را وارد کنید تا کدی برای بازنشانی رمز عبور برایتان بفرستیم.';
+
+  @override
+  String authCodeSentSubtitle(String email) {
+    return 'یک کد 6 رقمی به $email فرستادیم. آن را همراه با رمز عبور جدیدتان در زیر وارد کنید.';
+  }
+
+  @override
+  String get authEnterYourEmailHint => 'ایمیلتان را وارد کنید';
+
+  @override
+  String get authSixDigitCodeHint => 'کد 6 رقمی';
+
+  @override
+  String get authEnterTheCode => 'لطفاً کد را وارد کنید';
+
+  @override
+  String get authCodeIsSixDigits => 'کد 6 رقمی است';
+
+  @override
+  String get authCreateNewPasswordHint => 'یک رمز عبور جدید بسازید';
+
+  @override
+  String get authReenterNewPasswordHint => 'رمز عبور جدید را دوباره وارد کنید';
+
+  @override
+  String get authEnterYourNameHint => 'نامتان را وارد کنید';
+
+  @override
+  String get authEnterFullName => 'لطفاً نام کاملتان را وارد کنید';
+
+  @override
+  String get authNameMin2 => 'نام باید دست‌کم 2 نویسه باشد';
+
+  @override
+  String get authCreatePasswordHint => 'یک رمز عبور بسازید';
+
+  @override
+  String get authPasswordComplexity =>
+      'باید شامل حرف بزرگ، حرف کوچک و عدد باشد';
+
+  @override
+  String get authReenterPasswordHint => 'رمز عبورتان را دوباره وارد کنید';
+
+  @override
+  String get authStrengthWeak => 'ضعیف';
+
+  @override
+  String get authStrengthFair => 'متوسط';
+
+  @override
+  String get authStrengthGood => 'خوب';
+
+  @override
+  String get authStrengthStrong => 'قوی';
+
+  @override
+  String authAgreeToTerms(String terms, String privacy) {
+    return 'با $terms و $privacy موافقم';
+  }
+
+  @override
+  String get authDefaultUserName => 'کاربر';
+
+  @override
+  String authMemberSince(String date) {
+    return 'عضو از $date';
+  }
+
+  @override
+  String get authFieldRequired => 'این فیلد الزامی است';
+
+  @override
+  String authSignOutFailed(String error) {
+    return 'خروج از حساب ناموفق بود: $error';
+  }
+
+  @override
+  String authPickImageFailed(String error) {
+    return 'انتخاب تصویر ناموفق بود: $error';
+  }
+
+  @override
+  String authUpdateProfileFailed(String error) {
+    return 'به‌روزرسانی پروفایل ناموفق بود: $error';
+  }
+
+  @override
+  String get premiumSaveAbout44 => 'حدود 44% صرفه‌جویی';
+
+  @override
+  String get premiumBestValue => 'بهترین ارزش';
+
+  @override
+  String get premiumIapUnavailable => 'IAP در دسترس نیست';
+
+  @override
+  String get premiumProductNotFound => 'محصول پیدا نشد';
+
+  @override
+  String get premiumPlanUnavailable =>
+      'این طرح در حال حاضر برای حساب شما در دسترس نیست';
+
+  @override
+  String get premiumRestoreFailed => 'بازیابی خریدها ناموفق بود';
+
+  @override
+  String get premiumPurchaseFailed => 'خرید ناموفق بود';
+
+  @override
+  String get premiumVerificationFailed => 'تأیید ناموفق بود';
+
+  @override
+  String premiumPeriodDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count روز',
+      one: '1 روز',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count هفته',
+      one: '1 هفته',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ماه',
+      one: '1 ماه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سال',
+      one: '1 سال',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumLimitUsed(int count, int limit, String items) {
+    return 'از $limit $items رایگان، $count مورد را استفاده کرده‌اید.';
+  }
+
+  @override
+  String premiumLimitUpgrade(String items) {
+    return 'برای $items نامحدود و امکانات بیشتر به Premium ارتقا دهید!';
+  }
+
+  @override
+  String premiumFreeLimitMessage(int limit, String items) {
+    return 'به سقف رایگان $limit $items رسیده‌اید. برای $items نامحدود به Premium ارتقا دهید.';
+  }
+
+  @override
+  String get premiumLimitWallets => 'کیف پول';
+
+  @override
+  String get premiumLimitCategories => 'دسته سفارشی';
+
+  @override
+  String get premiumLimitBudgets => 'بودجه فعال';
+
+  @override
+  String get premiumLimitObjectives => 'هدف فعال';
+
+  @override
+  String get premiumLimitPaymentMethods => 'روش پرداخت';
+
+  @override
+  String get backupErrNotJson =>
+      'این فایل نسخه پشتیبان نیست — به‌صورت JSON خوانده نشد.';
+
+  @override
+  String get backupErrNotOurs => 'این فایل نسخه پشتیبان The Accountant نیست.';
+
+  @override
+  String get backupErrNewerVersion =>
+      'این نسخه پشتیبان با نسخه جدیدتری از برنامه ساخته شده است. The Accountant را به‌روز کنید و دوباره امتحان کنید.';
+
+  @override
+  String backupErrTooOld(int version, int oldest) {
+    return 'این نسخه پشتیبان از نسخه‌ای قدیمی‌تر از آن است که این برنامه بتواند بخواند (پایگاه داده $version، قدیمی‌ترین نسخه پشتیبانی‌شده $oldest).';
+  }
+
+  @override
+  String get backupErrNoData => 'این نسخه پشتیبان هیچ داده‌ای ندارد.';
+
+  @override
+  String backupErrSectionDamaged(String section) {
+    return 'بخش «$section» این نسخه پشتیبان آسیب دیده است.';
+  }
+
+  @override
+  String get backupErrNoHeader =>
+      'سرآیندی که نوع این نسخه پشتیبان را مشخص می‌کند وجود ندارد.';
+
+  @override
+  String get backupErrNoSchemaVersion =>
+      'این نسخه پشتیبان مشخص نمی‌کند از کدام نسخه پایگاه داده گرفته شده، پس نمی‌توان آن را با اطمینان بازیابی کرد.';
+
+  @override
+  String get backupErrNoDate =>
+      'این نسخه پشتیبان مشخص نمی‌کند چه زمانی گرفته شده است.';
+
+  @override
+  String get backupErrDamaged => 'این فایل پشتیبان آسیب دیده است.';
+
+  @override
+  String get backupErrWrongKey =>
+      'این نسخه پشتیبان مال حساب دیگری است، یا فایل تغییر کرده است. برای بازیابی، با حسابی که آن را ساخته وارد شوید.';
+
+  @override
+  String get backupErrNoPassphraseLock =>
+      'این نسخه پشتیبان با عبارت عبور باز نمی‌شود.';
+
+  @override
+  String get backupErrNeedsSecret =>
+      'این نسخه پشتیبان با عبارت عبور محافظت شده است. برای بازیابی، عبارت عبور یا کد بازیابی را وارد کنید.';
+
+  @override
+  String get backupErrWrongSecret =>
+      'این عبارت عبور یا کد بازیابی، این نسخه پشتیبان را باز نمی‌کند.';
+
+  @override
+  String backupErrNewerSchema(int version, int supported) {
+    return 'این نسخه پشتیبان با نسخه جدیدتری از برنامه ساخته شده است (پایگاه داده $version، این نسخه تا $supported را می‌خواند). The Accountant را به‌روز کنید و دوباره امتحان کنید.';
+  }
+
+  @override
+  String backupDriveUnreachable(String error) {
+    return 'دسترسی به Google Drive ممکن نشد: $error';
+  }
+
+  @override
+  String get backupDriveNotAllowed =>
+      'The Accountant هنوز اجازه استفاده از Google Drive را ندارد.';
+
+  @override
+  String get backupDriveNoFolder =>
+      'Google Drive پوشه‌ای برای نگهداری نسخه‌های پشتیبان نساخت.';
+
+  @override
+  String get backupDriveNoFileId =>
+      'Google Drive نسخه پشتیبان را پذیرفت ولی نگفت آن را کجا گذاشته است.';
+
+  @override
+  String get backupDriveTimeout =>
+      'پاسخ Google Drive بیش از حد طول می‌کشد. بعداً دوباره امتحان کنید.';
+
+  @override
+  String get backupDriveOffline =>
+      'اتصالی به Google Drive نیست. وقتی آنلاین شدید دوباره امتحان کنید.';
+
+  @override
+  String get backupDriveDenied =>
+      'Google Drive درخواست را رد کرد. دوباره اجازه دسترسی بدهید و امتحان کنید.';
+
+  @override
+  String get backupDriveFileGone =>
+      'آن نسخه پشتیبان دیگر در Google Drive نیست.';
+
+  @override
+  String backupDriveHttpError(int status, String reason) {
+    return 'پاسخ Google Drive: $status. $reason';
+  }
+
+  @override
+  String get backupDriveTryAgainSoon => 'کمی بعد دوباره امتحان کنید.';
+
+  @override
+  String backupTakeFailed(String error) {
+    return 'پشتیبان‌گیری انجام نشد: $error';
+  }
+
+  @override
+  String get backupUnrestorableNewer =>
+      'با نسخه جدیدتری از برنامه ساخته شده است.';
+
+  @override
+  String get backupUnrestorableOlder =>
+      'قدیمی‌تر از آن است که این نسخه برنامه بتواند بخواند.';
+
+  @override
+  String get backupKeyUnusable =>
+      'سرور یک کلید رمزگذاری غیرقابل‌استفاده فرستاد. بعداً دوباره امتحان کنید.';
+
+  @override
+  String get backupKeyNeedsSignIn =>
+      'برای ساخت یا بازیابی نسخه پشتیبان وارد شوید — نسخه‌های پشتیبان با حساب شما رمزگذاری می‌شوند.';
+
+  @override
+  String get backupKeyNeedsInternet =>
+      'یک بار به اینترنت وصل شوید تا داده‌هایتان رمزگذاری شود، سپس دوباره امتحان کنید.';
+
+  @override
+  String get backupKeyLocked =>
+      'داده‌هایتان با عبارت عبور محافظت شده است. اول آن را روی این دستگاه باز کنید.';
+
+  @override
+  String get backupFrequencyManual => 'فقط وقتی خودم بخواهم';
+
+  @override
+  String get backupFrequencyDaily => 'هر روز';
+
+  @override
+  String get backupFrequencyWeekly => 'هر هفته';
+
+  @override
+  String get backupFrequencyMonthly => 'هر ماه';
+
+  @override
+  String get backupIntro =>
+      'نسخه پشتیبان یک فایل است که همه‌چیزِ این دستگاه را در خود دارد — همه تراکنش‌ها، حساب‌ها، بودجه‌ها و اهداف. یکی را جای امنی نگه دارید تا هیچ‌چیز برای همیشه از دست نرود.';
+
+  @override
+  String get backupSectionOnDevice => 'روی این دستگاه';
+
+  @override
+  String get backupSectionGoogleDrive => 'GOOGLE DRIVE';
+
+  @override
+  String get backupSectionInDrive => 'نسخه‌های پشتیبان در DRIVE';
+
+  @override
+  String backupBackedUpCount(int count) {
+    return 'از $count رکورد نسخه پشتیبان گرفته شد.';
+  }
+
+  @override
+  String get backupSaveDialogTitle => 'ذخیره نسخه پشتیبان';
+
+  @override
+  String get backupChooseFileTitle => 'یک فایل پشتیبان انتخاب کنید';
+
+  @override
+  String backupFileUnreadable(String error) {
+    return 'آن فایل خوانده نشد: $error';
+  }
+
+  @override
+  String backupTakenOn(String date) {
+    return 'گرفته‌شده در $date.';
+  }
+
+  @override
+  String backupTakenOnDevice(String date, String device) {
+    return 'گرفته‌شده در $date روی $device.';
+  }
+
+  @override
+  String backupBelongedTo(String email) {
+    return 'متعلق به $email بود.';
+  }
+
+  @override
+  String get backupDifferentAccountWarning =>
+      'این حسابی نیست که اینجا وارد شده است. با بازیابی، رکوردهای شخص دیگری روی این دستگاه قرار می‌گیرد.';
+
+  @override
+  String get backupRestoreEraseWarning =>
+      'همه‌چیزِ فعلی این دستگاه پاک و جایگزین می‌شود. هرچه هنوز همگام نشده از دست می‌رود. این کار قابل بازگشت نیست.';
+
+  @override
+  String backupRestoredCount(int count) {
+    return '$count رکورد بازیابی شد.';
+  }
+
+  @override
+  String backupRestoredPartial(int count) {
+    return '$count رکورد بازیابی شد. بخشی از فایل با این نسخه سازگار نبود و کنار گذاشته شد.';
+  }
+
+  @override
+  String backupRestoreFailed(String error) {
+    return 'چیزی تغییر نکرد — بازیابی ناموفق بود: $error';
+  }
+
+  @override
+  String get backupConnectDriveSubtitle =>
+      'نسخه‌های پشتیبان در پوشه‌ای خصوصی قرار می‌گیرند که فقط این برنامه می‌تواند باز کند. فایل‌های دیگرتان هرگز خوانده نمی‌شوند.';
+
+  @override
+  String get backupDriveConnectedTitle => 'Google Drive وصل شد';
+
+  @override
+  String backupDriveFolderFirst(String folder) {
+    return 'نسخه‌های پشتیبان این دستگاه به پوشه‌ای به نام «$folder» در Drive شما می‌روند.';
+  }
+
+  @override
+  String backupDriveFolder(String folder) {
+    return 'نسخه‌های پشتیبان به «$folder» در Drive شما می‌روند.';
+  }
+
+  @override
+  String get backupNoneYet =>
+      'هنوز هیچ نسخه پشتیبانی از این دستگاه بارگذاری نشده است';
+
+  @override
+  String backupLastBackedUp(String date) {
+    return 'آخرین پشتیبان‌گیری $date';
+  }
+
+  @override
+  String backupKeepSubtitle(int count) {
+    return '$count نسخه پشتیبان — با رسیدن نسخه جدید، نسخه‌های قدیمی‌تر حذف می‌شوند';
+  }
+
+  @override
+  String get backupDisconnectSubtitle =>
+      'پشتیبان‌گیری خودکار متوقف می‌شود. چیزی که قبلاً ذخیره شده حذف نمی‌شود.';
+
+  @override
+  String backupListFailed(String error) {
+    return 'فهرست نسخه‌های پشتیبان دریافت نشد: $error';
+  }
+
+  @override
+  String get backupDriveNotGranted => 'اجازه دسترسی به Google Drive داده نشد.';
+
+  @override
+  String get backupDriveConnected => 'Google Drive وصل شد.';
+
+  @override
+  String backupDriveConnectFailed(String error) {
+    return 'اتصال به Google Drive ممکن نشد: $error';
+  }
+
+  @override
+  String get backupDisconnectBody =>
+      'پشتیبان‌گیری خودکار متوقف می‌شود. نسخه‌های پشتیبانی که در Drive هستند همان‌جا می‌مانند و هر زمان بخواهید می‌توانید دوباره وصل شوید.';
+
+  @override
+  String backupSavedToDrive(String name) {
+    return '$name در Google Drive ذخیره شد.';
+  }
+
+  @override
+  String backupCopyFailed(String error) {
+    return 'آن نسخه پشتیبان ذخیره نشد: $error';
+  }
+
+  @override
+  String get backupDeleteBody => 'برای همیشه از Google Drive حذف می‌شود.';
+
+  @override
+  String get backupRefresh => 'تازه‌سازی';
+
+  @override
+  String get ppErrKdfParams => 'پارامترهای استخراج کلید قابل‌قبول نیستند.';
+
+  @override
+  String get ppErrKdfAlgorithm => 'الگوریتم استخراج کلید ناشناخته است.';
+
+  @override
+  String get onboardingIntroAccountsTitle => 'همه حساب‌ها، یک موجودی';
+
+  @override
+  String get onboardingIntroAccountsBody =>
+      'پول نقد، کارت‌ها و پس‌اندازها را کنار هم نگه دارید و ببینید واقعاً چقدر برایتان مانده است.';
+
+  @override
+  String get onboardingIntroBudgetsTitle => 'بودجه‌هایی که زود خبر می‌دهند';
+
+  @override
+  String get onboardingIntroBudgetsBody =>
+      'برای هر دسته سقفی بگذارید. برنامه جمع را زیر نظر دارد و پیش از رد شدن از آن هشدار می‌دهد، نه بعدش.';
+
+  @override
+  String get onboardingIntroAskTitle => 'درباره خرج‌های خودتان بپرسید';
+
+  @override
+  String get onboardingIntroAskBody =>
+      'یک رسید را اسکن کنید، یا بپرسید ماه پیش پولتان کجا رفت، و پاسخی بر اساس سوابق خودتان بگیرید.';
+
+  @override
+  String get onboardingIntroThemeTitle => 'ظاهرش را مال خودتان کنید';
+
+  @override
+  String get onboardingIntroThemeBody =>
+      'همین حالا یک تم انتخاب کنید، یا هر وقت خواستید از تنظیمات عوضش کنید.';
+
+  @override
+  String get onboardingCreateYourAccount => 'حسابتان را بسازید';
+
+  @override
+  String get onboardingNext => 'بعدی';
+
+  @override
+  String get onboardingCurrencyInfo =>
+      'این ارز اصلی شما خواهد بود. بعداً می‌توانید حساب‌هایی با ارزهای دیگر اضافه کنید.';
+
+  @override
+  String get onboardingTypeCash => 'نقد';
+
+  @override
+  String get onboardingTypeBank => 'حساب بانکی';
+
+  @override
+  String get onboardingTypeCard => 'کارت اعتباری';
+
+  @override
+  String get onboardingTypeDeposit => 'سپرده';
+
+  @override
+  String get onboardingTypeInvestment => 'سرمایه‌گذاری';
+
+  @override
+  String get onboardingTypeAsset => 'دارایی';
+
+  @override
+  String onboardingDayN(int day) {
+    return 'روز $day';
+  }
+
+  @override
+  String get onboardingAllSet => 'همه‌چیز آماده است!';
+
+  @override
+  String onboardingCompleteFailed(String error) {
+    return 'تکمیل راه‌اندازی ناموفق بود: $error';
+  }
+
+  @override
+  String get onboardingSkipFailed => 'رد کردن راه‌اندازی ناموفق بود';
+
+  @override
+  String get startupOfflineConfirmBody =>
+      'داده‌هایتان دقیقاً همان‌جا که هست می‌ماند — هیچ‌چیز روی این دستگاه یا در فضای ابری حذف نمی‌شود.\n\nاما اگر این حساب داده ذخیره‌شده‌ای داشته باشد، هرچه اکنون اضافه کنید پس از بازیابی کنار آن قرار می‌گیرد — ممکن است موارد تکراری داشته باشید که باید مرتبشان کنید.';
+
+  @override
+  String get startupDataInCloudTitle => 'داده‌هایتان در فضای ابری منتظر شماست';
+
+  @override
+  String get startupLoadFailedTitle => 'نتوانستیم بارگیری حسابتان را کامل کنیم';
+
+  @override
+  String get startupGenericReason => 'هنگام بررسی این حساب مشکلی پیش آمد.';
+
+  @override
+  String get startupUseWithoutRestoring => 'استفاده از برنامه بدون بازیابی';
+
+  @override
+  String get legalTermsTab => 'شرایط';
+
+  @override
+  String get legalConsent =>
+      'سیاست حفظ حریم خصوصی و شرایط و ضوابط را خوانده‌ام و با آن‌ها موافقم';
+
+  @override
+  String get walkthroughGotIt => 'متوجه شدم!';
+
+  @override
+  String get settingsFaqSectionGettingStarted => 'شروع کار';
+
+  @override
+  String get settingsFaq01Question => 'چطور تراکنش اضافه کنم؟';
+
+  @override
+  String get settingsFaq01Answer =>
+      'روی دکمه + پایین صفحه اصلی بزنید. مبلغ را وارد کنید، یک دسته و یک کیف پول انتخاب کنید و اگر خواستید یادداشت بگذارید. برای ثبت تراکنش روی ذخیره بزنید.';
+
+  @override
+  String get settingsFaq02Question => 'فرق کیف پول و دسته چیست؟';
+
+  @override
+  String get settingsFaq02Answer =>
+      'کیف پول‌ها نشان می‌دهند پول شما کجا نگه داشته می‌شود (مثلاً نقد، حساب بانکی، کارت اعتباری). دسته‌ها نشان می‌دهند پول صرف چه شده یا از کجا آمده (مثلاً غذا، حقوق، سرگرمی).';
+
+  @override
+  String get settingsFaq03Question => 'چطور قالب تاریخ و عدد را تغییر دهم؟';
+
+  @override
+  String get settingsFaq03Answer =>
+      'به تنظیمات > تنظیمات منطقه‌ای بروید. می‌توانید واحد پول پیش‌فرض، قالب تاریخ (مثلاً DD/MM/YYYY یا MM/DD/YYYY) و قالب عدد (مثلاً 1,234.56 یا 1.234,56) را تغییر دهید. یک پیش‌نمایش زنده نشان می‌دهد تنظیمات شما چطور دیده می‌شود.';
+
+  @override
+  String get settingsFaqSectionTransactions => 'تراکنش‌ها';
+
+  @override
+  String get settingsFaq04Question =>
+      'می‌توانم تراکنش‌های تکرارشونده را ثبت کنم؟';
+
+  @override
+  String get settingsFaq04Answer =>
+      'بله! هنگام افزودن تراکنش، گزینه «تکرارشونده» را روشن کنید. می‌توانید آن را روزانه، هفتگی، ماهانه یا سالانه تکرار کنید. برنامه این تراکنش‌ها را خودکار برایتان می‌سازد.';
+
+  @override
+  String get settingsFaq05Question => 'چطور بین کیف پول‌ها پول جابه‌جا کنم؟';
+
+  @override
+  String get settingsFaq05Answer =>
+      'هنگام افزودن تراکنش، «انتقال» را به‌عنوان نوع انتخاب کنید. کیف پول مبدأ و مقصد را انتخاب کنید و مبلغ را وارد کنید. برنامه خودکار مبلغ را از یکی کم و به دیگری اضافه می‌کند.';
+
+  @override
+  String get settingsFaq06Question => 'تراکنش‌های پیش رو چیست؟';
+
+  @override
+  String get settingsFaq06Answer =>
+      'تراکنش‌های پیش رو هزینه‌ها یا درآمدهای آینده‌اند که انتظارشان را دارید اما هنوز پرداخت نشده‌اند. تا وقتی آن‌ها را پرداخت‌شده علامت نزنید، روی موجودی کیف پولتان اثری ندارند. موارد معوق و پیش رو را در بخش تراکنش‌ها پیدا می‌کنید.';
+
+  @override
+  String get settingsFaq07Question => 'چطور اشتراک‌هایم را دنبال کنم؟';
+
+  @override
+  String get settingsFaq07Answer =>
+      'هنگام افزودن تراکنش، نوع ویژه را روی اشتراک بگذارید. این کار آن را به‌عنوان پرداخت تکراری یک سرویس علامت می‌زند. می‌توانید همه اشتراک‌هایتان را یک‌جا ببینید و هزینه ماهانه اشتراک‌ها را دنبال کنید.';
+
+  @override
+  String get settingsFaq08Question => 'ثبت طلب و بدهی چطور کار می‌کند؟';
+
+  @override
+  String get settingsFaq08Answer =>
+      'برای پولی که به کسی قرض داده‌اید از طلب، و برای پولی که قرض گرفته‌اید از بدهی استفاده کنید. هر مورد مبلغ، اینکه چه کسی به چه کسی بدهکار است و میزان پرداخت را نگه می‌دارد. می‌توانید پرداخت‌های جزئی را ثبت کنید و وقتی کامل پرداخت شد، بدهی را تسویه‌شده علامت بزنید.';
+
+  @override
+  String get settingsFaq09Question =>
+      'می‌توانم به تراکنش‌ها یادداشت یا رسید اضافه کنم؟';
+
+  @override
+  String get settingsFaq09Answer =>
+      'بله! هنگام افزودن یا ویرایش تراکنش می‌توانید در بخش یادداشت بنویسید. کاربران Premium همچنین می‌توانند رسیدها را با اسکنر رسید هوش مصنوعی اسکن کنند که مبلغ و مشخصات فروشنده را خودکار درمی‌آورد.';
+
+  @override
+  String get settingsFaqSectionWalletsCurrencies => 'کیف پول‌ها و ارزها';
+
+  @override
+  String get settingsFaq10Question => 'چطور چند حساب را مدیریت کنم؟';
+
+  @override
+  String get settingsFaq10Answer =>
+      'برنامه چهار نوع حساب دارد: نقد، حساب بانکی، کارت اعتباری و اشتراک. برای افزودن حساب جدید، در داشبورد به «حساب‌های شما» بروید و روی «افزودن حساب» بزنید. هر حساب می‌تواند نام، نماد، رنگ و واحد پول خودش را داشته باشد. اولین حساب شما خودکار پیش‌فرض می‌شود. برای کارت‌های اعتباری هم می‌توانید سقف اعتبار و روز صورت‌حساب را تعیین کنید تا اعتبار باقی‌مانده را دنبال کنید.';
+
+  @override
+  String get settingsFaq11Question => 'می‌توانم از چند ارز استفاده کنم؟';
+
+  @override
+  String get settingsFaq11Answer =>
+      'بله! هر کیف پول می‌تواند ارز خودش را داشته باشد. برنامه با نرخ‌های تبدیل لحظه‌ای، ارزها را خودکار تبدیل می‌کند. همچنین می‌توانید نرخ‌های دلخواه خود را در تنظیمات > تنظیمات منطقه‌ای تعیین کنید.';
+
+  @override
+  String get settingsFaq12Question => 'تبدیل ارز چطور کار می‌کند؟';
+
+  @override
+  String get settingsFaq12Answer =>
+      'هر کیف پول می‌تواند ارز متفاوتی داشته باشد و برنامه مبالغ را با نرخ‌های تبدیل لحظه‌ای که هر چند ساعت به‌روز می‌شوند، خودکار تبدیل می‌کند. همچنین می‌توانید برای هر جفت ارز نرخ دلخواه را در تنظیمات > تنظیمات منطقه‌ای تعیین کنید. برنامه از بیش از 150 ارز پشتیبانی می‌کند و نرخ‌ها را خودکار دریافت می‌کند.';
+
+  @override
+  String get settingsFaq13Question =>
+      'اگر دسته‌ای را که تراکنش دارد حذف کنم چه می‌شود؟';
+
+  @override
+  String get settingsFaq13Answer =>
+      'آن تراکنش‌ها به «بدون دسته» منتقل می‌شوند. بعد می‌توانید آن‌ها را به دسته دیگری بدهید یا بدون دسته بگذارید.';
+
+  @override
+  String get settingsFaq14Question => 'زیردسته چیست و چطور از آن استفاده کنم؟';
+
+  @override
+  String get settingsFaq14Answer =>
+      'برای ثبت دقیق‌تر می‌توانید زیر هر دسته اصلی زیردسته بسازید. مثلاً زیر «غذا» می‌توانید «خواربار»، «رستوران» و «قهوه» داشته باشید. زیردسته‌ها به شما نشان می‌دهند پولتان دقیقاً کجا می‌رود.';
+
+  @override
+  String get settingsFaq15Question => 'اصلاح موجودی چیست؟';
+
+  @override
+  String get settingsFaq15Answer =>
+      'با اصلاح موجودی می‌توانید موجودی یک کیف پول را وقتی با مبلغ واقعی نمی‌خواند تنظیم کنید. این کار یک تراکنش ویژه می‌سازد که موجودی ثبت‌شده را با واقعیت یکی می‌کند، بدون اینکه دستی درآمد یا هزینه اضافه کنید.';
+
+  @override
+  String get settingsFaqSectionBudgetsGoals => 'بودجه‌ها و اهداف';
+
+  @override
+  String get settingsFaq16Question => 'چطور بودجه تعیین کنم؟';
+
+  @override
+  String get settingsFaq16Answer =>
+      'به زبانه بودجه‌ها بروید و روی «بودجه جدید» بزنید. یک نام انتخاب کنید، سقف هزینه را تعیین کنید، بازه زمانی (هفتگی/ماهانه) را انتخاب کنید و دسته‌هایی را که می‌خواهید دنبال شوند برگزینید. وقتی به سقف نزدیک شوید، برنامه به شما هشدار می‌دهد.';
+
+  @override
+  String get settingsFaq17Question => 'اهداف پس‌انداز چیست؟';
+
+  @override
+  String get settingsFaq17Answer =>
+      'با اهداف پس‌انداز مبلغی را که می‌خواهید پس‌انداز کنید تعیین می‌کنید. در بخش اهداف یک هدف بسازید، مبلغ هدف را تعیین کنید و تراکنش‌ها را به آن وصل کنید تا پیشرفتتان را ببینید. برنامه یک نوار پیشرفت و درصد رسیدن به هدف را نشان می‌دهد.';
+
+  @override
+  String get settingsFaq18Question => 'چطور یک وام را دنبال کنم؟';
+
+  @override
+  String get settingsFaq18Answer =>
+      'در بخش اهداف یک وام با کل مبلغ بدهی بسازید. هر بار که قسطی می‌پردازید، آن تراکنش را به وام وصل کنید تا روند بازپرداخت را ببینید. برنامه نشان می‌دهد چقدر پرداخته‌اید و چقدر مانده است.';
+
+  @override
+  String get settingsFaqSectionDataSync => 'داده‌ها و همگام‌سازی';
+
+  @override
+  String get settingsFaq19Question => 'همگام‌سازی ابری چطور کار می‌کند؟';
+
+  @override
+  String get settingsFaq19Answer =>
+      'همگام‌سازی ابری داده‌های شما را روی همه دستگاه‌ها یکسان نگه می‌دارد. برای روشن کردنش به تنظیمات > مدیریت داده‌ها > همگام‌سازی ابری بروید. همگام‌سازی هر 15 دقیقه و هر بار که برنامه را باز می‌کنید خودکار انجام می‌شود. برای همگام‌سازی فوری هم می‌توانید روی «همگام‌سازی اکنون» بزنید. این یک قابلیت Premium است.';
+
+  @override
+  String get settingsFaq20Question => 'چطور از داده‌هایم خروجی بگیرم؟';
+
+  @override
+  String get settingsFaq20Answer =>
+      'به تنظیمات > مدیریت داده‌ها > خروجی گرفتن از داده‌ها بروید. بازه تاریخ را انتخاب کنید، CSV (برای صفحه‌گسترده) یا PDF (برای گزارش مرتب) را برگزینید و روی خروجی بزنید. می‌توانید تفکیک بر اساس دسته و کیف پول را بگنجانید یا حذف کنید. این یک قابلیت Premium است.';
+
+  @override
+  String get settingsFaq21Question => 'اگر داده‌هایم را پاک کنم چه می‌شود؟';
+
+  @override
+  String get settingsFaq21Answer =>
+      'به تنظیمات > حریم خصوصی و امنیت بروید. «پاک کردن حافظه موقت» داده‌های موقت را حذف می‌کند و بدون پاک کردن تراکنش‌هایتان همگام‌سازی دوباره را انجام می‌دهد. «پاک کردن همه داده‌ها» همه چیز را برای همیشه پاک می‌کند — برای تأیید باید DELETE را تایپ کنید. این کار برگشت‌پذیر نیست.';
+
+  @override
+  String get settingsFaqSectionPremiumAiFeatures =>
+      'Premium و قابلیت‌های هوش مصنوعی';
+
+  @override
+  String get settingsFaq22Question => 'Premium چه قابلیت‌هایی دارد؟';
+
+  @override
+  String get settingsFaq22Answer =>
+      'Premium این‌ها را باز می‌کند: هوش مصنوعی نامحدود (مشاور، خلاصه‌های ماهانه، خواندن رسید و توصیفش کنید) بدون تبلیغ، همگام‌سازی ابری، گزارش‌های PDF، تم‌های Premium، و محدودیت کیف پول، دسته، بودجه، هدف و روش پرداخت را برمی‌دارد. پشتیبانی با اولویت هم می‌گیرید.';
+
+  @override
+  String get settingsFaq23Question => 'محدودیت‌های نسخه رایگان چیست؟';
+
+  @override
+  String get settingsFaq23Answer =>
+      'کاربران رایگان می‌توانند تا 3 کیف پول، 10 دسته دلخواه، 3 بودجه فعال، 2 هدف/وام فعال و 5 روش پرداخت بسازند. با ارتقا به Premium همه این محدودیت‌ها برداشته می‌شوند.';
+
+  @override
+  String get settingsFaq24Question => 'دستیار هوش مصنوعی چه کارهایی می‌کند؟';
+
+  @override
+  String get settingsFaq24Answer =>
+      'مشاور مالی به پرسش‌هایی درباره پول خودتان پاسخ می‌دهد: پولتان کجا رفت، آیا با بودجه‌ها و اهدافتان پیش می‌روید، کدام قبض‌ها در راه‌اند، و چطور کمتر خرج کنید یا بیشتر پس‌انداز کنید. خلاصه‌ای از ارقام شما (جمع‌ها، دسته‌ها، بودجه‌ها، اهداف، قبض‌ها و تراکنش‌های اخیر) را می‌بیند تا پاسخ‌هایش بر پایه اعداد واقعی شما باشد، و بعد از هر پاسخ پرسش‌های بعدی پیشنهاد می‌دهد. راهنمایی کلی می‌دهد، نه مشاوره مالی حرفه‌ای. گفتگوهای شما ذخیره می‌شوند تا از همان جایی که ماندید ادامه دهید، و هر وقت بخواهید می‌توانید پاکشان کنید.';
+
+  @override
+  String get settingsFaq25Question => 'تحلیل‌های هوش مصنوعی چطور کار می‌کنند؟';
+
+  @override
+  String get settingsFaq25Answer =>
+      'خلاصه ماهانه (آمار > تحلیل هزینه‌ها) این ماه را با ماه قبل مقایسه می‌کند: چقدر درآمد و هزینه داشتید و هر دسته چه تغییری کرد. روی خلاصه‌ام را بنویس بزنید تا هوش مصنوعی نکات برجسته را بگوید و یک کار برای امتحان پیشنهاد دهد. اعداد برای همه رایگان‌اند؛ متن هوش مصنوعی یک درخواست هوش مصنوعی مصرف می‌کند.';
+
+  @override
+  String get settingsFaq26Question => 'دسته‌بندی هوشمند چیست؟';
+
+  @override
+  String get settingsFaq26Answer =>
+      'وقتی تراکنشی را دستی دسته‌بندی می‌کنید، برنامه به یاد می‌سپارد آن عنوان به کدام دسته تعلق دارد و دفعه بعد خودش آن را انتخاب می‌کند (این‌ها را می‌توانید در قوانین نام‌گذاری ببینید و ویرایش کنید). برای چیز تازه، روی دکمه درخشان در صفحه افزودن بزنید و از توصیفش کنید استفاده کنید: چیزی مثل «ناهار 250 دیروز از bKash» بنویسید تا هوش مصنوعی مبلغ، تاریخ، دسته و حساب را برای بررسی شما پر کند.';
+
+  @override
+  String get settingsFaq27Question => 'اسکنر رسید هوش مصنوعی چطور کار می‌کند؟';
+
+  @override
+  String get settingsFaq27Answer =>
+      'از یک رسید عکس بگیرید یا عکسی انتخاب کنید. گوشی شما متن را روی خود دستگاه می‌خواند و فروشنده و جمع کل را پیشنهاد می‌دهد. روی خواندن با هوش مصنوعی بزنید تا هوش مصنوعی جمع واقعی، تاریخ، تک‌تک اقلام و دسته درست را پیدا کند، حتی روی رسید نامرتب؛ فقط متن فرستاده می‌شود، هرگز عکس. پیش از ذخیره می‌توانید همه چیز را بررسی و ویرایش کنید. خواندن با هوش مصنوعی یک درخواست هوش مصنوعی مصرف می‌کند.';
+
+  @override
+  String get settingsFaq28Question =>
+      'چند درخواست هوش مصنوعی دارم و تبلیغ‌ها برای چیست؟';
+
+  @override
+  String get settingsFaq28Answer =>
+      'همه هر ماه 10 درخواست رایگان هوش مصنوعی دارند که روز اول ماه برمی‌گردند. اگر بیشتر خواستید، می‌توانید با دیدن یک تبلیغ کوتاه یک درخواست اضافه بگیرید، تا 10 درخواست بیشتر در ماه. تبلیغ‌ها همچنین می‌توانند امتحان 24 ساعته یک تم Premium یا یک خروجی PDF را باز کنند. تبلیغ فقط بعد از اینکه روی دکمه‌ای بزنید و تأیید کنید پخش می‌شود؛ هیچ تبلیغ بنری نیست و هیچ چیزی خودبه‌خود ظاهر نمی‌شود. اعضای Premium هوش مصنوعی نامحدود و همه چیز دیگر را بدون هیچ تبلیغی دارند.';
+
+  @override
+  String get settingsFaq29Question => 'چطور خرید Premium خود را مدیریت کنم؟';
+
+  @override
+  String get settingsFaq29Answer =>
+      'خریدهای Premium از طریق Google Play مدیریت می‌شوند. برای دیدن یا مدیریت طرح خود به تنظیمات اشتراک Google Play بروید. Premium به‌صورت ماهانه، سالانه یا خرید یک‌باره مادام‌العمر در دسترس است.';
+
+  @override
+  String get settingsFaqSectionPrivacySecurity => 'حریم خصوصی و امنیت';
+
+  @override
+  String get settingsFaq30Question => 'چطور قفل بیومتریک را راه بیندازم؟';
+
+  @override
+  String get settingsFaq30Answer =>
+      'به تنظیمات > حریم خصوصی و امنیت بروید و قفل بیومتریک را روشن کنید. از آن به بعد برای باز کردن برنامه به اثر انگشت یا چهره‌تان نیاز دارید. همچنین می‌توانید زمان قفل خودکار را تنظیم کنید تا برنامه پس از مدتی بی‌استفاده ماندن قفل شود.';
+
+  @override
+  String get settingsFaq31Question => 'آیا داده‌های مالی من امن است؟';
+
+  @override
+  String get settingsFaq31Answer =>
+      'بله. همه داده‌های شما روی دستگاه خودتان ذخیره می‌شوند. اگر همگام‌سازی ابری را روشن کنید، داده‌هایتان هنگام انتقال رمزگذاری می‌شوند. ما هرگز داده‌های مالی شما را با دیگران به اشتراک نمی‌گذاریم. سیاست حفظ حریم خصوصی ما را در تنظیمات > درباره ببینید.';
+
+  @override
+  String get txnLoadPaymentMethodsFailed =>
+      'بارگذاری روش‌های پرداخت ناموفق بود';
+
+  @override
+  String get txnAddPaymentMethodFailed => 'افزودن روش پرداخت ناموفق بود';
+
+  @override
+  String get txnPaymentMethodNotFound => 'روش پرداخت پیدا نشد';
+
+  @override
+  String get txnUpdatePaymentMethodFailed =>
+      'به‌روزرسانی روش پرداخت ناموفق بود';
+
+  @override
+  String get txnDeletePaymentMethodFailed => 'حذف روش پرداخت ناموفق بود';
+
+  @override
+  String txnLoadFailed(String error) {
+    return 'بارگذاری تراکنش‌ها ناموفق بود: $error';
+  }
+
+  @override
+  String get txnAddFailed => 'افزودن تراکنش ناموفق بود';
+
+  @override
+  String txnAddFailedWithError(String error) {
+    return 'افزودن تراکنش ناموفق بود: $error';
+  }
+
+  @override
+  String get txnNotFound => 'تراکنش پیدا نشد';
+
+  @override
+  String get txnUpdateFailed => 'به‌روزرسانی تراکنش ناموفق بود';
+
+  @override
+  String txnNotATransfer(String id) {
+    return 'تراکنش $id انتقال نیست';
+  }
+
+  @override
+  String txnUpdateTransferFailed(String error) {
+    return 'به‌روزرسانی انتقال ناموفق بود: $error';
+  }
+
+  @override
+  String get txnDeleteFailed => 'حذف تراکنش ناموفق بود';
+
+  @override
+  String txnLoadTransfersFailed(String error) {
+    return 'بارگذاری انتقال‌ها ناموفق بود: $error';
+  }
+
+  @override
+  String txnCreateTransferFailed(String error) {
+    return 'ایجاد انتقال ناموفق بود: $error';
+  }
+
+  @override
+  String txnDeleteTransferFailed(String error) {
+    return 'حذف انتقال ناموفق بود: $error';
+  }
+
+  @override
+  String txnLoadDataFailed(String error) {
+    return 'بارگذاری داده‌ها ناموفق بود: $error';
+  }
+
+  @override
+  String txnMarkPaidFailed(String error) {
+    return 'علامت‌گذاری به‌عنوان پرداخت‌شده ناموفق بود: $error';
+  }
+
+  @override
+  String txnMarkUnpaidFailed(String error) {
+    return 'علامت‌گذاری به‌عنوان پرداخت‌نشده ناموفق بود: $error';
+  }
+
+  @override
+  String txnSkipFailed(String error) {
+    return 'رد کردن تراکنش ناموفق بود: $error';
+  }
+
+  @override
+  String creditReceivedTitle(String title) {
+    return 'دریافت شد: $title';
+  }
+
+  @override
+  String creditPaidTitle(String title) {
+    return 'پرداخت شد: $title';
+  }
+
+  @override
+  String creditReversedTitle(String title) {
+    return 'برگشت داده شد: $title';
+  }
+
+  @override
+  String creditMarkSettledFailed(String error) {
+    return 'علامت‌گذاری به‌عنوان تسویه‌شده ناموفق بود: $error';
+  }
+
+  @override
+  String get creditPaymentMustBePositive =>
+      'مبلغ پرداخت باید بیشتر از صفر باشد';
+
+  @override
+  String creditRecordPaymentFailed(String error) {
+    return 'ثبت پرداخت ناموفق بود: $error';
+  }
+
+  @override
+  String creditMarkPendingFailed(String error) {
+    return 'علامت‌گذاری به‌عنوان در انتظار ناموفق بود: $error';
+  }
+
+  @override
+  String creditRemaining(String amount) {
+    return 'باقی‌مانده: $amount';
+  }
+
+  @override
+  String creditPaymentRecorded(String amount) {
+    return 'پرداخت $amount ثبت شد';
+  }
+
+  @override
+  String creditMarkedCollected(String title) {
+    return 'به‌عنوان دریافت‌شده از «$title» علامت خورد';
+  }
+
+  @override
+  String get importFieldDescription => 'توضیحات';
+
+  @override
+  String get importFieldDirection => 'نوع (بستانکار/بدهکار)';
+
+  @override
+  String get importMissingDate => 'یک ستون تاریخ';
+
+  @override
+  String get importMissingAmount => 'یک ستون مبلغ';
+
+  @override
+  String importColumnN(int index) {
+    return 'ستون $index';
+  }
+
+  @override
+  String get importNoDate => 'بدون تاریخ';
+
+  @override
+  String importDateMismatch(String date, String format) {
+    return 'تاریخ «$date» با $format مطابقت ندارد';
+  }
+
+  @override
+  String get importAnyKnownFormat => 'هیچ قالب شناخته‌شده‌ای';
+
+  @override
+  String get importNoAmount => 'بدون مبلغ';
+
+  @override
+  String get importIntro =>
+      'یک CSV از بانکتان بگیرید و اینجا باز کنید. ستون‌ها خودکار تشخیص داده می‌شوند و تا دقیقاً نبینید چه چیزی اضافه می‌شود، چیزی اضافه نمی‌شود.';
+
+  @override
+  String get importSavedBanks => 'بانک‌های ذخیره‌شده';
+
+  @override
+  String get importChooseStatement => 'یک صورت‌حساب انتخاب کنید';
+
+  @override
+  String get importNoRows => 'آن فایل هیچ ردیفی ندارد.';
+
+  @override
+  String importUsingSavedMapping(String name) {
+    return 'از نگاشت ذخیره‌شده‌تان برای $name استفاده می‌شود.';
+  }
+
+  @override
+  String importCouldNotRead(String error) {
+    return 'آن فایل خوانده نشد: $error';
+  }
+
+  @override
+  String importForgetTitle(String name) {
+    return '$name فراموش شود؟';
+  }
+
+  @override
+  String get importForgetBody =>
+      'دفعه بعد دوباره از شما خواسته می‌شود ستون‌ها را نگاشت کنید.';
+
+  @override
+  String get importColumnsHeader => 'ستون‌ها';
+
+  @override
+  String get importHowToRead => 'نحوه خواندن مقادیر';
+
+  @override
+  String get importWhereItGoes => 'مقصد';
+
+  @override
+  String get importWhatWillBeAdded => 'آنچه اضافه می‌شود';
+
+  @override
+  String importRowsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ردیف',
+      one: '۱ ردیف',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importColumnsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ستون',
+      one: '۱ ستون',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSeparatedBy(String separator) {
+    return 'جداشده با $separator';
+  }
+
+  @override
+  String importMappedAs(String name) {
+    return 'نگاشت‌شده به‌عنوان $name';
+  }
+
+  @override
+  String get importDelimCommas => 'ویرگول';
+
+  @override
+  String get importDelimSemicolons => 'نقطه‌ویرگول';
+
+  @override
+  String get importDelimTabs => 'تب';
+
+  @override
+  String get importDelimPipes => 'خط عمودی (|)';
+
+  @override
+  String get importRequired => 'الزامی';
+
+  @override
+  String get importNotImported => 'وارد نمی‌شود';
+
+  @override
+  String get importEmptySample => 'خالی';
+
+  @override
+  String get importPickDateColumnFirst => 'ابتدا یک ستون تاریخ انتخاب کنید.';
+
+  @override
+  String importDateDoesNotFit(String sample) {
+    return '«$sample» با این قالب جور نیست.';
+  }
+
+  @override
+  String importDateReadsAs(String sample, String date) {
+    return '«$sample» به‌صورت $date خوانده می‌شود';
+  }
+
+  @override
+  String get importDecimalAuto => 'از فایل تشخیص داده شد';
+
+  @override
+  String get importDecimalFullStop => 'نقطه، مانند 1,234.56';
+
+  @override
+  String get importDecimalComma => 'ویرگول، مانند 1.234,56';
+
+  @override
+  String get importDuplicatesHint =>
+      'بر اساس روز، مبلغ و توضیحات تطبیق می‌دهد، پس وارد کردن دوباره صورت‌حساب هم‌پوشان چیزی را دوبرابر نمی‌کند';
+
+  @override
+  String importStillNeeds(String item) {
+    return 'هنوز $item لازم است.';
+  }
+
+  @override
+  String importStillNeedsBoth(String first, String second) {
+    return 'هنوز $first و $second لازم است.';
+  }
+
+  @override
+  String get importNothingReadable =>
+      'با این تنظیمات هیچ چیز از این فایل خوانده نمی‌شود. قالب تاریخ و ستون مبلغ را بررسی کنید.';
+
+  @override
+  String importTransactionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تراکنش',
+      one: '۱ تراکنش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importAmountIn(String amount) {
+    return '$amount ورودی';
+  }
+
+  @override
+  String importAmountOut(String amount) {
+    return '$amount خروجی';
+  }
+
+  @override
+  String importAndMore(int count) {
+    return 'و $count مورد دیگر';
+  }
+
+  @override
+  String importLinesSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count خط رد می‌شود',
+      one: '۱ خط رد می‌شود',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLinesSkippedSentence(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count خط رد می‌شود.',
+      one: '۱ خط رد می‌شود.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLineProblem(int line, String problem) {
+    return 'خط $line: $problem';
+  }
+
+  @override
+  String get importAddAccountFirst => 'ابتدا یک حساب اضافه کنید';
+
+  @override
+  String importImportCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'وارد کردن $count تراکنش',
+      one: 'وارد کردن ۱ تراکنش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تراکنش وارد شود؟',
+      one: '۱ تراکنش وارد شود؟',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importConfirmBody =>
+      'به سوابق شما اضافه می‌شوند و در همگام‌سازی بعدی بارگذاری می‌شوند.';
+
+  @override
+  String get importConfirmDuplicates =>
+      'هر چیزی که از قبل با همان روز، مبلغ و توضیحات وجود دارد، دست‌نخورده می‌ماند.';
+
+  @override
+  String importFailed(String error) {
+    return 'وارد کردن ناموفق بود: $error';
+  }
+
+  @override
+  String importImportedTitle(int count) {
+    return '$count مورد وارد شد';
+  }
+
+  @override
+  String importSkippedDuplicates(int count) {
+    return '$count مورد از قبل وجود داشت و دست‌نخورده ماند.';
+  }
+
+  @override
+  String importUnreadableLines(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count خط خوانده نشد.',
+      one: '۱ خط خوانده نشد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importNewCategories(String names) {
+    return 'دسته‌های جدید: $names.';
+  }
+
+  @override
+  String importUnmatchedAccounts(String names) {
+    return 'این نام‌های حساب اینجا مطابقی نداشتند، پس ردیف‌هایشان به حسابی که انتخاب کردید رفت: $names.';
+  }
+
+  @override
+  String get importRememberBody =>
+      'فایل بعدی با همین ستون‌ها بدون پرسیدن همین‌طور نگاشت می‌شود.';
+
+  @override
+  String get importNoHeaderCannotSave =>
+      'فایلی بدون عنوان ستون دوباره شناخته نمی‌شود، پس چیزی برای تطبیق نیست.';
+
+  @override
+  String get importTemplateSaved =>
+      'ذخیره شد. فایل‌هایی با این ستون‌ها از این پس از آن استفاده می‌کنند.';
+
+  @override
+  String get txnTransferSameWallet => 'کیف پول مبدأ و مقصد باید متفاوت باشند';
+
+  @override
+  String get txnTransferAmountPositive => 'مبلغ انتقال باید بیشتر از صفر باشد';
+
+  @override
+  String get txnTransferFeeNegative => 'کارمزد انتقال نمی‌تواند منفی باشد';
+
+  @override
+  String txnSourceWalletNotFound(String id) {
+    return 'کیف پول مبدأ پیدا نشد: $id';
+  }
+
+  @override
+  String txnDestinationWalletNotFound(String id) {
+    return 'کیف پول مقصد پیدا نشد: $id';
+  }
+
+  @override
+  String txnTransferTitle(String from, String to) {
+    return 'انتقال: $from → $to';
+  }
+
+  @override
+  String txnTransferWalletsMissing(String source, String destination) {
+    return 'برای انتقال، هر دو کیف پول باید وجود داشته باشند (مبدأ: $source، مقصد: $destination).';
+  }
+
+  @override
+  String txnTransferSameCurrencyReceived(
+    String source,
+    String destination,
+    String currency,
+  ) {
+    return 'انتقال در یک ارز فقط یک مبلغ را جابه‌جا می‌کند: $source و $destination هر دو به $currency هستند، پس مبلغ دریافتی نمی‌تواند متفاوت باشد.';
+  }
+
+  @override
+  String txnTransferNoRate(String from, String to, String destination) {
+    return 'نرخی بین $from و $to معلوم نیست، پس مبلغی را که واقعاً به $destination رسید وارد کنید.';
+  }
+
+  @override
+  String txnTransferReceivedPositive(String destination) {
+    return 'مبلغ دریافتی باید بیشتر از صفر باشد. مبلغی را که واقعاً به $destination رسید وارد کنید.';
+  }
+
+  @override
+  String txnFeeTitle(String title) {
+    return 'کارمزد: $title';
+  }
+
+  @override
+  String txnNotFoundWithId(String id) {
+    return 'تراکنش پیدا نشد: $id';
+  }
+
+  @override
+  String get txnNotATransferNoPair => 'تراکنش انتقال نیست (تراکنش جفت ندارد)';
+
+  @override
+  String txnPairedNotFound(String id) {
+    return 'تراکنش جفت $id پیدا نشد؛ نیمی از یک انتقال ویرایش نمی‌شود.';
+  }
+
+  @override
+  String walletNoSuchAccount(String id) {
+    return 'چنین حسابی وجود ندارد: $id';
+  }
+
+  @override
+  String get walletCorrectionTitle => 'اصلاح موجودی';
+
+  @override
+  String walletCorrectionNote(String name) {
+    return '$name با موجودی واقعی‌اش هماهنگ شد.';
+  }
+
+  @override
+  String get walletMergeIntoItself => 'یک حساب را نمی‌توان در خودش ادغام کرد.';
+
+  @override
+  String get walletMergeBothMustExist =>
+      'برای ادغام، هر دو حساب باید وجود داشته باشند.';
+
+  @override
+  String walletMergeNoRate(String from, String to) {
+    return 'نرخی بین $from و $to معلوم نیست، پس این حساب‌ها هنوز ادغام نمی‌شوند.';
+  }
+
+  @override
+  String get walletMergeAdjustmentTitle => 'تعدیل ادغام';
+
+  @override
+  String walletMergeAdjustmentNote(String name) {
+    return 'نرخ انتقالی بین این حساب‌ها با نرخ ادغام $name فرق دارد. این مورد تفاوت را ثبت می‌کند تا مجموع تغییر نکند.';
+  }
+
+  @override
+  String get splitErrNoTotal => 'مبلغ صورت‌حساب را وارد کنید.';
+
+  @override
+  String get splitErrNoPeople => 'کسی را برای تقسیم اضافه کنید.';
+
+  @override
+  String splitErrPayerNotOnBill(String name) {
+    return '$name در این صورت‌حساب سهمی ندارد.';
+  }
+
+  @override
+  String get splitErrNothingToRecord =>
+      'کس دیگری پرداخت کرده و شما سهمی نداشتید، پس چیزی برای ثبت نیست.';
+
+  @override
+  String get splitErrGiveOwnShare => 'سهم خودتان را وارد کنید.';
+
+  @override
+  String splitErrGiveShare(String name) {
+    return 'سهم $name را وارد کنید.';
+  }
+
+  @override
+  String get splitErrNegativeShare => 'سهم نمی‌تواند منفی باشد.';
+
+  @override
+  String splitErrSharesSum(String sum, String total) {
+    return 'جمع سهم‌ها $sum است، نه $total.';
+  }
+
+  @override
+  String splitErrPercentSum(String sum) {
+    return 'جمع درصدها $sum% است، نه 100%.';
+  }
+
+  @override
+  String get splitErrNameTooLong => 'نام‌ها باید کمتر از ۱۰۰ نویسه باشند.';
+
+  @override
+  String splitErrDuplicateName(String name) {
+    return '$name دو بار در صورت‌حساب آمده است.';
+  }
+
+  @override
+  String get splitErrTitleTooLong => 'عنوان باید کمتر از ۲۰۰ نویسه باشد.';
+
+  @override
+  String get splitErrChooseAccount =>
+      'حسابی را که از آن پرداخت شد انتخاب کنید.';
+
+  @override
+  String get splitErrOrdinaryAccount => 'یک حساب عادی انتخاب کنید.';
+
+  @override
+  String get splitErrYourShareNothing => 'سهم شما صفر است، پس بدهی‌ای نیست.';
+
+  @override
+  String get splitErrEveryShareNothing => 'همه سهم‌ها صفر هستند.';
+
+  @override
+  String get recurringDaily => 'روزانه';
+
+  @override
+  String recurringEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هر $count روز',
+      one: 'هر روز',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هر $count هفته',
+      one: 'هر هفته',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هر $count ماه',
+      one: 'هر ماه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هر $count سال',
+      one: 'هر سال',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryOther(int count, String unit) {
+    return 'هر $count $unit';
+  }
+
+  @override
+  String get recurringUntitled => 'تراکنش تکراری';
+
+  @override
+  String recurringInDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count روز دیگر',
+      one: '۱ روز دیگر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringNextWeek => 'هفته بعد';
+
+  @override
+  String recurringInWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count هفته دیگر',
+      one: '۱ هفته دیگر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnPmKindCard => 'کارت';
+
+  @override
+  String get txnPmKindDigitalWallet => 'کیف پول دیجیتال';
+
+  @override
+  String get txnPmEmptyHint =>
+      'کارت‌ها و حساب‌هایی را که با آن‌ها پرداخت می‌کنید اضافه کنید تا بتوانید در تراکنش یکی را انتخاب کنید.';
+
+  @override
+  String get txnPmDeleteBody =>
+      'تراکنش‌هایی که قبلاً با آن ثبت شده‌اند باقی می‌مانند. فقط دیگر روش پرداختی را نشان نمی‌دهند.';
+
+  @override
+  String get txnPmNew => 'روش پرداخت جدید';
+
+  @override
+  String get txnPmEdit => 'ویرایش روش پرداخت';
+
+  @override
+  String get txnRecentlyDeletedFooter =>
+      'تراکنش‌های حذف‌شده سی روز نگه داشته می‌شوند و سپس برای همیشه پاک می‌شوند.';
+
+  @override
+  String get txnUnknownCategory => 'نامشخص';
+
+  @override
+  String txnRuleSubtitle(String match, String category) {
+    return '$match → $category';
+  }
+
+  @override
+  String get txnRuleExactly => 'دقیقاً همین';
+
+  @override
+  String get txnRuleContaining => 'هر چیزی که این را دارد';
+
+  @override
+  String get txnRulesFooter =>
+      'یک قانون هر جای عنوان را تطبیق می‌دهد، مگر اینکه آن را دقیق کنید. هر بار که چیزی را دستی دسته‌بندی کنید، برنامه یکی برایتان اضافه می‌کند.';
+
+  @override
+  String get txnRulesEmptyHint =>
+      'یک بار به برنامه یاد بدهید هر چیزی کجا می‌رود، از آن به بعد همان‌طور دسته‌بندی می‌کند.';
+
+  @override
+  String get txnRuleNew => 'قانون جدید';
+
+  @override
+  String get txnRuleEdit => 'ویرایش قانون';
+
+  @override
+  String get txnRuleExactHint => 'فقط عنوان‌هایی که دقیقاً همین هستند';
+
+  @override
+  String get txnRuleContainingHint => 'هر عنوانی که آن را دارد';
+
+  @override
+  String get txnKindTransfer => 'انتقال بین حساب‌ها';
+
+  @override
+  String get txnKindRecurring => 'از یک مورد تکراری';
+
+  @override
+  String get txnMoneyIn => 'پول ورودی';
+
+  @override
+  String get txnMoneyOut => 'پول خروجی';
+
+  @override
+  String get txnNotYetPaid => 'هنوز پرداخت نشده';
+
+  @override
+  String get txnLentOut => 'قرض داده‌شده';
+
+  @override
+  String get txnSettledInFull => 'به‌طور کامل تسویه شد.';
+
+  @override
+  String txnLoanProgress(String paid, String owed) {
+    return '$paid برگشته، $owed هنوز مانده.';
+  }
+
+  @override
+  String get txnUncategorised => 'بدون دسته';
+
+  @override
+  String get txnUnknownAccount => 'نامشخص';
+
+  @override
+  String get txnTransferCannotCopy =>
+      'یک انتقال را نمی‌توان به‌تنهایی کپی کرد.';
+
+  @override
+  String get txnCopied => 'کپی شد.';
+
+  @override
+  String get txnDeleteOneBody =>
+      'موجودی حساب دوباره محاسبه می‌شود. اگر این یک طرف از یک انتقال باشد، طرف دیگر هم با آن می‌رود.';
+
+  @override
+  String txnUpcomingTab(int count) {
+    return 'پیش رو ($count)';
+  }
+
+  @override
+  String txnOverdueTab(int count) {
+    return 'معوق ($count)';
+  }
+
+  @override
+  String get txnNoOverdue => 'تراکنش معوقی وجود ندارد';
+
+  @override
+  String get txnNoUpcoming => 'تراکنش پیش رویی وجود ندارد';
+
+  @override
+  String get txnNoOverdueBody => 'همه پرداخت‌های شما به‌روز هستند!';
+
+  @override
+  String get txnNoUpcomingBody => 'هیچ پرداخت در انتظاری برنامه‌ریزی نشده است';
+
+  @override
+  String get txnTotalOverdue => 'مجموع معوق';
+
+  @override
+  String get txnTotalUpcoming => 'مجموع پیش رو';
+
+  @override
+  String txnItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مورد',
+      one: '۱ مورد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnDaysOverdue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count روز معوق',
+      one: '۱ روز معوق',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnMarkedPaid(String title) {
+    return '«$title» به‌عنوان پرداخت‌شده علامت خورد';
+  }
+
+  @override
+  String txnSkippedTitle(String title) {
+    return '«$title» رد شد';
+  }
+
+  @override
+  String txnDateHeaderToday(String date) {
+    return 'امروز، $date';
+  }
+
+  @override
+  String txnDateHeaderYesterday(String date) {
+    return 'دیروز، $date';
+  }
+
+  @override
+  String txnDateHeaderTomorrow(String date) {
+    return 'فردا، $date';
+  }
+
+  @override
+  String txnDeleteError(String error) {
+    return 'خطا در حذف تراکنش: $error';
+  }
+
+  @override
+  String txnFilterTitle(String title) {
+    return 'فیلتر $title';
+  }
+
+  @override
+  String get txnMonthlyIncome => 'درآمد ماهانه';
+
+  @override
+  String get txnMonthlyExpenses => 'هزینه‌های ماهانه';
+
+  @override
+  String txnStatTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تراکنش',
+      one: 'تراکنش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnAvgPerTransaction => 'میانگین هر تراکنش';
+
+  @override
+  String get txnNoPlannedIncome => 'درآمد برنامه‌ریزی‌شده‌ای نیست';
+
+  @override
+  String get txnNoPlannedExpenses => 'هزینه برنامه‌ریزی‌شده‌ای نیست';
+
+  @override
+  String txnAddFutureIncome(String month) {
+    return 'درآمد آینده را برای $month اضافه کنید';
+  }
+
+  @override
+  String txnAddFutureExpenses(String month) {
+    return 'هزینه‌های آینده را برای $month اضافه کنید';
+  }
+
+  @override
+  String get txnNoIncomeYet => 'این ماه هنوز درآمدی نیست';
+
+  @override
+  String get txnNoExpensesYet => 'این ماه هنوز هزینه‌ای نیست';
+
+  @override
+  String get txnStartTrackingIncome => 'از این ماه درآمدتان را ثبت کنید';
+
+  @override
+  String get txnStartTrackingExpenses => 'از این ماه هزینه‌هایتان را ثبت کنید';
+
+  @override
+  String txnNoIncomeIn(String month) {
+    return 'در $month درآمدی نیست';
+  }
+
+  @override
+  String txnNoExpensesIn(String month) {
+    return 'در $month هزینه‌ای نیست';
+  }
+
+  @override
+  String txnNoRecordsFor(String month) {
+    return 'برای $month موردی ثبت نشده';
+  }
+
+  @override
+  String get txnOtherCategory => 'سایر';
+
+  @override
+  String get txnSearchIncome => 'جستجوی درآمد';
+
+  @override
+  String get txnSearchExpenses => 'جستجوی هزینه‌ها';
+
+  @override
+  String txnErrorWith(String error) {
+    return 'خطا: $error';
+  }
+
+  @override
+  String get txnTapToEditAmount => 'برای ویرایش مبلغ ضربه بزنید';
+
+  @override
+  String get txnTapToEnterAmount => 'برای وارد کردن مبلغ ضربه بزنید';
+
+  @override
+  String get txnSpecialDefault => 'پیش‌فرض';
+
+  @override
+  String get txnSpecialRepetitive => 'تکراری';
+
+  @override
+  String get txnRepeatSettings => 'تنظیمات تکرار';
+
+  @override
+  String get txnSubscriptionSettings => 'تنظیمات اشتراک';
+
+  @override
+  String txnEndsOn(String date) {
+    return 'پایان: $date';
+  }
+
+  @override
+  String get txnNoEndDate => 'بدون تاریخ پایان';
+
+  @override
+  String get txnEditTransaction => 'ویرایش تراکنش';
+
+  @override
+  String get txnNewTransaction => 'تراکنش جدید';
+
+  @override
+  String get txnFromAccount => 'از حساب';
+
+  @override
+  String get txnToAccount => 'به حساب';
+
+  @override
+  String get txnAmountReceived => 'مبلغ دریافتی';
+
+  @override
+  String txnAmountReceivedHint(String account) {
+    return 'این حساب‌ها با ارزهای متفاوتی حساب می‌شوند. مبلغی را که واقعاً به $account رسید وارد کنید، یا برای استفاده از نرخ برنامه خالی بگذارید.';
+  }
+
+  @override
+  String txnInCurrency(String currency) {
+    return 'به $currency';
+  }
+
+  @override
+  String get txnTransferTitleHint => 'مثلاً انتقال به پس‌انداز (اختیاری)';
+
+  @override
+  String get txnTitleHint => 'برای چه بود؟';
+
+  @override
+  String get txnUpdate => 'به‌روزرسانی';
+
+  @override
+  String get txnSelectCategory => 'انتخاب دسته';
+
+  @override
+  String get txnSearchTransactions => 'جستجوی تراکنش‌ها';
+
+  @override
+  String get txnSpecialRegular => 'عادی';
+
+  @override
+  String get txnSpecialLend => 'قرض دادن';
+
+  @override
+  String get txnSpecialBorrow => 'قرض گرفتن';
+
+  @override
+  String get txnSpecialRegularDesc => 'تراکنش عادی';
+
+  @override
+  String get txnSpecialUpcomingDesc => 'پرداخت آینده برای پیگیری';
+
+  @override
+  String get txnSpecialSubscriptionDesc => 'پرداخت دوره‌ای یک سرویس';
+
+  @override
+  String get txnSpecialRepetitiveDesc => 'تراکنش تکراری';
+
+  @override
+  String get txnSpecialLendDesc => 'پولی که قرض دادید (به شما بدهکارند)';
+
+  @override
+  String get txnSpecialBorrowDesc => 'پولی که قرض گرفتید (به آن‌ها بدهکارید)';
+
+  @override
+  String txnFilterBoundsInverted(String min, String max) {
+    return 'حد پایین از حد بالا بیشتر است، پس هیچ چیز مطابقت ندارد. $min تا $max.';
+  }
+
+  @override
+  String get walletMyWallet => 'کیف پول من';
+
+  @override
+  String walletCreateFailed(String error) {
+    return 'ایجاد کیف پول ناموفق بود: $error';
+  }
+
+  @override
+  String get walletTypeBankAccount => 'حساب بانکی';
+
+  @override
+  String get walletTypeCreditCard => 'کارت اعتباری';
+
+  @override
+  String get walletTypeSubscription => 'اشتراک';
+
+  @override
+  String get walletTypeDeposit => 'سپرده';
+
+  @override
+  String get walletTypeInvestment => 'سرمایه‌گذاری';
+
+  @override
+  String get walletTypeAsset => 'دارایی';
+
+  @override
+  String get walletEnterAccountName => 'لطفاً نام حساب را وارد کنید';
+
+  @override
+  String get walletCreditLimitRequired => 'سقف اعتبار لازم است';
+
+  @override
+  String get walletEnterValidCreditLimit => 'لطفاً سقف اعتبار معتبری وارد کنید';
+
+  @override
+  String get walletEnterValidCreditLimitAboveZero =>
+      'لطفاً سقف اعتبار معتبر بیشتر از ۰ وارد کنید';
+
+  @override
+  String get walletEditWallet => 'ویرایش کیف پول';
+
+  @override
+  String get walletAddNewWallet => 'افزودن کیف پول جدید';
+
+  @override
+  String get walletEnterWalletNameError => 'لطفاً نام کیف پول را وارد کنید';
+
+  @override
+  String get walletEnterValidNumber => 'لطفاً عدد معتبری وارد کنید';
+
+  @override
+  String get walletShowCents => 'نمایش سنت (مثلاً \$1,234.56)';
+
+  @override
+  String get walletWholeNumbersOnly => 'فقط اعداد صحیح (مثلاً \$1,235)';
+
+  @override
+  String get walletCreateWallet => 'ایجاد کیف پول';
+
+  @override
+  String get walletClosedPill =>
+      'بسته شده. تاریخچه‌اش حفظ می‌شود، اما دیگر پیشنهاد یا شمرده نمی‌شود.';
+
+  @override
+  String get walletExcludedPill => 'از مجموع همه حساب‌ها کنار گذاشته شده.';
+
+  @override
+  String get walletReopen => 'بازگشایی';
+
+  @override
+  String get walletCloseAccount => 'بستن حساب';
+
+  @override
+  String get walletReopenSubtitle => 'دوباره پیشنهاد و شمرده شود';
+
+  @override
+  String get walletCloseAccountSubtitle => 'تاریخچه بماند، شمرده نشود';
+
+  @override
+  String get walletIncludeInTotal => 'در مجموع لحاظ شود';
+
+  @override
+  String get walletLeaveOutOfTotal => 'از مجموع کنار گذاشته شود';
+
+  @override
+  String get walletAlreadyTheBalance => 'موجودی همین است.';
+
+  @override
+  String get walletCorrectionRecorded => 'تفاوت به‌عنوان اصلاح ثبت شد.';
+
+  @override
+  String walletMergeConfirmBody(String name) {
+    return 'همه موارد ثبت‌شده در $name منتقل می‌شوند و $name بسته می‌شود. چیزی حذف نمی‌شود.';
+  }
+
+  @override
+  String walletMergeConfirmBodyConverted(String name, String from, String to) {
+    return 'مبالغ هنگام انتقال از $from به $to تبدیل می‌شوند. چیزی حذف نمی‌شود و $name به‌جای پاک شدن بسته می‌شود.';
+  }
+
+  @override
+  String walletCardInCredit(String amount, String available) {
+    return '$amount بستانکار · $available در دسترس';
+  }
+
+  @override
+  String walletCardOwed(String amount, String available) {
+    return '$amount بدهی · $available هنوز در دسترس';
+  }
+
+  @override
+  String walletCorrectBalanceBody(String name) {
+    return 'مبلغی را که واقعاً در $name است وارد کنید. تفاوت به‌عنوان یک تراکنش ثبت می‌شود تا حساب با تاریخچه‌اش جور باشد.';
+  }
+
+  @override
+  String get apiUpdateRequired =>
+      'برای ادامهٔ همگام‌سازی، The Accountant را به‌روز کنید. تا آن موقع همه‌چیز روی همین گوشی می‌ماند.';
+
+  @override
+  String get apiAccountExistsLink =>
+      'حسابی با این ایمیل از قبل وجود دارد. لطفاً حساب‌هایتان را به هم پیوند دهید.';
+
+  @override
+  String get apiServerTrouble =>
+      'سرور ما الان دچار مشکل است. همه‌چیز روی این گوشی امن است؛ چند دقیقهٔ دیگر دوباره تلاش کنید.';
+
+  @override
+  String apiRequestFailedHttp(String status) {
+    return 'درخواست ناموفق بود (HTTP $status).';
+  }
+
+  @override
+  String get apiServerTimeout =>
+      'پاسخ سرور ما خیلی طول کشید. اتصالتان را بررسی کنید یا چند دقیقهٔ دیگر دوباره تلاش کنید.';
+
+  @override
+  String get apiCannotReachServer =>
+      'به سرور ما دسترسی نیست. اتصالتان را بررسی کنید؛ اگر آنلاین هستید، چند دقیقهٔ دیگر دوباره تلاش کنید.';
+
+  @override
+  String get apiSomethingWentWrong =>
+      'در ارتباط با سرور ما مشکلی پیش آمد. لطفاً دوباره تلاش کنید.';
+
+  @override
+  String get syncAlreadyInProgress => 'همگام‌سازی در حال انجام است';
+
+  @override
+  String get syncRequiresPremium =>
+      'همگام‌سازی ابری به اشتراک Premium نیاز دارد';
+
+  @override
+  String get syncNoInternet => 'اتصال اینترنت برقرار نیست';
+
+  @override
+  String get syncNotAuthenticated => 'وارد نشده‌اید';
+
+  @override
+  String get syncCouldNotFetchCloud =>
+      'داده‌های ابری شما دریافت نشد. داده‌های این دستگاه تغییری نکرده است.';
+
+  @override
+  String get syncAccountUnknown => 'حساب واردشده مشخص نشد؛ همگام‌سازی لغو شد.';
+
+  @override
+  String get syncStoreOtherAccount =>
+      'داده‌های این دستگاه متعلق به حساب دیگری است. پیش از همگام‌سازی، با آن حساب وارد شوید یا داده‌های این دستگاه را پاک کنید.';
+
+  @override
+  String syncRecordsNotSaved(String record) {
+    return 'برخی رکوردهای ابری روی این دستگاه ذخیره نشدند: $record. در همگام‌سازی بعدی دوباره امتحان می‌شوند.';
+  }
+
+  @override
+  String syncRecordsNotSavedMore(String record, int count) {
+    return 'برخی رکوردهای ابری روی این دستگاه ذخیره نشدند: $record (و $count مورد دیگر). در همگام‌سازی بعدی دوباره امتحان می‌شوند.';
+  }
+
+  @override
+  String notifCardStatementReady(String name) {
+    return 'صورت‌حساب $name آماده است';
+  }
+
+  @override
+  String notifCardStatementPaid(String amount) {
+    return 'مبلغ آن $amount بود که پرداخت شده است. چیز دیگری بدهکار نیستید.';
+  }
+
+  @override
+  String notifCardDueBy(String amount, String date) {
+    return '$amount تا $date سررسید دارد.';
+  }
+
+  @override
+  String notifCardPaidSoFar(String paid, String owed) {
+    return '$paid از $owed پرداخت شده است.';
+  }
+
+  @override
+  String notifCardDueTomorrow(String name) {
+    return 'سررسید صورت‌حساب $name فرداست';
+  }
+
+  @override
+  String notifCardDueInDays(String name, int days) {
+    return 'سررسید صورت‌حساب $name $days روز دیگر است';
+  }
+
+  @override
+  String notifPayBy(String amount, String date) {
+    return '$amount را تا $date پرداخت کنید.';
+  }
+
+  @override
+  String notifCardDueToday(String name) {
+    return 'سررسید صورت‌حساب $name امروز است';
+  }
+
+  @override
+  String notifCardStillUnpaid(String amount, String paidSoFar) {
+    return '$amount هنوز پرداخت نشده است.$paidSoFar پرداخت امروز از جریمهٔ دیرکرد جلوگیری می‌کند.';
+  }
+
+  @override
+  String get notifWhenToday => 'امروز';
+
+  @override
+  String get notifWhenTomorrow => 'فردا';
+
+  @override
+  String notifWhenInDays(int days) {
+    return '$days روز دیگر';
+  }
+
+  @override
+  String notifPlanPaysOut(String name, String when) {
+    return '$name $when پرداخت می‌شود';
+  }
+
+  @override
+  String notifPlanPayoutBody(String amount, String account, String date) {
+    return '$amount در $date به $account واریز می‌شود.';
+  }
+
+  @override
+  String notifPlanMatures(String name, String when) {
+    return '$name $when سررسید می‌شود';
+  }
+
+  @override
+  String notifPlanMaturityBody(String amount, String account, String date) {
+    return '$amount در $date به $account برمی‌گردد.';
+  }
+
+  @override
+  String notifPlanInstallmentDue(
+    String name,
+    String kind,
+    int number,
+    int total,
+    String when,
+  ) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'dps': 'سپردهٔ',
+      'insurance': 'حق بیمهٔ',
+      'sip': 'SIP',
+      'other': 'قسط',
+    });
+    return '$name: $_temp0 $number از $total $when سررسید است';
+  }
+
+  @override
+  String notifInvestBy(String amount, String date) {
+    return '$amount را تا $date سرمایه‌گذاری کنید.';
+  }
+
+  @override
+  String notifWillBeInvested(String amount, String account, String date) {
+    return '$amount در $date از $account سرمایه‌گذاری می‌شود.';
+  }
+
+  @override
+  String notifWillBeRecorded(String amount, String account, String date) {
+    return '$amount در $date از $account ثبت می‌شود.';
+  }
+
+  @override
+  String get notifYourAccount => 'حساب شما';
+
+  @override
+  String get notifPlansUpdatedTitle => 'اقساط و پس‌انداز به‌روز شد';
+
+  @override
+  String notifPlansUpdatedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مورد از برنامه‌ها در روز خودشان ثبت شدند.',
+      one: '۱ مورد از برنامه در روز خودش ثبت شد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifRecurringRecordedTitle => 'تراکنش‌های تکراری ثبت شدند';
+
+  @override
+  String notifRecurringRecordedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تراکنش تکراری ثبت شد.',
+      one: '۱ تراکنش تکراری ثبت شد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifPaymentsToConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count پرداخت برای تأیید',
+      one: '۱ پرداخت برای تأیید',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifPaymentsToConfirmBody =>
+      'در «پیش رو» مبلغ کسرشده را تأیید کنید یا از آن بگذرید.';
+
+  @override
+  String notifPaymentsToConfirmBodyNames(String names) {
+    return '$names — در «پیش رو» مبلغ کسرشده را تأیید کنید یا از آن بگذرید.';
+  }
+
+  @override
+  String get notifUpcomingFallbackTitle => 'تراکنش پیش رو';
+
+  @override
+  String notifUpcomingTitle(String title) {
+    return 'پیش رو: $title';
+  }
+
+  @override
+  String notifUpcomingIncomeBody(String amount) {
+    return 'درآمد $amount به‌زودی سررسید می‌شود.';
+  }
+
+  @override
+  String notifUpcomingExpenseBody(String amount) {
+    return 'هزینهٔ $amount به‌زودی سررسید می‌شود.';
+  }
+
+  @override
+  String get notifCreditFallback => 'طلب';
+
+  @override
+  String get notifDebtFallback => 'بدهی';
+
+  @override
+  String notifOverdueCreditTitle(String title) {
+    return 'طلب معوق: $title';
+  }
+
+  @override
+  String notifOverdueDebtTitle(String title) {
+    return 'بدهی معوق: $title';
+  }
+
+  @override
+  String notifOutstandingBody(String amount) {
+    return '$amount هنوز تسویه نشده است. برای بررسی ضربه بزنید.';
+  }
+
+  @override
+  String get notifRecurringFallbackTitle => 'تراکنش تکراری';
+
+  @override
+  String notifUpcomingRecurringTitle(String title) {
+    return 'تکراری پیش رو: $title';
+  }
+
+  @override
+  String notifDueOnBody(String amount, String date) {
+    return '$amount با سررسید $date.';
+  }
+
+  @override
+  String notifCreditDueTitle(String title) {
+    return 'سررسید طلب: $title';
+  }
+
+  @override
+  String notifDebtDueTitle(String title) {
+    return 'سررسید بدهی: $title';
+  }
+
+  @override
+  String notifSubscriptionDueTitle(String title) {
+    return 'سررسید اشتراک: $title';
+  }
+
+  @override
+  String notifBillDueTitle(String title) {
+    return 'سررسید قبض: $title';
+  }
+
+  @override
+  String notifDueSoonTitle(String title) {
+    return 'سررسید نزدیک: $title';
+  }
+
+  @override
+  String get notifRepetitiveBillFallback => 'قبض تکراری';
+
+  @override
+  String notifDueSoonBody(String amount) {
+    return 'سررسید $amount نزدیک است. برای بررسی ضربه بزنید.';
+  }
+
+  @override
+  String get notifChannelRecurring => 'تراکنش‌های تکراری';
+
+  @override
+  String get notifChannelRecurringDesc => 'اعلان‌های تراکنش‌های تکراریِ خودکار';
+
+  @override
+  String get notifChannelUpcoming => 'یادآوری‌های پیش رو';
+
+  @override
+  String get notifChannelUpcomingDesc => 'یادآوری تراکنش‌های پیش رو';
+
+  @override
+  String get notifChannelLoan => 'یادآوری وام‌ها';
+
+  @override
+  String get notifChannelLoanDesc => 'یادآوری طلب‌ها و بدهی‌های معوق';
+
+  @override
+  String get notifChannelDueDate => 'یادآوری سررسیدها';
+
+  @override
+  String get notifChannelDueDateDesc =>
+      'یادآوری‌های یک‌باره برای سررسید تراکنش‌های مشخص';
+
+  @override
+  String get notifChannelBillsDesc =>
+      'صورت‌حساب‌های کارت اعتباری و اقساط برنامه‌ها که سررسیدشان نزدیک است';
+
+  @override
+  String get notifOffset1Hour => '۱ ساعت قبل';
+
+  @override
+  String get notifOffset1Day => '۱ روز قبل';
+
+  @override
+  String get notifOffset3Days => '۳ روز قبل';
+
+  @override
+  String get notifOffset1Week => '۱ هفته قبل';
+
+  @override
+  String notifOffsetMinutes(int minutes) {
+    return '$minutes دقیقه قبل';
+  }
+
+  @override
+  String get notifChannelGeneral => 'عمومی';
+
+  @override
+  String get notifChannelGeneralDesc => 'اعلان‌های حساب و برنامه';
+
+  @override
+  String get notifChannelReminders => 'یادآوری‌های روزانه';
+
+  @override
+  String get notifChannelRemindersDesc => 'یادآوری برای ثبت خرج‌های روز';
+
+  @override
+  String get notifChannelBillsStatementsDesc =>
+      'صورت‌حساب‌ها و سررسیدهای کارت اعتباری';
+
+  @override
+  String get notifChannelBudgets => 'هشدارهای بودجه';
+
+  @override
+  String get notifChannelBudgetsDesc =>
+      'وقتی بودجه‌ای تقریباً یا کاملاً خرج شده است';
+
+  @override
+  String notifOverBudgetTitle(String name) {
+    return 'فراتر از بودجه: $name';
+  }
+
+  @override
+  String notifBudgetAlertTitle(String name) {
+    return 'هشدار بودجه: $name';
+  }
+
+  @override
+  String notifOverBudgetBody(String percent, String name) {
+    return '$percent% از بودجهٔ $name این دوره را خرج کرده‌اید.';
+  }
+
+  @override
+  String notifBudgetAlertBody(String percent, String name) {
+    return '$percent% از بودجهٔ $name را مصرف کرده‌اید.';
+  }
+
+  @override
+  String get notifPremiumEndingTitle => 'Premium به‌زودی تمام می‌شود';
+
+  @override
+  String get notifPremiumEndsTomorrow =>
+      'Premium شما فردا تمام می‌شود. برای حفظ امکانات Premium تمدید کنید.';
+
+  @override
+  String notifPremiumEndsInDays(int days) {
+    return 'Premium شما $days روز دیگر تمام می‌شود. برای حفظ امکانات Premium تمدید کنید.';
+  }
+
+  @override
+  String get notifLargeIncomeTitle => 'هشدار درآمد بزرگ';
+
+  @override
+  String get notifLargeExpenseTitle => 'هشدار هزینهٔ بزرگ';
+
+  @override
+  String notifLargeIncomeBodyTitled(String amount, String title) {
+    return 'درآمد $amount ثبت شد: $title';
+  }
+
+  @override
+  String notifLargeIncomeBody(String amount) {
+    return 'درآمد $amount ثبت شد';
+  }
+
+  @override
+  String notifLargeExpenseBodyTitled(String amount, String title) {
+    return 'هزینهٔ $amount ثبت شد: $title';
+  }
+
+  @override
+  String notifLargeExpenseBody(String amount) {
+    return 'هزینهٔ $amount ثبت شد';
+  }
+
+  @override
+  String get notifChannelDailyRemindersDesc =>
+      'اعلان‌های یادآوری روزانهٔ هزینه‌ها';
+
+  @override
+  String get notifDailyReminderTitle => 'یادآوری روزانهٔ هزینه‌ها';
+
+  @override
+  String get notifDailyReminderBody =>
+      'ثبت هزینه‌های امروز را فراموش نکنید! خرج‌هایتان را زیر نظر داشته باشید.';
+
+  @override
+  String get notifTestTitle => 'اعلان آزمایشی';
+
+  @override
+  String get notifTestBody => 'اگر این را می‌بینید، اعلان‌ها کار می‌کنند!';
+
+  @override
+  String get notifActionSnooze1Day => '۱ روز بعد';
+
+  @override
+  String get notifActionSnooze1Week => '۱ هفته بعد';
+
+  @override
+  String get notifGroupThisWeek => 'این هفته';
+
+  @override
+  String get notifGroupThisMonth => 'این ماه';
+
+  @override
+  String notifDateAtTime(String date, String time) {
+    return '$date ساعت $time';
+  }
+
+  @override
+  String notifMinutesAgo(int count) {
+    return '$count دقیقه پیش';
+  }
+
+  @override
+  String notifHoursAgo(int count) {
+    return '$count ساعت پیش';
+  }
+
+  @override
+  String notifDaysAgo(int count) {
+    return '$count روز پیش';
+  }
+
+  @override
+  String get notifPrimerSheetBody =>
+      'اعلان‌ها را روشن کنید تا دربارهٔ چیزهای مهم از قبل خبرتان کنیم.';
+
+  @override
+  String get notifPrimerBudgetsBody =>
+      'پیش از اینکه از بودجه فراتر بروید باخبر شوید.';
+
+  @override
+  String get notifPrimerBillsTitle => 'یادآوری قبض‌ها و اشتراک‌ها';
+
+  @override
+  String get notifPrimerBillsBody => 'هیچ پرداخت تکراری‌ای را از دست ندهید.';
+
+  @override
+  String get notifPrimerLargeTitle => 'تراکنش‌های بزرگ';
+
+  @override
+  String get notifPrimerLargeBody => 'از فعالیت‌های غیرعادی باخبر شوید.';
+
+  @override
+  String get notifLoadFailed => 'بارگیری اعلان‌ها ناموفق بود';
+
+  @override
+  String get startupReasonSomethingWrong =>
+      'هنگام راه‌اندازی مشکلی پیش آمد. داده‌هایتان روی این دستگاه امن است.';
+
+  @override
+  String get startupReasonCouldNotOpenLocal =>
+      'داده‌های این حساب روی دستگاه باز نشد.';
+
+  @override
+  String get startupReasonSetupFailed =>
+      'نتوانستیم راه‌اندازی این حساب را روی این دستگاه تمام کنیم. چیزی حذف نشده است.';
+
+  @override
+  String get startupReasonOffline =>
+      'نتوانستیم به حسابتان دسترسی پیدا کنیم و این دستگاه هنوز داده‌های آن را ندارد. اگر قبلاً از The Accountant استفاده کرده‌اید، به اینترنت وصل شوید تا داده‌هایتان را برگردانیم. تازه آمده‌اید؟ همین حالا می‌توانید روی این دستگاه شروع کنید.';
+
+  @override
+  String get startupReasonNeedsSubscription =>
+      'این حساب داده‌هایی در فضای ابری دارد. بازگردانی آن‌ها به اشتراک فعال نیاز دارد. چیزی حذف نشده است.';
+
+  @override
+  String get startupReasonConfirmingSubscription =>
+      'این حساب داده‌هایی در فضای ابری دارد. هنوز در حال تأیید اشتراک شما هستیم تا بتوان آن‌ها را بازگرداند.';
+
+  @override
+  String startupReasonRestoreFailed(String error) {
+    return 'بازگردانی ناموفق بود: $error';
+  }
+
+  @override
+  String get startupReasonNotRestoredYet =>
+      'این حساب داده‌هایی در فضای ابری دارد، اما هنوز بازگردانی نشده‌اند.';
+
+  @override
+  String get commonBiometricReason =>
+      'برای باز کردن قفل The Accountant هویت خود را تأیید کنید';
+
+  @override
+  String get commonLoadCurrenciesFailed => 'بارگیری ارزها ناموفق بود';
+
+  @override
+  String get commonLoadRatesFailed => 'بارگیری نرخ ارز ناموفق بود';
+
+  @override
+  String get commonRefreshRatesFailed => 'به‌روزرسانی نرخ ارز ناموفق بود';
+
+  @override
+  String get commonAllCategories => 'همهٔ دسته‌ها';
+
+  @override
+  String commonCategoryCount(int count) {
+    return '$count دسته';
+  }
+
+  @override
+  String get commonTierFree => 'رایگان';
+
+  @override
+  String get commonTierMonthly => 'Premium ماهانه';
+
+  @override
+  String get commonTierYearly => 'Premium سالانه';
+
+  @override
+  String get commonTierLifetime => 'Premium مادام‌العمر';
+
+  @override
+  String get commonCategoryMergeSelf =>
+      'یک دسته را نمی‌توان با خودش ادغام کرد.';
+
+  @override
+  String get commonCategoryMergeMissing =>
+      'برای ادغام، هر دو دسته باید وجود داشته باشند.';
+
+  @override
+  String get commonCategoryMergeSystem =>
+      'دسته‌های خود برنامه را نمی‌توان ادغام کرد.';
+
+  @override
+  String get commonCategoryMergeKinds =>
+      'دسته‌های درآمد و هزینه را نمی‌توان ادغام کرد.';
+
+  @override
+  String get commonCategoryOneLevel =>
+      'آن دسته داخل دستهٔ دیگری است و دسته‌ها فقط یک سطح دارند.';
+
+  @override
+  String get commonCategoryMoveSame =>
+      'دستهٔ دیگری را برای انتقال انتخاب کنید.';
+
+  @override
+  String get commonCategoryMoveMissing =>
+      'برای انتقال، هر دو دسته باید وجود داشته باشند.';
+
+  @override
+  String get commonCategoryMoveSystem =>
+      'نمی‌توان بین دسته‌های خود برنامه جابه‌جا کرد.';
+
+  @override
+  String get commonCategoryMoveKinds =>
+      'تراکنش‌های درآمد و هزینه نمی‌توانند دسته‌هایشان را عوض کنند.';
+
+  @override
+  String get commonCategoryGone => 'آن دسته دیگر وجود ندارد.';
+
+  @override
+  String get commonCategoryParentSystem =>
+      'دسته‌های خود برنامه را نمی‌توان جابه‌جا کرد.';
+
+  @override
+  String get commonCategoryParentSelf => 'یک دسته نمی‌تواند داخل خودش باشد.';
+
+  @override
+  String get commonCategoryParentIntoSystem =>
+      'هیچ چیزی را نمی‌توان داخل دسته‌های خود برنامه گذاشت.';
+
+  @override
+  String get commonCategoryParentKinds =>
+      'یک دستهٔ درآمد و یک دستهٔ هزینه را نمی‌توان داخل هم گذاشت.';
+
+  @override
+  String get commonCategoryHasChildren =>
+      'این دسته زیردسته‌های خودش را دارد، پس در سطح بالا می‌ماند.';
+
+  @override
+  String get commonTapToChange => 'برای تغییر ضربه بزنید';
+
+  @override
+  String get commonSelectColor => 'انتخاب رنگ';
+
+  @override
+  String get commonShowPalette => 'نمایش پالت';
+
+  @override
+  String get commonCustomColor => 'رنگ دلخواه';
+
+  @override
+  String get commonSelectCurrency => 'انتخاب ارز';
+
+  @override
+  String get commonEnableCryptoHint =>
+      'برای جست‌وجوی توکن‌های دیجیتال، «شامل ارزهای دیجیتال» را روشن کنید.';
+
+  @override
+  String get commonSearchHint => 'جست‌وجو...';
+
+  @override
+  String get aiLoadConversationsFailed => 'بارگیری گفتگوها ناموفق بود.';
+
+  @override
+  String get aiLoadHistoryFailed => 'بارگیری تاریخچهٔ گفتگو ناموفق بود.';
+
+  @override
+  String get aiPremiumRequired =>
+      'دستیار هوش مصنوعی به اشتراک Premium نیاز دارد';
+
+  @override
+  String get aiUnexpectedError =>
+      'خطای غیرمنتظره‌ای رخ داد. لطفاً دوباره تلاش کنید.';
+
+  @override
+  String get aiResponseFailed =>
+      'پاسخ هوش مصنوعی دریافت نشد. لطفاً دوباره تلاش کنید.';
+
+  @override
+  String get aiServiceNotAnswering => 'سرویس هوش مصنوعی پاسخ نمی‌دهد.';
+
+  @override
+  String get aiReplyCutOff => 'پاسخ نیمه‌کاره ماند. لطفاً دوباره تلاش کنید.';
+
+  @override
+  String get aiCouldNotReachServer =>
+      'به سرور دسترسی نیست. اتصالتان را بررسی کنید و دوباره تلاش کنید.';
+
+  @override
+  String get aiSomethingWentWrong => 'مشکلی پیش آمد.';
+
+  @override
+  String get aiOpenConversationFailed => 'باز کردن گفتگو ناموفق بود.';
+
+  @override
+  String aiChangesSavedReplyLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count تغییر شما ذخیره شد، اما مشاور نتوانست پاسخش را تمام کند. پیش از پرسیدن دوباره، آن‌ها را در سوابقتان بررسی کنید.',
+      one:
+          'تغییر شما ذخیره شد، اما مشاور نتوانست پاسخش را تمام کند. پیش از پرسیدن دوباره، آن را در سوابقتان بررسی کنید.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiServiceNotAnsweringNow =>
+      'سرویس هوش مصنوعی فعلاً پاسخ نمی‌دهد. لطفاً دوباره تلاش کنید.';
+
+  @override
+  String aiMinutesShort(int count) {
+    return '$count دقیقه';
+  }
+
+  @override
+  String aiHoursShort(int count) {
+    return '$count ساعت';
+  }
+
+  @override
+  String aiDaysShort(int count) {
+    return '$count روز';
+  }
+
+  @override
+  String get aiOcrTextFailed => 'استخراج متن از تصویر ناموفق بود';
+
+  @override
+  String get aiOcrReceiptFailed => 'استخراج اطلاعات رسید از تصویر ناموفق بود';
+
+  @override
+  String get coachYes => 'بله';
+
+  @override
+  String get coachNo => 'خیر';
+
+  @override
+  String get coachTradeBuy => 'خرید';
+
+  @override
+  String get coachTradeSell => 'فروش';
+
+  @override
+  String get coachTradeDividend => 'سود سهام';
+
+  @override
+  String get planAccountGone => 'آن حساب دیگر وجود ندارد.';
+
+  @override
+  String get planPaidFromOrdinary =>
+      'پرداخت طرح از یک حساب معمولی است، نه از سپرده.';
+
+  @override
+  String get planSipChooseHolding =>
+      'صندوق یا سهمی را که خرید دوره‌ای می‌خرد انتخاب کنید.';
+
+  @override
+  String get planSipPayFromOther =>
+      'هزینه خرید دوره‌ای را از حساب دیگری بپردازید.';
+
+  @override
+  String get planNeedNameError => 'برای طرح یک نام بگذارید.';
+
+  @override
+  String get planInstallmentCountRange =>
+      'تعداد اقساط باید بین 1 تا 1200 باشد.';
+
+  @override
+  String get planIntervalMin => 'فاصله باید دست‌کم 1 باشد.';
+
+  @override
+  String get planRateRange => 'نرخ باید بین 0 تا 100 درصد باشد.';
+
+  @override
+  String get planTaxRange => 'مالیات باید بین 0 تا 100 درصد باشد.';
+
+  @override
+  String get planProviderTooLong =>
+      'نام شرکت و شماره را کمتر از 100 نویسه نگه دارید.';
+
+  @override
+  String get planNeedPremium => 'حق بیمه را وارد کنید.';
+
+  @override
+  String get planNeedInstallmentAmount => 'مبلغ هر قسط را وارد کنید.';
+
+  @override
+  String get planNeedDeposited => 'مبلغ سپرده‌شده را وارد کنید.';
+
+  @override
+  String get planTermMonthsOrYears => 'مدت آن به ماه یا سال است.';
+
+  @override
+  String get planAmountNotNegative => 'مبلغ نمی‌تواند منفی باشد.';
+
+  @override
+  String planMaturesOnCloseEarly(String name, String date) {
+    return '$name در $date سررسید می‌شود. برای برداشت پول پیش از آن، آن را زودتر ببندید.';
+  }
+
+  @override
+  String get planNoLongerExists => 'آن طرح دیگر وجود ندارد.';
+
+  @override
+  String get planReminderDaysRange =>
+      'یادآوری می‌تواند از 0 (خاموش) تا 30 روز قبل باشد.';
+
+  @override
+  String planStillHoldsMoney(String name, String account) {
+    return '$name هنوز پول دارد. ابتدا آن را ببندید تا پول به $account برگردد.';
+  }
+
+  @override
+  String get planItsAccount => 'حساب آن';
+
+  @override
+  String planAlreadyEnded(String name) {
+    return '$name پیش‌تر به پایان رسیده است.';
+  }
+
+  @override
+  String get investNeedName => 'برای سرمایه‌گذاری یک نام بگذارید.';
+
+  @override
+  String get investNameTooLong => 'نام را کمتر از 100 نویسه نگه دارید.';
+
+  @override
+  String get investSymbolTooLong => 'نماد را کمتر از 20 نویسه نگه دارید.';
+
+  @override
+  String get investPriceNotNegative => 'قیمت نمی‌تواند منفی باشد.';
+
+  @override
+  String investAlreadyTracked(String name) {
+    return '$name از قبل پیگیری می‌شود.';
+  }
+
+  @override
+  String get investNeedPaid => 'مبلغ پرداخت‌شده را وارد کنید.';
+
+  @override
+  String get investUnitsBoughtPositive =>
+      'واحدهای خریداری‌شده باید بیشتر از صفر باشد.';
+
+  @override
+  String get investPayFromOther => 'هزینه را از حساب دیگری بپردازید.';
+
+  @override
+  String get investNeedSaleAmount => 'مبلغ حاصل از فروش را وارد کنید.';
+
+  @override
+  String get investUnitsSoldPositive =>
+      'واحدهای فروخته‌شده باید بیشتر از صفر باشد.';
+
+  @override
+  String get investSellIntoOther => 'فروش را به حساب دیگری واریز کنید.';
+
+  @override
+  String investOnlyUnitsHeld(String units, String name) {
+    return 'تنها $units واحد از $name نگهداری می‌شود.';
+  }
+
+  @override
+  String get investNeedDividend => 'سود سهام دریافتی را وارد کنید.';
+
+  @override
+  String get investReceiveIntoOrdinary => 'آن را به یک حساب معمولی واریز کنید.';
+
+  @override
+  String get investPricePositive => 'قیمت باید بیشتر از صفر باشد.';
+
+  @override
+  String get investUnitsPositive => 'تعداد واحد باید بیشتر از صفر باشد.';
+
+  @override
+  String get investNotATrade => 'این معامله یک سرمایه‌گذاری نیست.';
+
+  @override
+  String investStillHoldsUnits(String name) {
+    return '$name هنوز واحد دارد. ابتدا آن‌ها را بفروشید.';
+  }
+
+  @override
+  String get investNoLongerExists => 'آن سرمایه‌گذاری دیگر وجود ندارد.';
+
+  @override
+  String get networthNeedAssetName => 'برای دارایی یک نام بگذارید.';
+
+  @override
+  String get networthValueNotNegative => 'ارزش نمی‌تواند منفی باشد.';
+
+  @override
+  String get networthNeedPaidFor => 'مبلغی را که برای آن پرداخت شد وارد کنید.';
+
+  @override
+  String get networthPayFromOrdinary => 'هزینه را از یک حساب معمولی بپردازید.';
+
+  @override
+  String get networthNeedWorth => 'ارزش آن را وارد کنید.';
+
+  @override
+  String get networthNeedSoldFor => 'مبلغ فروش آن را وارد کنید.';
+
+  @override
+  String get networthReceiveIntoOrdinary =>
+      'پول را به یک حساب معمولی واریز کنید.';
+
+  @override
+  String networthStillWorth(String name) {
+    return '$name هنوز ارزش دارد. ابتدا آن را بفروشید یا ارزشش را صفر کنید.';
+  }
+
+  @override
+  String get networthAssetGone => 'آن دارایی دیگر پیگیری نمی‌شود.';
+
+  @override
+  String get zakatNeedAmountPaid => 'مبلغ پرداخت‌شده را وارد کنید.';
+
+  @override
+  String get zakatPayFromOrdinary => 'آن را از یک حساب معمولی بپردازید.';
+
+  @override
+  String get zakatReminderTitleToday => 'زکات شما امروز سررسید است';
+
+  @override
+  String zakatReminderTitleIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'زکات تا $count روز دیگر سررسید است',
+      one: 'زکات تا 1 روز دیگر سررسید است',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get zakatReminderBodyToday =>
+      'سال زکات شما امروز کامل می‌شود. برای دیدن مبلغ لازم ضربه بزنید.';
+
+  @override
+  String zakatReminderBodyOn(String date) {
+    return 'سال زکات شما در $date کامل می‌شود. برای دیدن مبلغ لازم ضربه بزنید.';
+  }
+
+  @override
+  String get budgetCheckFailed => 'بررسی بودجه‌ها ناموفق بود';
+
+  @override
+  String get budgetLoadFailed => 'بارگیری بودجه‌ها ناموفق بود';
+
+  @override
+  String get budgetAddFailed => 'افزودن بودجه ناموفق بود';
+
+  @override
+  String get budgetNotFound => 'بودجه پیدا نشد';
+
+  @override
+  String get budgetUpdateFailed => 'به‌روزرسانی بودجه ناموفق بود';
+
+  @override
+  String get budgetDeleteFailed => 'حذف بودجه ناموفق بود';
+
+  @override
+  String get budgetEdit => 'ویرایش بودجه';
+
+  @override
+  String get budgetNeedName => 'برای بودجه یک نام بگذارید';
+
+  @override
+  String get budgetEnterAmount => 'یک مبلغ وارد کنید';
+
+  @override
+  String get budgetAmountMoreThanZero => 'مبلغ باید بیشتر از صفر باشد';
+
+  @override
+  String get budgetTrackingEarnings => 'پیگیری درآمد';
+
+  @override
+  String get budgetTrackingSpending => 'پیگیری هزینه';
+
+  @override
+  String get budgetRepeats => 'تکرار';
+
+  @override
+  String get budgetTooBig => 'خیلی بزرگ';
+
+  @override
+  String get budgetStarts => 'شروع';
+
+  @override
+  String get budgetEnds => 'پایان';
+
+  @override
+  String get budgetStopsRepeating => 'پایان تکرار';
+
+  @override
+  String get budgetNever => 'هرگز';
+
+  @override
+  String get budgetCategoriesAll => 'دسته‌ها: همه';
+
+  @override
+  String budgetCategoriesSelected(int count) {
+    return 'دسته‌ها: $count انتخاب‌شده';
+  }
+
+  @override
+  String get budgetNoIncomeCategories => 'هنوز دسته درآمدی وجود ندارد.';
+
+  @override
+  String get budgetNoExpenseCategories => 'هنوز دسته هزینه‌ای وجود ندارد.';
+
+  @override
+  String get budgetCategoriesHint =>
+      'برای زیر نظر گرفتن همه دسته‌ها خالی بگذارید. هر چیزی که داخل یک دسته انتخاب‌شده ثبت شود نیز حساب می‌شود.';
+
+  @override
+  String get budgetAccountsAll => 'حساب‌ها: همه';
+
+  @override
+  String budgetAccountsSelected(int count) {
+    return 'حساب‌ها: $count انتخاب‌شده';
+  }
+
+  @override
+  String get budgetRolloverHint =>
+      'هر مبلغ خرج‌نشده به دوره بعد اضافه می‌شود. فراتر رفتن، بدهی را به دوره بعد منتقل نمی‌کند.';
+
+  @override
+  String get budgetPeriodDaily => 'روزانه';
+
+  @override
+  String get budgetPeriodFortnightly => 'دوهفته‌ای';
+
+  @override
+  String get budgetPeriodOneOff => 'یک‌باره';
+
+  @override
+  String get budgetUnitDays => 'روز';
+
+  @override
+  String get budgetUnitWeeks => 'هفته';
+
+  @override
+  String get budgetUnitFortnights => 'دوهفته';
+
+  @override
+  String get budgetUnitMonths => 'ماه';
+
+  @override
+  String get budgetUnitYears => 'سال';
+
+  @override
+  String get budgetOneOffNeedsEnd => 'بودجه یک‌باره به تاریخ پایان نیاز دارد.';
+
+  @override
+  String get budgetEndAfterStart => 'تاریخ پایان باید بعد از تاریخ شروع باشد.';
+
+  @override
+  String get budgetSaveFailed => 'ذخیره بودجه ممکن نشد.';
+
+  @override
+  String get budgetThisPeriod => 'این دوره';
+
+  @override
+  String budgetPeriodsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دوره پیش',
+      one: '1 دوره پیش',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetDateRange(String start, String end) {
+    return '$start تا $end';
+  }
+
+  @override
+  String budgetOfLimit(String limit) {
+    return 'از $limit';
+  }
+
+  @override
+  String budgetOfLimitCarried(String limit, String carried) {
+    return 'از $limit، شامل $carried منتقل‌شده';
+  }
+
+  @override
+  String get budgetUncategorised => 'بدون دسته';
+
+  @override
+  String budgetOverTheLimit(String amount) {
+    return '$amount بیش از سقف.';
+  }
+
+  @override
+  String budgetLeftPerDay(String left, String daily) {
+    return '$left مانده، حدود $daily در روز.';
+  }
+
+  @override
+  String budgetLeftPlain(String left) {
+    return '$left مانده.';
+  }
+
+  @override
+  String budgetAveraging(String amount) {
+    return 'به‌طور میانگین $amount در هر دوره.';
+  }
+
+  @override
+  String budgetHeadingOver(String amount) {
+    return 'در مسیر $amount فراتر از سقف';
+  }
+
+  @override
+  String budgetForecastScheduled(String scheduled) {
+    return 'با این روند، و با احتساب $scheduled که پیش از پایان دوره برنامه‌ریزی شده است.';
+  }
+
+  @override
+  String get budgetForecastPlain => 'با این روند، تا پایان دوره.';
+
+  @override
+  String get budgetCapsExplain =>
+      'بودجه می‌گوید آیا در این دوره بیش از حد خرج شده است. سقف می‌گوید کجا: بودجه غذایی که در کل خوب پیش می‌رود، ممکن است بیشترش غذای بیرون باشد.';
+
+  @override
+  String get budgetPercentOfBudget => 'درصد بودجه';
+
+  @override
+  String get budgetArchivedTitle => 'بودجه‌های بایگانی‌شده';
+
+  @override
+  String get budgetShowActive => 'نمایش فعال‌ها';
+
+  @override
+  String get budgetShowArchived => 'نمایش بایگانی‌شده‌ها';
+
+  @override
+  String get budgetUnpin => 'برداشتن سنجاق';
+
+  @override
+  String get budgetPinToTop => 'سنجاق به بالا';
+
+  @override
+  String get budgetStartCounting => 'دوباره شمردنش را شروع کن';
+
+  @override
+  String get budgetStopCounting => 'تاریخچه‌اش را نگه دار، دیگر نشمارش';
+
+  @override
+  String get budgetDeleteBody =>
+      'بودجه حذف می‌شود، تراکنش‌های شما می‌مانند. چیزی از ثبت‌های شما پاک نمی‌شود.';
+
+  @override
+  String get budgetNothingArchived => 'چیزی بایگانی نشده';
+
+  @override
+  String get budgetNoneYet => 'هنوز بودجه‌ای نیست';
+
+  @override
+  String get budgetArchivedEmptyHint =>
+      'بودجه‌هایی که بایگانی کنید اینجا نگه داشته می‌شوند.';
+
+  @override
+  String get budgetEmptyHint =>
+      'برای یک دسته سقف بگذارید و ببینید ماه چطور پیش می‌رود.';
+
+  @override
+  String dashLoadFailed(String error) {
+    return 'بارگیری داده‌های مالی ناموفق بود: $error';
+  }
+
+  @override
+  String get categoryUnknown => 'نامشخص';
+
+  @override
+  String dashCardAvailable(String amount) {
+    return 'در دسترس: $amount';
+  }
+
+  @override
+  String dashCardInCreditAvailable(String amount) {
+    return 'بستانکار · در دسترس: $amount';
+  }
+
+  @override
+  String get dashTypeBank => 'بانک';
+
+  @override
+  String get dashTypeCredit => 'اعتباری';
+
+  @override
+  String get dashTypeSubs => 'اشتراک';
+
+  @override
+  String get dashTypeDeposit => 'سپرده';
+
+  @override
+  String get dashTypeInvest => 'سرمایه';
+
+  @override
+  String get dashTypeAsset => 'دارایی';
+
+  @override
+  String get dashAddAccountTile => 'افزودن\nحساب';
+
+  @override
+  String get categoryLoadFailed => 'بارگیری دسته‌ها ناموفق بود';
+
+  @override
+  String get categoryAddFailed => 'افزودن دسته ناموفق بود';
+
+  @override
+  String get categoryNotFound => 'دسته پیدا نشد';
+
+  @override
+  String get categoryUpdateFailed => 'به‌روزرسانی دسته ناموفق بود';
+
+  @override
+  String get categoryCannotDeleteSystem =>
+      'دسته‌های خود برنامه را نمی‌توان حذف کرد';
+
+  @override
+  String get categoryCannotDeleteWithTransactions =>
+      'دسته‌ای که تراکنش دارد قابل حذف نیست؛ ابتدا آن‌ها را منتقل یا حذف کنید';
+
+  @override
+  String get categoryDeleteFailed => 'حذف دسته ناموفق بود';
+
+  @override
+  String categorySaveFailed(String error) {
+    return 'ذخیره دسته ناموفق بود: $error';
+  }
+
+  @override
+  String get categoryEditTitle => 'ویرایش دسته';
+
+  @override
+  String get categoryNewTitle => 'دسته جدید';
+
+  @override
+  String get categoryPartOf => 'زیرمجموعه';
+
+  @override
+  String get categoryNamePlaceholder => 'نام دسته';
+
+  @override
+  String get categoryUpdate => 'به‌روزرسانی دسته';
+
+  @override
+  String get categoryCreate => 'ایجاد دسته';
+
+  @override
+  String reportLoadFailed(String error) {
+    return 'بارگیری گزارش‌ها ناموفق بود: $error';
+  }
+
+  @override
+  String get goalEdit => 'ویرایش هدف';
+
+  @override
+  String get goalNeedName => 'برای هدف یک نام بگذارید';
+
+  @override
+  String get goalTargetMoreThanZero => 'مبلغ هدف باید بیشتر از صفر باشد';
+
+  @override
+  String get goalNoDeadline => 'بدون مهلت';
+
+  @override
+  String get goalTargetDateAfterStart =>
+      'تاریخ هدف باید بعد از تاریخ شروع باشد.';
+
+  @override
+  String get goalSaveFailed => 'ذخیره هدف ممکن نشد.';
+
+  @override
+  String get goalArchivedTitle => 'هدف‌های بایگانی‌شده';
+
+  @override
+  String get goalHideFromHome => 'پنهان از صفحه اصلی';
+
+  @override
+  String get goalShowOnHome => 'نمایش در صفحه اصلی';
+
+  @override
+  String get goalReached => 'رسیدید';
+
+  @override
+  String goalToGo(String amount) {
+    return '$amount مانده';
+  }
+
+  @override
+  String get goalNoneYet => 'هنوز هدفی نیست';
+
+  @override
+  String get goalArchivedEmptyHint =>
+      'هدف‌هایی که بایگانی کنید اینجا نگه داشته می‌شوند.';
+
+  @override
+  String get goalEmptyHint =>
+      'چیزی را که برایش پس‌انداز می‌کنید نام‌گذاری کنید، سپس تراکنش‌هایی را که به آن می‌روند پیوند دهید.';
+
+  @override
+  String goalSavedOfTarget(String saved, String target) {
+    return '$saved از $target';
+  }
+
+  @override
+  String goalOfTarget(String target) {
+    return 'از $target';
+  }
+
+  @override
+  String get goalReachedNicelyDone => 'رسیدید. آفرین.';
+
+  @override
+  String goalStillToGo(String amount) {
+    return 'هنوز $amount مانده است.';
+  }
+
+  @override
+  String goalDailyToArrive(String amount) {
+    return 'روزی $amount برای رسیدن به‌موقع.';
+  }
+
+  @override
+  String get goalNothingLinked =>
+      'هنوز چیزی پیوند داده نشده. این هدف را روی یک تراکنش انتخاب کنید تا اینجا نمایش داده شود.';
+
+  @override
+  String get goalDeleteBody =>
+      'هدف حذف می‌شود، تراکنش‌های شما می‌مانند. فقط دیگر برای آن حساب نمی‌شوند.';
+
+  @override
+  String goalPaymentsOf(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count پرداخت $amount',
+      one: '1 پرداخت $amount',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalFinishingAround(String date) {
+    return 'پایان حدود $date.';
+  }
+
+  @override
+  String goalNotFound(String id) {
+    return 'هدف پیدا نشد: $id';
+  }
+
+  @override
+  String get goalPaidOff => 'تسویه شد!';
+
+  @override
+  String get goalCompleted => 'کامل شد!';
+
+  @override
+  String goalPercentComplete(String percent) {
+    return '$percent٪ کامل';
+  }
+
+  @override
+  String goalWeeksLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count هفته مانده',
+      one: '1 هفته مانده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalMonthsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ماه مانده',
+      one: '1 ماه مانده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalYearsLeft(String years) {
+    return '$years سال مانده';
+  }
+
+  @override
+  String get subRecurringBill => 'قبض تکرارشونده';
+
+  @override
+  String subEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هر $count روز',
+      one: 'هر 1 روز',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هر $count هفته',
+      one: 'هر 1 هفته',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هر $count ماه',
+      one: 'هر 1 ماه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هر $count سال',
+      one: 'هر 1 سال',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryOther(int count, String unit) {
+    return 'هر $count $unit';
+  }
+
+  @override
+  String subLoadFailed(String error) {
+    return 'بارگیری اشتراک‌ها ناموفق بود: $error';
+  }
+
+  @override
+  String subPauseFailed(String error) {
+    return 'توقف اشتراک ناموفق بود: $error';
+  }
+
+  @override
+  String subResumeFailed(String error) {
+    return 'ازسرگیری اشتراک ناموفق بود: $error';
+  }
+
+  @override
+  String subUpdateFailed(String error) {
+    return 'به‌روزرسانی اشتراک ناموفق بود: $error';
+  }
+
+  @override
+  String subCancelFailed(String error) {
+    return 'لغو اشتراک ناموفق بود: $error';
+  }
+
+  @override
+  String subActiveCount(int count) {
+    return 'فعال ($count)';
+  }
+
+  @override
+  String subPausedCount(int count) {
+    return 'متوقف ($count)';
+  }
+
+  @override
+  String get subEmptyTitle => 'اشتراک یا قبضی وجود ندارد';
+
+  @override
+  String get subEmptyBody =>
+      'تراکنش‌های اشتراک یا قبض تکرارشونده را اضافه کنید تا اینجا پیگیری شوند';
+
+  @override
+  String get subRecurringCost => 'هزینه تکرارشونده';
+
+  @override
+  String subPerYear(String amount) {
+    return '$amount / سال';
+  }
+
+  @override
+  String get subActive => 'فعال';
+
+  @override
+  String subNext(String date) {
+    return 'بعدی $date';
+  }
+
+  @override
+  String get subResume => 'ازسرگیری';
+
+  @override
+  String get subPause => 'توقف';
+
+  @override
+  String get subCancelBillTitle => 'لغو قبض تکرارشونده';
+
+  @override
+  String get subCancelSubTitle => 'لغو اشتراک';
+
+  @override
+  String subCancelConfirm(String name) {
+    return 'آیا مطمئنید که می‌خواهید «$name» را لغو کنید؟ همه پرداخت‌های تکرارشونده آینده متوقف می‌شوند.';
+  }
+
+  @override
+  String subCancelled(String name) {
+    return '«$name» لغو شد';
+  }
+
+  @override
+  String subSaveError(String error) {
+    return 'خطا: $error';
+  }
+
+  @override
+  String get subEditBill => 'ویرایش قبض تکرارشونده';
+
+  @override
+  String get subEditSub => 'ویرایش اشتراک';
+
+  @override
+  String subUnitDay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'روز',
+      one: 'روز',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هفته',
+      one: 'هفته',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitMonth(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ماه',
+      one: 'ماه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitYear(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'سال',
+      one: 'سال',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEndsOn(String date) {
+    return 'پایان: $date';
+  }
+
+  @override
+  String get subNoEndDate => 'بدون تاریخ پایان';
 }

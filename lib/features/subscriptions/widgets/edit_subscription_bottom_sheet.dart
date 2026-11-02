@@ -129,7 +129,7 @@ class _EditSubscriptionBottomSheetState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(L10n.of(context).subSaveError('$e')),
             backgroundColor: AppColors.error,
           ),
         );
@@ -156,13 +156,13 @@ class _EditSubscriptionBottomSheetState
     String frequencyLabel(String freq) {
       switch (freq) {
         case 'daily':
-          return 'Daily';
+          return L10n.of(context).budgetPeriodDaily;
         case 'weekly':
-          return 'Weekly';
+          return L10n.of(context).planWeekly;
         case 'monthly':
-          return 'Monthly';
+          return L10n.of(context).planMonthly;
         case 'yearly':
-          return 'Yearly';
+          return L10n.of(context).planYearly;
         default:
           return freq;
       }
@@ -171,13 +171,13 @@ class _EditSubscriptionBottomSheetState
     String periodUnit(String freq) {
       switch (freq) {
         case 'daily':
-          return _periodLength == 1 ? 'day' : 'days';
+          return L10n.of(context).subUnitDay(_periodLength);
         case 'weekly':
-          return _periodLength == 1 ? 'week' : 'weeks';
+          return L10n.of(context).subUnitWeek(_periodLength);
         case 'monthly':
-          return _periodLength == 1 ? 'month' : 'months';
+          return L10n.of(context).subUnitMonth(_periodLength);
         case 'yearly':
-          return _periodLength == 1 ? 'year' : 'years';
+          return L10n.of(context).subUnitYear(_periodLength);
         default:
           return freq;
       }
@@ -215,7 +215,9 @@ class _EditSubscriptionBottomSheetState
                 ),
                 Expanded(
                   child: Text(
-                    isRepetitive ? 'Edit Recurring Bill' : 'Edit Subscription',
+                    isRepetitive
+                        ? L10n.of(context).subEditBill
+                        : L10n.of(context).subEditSub,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -426,8 +428,10 @@ class _EditSubscriptionBottomSheetState
                           Expanded(
                             child: Text(
                               _endDate != null
-                                  ? 'Ends: ${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
-                                  : 'No end date',
+                                  ? L10n.of(context).subEndsOn(
+                                      '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}',
+                                    )
+                                  : L10n.of(context).subNoEndDate,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: _endDate != null

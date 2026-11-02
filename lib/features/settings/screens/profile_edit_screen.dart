@@ -52,7 +52,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
   Future<void> _saveProfile() async {
     if (_nameController.text.trim().isEmpty) {
-      showErrorSnackBar(context, 'Name cannot be empty');
+      showErrorSnackBar(context, L10n.of(context).settingsProfileNameEmpty);
       return;
     }
 
@@ -63,7 +63,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       await backendAuth.updateProfile(displayName: _nameController.text.trim());
 
       if (mounted) {
-        showSuccessSnackBar(context, 'Profile updated successfully');
+        showSuccessSnackBar(context, L10n.of(context).settingsProfileUpdated);
         setState(() {
           _hasChanges = false;
           _isLoading = false;
@@ -71,7 +71,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       }
     } catch (e) {
       if (mounted) {
-        showErrorSnackBar(context, 'Failed to update profile');
+        showErrorSnackBar(
+          context,
+          L10n.of(context).settingsProfileUpdateFailed,
+        );
         setState(() => _isLoading = false);
       }
     }
@@ -148,7 +151,9 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           AppSpacing.sm,
         ),
         child: NeoButton(
-          label: _hasChanges ? 'Save changes' : 'Saved',
+          label: _hasChanges
+              ? L10n.of(context).settingsProfileSaveChanges
+              : L10n.of(context).settingsProfileSaved,
           leadingIcon: _hasChanges ? Icons.check_rounded : Icons.check_circle,
           isExpanded: true,
           isLoading: _isLoading,
@@ -218,7 +223,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               child: GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  showInfoSnackBar(context, 'Photo upload coming soon');
+                  showInfoSnackBar(
+                    context,
+                    L10n.of(context).settingsProfilePhotoSoon,
+                  );
                 },
                 child: Container(
                   width: 36,
@@ -285,7 +293,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionHeader(Icons.person_outline, 'Personal Information'),
+          _sectionHeader(
+            Icons.person_outline,
+            L10n.of(context).authPersonalInformation,
+          ),
           SizedBox(height: AppSpacing.lg),
           NeoTextField(
             controller: _nameController,
@@ -328,38 +339,44 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionHeader(Icons.badge_outlined, 'Account Information'),
+          _sectionHeader(
+            Icons.badge_outlined,
+            L10n.of(context).settingsProfileAccountInformation,
+          ),
           SizedBox(height: AppSpacing.lg),
           _buildInfoRow(
-            'Member Since',
+            L10n.of(context).settingsProfileMemberSince,
             authState.createdAt != null
                 ? AppDateFormatter.formatDate(
                     authState.createdAt!,
                     ref.watch(dateFormatSettingProvider),
                   )
-                : 'Unknown',
+                : L10n.of(context).settingsProfileUnknown,
             Icons.calendar_today_outlined,
           ),
           _divider(),
           _buildInfoRow(
-            'Subscription',
+            L10n.of(context).settingsSubscription,
             authState.isPremium
                 ? _formatSubscriptionTier(authState.subscriptionTier)
-                : 'Free',
+                : L10n.of(context).settingsProfileFree,
             Icons.workspace_premium_outlined,
             valueColor: authState.isPremium ? AppColors.warning : null,
           ),
           _divider(),
           _buildInfoRow(
-            'User ID',
-            authState.userId ?? 'Unknown',
+            L10n.of(context).settingsProfileUserId,
+            authState.userId ?? L10n.of(context).settingsProfileUnknown,
             Icons.fingerprint,
             isSecondary: true,
             onCopy: authState.userId != null
                 ? () {
                     Clipboard.setData(ClipboardData(text: authState.userId!));
                     HapticFeedback.lightImpact();
-                    showInfoSnackBar(context, 'User ID copied');
+                    showInfoSnackBar(
+                      context,
+                      L10n.of(context).settingsProfileUserIdCopied,
+                    );
                   }
                 : null,
           ),
@@ -453,11 +470,11 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   String _formatSubscriptionTier(String tier) {
     switch (tier.toLowerCase()) {
       case 'premiummonthly':
-        return 'Premium Monthly';
+        return L10n.of(context).settingsPremiumMonthly;
       case 'premiumyearly':
-        return 'Premium Yearly';
+        return L10n.of(context).settingsPremiumYearly;
       case 'premiumlifetime':
-        return 'Premium Lifetime';
+        return L10n.of(context).settingsPremiumLifetime;
       default:
         return tier;
     }
@@ -467,7 +484,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     final confirmed = await showConfirmationDialog(
       context: context,
       title: L10n.of(context).settingsUnsavedChanges,
-      message: 'You have unsaved changes. Are you sure you want to leave?',
+      message: L10n.of(context).settingsUnsavedChangesBody,
       cancelText: L10n.of(context).settingsStay,
       confirmText: L10n.of(context).settingsLeave,
       isDangerous: true,

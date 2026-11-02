@@ -313,9 +313,10 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
                       _draft.minAmount! > _draft.maxAmount!) ...[
                     const SizedBox(height: 8),
                     Text(
-                      'The lower bound is above the upper one, so nothing can '
-                      'match. ${money(_draft.minAmount!)} to '
-                      '${money(_draft.maxAmount!)}.',
+                      L10n.of(context).txnFilterBoundsInverted(
+                        money(_draft.minAmount!),
+                        money(_draft.maxAmount!),
+                      ),
                       style: SunriseType.caption.copyWith(color: c.negative),
                     ),
                   ],

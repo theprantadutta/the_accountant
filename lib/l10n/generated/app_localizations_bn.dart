@@ -5556,4 +5556,4144 @@ class L10nBn extends L10n {
   @override
   String get backupLockedBody =>
       'এই ব্যাকআপটি একটি পাসফ্রেজ দিয়ে সুরক্ষিত। খুলতে সেটি বা আপনার রিকভারি কোড দিন। এটি ইন্টারনেট সংযোগ ছাড়াও কাজ করে।';
+
+  @override
+  String get settingsSupportDescribeFirst =>
+      'অনুগ্রহ করে আগে আপনার সমস্যাটি লিখুন';
+
+  @override
+  String get settingsSupportSent => 'ধন্যবাদ! আপনার বার্তা পাঠানো হয়েছে।';
+
+  @override
+  String get settingsSupportSendFailed =>
+      'এখন পাঠানো যায়নি। আবার চেষ্টা করুন বা সরাসরি আমাদের ইমেইল করুন।';
+
+  @override
+  String get settingsSupportSubjectHint => 'বিষয়টি কী নিয়ে?';
+
+  @override
+  String get settingsSupportMessageHint =>
+      'আপনার প্রশ্ন, সমস্যা বা মতামত লিখুন…';
+
+  @override
+  String get settingsSupportHeroBody =>
+      'প্রশ্ন, বাগ বা মতামত — পাঠিয়ে দিন, আমরা আপনাকে জানাব।';
+
+  @override
+  String get settingsSupportTipDescription =>
+      'আপনার সমস্যার একটি পরিষ্কার বিবরণ';
+
+  @override
+  String get settingsSupportTipSteps =>
+      'সমস্যাটি আবার ঘটানোর ধাপ (যদি বাগ হয়)';
+
+  @override
+  String get settingsSupportTipDevice => 'আপনার ডিভাইসের মডেল ও Android ভার্সন';
+
+  @override
+  String settingsSupportPreferEmail(String email) {
+    return 'ইমেইল পছন্দ? $email';
+  }
+
+  @override
+  String get settingsSupportEmailCopied => 'ইমেইল ক্লিপবোর্ডে কপি হয়েছে';
+
+  @override
+  String get settingsAboutTagline => 'আপনার ব্যক্তিগত অর্থ-সহায়ক';
+
+  @override
+  String settingsAboutVersion(String version) {
+    return 'ভার্সন: $version';
+  }
+
+  @override
+  String get settingsAboutDescription =>
+      'গোপনীয়তা ও সুন্দর UI/UX-এর ওপর\nজোর দেওয়া একটি ব্যক্তিগত অর্থ অ্যাপ।';
+
+  @override
+  String settingsBaseCurrencyLabel(String currency) {
+    return 'মূল মুদ্রা: $currency';
+  }
+
+  @override
+  String settingsRatesLastUpdated(String when) {
+    return 'সর্বশেষ আপডেট: $when';
+  }
+
+  @override
+  String settingsEditRateTitle(String base, String target) {
+    return 'রেট সম্পাদনা: $base → $target';
+  }
+
+  @override
+  String settingsCurrentApiRate(String rate) {
+    return 'বর্তমান API রেট: $rate';
+  }
+
+  @override
+  String settingsMinutesAgo(int count) {
+    return '$count মিনিট আগে';
+  }
+
+  @override
+  String settingsHoursAgo(int count) {
+    return '$count ঘণ্টা আগে';
+  }
+
+  @override
+  String settingsDaysAgo(int count) {
+    return '$count দিন আগে';
+  }
+
+  @override
+  String get settingsExportSectionDateRange => 'তারিখের পরিসর';
+
+  @override
+  String get settingsExportSectionFormat => 'ফরম্যাট';
+
+  @override
+  String get settingsExportSectionInclude => 'অন্তর্ভুক্ত করুন';
+
+  @override
+  String get settingsExportAllTime => 'সব সময়';
+
+  @override
+  String get settingsExportThisMonth => 'এই মাস';
+
+  @override
+  String get settingsExportLastMonth => 'গত মাস';
+
+  @override
+  String get settingsExportLast3Months => 'গত ৩ মাস';
+
+  @override
+  String get settingsExportThisYear => 'এই বছর';
+
+  @override
+  String get settingsExportPdfPremiumBody =>
+      'CSV রপ্তানি বিনামূল্যে — আপনার ডেটা সবসময় আপনার। সারাংশ এবং ক্যাটাগরি ও ওয়ালেটভিত্তিক বিভাজনসহ সাজানো PDF রিপোর্ট একটি প্রিমিয়াম ফিচার।';
+
+  @override
+  String settingsExportButton(String format) {
+    return '$format রপ্তানি করুন';
+  }
+
+  @override
+  String settingsExportFailed(String error) {
+    return 'রপ্তানি ব্যর্থ হয়েছে: $error';
+  }
+
+  @override
+  String get settingsExportShareSubject => 'The Accountant - রপ্তানি';
+
+  @override
+  String settingsExportedCount(int count) {
+    return '$countটি লেনদেন রপ্তানি করা হয়েছে';
+  }
+
+  @override
+  String get settingsExportPdfShareSubject => 'The Accountant - আর্থিক রিপোর্ট';
+
+  @override
+  String settingsExportPdfGenerated(int count) {
+    return '$countটি লেনদেন নিয়ে PDF রিপোর্ট তৈরি হয়েছে';
+  }
+
+  @override
+  String get settingsNumberFormatCommaThousands => 'হাজারের জন্য কমা';
+
+  @override
+  String get settingsNumberFormatDotThousands => 'হাজারের জন্য ডট';
+
+  @override
+  String get settingsNumberFormatSpaceThousands => 'হাজারের জন্য স্পেস';
+
+  @override
+  String get settingsNumberFormatNoSeparator => 'কোনো বিভাজক নেই';
+
+  @override
+  String get settingsAutoLockImmediately => 'সঙ্গে সঙ্গে';
+
+  @override
+  String settingsAutoLockMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count মিনিট',
+      one: '১ মিনিট',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsAutoLockNever => 'কখনো না';
+
+  @override
+  String get settingsBiometricUnavailable =>
+      'এই ডিভাইসে বায়োমেট্রিক যাচাই উপলভ্য নয়';
+
+  @override
+  String get settingsSetPassword => 'পাসওয়ার্ড সেট করুন';
+
+  @override
+  String get settingsChangePassword => 'পাসওয়ার্ড বদলান';
+
+  @override
+  String get settingsAddPasswordSubtitle =>
+      'আপনার অ্যাকাউন্টে পাসওয়ার্ড যোগ করুন';
+
+  @override
+  String get settingsPasswordChanged => 'পাসওয়ার্ড বদলানো হয়েছে';
+
+  @override
+  String get settingsPasswordSet => 'পাসওয়ার্ড সেট হয়েছে';
+
+  @override
+  String get settingsClearCacheBody =>
+      'এতে ক্যাশ করা ডেটা মুছে যাবে এবং পরের বার অ্যাপ খুললে আবার সিঙ্ক হবে। আপনার ডেটা মুছবে না।';
+
+  @override
+  String get settingsClearingCache => 'ক্যাশ পরিষ্কার হচ্ছে...';
+
+  @override
+  String get settingsCacheCleared =>
+      'ক্যাশ পরিষ্কার হয়েছে এবং সিঙ্ক শুরু হয়েছে';
+
+  @override
+  String get settingsClearCacheFailed => 'ক্যাশ পরিষ্কার করা যায়নি';
+
+  @override
+  String get settingsClearAllDataBody =>
+      'এতে আপনার সব লেনদেন, বাজেট, ওয়ালেট, ক্যাটাগরি ও সেটিংস স্থায়ীভাবে মুছে যাবে। এটি আর ফেরানো যাবে না!';
+
+  @override
+  String get settingsClearAllDataConfirmBody =>
+      'আপনার সব আর্থিক ডেটা স্থায়ীভাবে মুছে যাবে।';
+
+  @override
+  String get settingsClearingAllData => 'সব ডেটা মোছা হচ্ছে...';
+
+  @override
+  String get settingsAllDataCleared => 'সব ডেটা মুছে ফেলা হয়েছে';
+
+  @override
+  String settingsClearDataFailed(String error) {
+    return 'ডেটা মোছা যায়নি: $error';
+  }
+
+  @override
+  String get settingsDeleteAccountBody =>
+      'অ্যাকাউন্ট মোছার অনুরোধ করতে আপনাকে একটি ফর্মে নিয়ে যাওয়া হবে। প্রক্রিয়াটি শেষ হতে কয়েক দিন লাগে। শেষ হলে সার্ভারের সব ডেটা স্থায়ীভাবে মুছে যাবে।';
+
+  @override
+  String get settingsLockAuthFailed => 'যাচাই ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
+
+  @override
+  String get settingsLockError => 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।';
+
+  @override
+  String get settingsLockAuthenticating => 'যাচাই করা হচ্ছে...';
+
+  @override
+  String get settingsProfileNameEmpty => 'নাম খালি রাখা যাবে না';
+
+  @override
+  String get settingsProfileUpdated => 'প্রোফাইল আপডেট হয়েছে';
+
+  @override
+  String get settingsProfileUpdateFailed => 'প্রোফাইল আপডেট করা যায়নি';
+
+  @override
+  String get settingsProfileSaveChanges => 'পরিবর্তন সংরক্ষণ করুন';
+
+  @override
+  String get settingsProfileSaved => 'সংরক্ষিত';
+
+  @override
+  String get settingsProfilePhotoSoon => 'ছবি আপলোড শিগগিরই আসছে';
+
+  @override
+  String get settingsProfileAccountInformation => 'অ্যাকাউন্টের তথ্য';
+
+  @override
+  String get settingsProfileMemberSince => 'সদস্য হয়েছেন';
+
+  @override
+  String get settingsProfileUnknown => 'অজানা';
+
+  @override
+  String get settingsProfileFree => 'ফ্রি';
+
+  @override
+  String get settingsProfileUserId => 'ইউজার আইডি';
+
+  @override
+  String get settingsProfileUserIdCopied => 'ইউজার আইডি কপি হয়েছে';
+
+  @override
+  String get settingsPremiumMonthly => 'প্রিমিয়াম মাসিক';
+
+  @override
+  String get settingsPremiumYearly => 'প্রিমিয়াম বার্ষিক';
+
+  @override
+  String get settingsPremiumLifetime => 'প্রিমিয়াম আজীবন';
+
+  @override
+  String get settingsUnsavedChangesBody =>
+      'আপনার কিছু পরিবর্তন সংরক্ষণ করা হয়নি। আপনি কি সত্যিই চলে যেতে চান?';
+
+  @override
+  String settingsShareAppText(String url) {
+    return 'The Accountant দেখুন - একটি সুন্দর ব্যক্তিগত অর্থ অ্যাপ!\n\n$url';
+  }
+
+  @override
+  String get settingsShareAppSubject => 'The Accountant - ব্যক্তিগত অর্থ অ্যাপ';
+
+  @override
+  String get settingsCloudSyncGateBody =>
+      'আপনার সব ডিভাইসে আর্থিক ডেটা সিঙ্ক রাখুন। আর কখনো ডেটা হারাবেন না।';
+
+  @override
+  String settingsSyncPushed(int count) {
+    return '$countটি পাঠানো হয়েছে';
+  }
+
+  @override
+  String settingsSyncPulled(int count) {
+    return '$countটি আনা হয়েছে';
+  }
+
+  @override
+  String settingsSyncConflicts(int count) {
+    return '$countটি দ্বন্দ্ব';
+  }
+
+  @override
+  String get settingsSyncNowSubtitle => 'সব পরিবর্তন পাঠান ও আনুন';
+
+  @override
+  String settingsSyncComplete(int pushed, int pulled) {
+    return 'সিঙ্ক সম্পন্ন — $pushedটি পাঠানো, $pulledটি আনা হয়েছে';
+  }
+
+  @override
+  String settingsSyncIncomplete(int count, String details) {
+    return 'সিঙ্ক অসম্পূর্ণ — $countটি রেকর্ড সংরক্ষণ করা যায়নি, আবার চেষ্টা করা হবে। $details';
+  }
+
+  @override
+  String settingsSyncFailed(String error) {
+    return 'সিঙ্ক ব্যর্থ হয়েছে: $error';
+  }
+
+  @override
+  String get settingsRestoreFromCloudSubtitle =>
+      'এই ডিভাইসের ডেটার জায়গায় আপনার ক্লাউড ডেটা আনুন';
+
+  @override
+  String get settingsRestoreFromCloudBody =>
+      'এতে এই ডিভাইসের সব ডেটা মুছে আপনার ক্লাউড ডেটা বসানো হবে। এই ডিভাইসের যে পরিবর্তনগুলো এখনো সিঙ্ক হয়নি, সেগুলো হারিয়ে যাবে। এটি আর ফেরানো যাবে না।';
+
+  @override
+  String settingsRestoredFromCloud(int count) {
+    return 'ক্লাউড থেকে $countটি আইটেম ফিরিয়ে আনা হয়েছে';
+  }
+
+  @override
+  String settingsRestoreCancelled(String details) {
+    return 'ফিরিয়ে আনা বাতিল হয়েছে — আপনার ফোনের ডেটা আগের মতোই আছে। $details';
+  }
+
+  @override
+  String settingsRestoreFailed(String error) {
+    return 'ফিরিয়ে আনা ব্যর্থ হয়েছে: $error';
+  }
+
+  @override
+  String get settingsSyncInfoBody =>
+      'আপনার ডেটা প্রতি ১৫ মিনিটে এবং অ্যাপ খুললে নিজে থেকেই সিঙ্ক হয়। পরিমাণ, নাম ও নোট সিঙ্কের আগে এই ফোনেই এনক্রিপ্ট হয়, তাই আমাদের সার্ভার সেগুলো পড়তে পারে না।';
+
+  @override
+  String settingsSyncCompletedSeconds(int seconds) {
+    return '$seconds সেকেন্ডে সম্পন্ন';
+  }
+
+  @override
+  String settingsSyncCompletedMinutes(int minutes, int seconds) {
+    return '$minutes মিনিট $seconds সেকেন্ডে সম্পন্ন';
+  }
+
+  @override
+  String settingsReconcileQuestion(String name) {
+    return 'এটি কি আপনার “$name” ক্যাটাগরি?';
+  }
+
+  @override
+  String get settingsReconcileSavedPending =>
+      'সংরক্ষিত। পরের বার সিঙ্ক করলে এটি কার্যকর হবে।';
+
+  @override
+  String settingsReconcileBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'আপনার অ্যাকাউন্টে আগে থেকেই “$name” নামে $countটি ক্যাটাগরি আছে। এর একটিকে বিল্ট-ইন ক্যাটাগরি হিসেবে ব্যবহার করবেন, নাকি আলাদা রাখবেন, জানান। আপনি না বাছা পর্যন্ত কিছুই বদলাবে না।',
+      one:
+          'আপনার অ্যাকাউন্টে আগে থেকেই “$name” নামে একটি ক্যাটাগরি আছে। এটিকে বিল্ট-ইন ক্যাটাগরি হিসেবে ব্যবহার করবেন, নাকি আলাদা রাখবেন, জানান। আপনি না বাছা পর্যন্ত কিছুই বদলাবে না।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepMine =>
+      'না — আমারটা রাখুন এবং আলাদা একটি যোগ করুন';
+
+  @override
+  String get settingsReconcileNoneOfThese =>
+      'এগুলোর কোনোটিই না — আলাদা একটি যোগ করুন';
+
+  @override
+  String settingsReconcileKeepSeparateBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'আপনার বর্তমান “$name” ক্যাটাগরিগুলো তাদের সব লেনদেনসহ ঠিক যেমন আছে তেমনই থাকবে। পাশে একটি নতুন বিল্ট-ইন “$name” যোগ হবে।',
+      one:
+          'আপনার বর্তমান “$name” ক্যাটাগরি তার সব লেনদেনসহ ঠিক যেমন আছে তেমনই থাকবে। পাশে একটি নতুন বিল্ট-ইন “$name” যোগ হবে।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepSeparate => 'আলাদা রাখুন';
+
+  @override
+  String settingsReconcileTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লেনদেন',
+      one: '১টি লেনদেন',
+      zero: 'কোনো লেনদেন নেই',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsReconcileUseTitle(String name) {
+    return '“$name” ব্যবহার করবেন?';
+  }
+
+  @override
+  String settingsReconcileUseBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'এটি বিল্ট-ইন “$name” ক্যাটাগরি হয়ে যাবে এবং এর $countটি লেনদেনই, এর সাব-ক্যাটাগরিসহ, থেকে যাবে। কিছুই মোছা হবে না।',
+      zero:
+          'এটি বিল্ট-ইন “$name” ক্যাটাগরি হয়ে যাবে এবং এর অধীনে রাখা সবকিছু, এর সাব-ক্যাটাগরিসহ, থেকে যাবে। কিছুই মোছা হবে না।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileUseThisOne => 'এটিই ব্যবহার করুন';
+
+  @override
+  String settingsReconcileWillUse(String name) {
+    return '“$name” ব্যবহার করা হবে।';
+  }
+
+  @override
+  String settingsReconcileWillAdd(String name) {
+    return 'আলাদা একটি “$name” যোগ করা হবে।';
+  }
+
+  @override
+  String get settingsChangePasswordSubtitle =>
+      'বর্তমান পাসওয়ার্ড লিখুন এবং একটি নতুন পাসওয়ার্ড বেছে নিন';
+
+  @override
+  String get settingsSetPasswordSubtitle =>
+      'বাড়তি নিরাপত্তার জন্য আপনার অ্যাকাউন্টে একটি পাসওয়ার্ড যোগ করুন';
+
+  @override
+  String get settingsEnterCurrentPassword => 'আপনার বর্তমান পাসওয়ার্ড লিখুন';
+
+  @override
+  String get settingsEnterNewPassword => 'একটি নতুন পাসওয়ার্ড লিখুন';
+
+  @override
+  String get settingsPasswordMinLength => 'পাসওয়ার্ড অন্তত ৮ অক্ষরের হতে হবে';
+
+  @override
+  String get settingsConfirmYourPassword => 'আপনার পাসওয়ার্ড নিশ্চিত করুন';
+
+  @override
+  String get settingsPasswordsDoNotMatch => 'পাসওয়ার্ড মিলছে না';
+
+  @override
+  String get settingsPleaseWait => 'অপেক্ষা করুন...';
+
+  @override
+  String settingsTypeToConfirm(String word) {
+    return 'নিশ্চিত করতে “$word” লিখুন';
+  }
+
+  @override
+  String settingsPercentOfBudget(int percent) {
+    return 'বাজেটের $percent%';
+  }
+
+  @override
+  String get authTooManyAttempts =>
+      'অনেকবার চেষ্টা করা হয়েছে। এক মিনিট অপেক্ষা করে আবার চেষ্টা করুন।';
+
+  @override
+  String get authServerDown =>
+      'আমরা আমাদের সার্ভারে পৌঁছাতে পারিনি। সমস্যাটি আমাদের দিকে — কয়েক মিনিট পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get authInitFailed => 'যাচাই প্রক্রিয়া শুরু করা যায়নি';
+
+  @override
+  String get authSignInError => 'সাইন ইন করার সময় একটি সমস্যা হয়েছে';
+
+  @override
+  String get authSignUpError => 'সাইন আপ করার সময় একটি সমস্যা হয়েছে';
+
+  @override
+  String get authGoogleCancelled => 'Google সাইন-ইন বাতিল বা ব্যর্থ হয়েছে';
+
+  @override
+  String get authFirebaseTokenFailed => 'Firebase ID টোকেন পাওয়া যায়নি';
+
+  @override
+  String get authGoogleSignInError =>
+      'Google দিয়ে সাইন ইন করার সময় একটি সমস্যা হয়েছে';
+
+  @override
+  String get authAccountExistsDifferentCredential =>
+      'একই ইমেইল ঠিকানায় আগে থেকেই একটি অ্যাকাউন্ট আছে, তবে তার সাইন-ইন তথ্য আলাদা।';
+
+  @override
+  String get authInvalidCredential =>
+      'দেওয়া সাইন-ইন তথ্যটি ভুল বা মেয়াদোত্তীর্ণ।';
+
+  @override
+  String get authGoogleDisabled => 'Google সাইন-ইন বন্ধ আছে।';
+
+  @override
+  String get authUserDisabled => 'এই ইউজার অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে।';
+
+  @override
+  String get authAppleSignInError =>
+      'Apple দিয়ে সাইন ইন করার সময় একটি সমস্যা হয়েছে';
+
+  @override
+  String get authAppleDisabled => 'Apple সাইন-ইন বন্ধ আছে।';
+
+  @override
+  String get authNoPendingLink => 'লিংক করার মতো কোনো অ্যাকাউন্ট বাকি নেই';
+
+  @override
+  String get authLinkFailed => 'অ্যাকাউন্ট লিংক করা যায়নি';
+
+  @override
+  String get authIncorrectPassword => 'পাসওয়ার্ড ভুল। আবার চেষ্টা করুন।';
+
+  @override
+  String get authSignOutError => 'সাইন আউট করার সময় একটি সমস্যা হয়েছে';
+
+  @override
+  String get authLinkSubtitle =>
+      'এই ইমেইলে আগে থেকেই একটি অ্যাকাউন্ট আছে। আপনার Google অ্যাকাউন্ট লিংক করতে পাসওয়ার্ড লিখুন।';
+
+  @override
+  String get authEnterYourPasswordHint => 'আপনার পাসওয়ার্ড লিখুন';
+
+  @override
+  String get authEnterYourPassword => 'অনুগ্রহ করে আপনার পাসওয়ার্ড লিখুন';
+
+  @override
+  String get authLinkInfo =>
+      'লিংক করার পর আপনি ইমেইল/পাসওয়ার্ড বা Google, যেকোনোটি দিয়ে সাইন ইন করতে পারবেন।';
+
+  @override
+  String get authEnterYourEmail => 'অনুগ্রহ করে আপনার ইমেইল লিখুন';
+
+  @override
+  String get authEnterValidEmail => 'একটি সঠিক ইমেইল লিখুন';
+
+  @override
+  String get authPasswordMin6 => 'পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে';
+
+  @override
+  String get authNoAccountPrompt => 'অ্যাকাউন্ট নেই? ';
+
+  @override
+  String get authForgotPasswordTitle => 'পাসওয়ার্ড ভুলে গেছেন';
+
+  @override
+  String get authCheckYourEmail => 'আপনার ইমেইল দেখুন';
+
+  @override
+  String get authForgotPasswordSubtitle =>
+      'আপনার ইমেইল লিখুন, পাসওয়ার্ড রিসেট করার জন্য আমরা আপনাকে একটি কোড পাঠাব।';
+
+  @override
+  String authCodeSentSubtitle(String email) {
+    return 'আমরা $email-এ একটি ৬ সংখ্যার কোড পাঠিয়েছি। নিচে নতুন পাসওয়ার্ডসহ কোডটি লিখুন।';
+  }
+
+  @override
+  String get authEnterYourEmailHint => 'আপনার ইমেইল লিখুন';
+
+  @override
+  String get authSixDigitCodeHint => '৬ সংখ্যার কোড';
+
+  @override
+  String get authEnterTheCode => 'অনুগ্রহ করে কোডটি লিখুন';
+
+  @override
+  String get authCodeIsSixDigits => 'কোডটি ৬ সংখ্যার';
+
+  @override
+  String get authCreateNewPasswordHint => 'একটি নতুন পাসওয়ার্ড তৈরি করুন';
+
+  @override
+  String get authReenterNewPasswordHint => 'নতুন পাসওয়ার্ডটি আবার লিখুন';
+
+  @override
+  String get authEnterYourNameHint => 'আপনার নাম লিখুন';
+
+  @override
+  String get authEnterFullName => 'অনুগ্রহ করে আপনার পুরো নাম লিখুন';
+
+  @override
+  String get authNameMin2 => 'নাম অন্তত ২ অক্ষরের হতে হবে';
+
+  @override
+  String get authCreatePasswordHint => 'একটি পাসওয়ার্ড তৈরি করুন';
+
+  @override
+  String get authPasswordComplexity =>
+      'বড় হাতের অক্ষর, ছোট হাতের অক্ষর ও সংখ্যা থাকতে হবে';
+
+  @override
+  String get authReenterPasswordHint => 'পাসওয়ার্ডটি আবার লিখুন';
+
+  @override
+  String get authStrengthWeak => 'দুর্বল';
+
+  @override
+  String get authStrengthFair => 'মোটামুটি';
+
+  @override
+  String get authStrengthGood => 'ভালো';
+
+  @override
+  String get authStrengthStrong => 'শক্তিশালী';
+
+  @override
+  String authAgreeToTerms(String terms, String privacy) {
+    return 'আমি $terms ও $privacy-তে সম্মত';
+  }
+
+  @override
+  String get authDefaultUserName => 'ইউজার';
+
+  @override
+  String authMemberSince(String date) {
+    return '$date থেকে সদস্য';
+  }
+
+  @override
+  String get authFieldRequired => 'এই ঘরটি পূরণ করা আবশ্যক';
+
+  @override
+  String authSignOutFailed(String error) {
+    return 'সাইন আউট করা যায়নি: $error';
+  }
+
+  @override
+  String authPickImageFailed(String error) {
+    return 'ছবি বাছাই করা যায়নি: $error';
+  }
+
+  @override
+  String authUpdateProfileFailed(String error) {
+    return 'প্রোফাইল আপডেট করা যায়নি: $error';
+  }
+
+  @override
+  String get premiumSaveAbout44 => '~৪৪% সাশ্রয়';
+
+  @override
+  String get premiumBestValue => 'সেরা মূল্য';
+
+  @override
+  String get premiumIapUnavailable => 'IAP উপলভ্য নয়';
+
+  @override
+  String get premiumProductNotFound => 'প্রোডাক্ট পাওয়া যায়নি';
+
+  @override
+  String get premiumPlanUnavailable =>
+      'এই প্ল্যানটি এখন আপনার অ্যাকাউন্টে উপলভ্য নয়';
+
+  @override
+  String get premiumRestoreFailed => 'কেনাকাটা ফিরিয়ে আনা যায়নি';
+
+  @override
+  String get premiumPurchaseFailed => 'কেনাকাটা ব্যর্থ হয়েছে';
+
+  @override
+  String get premiumVerificationFailed => 'যাচাই ব্যর্থ হয়েছে';
+
+  @override
+  String premiumPeriodDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count দিন',
+      one: '১ দিন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count সপ্তাহ',
+      one: '১ সপ্তাহ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count মাস',
+      one: '১ মাস',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count বছর',
+      one: '১ বছর',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumLimitUsed(int count, int limit, String items) {
+    return 'আপনি $limitটি ফ্রি $items-এর মধ্যে $countটি ব্যবহার করেছেন।';
+  }
+
+  @override
+  String premiumLimitUpgrade(String items) {
+    return 'সীমাহীন $items ও আরও অনেক কিছুর জন্য প্রিমিয়াম নিন!';
+  }
+
+  @override
+  String premiumFreeLimitMessage(int limit, String items) {
+    return 'আপনি ফ্রি প্ল্যানের $limitটি $items-এর সীমায় পৌঁছে গেছেন। সীমাহীন $items-এর জন্য প্রিমিয়াম নিন।';
+  }
+
+  @override
+  String get premiumLimitWallets => 'ওয়ালেট';
+
+  @override
+  String get premiumLimitCategories => 'নিজস্ব ক্যাটাগরি';
+
+  @override
+  String get premiumLimitBudgets => 'সক্রিয় বাজেট';
+
+  @override
+  String get premiumLimitObjectives => 'সক্রিয় লক্ষ্য';
+
+  @override
+  String get premiumLimitPaymentMethods => 'পেমেন্ট পদ্ধতি';
+
+  @override
+  String get backupErrNotJson =>
+      'এই ফাইলটি ব্যাকআপ নয় — এটি JSON হিসেবে পড়া যায়নি।';
+
+  @override
+  String get backupErrNotOurs => 'এই ফাইলটি The Accountant-এর ব্যাকআপ নয়।';
+
+  @override
+  String get backupErrNewerVersion =>
+      'এই ব্যাকআপটি অ্যাপের নতুন ভার্সনে তৈরি। The Accountant আপডেট করে আবার চেষ্টা করুন।';
+
+  @override
+  String backupErrTooOld(int version, int oldest) {
+    return 'এই ব্যাকআপটি অ্যাপের এত পুরোনো ভার্সনের যে এই ভার্সন এটি পড়তে পারে না (ডেটাবেস $version, সবচেয়ে পুরোনো সমর্থিত $oldest)।';
+  }
+
+  @override
+  String get backupErrNoData => 'এই ব্যাকআপে কোনো ডেটা নেই।';
+
+  @override
+  String backupErrSectionDamaged(String section) {
+    return 'এই ব্যাকআপের “$section” অংশটি নষ্ট।';
+  }
+
+  @override
+  String get backupErrNoHeader => 'এই ব্যাকআপে সেই হেডার নেই যা বলে এটি কী।';
+
+  @override
+  String get backupErrNoSchemaVersion =>
+      'এই ব্যাকআপটি কোন ডেটাবেস ভার্সন থেকে নেওয়া তা বলা নেই, তাই এটি নিরাপদে ফিরিয়ে আনা যাবে না।';
+
+  @override
+  String get backupErrNoDate => 'এই ব্যাকআপটি কবে নেওয়া হয়েছে তা বলা নেই।';
+
+  @override
+  String get backupErrDamaged => 'এই ব্যাকআপ ফাইলটি নষ্ট।';
+
+  @override
+  String get backupErrWrongKey =>
+      'এই ব্যাকআপটি অন্য একটি অ্যাকাউন্টের, অথবা ফাইলটি বদলানো হয়েছে। এটি ফিরিয়ে আনতে যে অ্যাকাউন্ট দিয়ে এটি তৈরি হয়েছিল সেটি দিয়ে সাইন ইন করুন।';
+
+  @override
+  String get backupErrNoPassphraseLock =>
+      'এই ব্যাকআপটি পাসফ্রেজ দিয়ে খোলা যায় না।';
+
+  @override
+  String get backupErrNeedsSecret =>
+      'এই ব্যাকআপটি পাসফ্রেজ দিয়ে সুরক্ষিত। এটি ফিরিয়ে আনতে পাসফ্রেজ বা রিকভারি কোড লিখুন।';
+
+  @override
+  String get backupErrWrongSecret =>
+      'এই পাসফ্রেজ বা রিকভারি কোড দিয়ে ব্যাকআপটি খোলে না।';
+
+  @override
+  String backupErrNewerSchema(int version, int supported) {
+    return 'এই ব্যাকআপটি অ্যাপের নতুন ভার্সনে তৈরি (ডেটাবেস $version, এই বিল্ড $supported পর্যন্ত পড়তে পারে)। The Accountant আপডেট করে আবার চেষ্টা করুন।';
+  }
+
+  @override
+  String backupDriveUnreachable(String error) {
+    return 'Google Drive-এ পৌঁছানো যায়নি: $error';
+  }
+
+  @override
+  String get backupDriveNotAllowed =>
+      'The Accountant-কে এখনো Google Drive ব্যবহারের অনুমতি দেওয়া হয়নি।';
+
+  @override
+  String get backupDriveNoFolder =>
+      'Google Drive ব্যাকআপ রাখার ফোল্ডার তৈরি করতে দেয়নি।';
+
+  @override
+  String get backupDriveNoFileId =>
+      'Google Drive ব্যাকআপটি নিয়েছে, কিন্তু কোথায় রেখেছে তা জানায়নি।';
+
+  @override
+  String get backupDriveTimeout =>
+      'Google Drive উত্তর দিতে অনেক সময় নিচ্ছে। পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get backupDriveOffline =>
+      'Google Drive-এর সাথে সংযোগ নেই। অনলাইন হলে আবার চেষ্টা করুন।';
+
+  @override
+  String get backupDriveDenied =>
+      'Google Drive অনুরোধটি প্রত্যাখ্যান করেছে। আবার অনুমতি দিয়ে চেষ্টা করুন।';
+
+  @override
+  String get backupDriveFileGone => 'সেই ব্যাকআপটি আর Google Drive-এ নেই।';
+
+  @override
+  String backupDriveHttpError(int status, String reason) {
+    return 'Google Drive $status উত্তর দিয়েছে। $reason';
+  }
+
+  @override
+  String get backupDriveTryAgainSoon => 'একটু পরে আবার চেষ্টা করুন।';
+
+  @override
+  String backupTakeFailed(String error) {
+    return 'ব্যাকআপ নেওয়া যায়নি: $error';
+  }
+
+  @override
+  String get backupUnrestorableNewer => 'অ্যাপের নতুন ভার্সনে তৈরি।';
+
+  @override
+  String get backupUnrestorableOlder =>
+      'এত পুরোনো যে অ্যাপের এই ভার্সন পড়তে পারে না।';
+
+  @override
+  String get backupKeyUnusable =>
+      'সার্ভার একটি অব্যবহারযোগ্য এনক্রিপশন কী পাঠিয়েছে। পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get backupKeyNeedsSignIn =>
+      'ব্যাকআপ নিতে বা ফিরিয়ে আনতে সাইন ইন করুন — ব্যাকআপ আপনার অ্যাকাউন্ট দিয়ে এনক্রিপ্ট করা হয়।';
+
+  @override
+  String get backupKeyNeedsInternet =>
+      'একবার ইন্টারনেটে যুক্ত হন যাতে আপনার ডেটা এনক্রিপ্ট করা যায়, তারপর আবার চেষ্টা করুন।';
+
+  @override
+  String get backupKeyLocked =>
+      'আপনার ডেটা পাসফ্রেজ দিয়ে সুরক্ষিত। আগে এই ডিভাইসে এটি আনলক করুন।';
+
+  @override
+  String get backupFrequencyManual => 'শুধু আমি চাইলে';
+
+  @override
+  String get backupFrequencyDaily => 'প্রতিদিন';
+
+  @override
+  String get backupFrequencyWeekly => 'প্রতি সপ্তাহে';
+
+  @override
+  String get backupFrequencyMonthly => 'প্রতি মাসে';
+
+  @override
+  String get backupIntro =>
+      'ব্যাকআপ হলো একটি ফাইল, যাতে এই ডিভাইসের সবকিছু থাকে — প্রতিটি লেনদেন, অ্যাকাউন্ট, বাজেট ও লক্ষ্য। এটি নিরাপদ কোথাও রাখুন, তাহলে এখানকার কিছুই চিরতরে হারাবে না।';
+
+  @override
+  String get backupSectionOnDevice => 'এই ডিভাইসে';
+
+  @override
+  String get backupSectionGoogleDrive => 'GOOGLE DRIVE';
+
+  @override
+  String get backupSectionInDrive => 'DRIVE-এ থাকা ব্যাকআপ';
+
+  @override
+  String backupBackedUpCount(int count) {
+    return '$countটি রেকর্ডের ব্যাকআপ নেওয়া হয়েছে।';
+  }
+
+  @override
+  String get backupSaveDialogTitle => 'ব্যাকআপ সংরক্ষণ করুন';
+
+  @override
+  String get backupChooseFileTitle => 'একটি ব্যাকআপ ফাইল বেছে নিন';
+
+  @override
+  String backupFileUnreadable(String error) {
+    return 'ফাইলটি পড়া যায়নি: $error';
+  }
+
+  @override
+  String backupTakenOn(String date) {
+    return '$date তারিখে নেওয়া।';
+  }
+
+  @override
+  String backupTakenOnDevice(String date, String device) {
+    return '$date তারিখে $device-এ নেওয়া।';
+  }
+
+  @override
+  String backupBelongedTo(String email) {
+    return 'এটি $email-এর ছিল।';
+  }
+
+  @override
+  String get backupDifferentAccountWarning =>
+      'এটি এখানে সাইন ইন করা অ্যাকাউন্ট নয়। ফিরিয়ে আনলে এই ডিভাইসে অন্য কারও রেকর্ড চলে আসবে।';
+
+  @override
+  String get backupRestoreEraseWarning =>
+      'এই ডিভাইসে এখন যা আছে, সব মুছে নতুন করে বসানো হবে। যা এখনো সিঙ্ক হয়নি, তা হারিয়ে যাবে। এটি আর ফেরানো যাবে না।';
+
+  @override
+  String backupRestoredCount(int count) {
+    return '$countটি রেকর্ড ফিরিয়ে আনা হয়েছে।';
+  }
+
+  @override
+  String backupRestoredPartial(int count) {
+    return '$countটি রেকর্ড ফিরিয়ে আনা হয়েছে। ফাইলের কিছু অংশ এই ভার্সনে মেলেনি, তাই বাদ দেওয়া হয়েছে।';
+  }
+
+  @override
+  String backupRestoreFailed(String error) {
+    return 'কিছুই বদলায়নি — ফিরিয়ে আনা ব্যর্থ হয়েছে: $error';
+  }
+
+  @override
+  String get backupConnectDriveSubtitle =>
+      'ব্যাকআপ এমন একটি ব্যক্তিগত ফোল্ডারে যায় যা শুধু এই অ্যাপ খুলতে পারে। আপনার অন্য ফাইল কখনো পড়া হয় না।';
+
+  @override
+  String get backupDriveConnectedTitle => 'Google Drive যুক্ত হয়েছে';
+
+  @override
+  String backupDriveFolderFirst(String folder) {
+    return 'এই ডিভাইসের ব্যাকআপ আপনার Drive-এ “$folder” নামের একটি ফোল্ডারে যাবে।';
+  }
+
+  @override
+  String backupDriveFolder(String folder) {
+    return 'ব্যাকআপ আপনার Drive-এ “$folder”-এ যায়।';
+  }
+
+  @override
+  String get backupNoneYet => 'এই ডিভাইস থেকে এখনো কোনো ব্যাকআপ যায়নি';
+
+  @override
+  String backupLastBackedUp(String date) {
+    return 'সর্বশেষ ব্যাকআপ $date';
+  }
+
+  @override
+  String backupKeepSubtitle(int count) {
+    return '$countটি ব্যাকআপ — নতুন একটি এলে পুরোনোগুলো সরিয়ে ফেলা হয়';
+  }
+
+  @override
+  String get backupDisconnectSubtitle =>
+      'স্বয়ংক্রিয় ব্যাকআপ বন্ধ হবে। আগে সংরক্ষিত কিছুই মুছবে না।';
+
+  @override
+  String backupListFailed(String error) {
+    return 'আপনার ব্যাকআপের তালিকা আনা যায়নি: $error';
+  }
+
+  @override
+  String get backupDriveNotGranted => 'Google Drive-এর অনুমতি দেওয়া হয়নি।';
+
+  @override
+  String get backupDriveConnected => 'Google Drive যুক্ত হয়েছে।';
+
+  @override
+  String backupDriveConnectFailed(String error) {
+    return 'Google Drive যুক্ত করা যায়নি: $error';
+  }
+
+  @override
+  String get backupDisconnectBody =>
+      'স্বয়ংক্রিয় ব্যাকআপ বন্ধ হবে। Drive-এ আগে থেকে থাকা ব্যাকআপ যেখানে আছে সেখানেই থাকবে, আর আপনি যেকোনো সময় আবার যুক্ত করতে পারবেন।';
+
+  @override
+  String backupSavedToDrive(String name) {
+    return '$name Google Drive-এ সংরক্ষণ করা হয়েছে।';
+  }
+
+  @override
+  String backupCopyFailed(String error) {
+    return 'সেই ব্যাকআপটি সংরক্ষণ করা যায়নি: $error';
+  }
+
+  @override
+  String get backupDeleteBody => 'এটি Google Drive থেকে চিরতরে মুছে যাবে।';
+
+  @override
+  String get backupRefresh => 'রিফ্রেশ করুন';
+
+  @override
+  String get ppErrKdfParams => 'কী তৈরির প্যারামিটারগুলো গ্রহণযোগ্য নয়।';
+
+  @override
+  String get ppErrKdfAlgorithm => 'কী তৈরির অ্যালগরিদমটি অজানা।';
+
+  @override
+  String get onboardingIntroAccountsTitle => 'সব অ্যাকাউন্ট, একটি ব্যালেন্স';
+
+  @override
+  String get onboardingIntroAccountsBody =>
+      'ক্যাশ, কার্ড ও সঞ্চয় পাশাপাশি রাখুন, আর দেখুন আসলে আপনার কাছে কত বাকি আছে।';
+
+  @override
+  String get onboardingIntroBudgetsTitle => 'যে বাজেট আগেই সতর্ক করে';
+
+  @override
+  String get onboardingIntroBudgetsBody =>
+      'প্রতিটি ক্যাটাগরির জন্য সীমা ঠিক করুন। অ্যাপ মোট খরচের দিকে নজর রাখে এবং সীমা পেরোনোর আগেই আপনাকে সতর্ক করে, পরে নয়।';
+
+  @override
+  String get onboardingIntroAskTitle => 'নিজের খরচ নিয়ে প্রশ্ন করুন';
+
+  @override
+  String get onboardingIntroAskBody =>
+      'রসিদ স্ক্যান করুন, বা জিজ্ঞেস করুন গত মাসে টাকা কোথায় গেল, আর আপনার রেকর্ড থেকে উত্তর পান।';
+
+  @override
+  String get onboardingIntroThemeTitle => 'নিজের মতো করে সাজান';
+
+  @override
+  String get onboardingIntroThemeBody =>
+      'এখনই একটি থিম বেছে নিন, বা যখন খুশি সেটিংস থেকে বদলান।';
+
+  @override
+  String get onboardingCreateYourAccount => 'আপনার অ্যাকাউন্ট তৈরি করুন';
+
+  @override
+  String get onboardingNext => 'পরবর্তী';
+
+  @override
+  String get onboardingCurrencyInfo =>
+      'এটি আপনার প্রধান মুদ্রা হিসেবে ব্যবহার হবে। পরে আপনি অন্য মুদ্রার অ্যাকাউন্টও যোগ করতে পারবেন।';
+
+  @override
+  String get onboardingTypeCash => 'ক্যাশ';
+
+  @override
+  String get onboardingTypeBank => 'ব্যাংক অ্যাকাউন্ট';
+
+  @override
+  String get onboardingTypeCard => 'ক্রেডিট কার্ড';
+
+  @override
+  String get onboardingTypeDeposit => 'ডিপোজিট';
+
+  @override
+  String get onboardingTypeInvestment => 'বিনিয়োগ';
+
+  @override
+  String get onboardingTypeAsset => 'সম্পদ';
+
+  @override
+  String onboardingDayN(int day) {
+    return 'দিন $day';
+  }
+
+  @override
+  String get onboardingAllSet => 'সব প্রস্তুত!';
+
+  @override
+  String onboardingCompleteFailed(String error) {
+    return 'অনবোর্ডিং শেষ করা যায়নি: $error';
+  }
+
+  @override
+  String get onboardingSkipFailed => 'অনবোর্ডিং এড়ানো যায়নি';
+
+  @override
+  String get startupOfflineConfirmBody =>
+      'আপনার ডেটা যেখানে আছে ঠিক সেখানেই থাকবে — এই ডিভাইসে বা ক্লাউডে কিছুই মুছবে না।\n\nতবে অ্যাকাউন্টে যদি ডেটা সংরক্ষিত থাকে, তাহলে এখন যা যোগ করবেন তা ফিরিয়ে আনার পর সেগুলোর পাশাপাশি থাকবে — হয়তো কিছু ডুপ্লিকেট গুছিয়ে নিতে হবে।';
+
+  @override
+  String get startupDataInCloudTitle => 'আপনার ডেটা ক্লাউডে অপেক্ষা করছে';
+
+  @override
+  String get startupLoadFailedTitle =>
+      'আমরা আপনার অ্যাকাউন্ট পুরোপুরি লোড করতে পারিনি';
+
+  @override
+  String get startupGenericReason =>
+      'এই অ্যাকাউন্ট যাচাই করার সময় কিছু একটা সমস্যা হয়েছে।';
+
+  @override
+  String get startupUseWithoutRestoring => 'ফিরিয়ে না এনেই অ্যাপ ব্যবহার করুন';
+
+  @override
+  String get legalTermsTab => 'শর্তাবলী';
+
+  @override
+  String get legalConsent =>
+      'আমি গোপনীয়তা নীতি ও শর্তাবলী পড়েছি এবং এতে সম্মত';
+
+  @override
+  String get walkthroughGotIt => 'বুঝেছি!';
+
+  @override
+  String get settingsFaqSectionGettingStarted => 'শুরু করা';
+
+  @override
+  String get settingsFaq01Question => 'কীভাবে লেনদেন যোগ করব?';
+
+  @override
+  String get settingsFaq01Answer =>
+      'হোম স্ক্রিনের নিচে + বোতামে ট্যাপ করুন। পরিমাণ লিখুন, একটি ক্যাটাগরি ও একটি ওয়ালেট বেছে নিন, চাইলে নোট যোগ করুন। লেনদেনটি রাখতে সংরক্ষণ-এ ট্যাপ করুন।';
+
+  @override
+  String get settingsFaq02Question =>
+      'ওয়ালেট আর ক্যাটাগরির মধ্যে পার্থক্য কী?';
+
+  @override
+  String get settingsFaq02Answer =>
+      'ওয়ালেট দেখায় আপনার টাকা কোথায় আছে (যেমন ক্যাশ, ব্যাংক অ্যাকাউন্ট, ক্রেডিট কার্ড)। ক্যাটাগরি বলে টাকা কীসে খরচ হলো বা কোথা থেকে এল (যেমন খাবার, বেতন, বিনোদন)।';
+
+  @override
+  String get settingsFaq03Question => 'তারিখ আর সংখ্যার ফরম্যাট কীভাবে বদলাব?';
+
+  @override
+  String get settingsFaq03Answer =>
+      'সেটিংস > আঞ্চলিক সেটিংস-এ যান। এখানে ডিফল্ট মুদ্রা, তারিখের ফরম্যাট (যেমন DD/MM/YYYY বা MM/DD/YYYY) এবং সংখ্যার ফরম্যাট (যেমন 1,234.56 বা 1.234,56) বদলাতে পারবেন। লাইভ প্রিভিউতে দেখা যায় আপনার সেটিংস কেমন দেখাবে।';
+
+  @override
+  String get settingsFaqSectionTransactions => 'লেনদেন';
+
+  @override
+  String get settingsFaq04Question => 'নিয়মিত লেনদেন কি ট্র্যাক করা যায়?';
+
+  @override
+  String get settingsFaq04Answer =>
+      'হ্যাঁ! লেনদেন যোগ করার সময় \"নিয়মিত\" অপশনটি চালু করুন। এটি প্রতিদিন, প্রতি সপ্তাহে, প্রতি মাসে বা প্রতি বছর ফিরে আসার জন্য সেট করতে পারেন। অ্যাপ নিজেই এই লেনদেনগুলো তৈরি করে দেবে।';
+
+  @override
+  String get settingsFaq05Question =>
+      'এক ওয়ালেট থেকে আরেক ওয়ালেটে টাকা কীভাবে পাঠাব?';
+
+  @override
+  String get settingsFaq05Answer =>
+      'লেনদেন যোগ করার সময় ধরন হিসেবে \"ট্রান্সফার\" বেছে নিন। কোন ওয়ালেট থেকে যাবে আর কোন ওয়ালেটে যাবে বেছে নিয়ে পরিমাণ লিখুন। অ্যাপ নিজেই একটি থেকে কেটে অন্যটিতে যোগ করে দেবে।';
+
+  @override
+  String get settingsFaq06Question => 'আসন্ন লেনদেন কী?';
+
+  @override
+  String get settingsFaq06Answer =>
+      'আসন্ন লেনদেন হলো ভবিষ্যতের খরচ বা আয়, যা আপনি আশা করছেন কিন্তু এখনো পরিশোধ হয়নি। পরিশোধিত হিসেবে চিহ্নিত না করা পর্যন্ত এগুলো আপনার ওয়ালেট ব্যালেন্সে প্রভাব ফেলে না। মেয়াদ পেরোনো ও আসন্ন সব আইটেম লেনদেন অংশে পাবেন।';
+
+  @override
+  String get settingsFaq07Question => 'সাবস্ক্রিপশন কীভাবে ট্র্যাক করব?';
+
+  @override
+  String get settingsFaq07Answer =>
+      'লেনদেন যোগ করার সময় বিশেষ ধরন সাবস্ক্রিপশন সেট করুন। এতে এটি কোনো সেবার নিয়মিত পেমেন্ট হিসেবে চিহ্নিত হবে। সব সাবস্ক্রিপশন এক জায়গায় দেখতে পারবেন এবং মাসে সাবস্ক্রিপশনে কত খরচ হচ্ছে তা ট্র্যাক করতে পারবেন।';
+
+  @override
+  String get settingsFaq08Question => 'ধার ও দেনার হিসাব কীভাবে কাজ করে?';
+
+  @override
+  String get settingsFaq08Answer =>
+      'কাউকে টাকা ধার দিলে ধার, আর আপনি টাকা ধার নিলে দেনা ব্যবহার করুন। প্রতিটি এন্ট্রিতে পরিমাণ, কে কার কাছে পাবে আর কতটা শোধ হয়েছে তা থাকে। আংশিক পেমেন্ট লিখে রাখতে পারবেন, আর পুরোটা শোধ হলে দেনা মিটে গেছে বলে চিহ্নিত করতে পারবেন।';
+
+  @override
+  String get settingsFaq09Question => 'লেনদেনে কি নোট বা রসিদ যোগ করা যায়?';
+
+  @override
+  String get settingsFaq09Answer =>
+      'হ্যাঁ! লেনদেন যোগ বা সম্পাদনার সময় নোটের ঘরে নোট লিখতে পারবেন। প্রিমিয়াম ব্যবহারকারীরা এআই রসিদ স্ক্যানার দিয়ে রসিদও স্ক্যান করতে পারেন, যা নিজেই পরিমাণ আর দোকানের তথ্য বের করে নেয়।';
+
+  @override
+  String get settingsFaqSectionWalletsCurrencies => 'ওয়ালেট ও মুদ্রা';
+
+  @override
+  String get settingsFaq10Question => 'একাধিক অ্যাকাউন্ট কীভাবে সামলাব?';
+
+  @override
+  String get settingsFaq10Answer =>
+      'অ্যাপে চার ধরনের অ্যাকাউন্ট আছে: ক্যাশ, ব্যাংক অ্যাকাউন্ট, ক্রেডিট কার্ড ও সাবস্ক্রিপশন। নতুন অ্যাকাউন্ট যোগ করতে ড্যাশবোর্ডে \'আপনার অ্যাকাউন্টগুলি\'-তে গিয়ে \'অ্যাকাউন্ট যোগ করুন\'-এ ট্যাপ করুন। প্রতিটি অ্যাকাউন্টের আলাদা নাম, আইকন, রং ও মুদ্রা থাকতে পারে। আপনার প্রথম অ্যাকাউন্টটি নিজে থেকেই ডিফল্ট হয়ে যায়। ক্রেডিট কার্ড অ্যাকাউন্টে ক্রেডিট সীমা আর বিলিংয়ের দিনও সেট করতে পারবেন, যাতে কত ক্রেডিট বাকি আছে দেখা যায়।';
+
+  @override
+  String get settingsFaq11Question => 'একাধিক মুদ্রা কি ব্যবহার করা যায়?';
+
+  @override
+  String get settingsFaq11Answer =>
+      'হ্যাঁ! প্রতিটি ওয়ালেটের নিজস্ব মুদ্রা থাকতে পারে। অ্যাপ লাইভ বিনিময় হার দিয়ে নিজেই মুদ্রা রূপান্তর করে। সেটিংস > আঞ্চলিক সেটিংস-এ নিজের বিনিময় হারও সেট করতে পারবেন।';
+
+  @override
+  String get settingsFaq12Question => 'মুদ্রা রূপান্তর কীভাবে কাজ করে?';
+
+  @override
+  String get settingsFaq12Answer =>
+      'প্রতিটি ওয়ালেটের মুদ্রা আলাদা হতে পারে, আর অ্যাপ কয়েক ঘণ্টা পরপর আপডেট হওয়া লাইভ বিনিময় হার দিয়ে নিজেই পরিমাণ রূপান্তর করে। যেকোনো মুদ্রা জোড়ার জন্য নিজের হার সেটিংস > আঞ্চলিক সেটিংস-এ সেট করতে পারবেন। অ্যাপ ১৫০টির বেশি মুদ্রা সমর্থন করে এবং নিজেই হার নিয়ে আসে।';
+
+  @override
+  String get settingsFaq13Question =>
+      'লেনদেনসহ কোনো ক্যাটাগরি মুছে ফেললে কী হয়?';
+
+  @override
+  String get settingsFaq13Answer =>
+      'ওই লেনদেনগুলো \"শ্রেণিহীন\"-এ চলে যাবে। পরে সেগুলো অন্য ক্যাটাগরিতে দিতে পারবেন, বা শ্রেণিহীনই রেখে দিতে পারবেন।';
+
+  @override
+  String get settingsFaq14Question => 'সাব-ক্যাটাগরি কী আর কীভাবে ব্যবহার করব?';
+
+  @override
+  String get settingsFaq14Answer =>
+      'আরও খুঁটিয়ে হিসাব রাখতে যেকোনো মূল ক্যাটাগরির ভেতরে সাব-ক্যাটাগরি বানাতে পারেন। যেমন \'খাবার\'-এর ভেতরে \'বাজার\', \'রেস্টুরেন্ট\' আর \'কফি\'। সাব-ক্যাটাগরি দিয়ে ঠিক কোথায় টাকা যাচ্ছে তা পরিষ্কার দেখা যায়।';
+
+  @override
+  String get settingsFaq15Question => 'ব্যালেন্স সংশোধন কী?';
+
+  @override
+  String get settingsFaq15Answer =>
+      'ওয়ালেটের ব্যালেন্স আসল টাকার সাথে না মিললে ব্যালেন্স সংশোধন দিয়ে তা ঠিক করতে পারেন। এতে একটি বিশেষ লেনদেন তৈরি হয়, যা হাতে আয় বা খরচ না লিখেই আপনার হিসাবের ব্যালেন্সকে আসল ব্যালেন্সের সমান করে দেয়।';
+
+  @override
+  String get settingsFaqSectionBudgetsGoals => 'বাজেট ও লক্ষ্য';
+
+  @override
+  String get settingsFaq16Question => 'বাজেট কীভাবে সেট করব?';
+
+  @override
+  String get settingsFaq16Answer =>
+      'বাজেট ট্যাবে গিয়ে \"নতুন বাজেট\"-এ ট্যাপ করুন। একটি নাম দিন, খরচের সীমা ঠিক করুন, সময়কাল (সাপ্তাহিক/মাসিক) বেছে নিন, আর কোন কোন ক্যাটাগরি ট্র্যাক হবে তা বেছে নিন। সীমার কাছাকাছি পৌঁছালে অ্যাপ আপনাকে জানিয়ে দেবে।';
+
+  @override
+  String get settingsFaq17Question => 'সঞ্চয়ের লক্ষ্য কী?';
+
+  @override
+  String get settingsFaq17Answer =>
+      'সঞ্চয়ের লক্ষ্যে আপনি কত টাকা জমাতে চান তা ঠিক করে রাখতে পারেন। লক্ষ্য অংশে একটি লক্ষ্য তৈরি করুন, পরিমাণ ঠিক করুন, আর অগ্রগতি দেখতে লেনদেন যুক্ত করুন। অ্যাপ একটি অগ্রগতি বার আর লক্ষ্যের কত শতাংশ হলো তা দেখায়।';
+
+  @override
+  String get settingsFaq18Question => 'ঋণ কীভাবে ট্র্যাক করব?';
+
+  @override
+  String get settingsFaq18Answer =>
+      'লক্ষ্য অংশে মোট কত টাকা দেনা তা দিয়ে একটি ঋণ তৈরি করুন। যখন কিস্তি দেবেন, সেই লেনদেনগুলো ঋণের সাথে যুক্ত করুন, তাহলে শোধের অগ্রগতি দেখা যাবে। অ্যাপ দেখায় কত শোধ হয়েছে আর কত বাকি।';
+
+  @override
+  String get settingsFaqSectionDataSync => 'ডেটা ও সিঙ্ক';
+
+  @override
+  String get settingsFaq19Question => 'ক্লাউড সিঙ্ক কীভাবে কাজ করে?';
+
+  @override
+  String get settingsFaq19Answer =>
+      'ক্লাউড সিঙ্ক আপনার সব ডিভাইসে ডেটা একই রাখে। চালু করতে সেটিংস > ডেটা ব্যবস্থাপনা > ক্লাউড সিঙ্ক-এ যান। প্রতি ১৫ মিনিটে আর অ্যাপ খুললেই সিঙ্ক নিজে থেকে চলে। এখনই সিঙ্ক করতে \'এখনই সিঙ্ক করুন\'-এ ট্যাপ করতে পারেন। এটি একটি প্রিমিয়াম ফিচার।';
+
+  @override
+  String get settingsFaq20Question => 'আমার ডেটা কীভাবে রপ্তানি করব?';
+
+  @override
+  String get settingsFaq20Answer =>
+      'সেটিংস > ডেটা ব্যবস্থাপনা > ডেটা রপ্তানি-তে যান। একটি তারিখের সীমা বেছে নিন, CSV (স্প্রেডশিটের জন্য) বা PDF (সাজানো রিপোর্টের জন্য) বেছে নিয়ে রপ্তানি-তে ট্যাপ করুন। ক্যাটাগরি ও ওয়ালেট অনুযায়ী ভাগ রাখতে বা বাদ দিতে পারবেন। এটি একটি প্রিমিয়াম ফিচার।';
+
+  @override
+  String get settingsFaq21Question => 'ডেটা মুছে ফেললে কী হয়?';
+
+  @override
+  String get settingsFaq21Answer =>
+      'সেটিংস > গোপনীয়তা ও নিরাপত্তা-তে যান। \'ক্যাশ পরিষ্কার করুন\' অস্থায়ী ডেটা সরিয়ে আবার সিঙ্ক করায়, আপনার লেনদেন মোছে না। \'সমস্ত ডেটা মুছুন\' সবকিছু চিরতরে মুছে দেয় — নিশ্চিত করতে আপনাকে DELETE লিখতে হবে। এটি আর ফেরানো যায় না।';
+
+  @override
+  String get settingsFaqSectionPremiumAiFeatures => 'প্রিমিয়াম ও এআই ফিচার';
+
+  @override
+  String get settingsFaq22Question => 'প্রিমিয়ামে কী কী আছে?';
+
+  @override
+  String get settingsFaq22Answer =>
+      'প্রিমিয়ামে পাবেন: কোনো বিজ্ঞাপন ছাড়া সীমাহীন এআই (কোচ, মাসিক সারাংশ, রসিদ পড়া আর লিখে বলুন), ক্লাউড সিঙ্ক, পিডিএফ রিপোর্ট, প্রিমিয়াম থিম, আর ওয়ালেট, ক্যাটাগরি, বাজেট, লক্ষ্য ও পেমেন্ট পদ্ধতির কোনো সীমা থাকে না। সাথে অগ্রাধিকার সহায়তাও পাবেন।';
+
+  @override
+  String get settingsFaq23Question => 'ফ্রি ব্যবহারে কী কী সীমা আছে?';
+
+  @override
+  String get settingsFaq23Answer =>
+      'ফ্রি ব্যবহারকারীরা সর্বোচ্চ ৩টি ওয়ালেট, ১০টি নিজের ক্যাটাগরি, ৩টি চালু বাজেট, ২টি চালু লক্ষ্য/ঋণ আর ৫টি পেমেন্ট পদ্ধতি তৈরি করতে পারেন। প্রিমিয়াম নিলে এই সব সীমা উঠে যায়।';
+
+  @override
+  String get settingsFaq24Question => 'এআই সহকারী কী করতে পারে?';
+
+  @override
+  String get settingsFaq24Answer =>
+      'মানি কোচ আপনার নিজের টাকা নিয়ে প্রশ্নের উত্তর দেয়: টাকা কোথায় গেল, বাজেট আর লক্ষ্যের হিসাবে ঠিক পথে আছেন কি না, কোন কোন বিল আসছে, আর কীভাবে কম খরচ বা বেশি সঞ্চয় করা যায়। এটি আপনার হিসাবের একটি সারাংশ দেখে (মোট, ক্যাটাগরি, বাজেট, লক্ষ্য, বিল আর সাম্প্রতিক লেনদেন), তাই উত্তরে আপনার আসল সংখ্যাই থাকে, আর প্রতিটি উত্তরের পর পরের প্রশ্ন সাজেস্ট করে। এটি সাধারণ পরামর্শ দেয়, পেশাদার আর্থিক পরামর্শ নয়। আপনার কথোপকথন সংরক্ষিত থাকে, তাই যেখানে থেমেছিলেন সেখান থেকে আবার শুরু করতে পারেন, আর যেকোনো সময় মুছে ফেলতে পারেন।';
+
+  @override
+  String get settingsFaq25Question => 'এআই বিশ্লেষণ কীভাবে কাজ করে?';
+
+  @override
+  String get settingsFaq25Answer =>
+      'মাসিক সারাংশ (পরিসংখ্যান > খরচের বিশ্লেষণ) এই মাসকে গত মাসের সাথে তুলনা করে দেখায়: কত আয় আর খরচ হলো, আর প্রতিটি ক্যাটাগরি কীভাবে বদলাল। আমার সারাংশ লিখুন-এ ট্যাপ করলে এআই চোখে পড়ার মতো বিষয়গুলো তুলে ধরে আর চেষ্টা করার মতো একটি জিনিস সাজেস্ট করে। সংখ্যাগুলো সবার জন্য বিনামূল্যে; এআই-এর লেখা সারাংশে একটি এআই অনুরোধ লাগে।';
+
+  @override
+  String get settingsFaq26Question => 'স্মার্ট ক্যাটাগরি কী?';
+
+  @override
+  String get settingsFaq26Answer =>
+      'আপনি নিজে কোনো লেনদেনের ক্যাটাগরি বেছে দিলে অ্যাপ মনে রাখে ওই শিরোনামটি কোন ক্যাটাগরির, আর পরের বার নিজেই সেটি বেছে দেয় (এগুলো নামকরণের নিয়ম-এ দেখতে ও বদলাতে পারবেন)। নতুন কিছুর জন্য যোগ করার স্ক্রিনে ঝিকিমিকি বোতামে ট্যাপ করে লিখে বলুন ব্যবহার করুন: যেমন লিখুন \'গতকাল bKash থেকে দুপুরের খাবার ২৫০\', আর এআই পরিমাণ, তারিখ, ক্যাটাগরি ও অ্যাকাউন্ট বসিয়ে দেবে, আপনি শুধু মিলিয়ে নেবেন।';
+
+  @override
+  String get settingsFaq27Question => 'এআই রসিদ স্ক্যানার কীভাবে কাজ করে?';
+
+  @override
+  String get settingsFaq27Answer =>
+      'রসিদের ছবি তুলুন বা বেছে নিন। আপনার ফোন ডিভাইসেই লেখাটি পড়ে দোকান আর মোট টাকা সাজেস্ট করে। এআই দিয়ে পড়ুন-এ ট্যাপ করলে এআই আসল মোট, তারিখ, প্রতিটি আইটেম আর সঠিক ক্যাটাগরি বের করে, রসিদ এলোমেলো হলেও; শুধু লেখাটুকু পাঠানো হয়, ছবি কখনো নয়। সংরক্ষণের আগে সব দেখে নিয়ে বদলাতে পারবেন। এআই দিয়ে পড়তে একটি এআই অনুরোধ লাগে।';
+
+  @override
+  String get settingsFaq28Question =>
+      'কতগুলো এআই অনুরোধ পাব, আর বিজ্ঞাপন কীসের জন্য?';
+
+  @override
+  String get settingsFaq28Answer =>
+      'সবাই মাসে ১০টি বিনামূল্যের এআই অনুরোধ পান, যা ১ তারিখে আবার ফিরে আসে। আরও চাইলে নিজের ইচ্ছায় একটি ছোট বিজ্ঞাপন দেখে আরও একটি অনুরোধ নিতে পারেন, মাসে আরও ১০টি পর্যন্ত। বিজ্ঞাপন দেখে ২৪ ঘণ্টার জন্য প্রিমিয়াম থিম চালিয়ে দেখা বা একটি পিডিএফ রপ্তানিও আনলক করা যায়। আপনি বোতামে ট্যাপ করে নিশ্চিত করলে তবেই বিজ্ঞাপন চলে; কোনো ব্যানার বিজ্ঞাপন নেই, নিজে থেকে কিছুই আসে না। প্রিমিয়াম সদস্যরা কোনো বিজ্ঞাপন ছাড়াই সীমাহীন এআই আর বাকি সবকিছু পান।';
+
+  @override
+  String get settingsFaq29Question => 'আমার প্রিমিয়াম কেনাকাটা কীভাবে সামলাব?';
+
+  @override
+  String get settingsFaq29Answer =>
+      'প্রিমিয়াম কেনাকাটা Google Play থেকে সামলানো হয়। আপনার প্ল্যান দেখতে বা বদলাতে Google Play-এর সাবস্ক্রিপশন সেটিংসে যান। প্রিমিয়াম মাসিক, বার্ষিক বা একবারের আজীবন কেনাকাটা হিসেবে পাওয়া যায়।';
+
+  @override
+  String get settingsFaqSectionPrivacySecurity => 'গোপনীয়তা ও নিরাপত্তা';
+
+  @override
+  String get settingsFaq30Question => 'বায়োমেট্রিক লক কীভাবে চালু করব?';
+
+  @override
+  String get settingsFaq30Answer =>
+      'সেটিংস > গোপনীয়তা ও নিরাপত্তা-তে গিয়ে বায়োমেট্রিক লক চালু করুন। চালু হলে অ্যাপ খুলতে আঙুলের ছাপ বা মুখ লাগবে। কিছুক্ষণ ব্যবহার না করলে অ্যাপ যেন লক হয়ে যায়, সেজন্য স্বয়ংক্রিয় লকের সময়ও ঠিক করে দিতে পারেন।';
+
+  @override
+  String get settingsFaq31Question => 'আমার আর্থিক ডেটা কি নিরাপদ?';
+
+  @override
+  String get settingsFaq31Answer =>
+      'হ্যাঁ। আপনার সব ডেটা আপনার ডিভাইসেই রাখা থাকে। ক্লাউড সিঙ্ক চালু করলে পাঠানোর সময় আপনার ডেটা এনক্রিপ্ট করা থাকে। আমরা কখনো আপনার আর্থিক ডেটা অন্য কারো সাথে শেয়ার করি না। আমাদের গোপনীয়তা নীতি সেটিংস > সম্পর্কে-তে দেখতে পারেন।';
+
+  @override
+  String get txnLoadPaymentMethodsFailed => 'পেমেন্ট পদ্ধতি লোড করা যায়নি';
+
+  @override
+  String get txnAddPaymentMethodFailed => 'পেমেন্ট পদ্ধতি যোগ করা যায়নি';
+
+  @override
+  String get txnPaymentMethodNotFound => 'পেমেন্ট পদ্ধতি পাওয়া যায়নি';
+
+  @override
+  String get txnUpdatePaymentMethodFailed => 'পেমেন্ট পদ্ধতি আপডেট করা যায়নি';
+
+  @override
+  String get txnDeletePaymentMethodFailed => 'পেমেন্ট পদ্ধতি মোছা যায়নি';
+
+  @override
+  String txnLoadFailed(String error) {
+    return 'লেনদেন লোড করা যায়নি: $error';
+  }
+
+  @override
+  String get txnAddFailed => 'লেনদেন যোগ করা যায়নি';
+
+  @override
+  String txnAddFailedWithError(String error) {
+    return 'লেনদেন যোগ করা যায়নি: $error';
+  }
+
+  @override
+  String get txnNotFound => 'লেনদেন পাওয়া যায়নি';
+
+  @override
+  String get txnUpdateFailed => 'লেনদেন আপডেট করা যায়নি';
+
+  @override
+  String txnNotATransfer(String id) {
+    return 'লেনদেন $id কোনো ট্রান্সফার নয়';
+  }
+
+  @override
+  String txnUpdateTransferFailed(String error) {
+    return 'ট্রান্সফার আপডেট করা যায়নি: $error';
+  }
+
+  @override
+  String get txnDeleteFailed => 'লেনদেন মোছা যায়নি';
+
+  @override
+  String txnLoadTransfersFailed(String error) {
+    return 'ট্রান্সফার লোড করা যায়নি: $error';
+  }
+
+  @override
+  String txnCreateTransferFailed(String error) {
+    return 'ট্রান্সফার তৈরি করা যায়নি: $error';
+  }
+
+  @override
+  String txnDeleteTransferFailed(String error) {
+    return 'ট্রান্সফার মোছা যায়নি: $error';
+  }
+
+  @override
+  String txnLoadDataFailed(String error) {
+    return 'ডেটা লোড করা যায়নি: $error';
+  }
+
+  @override
+  String txnMarkPaidFailed(String error) {
+    return 'পরিশোধিত হিসেবে চিহ্নিত করা যায়নি: $error';
+  }
+
+  @override
+  String txnMarkUnpaidFailed(String error) {
+    return 'অপরিশোধিত হিসেবে চিহ্নিত করা যায়নি: $error';
+  }
+
+  @override
+  String txnSkipFailed(String error) {
+    return 'লেনদেন বাদ দেওয়া যায়নি: $error';
+  }
+
+  @override
+  String creditReceivedTitle(String title) {
+    return 'পাওয়া গেছে: $title';
+  }
+
+  @override
+  String creditPaidTitle(String title) {
+    return 'পরিশোধ: $title';
+  }
+
+  @override
+  String creditReversedTitle(String title) {
+    return 'ফেরত নেওয়া: $title';
+  }
+
+  @override
+  String creditMarkSettledFailed(String error) {
+    return 'নিষ্পত্তি হিসেবে চিহ্নিত করা যায়নি: $error';
+  }
+
+  @override
+  String get creditPaymentMustBePositive =>
+      'পরিশোধের পরিমাণ শূন্যের বেশি হতে হবে';
+
+  @override
+  String creditRecordPaymentFailed(String error) {
+    return 'পরিশোধ লিখে রাখা যায়নি: $error';
+  }
+
+  @override
+  String creditMarkPendingFailed(String error) {
+    return 'বাকি হিসেবে চিহ্নিত করা যায়নি: $error';
+  }
+
+  @override
+  String creditRemaining(String amount) {
+    return 'বাকি: $amount';
+  }
+
+  @override
+  String creditPaymentRecorded(String amount) {
+    return '$amount পরিশোধ লেখা হয়েছে';
+  }
+
+  @override
+  String creditMarkedCollected(String title) {
+    return '\"$title\" থেকে আদায় হয়েছে বলে চিহ্নিত';
+  }
+
+  @override
+  String get importFieldDescription => 'বিবরণ';
+
+  @override
+  String get importFieldDirection => 'ধরন (জমা/খরচ)';
+
+  @override
+  String get importMissingDate => 'একটি তারিখের কলাম';
+
+  @override
+  String get importMissingAmount => 'একটি পরিমাণের কলাম';
+
+  @override
+  String importColumnN(int index) {
+    return 'কলাম $index';
+  }
+
+  @override
+  String get importNoDate => 'তারিখ নেই';
+
+  @override
+  String importDateMismatch(String date, String format) {
+    return '\"$date\" তারিখটি $format-এর সাথে মেলে না';
+  }
+
+  @override
+  String get importAnyKnownFormat => 'কোনো জানা ফরম্যাট';
+
+  @override
+  String get importNoAmount => 'পরিমাণ নেই';
+
+  @override
+  String get importIntro =>
+      'আপনার ব্যাংক থেকে একটি CSV এক্সপোর্ট করে এখানে খুলুন। কলামগুলো আপনার জন্য চিনে নেওয়া হবে, আর ঠিক কী যোগ হবে তা দেখার আগে কিছুই যোগ হবে না।';
+
+  @override
+  String get importSavedBanks => 'সংরক্ষিত ব্যাংক';
+
+  @override
+  String get importChooseStatement => 'একটি স্টেটমেন্ট বাছুন';
+
+  @override
+  String get importNoRows => 'ওই ফাইলে কোনো সারি নেই।';
+
+  @override
+  String importUsingSavedMapping(String name) {
+    return '$name-এর জন্য সংরক্ষিত ম্যাপিং ব্যবহার হচ্ছে।';
+  }
+
+  @override
+  String importCouldNotRead(String error) {
+    return 'ওই ফাইলটি পড়া যায়নি: $error';
+  }
+
+  @override
+  String importForgetTitle(String name) {
+    return '$name ভুলে যাবেন?';
+  }
+
+  @override
+  String get importForgetBody => 'পরের বার আবার কলাম ম্যাপ করতে বলা হবে।';
+
+  @override
+  String get importColumnsHeader => 'কলাম';
+
+  @override
+  String get importHowToRead => 'মানগুলো কীভাবে পড়বে';
+
+  @override
+  String get importWhereItGoes => 'কোথায় যাবে';
+
+  @override
+  String get importWhatWillBeAdded => 'যা যোগ হবে';
+
+  @override
+  String importRowsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি সারি',
+      one: '১টি সারি',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importColumnsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি কলাম',
+      one: '১টি কলাম',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSeparatedBy(String separator) {
+    return '$separator দিয়ে আলাদা';
+  }
+
+  @override
+  String importMappedAs(String name) {
+    return '$name হিসেবে ম্যাপ করা';
+  }
+
+  @override
+  String get importDelimCommas => 'কমা';
+
+  @override
+  String get importDelimSemicolons => 'সেমিকোলন';
+
+  @override
+  String get importDelimTabs => 'ট্যাব';
+
+  @override
+  String get importDelimPipes => 'পাইপ (|)';
+
+  @override
+  String get importRequired => 'আবশ্যক';
+
+  @override
+  String get importNotImported => 'ইমপোর্ট হবে না';
+
+  @override
+  String get importEmptySample => 'খালি';
+
+  @override
+  String get importPickDateColumnFirst => 'আগে একটি তারিখের কলাম বাছুন।';
+
+  @override
+  String importDateDoesNotFit(String sample) {
+    return '\"$sample\" এই ফরম্যাটে মেলে না।';
+  }
+
+  @override
+  String importDateReadsAs(String sample, String date) {
+    return '\"$sample\" পড়া হচ্ছে $date হিসেবে';
+  }
+
+  @override
+  String get importDecimalAuto => 'ফাইল থেকে বের করা';
+
+  @override
+  String get importDecimalFullStop => 'দশমিক বিন্দু, যেমন 1,234.56';
+
+  @override
+  String get importDecimalComma => 'কমা, যেমন 1.234,56';
+
+  @override
+  String get importDuplicatesHint =>
+      'দিন, পরিমাণ আর বিবরণ মিলিয়ে দেখে, তাই একই সময়ের স্টেটমেন্ট আবার ইমপোর্ট করলেও কিছু দ্বিগুণ হয় না';
+
+  @override
+  String importStillNeeds(String item) {
+    return 'এখনও $item দরকার।';
+  }
+
+  @override
+  String importStillNeedsBoth(String first, String second) {
+    return 'এখনও $first আর $second দরকার।';
+  }
+
+  @override
+  String get importNothingReadable =>
+      'এই সেটিংসে ফাইলের কিছুই পড়া যাচ্ছে না। তারিখের ফরম্যাট আর কোন কলামে পরিমাণ আছে তা দেখুন।';
+
+  @override
+  String importTransactionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লেনদেন',
+      one: '১টি লেনদেন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importAmountIn(String amount) {
+    return '$amount আয়';
+  }
+
+  @override
+  String importAmountOut(String amount) {
+    return '$amount খরচ';
+  }
+
+  @override
+  String importAndMore(int count) {
+    return 'এবং আরও $countটি';
+  }
+
+  @override
+  String importLinesSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লাইন বাদ যাবে',
+      one: '১টি লাইন বাদ যাবে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLinesSkippedSentence(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লাইন বাদ যাবে।',
+      one: '১টি লাইন বাদ যাবে।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLineProblem(int line, String problem) {
+    return 'লাইন $line: $problem';
+  }
+
+  @override
+  String get importAddAccountFirst => 'আগে একটি অ্যাকাউন্ট যোগ করুন';
+
+  @override
+  String importImportCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লেনদেন ইমপোর্ট করুন',
+      one: '১টি লেনদেন ইমপোর্ট করুন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লেনদেন ইমপোর্ট করবেন?',
+      one: '১টি লেনদেন ইমপোর্ট করবেন?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importConfirmBody =>
+      'এগুলো আপনার রেকর্ডে যোগ হবে এবং পরের সিঙ্কে আপলোড হবে।';
+
+  @override
+  String get importConfirmDuplicates =>
+      'একই দিনে, একই পরিমাণ আর বিবরণে আগে থেকে যা আছে, তা ছোঁয়া হবে না।';
+
+  @override
+  String importFailed(String error) {
+    return 'ইমপোর্ট ব্যর্থ হয়েছে: $error';
+  }
+
+  @override
+  String importImportedTitle(int count) {
+    return '$countটি ইমপোর্ট হয়েছে';
+  }
+
+  @override
+  String importSkippedDuplicates(int count) {
+    return '$countটি আগে থেকেই ছিল, তাই ছোঁয়া হয়নি।';
+  }
+
+  @override
+  String importUnreadableLines(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি লাইন পড়া যায়নি।',
+      one: '১টি লাইন পড়া যায়নি।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importNewCategories(String names) {
+    return 'নতুন শ্রেণি: $names।';
+  }
+
+  @override
+  String importUnmatchedAccounts(String names) {
+    return 'এই অ্যাকাউন্টের নামগুলোর সাথে এখানে কিছু মেলেনি, তাই সেগুলোর সারি আপনার বাছাই করা অ্যাকাউন্টে গেছে: $names।';
+  }
+
+  @override
+  String get importRememberBody =>
+      'এই একই কলামের পরের ফাইল জিজ্ঞেস না করেই এভাবে ম্যাপ হবে।';
+
+  @override
+  String get importNoHeaderCannotSave =>
+      'কলামের শিরোনাম ছাড়া ফাইল আবার চেনা যায় না, তাই মেলানোর কিছু নেই।';
+
+  @override
+  String get importTemplateSaved =>
+      'সংরক্ষিত। এই কলামের ফাইলগুলো এখন থেকে এটি ব্যবহার করবে।';
+
+  @override
+  String get txnTransferSameWallet => 'উৎস ও গন্তব্য ওয়ালেট আলাদা হতে হবে';
+
+  @override
+  String get txnTransferAmountPositive =>
+      'ট্রান্সফারের পরিমাণ শূন্যের বেশি হতে হবে';
+
+  @override
+  String get txnTransferFeeNegative => 'ট্রান্সফার ফি ঋণাত্মক হতে পারে না';
+
+  @override
+  String txnSourceWalletNotFound(String id) {
+    return 'উৎস ওয়ালেট পাওয়া যায়নি: $id';
+  }
+
+  @override
+  String txnDestinationWalletNotFound(String id) {
+    return 'গন্তব্য ওয়ালেট পাওয়া যায়নি: $id';
+  }
+
+  @override
+  String txnTransferTitle(String from, String to) {
+    return 'ট্রান্সফার: $from → $to';
+  }
+
+  @override
+  String txnTransferWalletsMissing(String source, String destination) {
+    return 'ট্রান্সফারের জন্য দুটি ওয়ালেটই থাকতে হবে (উৎস: $source, গন্তব্য: $destination)।';
+  }
+
+  @override
+  String txnTransferSameCurrencyReceived(
+    String source,
+    String destination,
+    String currency,
+  ) {
+    return 'একই মুদ্রার ট্রান্সফারে একটাই অঙ্ক যায়: $source আর $destination দুটোই $currency-এ, তাই পাওয়া পরিমাণ আলাদা হতে পারে না।';
+  }
+
+  @override
+  String txnTransferNoRate(String from, String to, String destination) {
+    return '$from আর $to-এর মধ্যে কোনো রেট জানা নেই, তাই $destination-এ আসলে কত এসেছে তা লিখুন।';
+  }
+
+  @override
+  String txnTransferReceivedPositive(String destination) {
+    return 'পাওয়া পরিমাণ শূন্যের বেশি হতে হবে। $destination-এ আসলে কত এসেছে তা লিখুন।';
+  }
+
+  @override
+  String txnFeeTitle(String title) {
+    return 'ফি: $title';
+  }
+
+  @override
+  String txnNotFoundWithId(String id) {
+    return 'লেনদেন পাওয়া যায়নি: $id';
+  }
+
+  @override
+  String get txnNotATransferNoPair =>
+      'লেনদেনটি ট্রান্সফার নয় (জোড়া লেনদেন নেই)';
+
+  @override
+  String txnPairedNotFound(String id) {
+    return 'জোড়া লেনদেন $id পাওয়া যায়নি; ট্রান্সফারের অর্ধেক এডিট করা হবে না।';
+  }
+
+  @override
+  String walletNoSuchAccount(String id) {
+    return 'এমন কোনো অ্যাকাউন্ট নেই: $id';
+  }
+
+  @override
+  String get walletCorrectionTitle => 'ব্যালেন্স সংশোধন';
+
+  @override
+  String walletCorrectionNote(String name) {
+    return '$name-এর আসল ব্যালেন্সের সাথে মেলাতে সংশোধন করা হয়েছে।';
+  }
+
+  @override
+  String get walletMergeIntoItself =>
+      'কোনো অ্যাকাউন্ট নিজের সাথে মেলানো যায় না।';
+
+  @override
+  String get walletMergeBothMustExist =>
+      'মেলাতে হলে দুটি অ্যাকাউন্টই থাকতে হবে।';
+
+  @override
+  String walletMergeNoRate(String from, String to) {
+    return '$from আর $to-এর মধ্যে কোনো রেট জানা নেই, তাই এই অ্যাকাউন্টগুলো এখনও মেলানো যাবে না।';
+  }
+
+  @override
+  String get walletMergeAdjustmentTitle => 'মেলানোর সমন্বয়';
+
+  @override
+  String walletMergeAdjustmentNote(String name) {
+    return 'এই অ্যাকাউন্টগুলোর মধ্যে ট্রান্সফারের রেট আর $name মেলানোর রেট আলাদা। মোট যাতে না বদলায়, তাই পার্থক্যটা এখানে লেখা হলো।';
+  }
+
+  @override
+  String get splitErrNoTotal => 'বিলের পরিমাণ লিখুন।';
+
+  @override
+  String get splitErrNoPeople => 'ভাগ করার জন্য কাউকে যোগ করুন।';
+
+  @override
+  String splitErrPayerNotOnBill(String name) {
+    return '$name এই বিলে নেই।';
+  }
+
+  @override
+  String get splitErrNothingToRecord =>
+      'অন্য কেউ দিয়েছে আর আপনার কোনো ভাগ নেই, তাই লেখার কিছু নেই।';
+
+  @override
+  String get splitErrGiveOwnShare => 'আপনার নিজের ভাগ লিখুন।';
+
+  @override
+  String splitErrGiveShare(String name) {
+    return '$name-এর ভাগ লিখুন।';
+  }
+
+  @override
+  String get splitErrNegativeShare => 'কোনো ভাগ ঋণাত্মক হতে পারে না।';
+
+  @override
+  String splitErrSharesSum(String sum, String total) {
+    return 'ভাগগুলোর যোগফল $sum, $total নয়।';
+  }
+
+  @override
+  String splitErrPercentSum(String sum) {
+    return 'শতাংশগুলোর যোগফল $sum%, 100% নয়।';
+  }
+
+  @override
+  String get splitErrNameTooLong => 'নাম ১০০ অক্ষরের কম রাখুন।';
+
+  @override
+  String splitErrDuplicateName(String name) {
+    return '$name বিলে দুবার আছে।';
+  }
+
+  @override
+  String get splitErrTitleTooLong => 'শিরোনাম ২০০ অক্ষরের কম রাখুন।';
+
+  @override
+  String get splitErrChooseAccount =>
+      'কোন অ্যাকাউন্ট থেকে দেওয়া হয়েছে তা বাছুন।';
+
+  @override
+  String get splitErrOrdinaryAccount => 'একটি সাধারণ অ্যাকাউন্ট বাছুন।';
+
+  @override
+  String get splitErrYourShareNothing => 'আপনার ভাগ শূন্য, তাই কোনো পাওনা নেই।';
+
+  @override
+  String get splitErrEveryShareNothing => 'সব ভাগই শূন্য।';
+
+  @override
+  String get recurringDaily => 'প্রতিদিন';
+
+  @override
+  String recurringEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'প্রতি $count দিনে',
+      one: 'প্রতিদিন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'প্রতি $count সপ্তাহে',
+      one: 'প্রতি সপ্তাহে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'প্রতি $count মাসে',
+      one: 'প্রতি মাসে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'প্রতি $count বছরে',
+      one: 'প্রতি বছরে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryOther(int count, String unit) {
+    return 'প্রতি $count $unit';
+  }
+
+  @override
+  String get recurringUntitled => 'পুনরাবৃত্ত লেনদেন';
+
+  @override
+  String recurringInDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count দিনে',
+      one: '১ দিনে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringNextWeek => 'আগামী সপ্তাহে';
+
+  @override
+  String recurringInWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count সপ্তাহে',
+      one: '১ সপ্তাহে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnPmKindCard => 'কার্ড';
+
+  @override
+  String get txnPmKindDigitalWallet => 'ডিজিটাল ওয়ালেট';
+
+  @override
+  String get txnPmEmptyHint =>
+      'যে কার্ড আর অ্যাকাউন্ট দিয়ে পেমেন্ট করেন সেগুলো যোগ করুন, তাহলে লেনদেনে একটি বেছে নিতে পারবেন।';
+
+  @override
+  String get txnPmDeleteBody =>
+      'এর সাথে আগে লেখা লেনদেনগুলোর রেকর্ড থেকে যাবে। শুধু সেগুলোতে আর কোনো পেমেন্ট পদ্ধতির নাম থাকবে না।';
+
+  @override
+  String get txnPmNew => 'নতুন পেমেন্ট পদ্ধতি';
+
+  @override
+  String get txnPmEdit => 'পেমেন্ট পদ্ধতি এডিট করুন';
+
+  @override
+  String get txnRecentlyDeletedFooter =>
+      'মোছা লেনদেন ত্রিশ দিন রাখা হয়, তারপর চিরতরে মুছে যায়।';
+
+  @override
+  String get txnUnknownCategory => 'অজানা';
+
+  @override
+  String txnRuleSubtitle(String match, String category) {
+    return '$match → $category';
+  }
+
+  @override
+  String get txnRuleExactly => 'হুবহু এটি';
+
+  @override
+  String get txnRuleContaining => 'যেকোনো কিছু যাতে এটি আছে';
+
+  @override
+  String get txnRulesFooter =>
+      'নিয়মকে হুবহু না করলে শিরোনামের যেকোনো জায়গায় মিললেই কাজ করে। হাতে কিছু সাজালে অ্যাপ প্রতিবার আপনার জন্য একটি নিয়ম যোগ করে।';
+
+  @override
+  String get txnRulesEmptyHint =>
+      'কোনটা কোথায় যাবে অ্যাপকে একবার শিখিয়ে দিন, তারপর থেকে সেভাবেই সাজাবে।';
+
+  @override
+  String get txnRuleNew => 'নতুন নিয়ম';
+
+  @override
+  String get txnRuleEdit => 'নিয়ম এডিট করুন';
+
+  @override
+  String get txnRuleExactHint => 'শুধু যেসব শিরোনাম হুবহু এটি';
+
+  @override
+  String get txnRuleContainingHint => 'যেকোনো শিরোনাম যাতে এটি আছে';
+
+  @override
+  String get txnKindTransfer => 'অ্যাকাউন্টের মধ্যে ট্রান্সফার';
+
+  @override
+  String get txnKindRecurring => 'পুনরাবৃত্ত এন্ট্রি থেকে';
+
+  @override
+  String get txnMoneyIn => 'টাকা এসেছে';
+
+  @override
+  String get txnMoneyOut => 'টাকা গেছে';
+
+  @override
+  String get txnNotYetPaid => 'এখনও পরিশোধ হয়নি';
+
+  @override
+  String get txnLentOut => 'ধার দেওয়া';
+
+  @override
+  String get txnSettledInFull => 'পুরোটা মিটে গেছে।';
+
+  @override
+  String txnLoanProgress(String paid, String owed) {
+    return '$paid ফেরত এসেছে, $owed এখনও বাকি।';
+  }
+
+  @override
+  String get txnUncategorised => 'শ্রেণিহীন';
+
+  @override
+  String get txnUnknownAccount => 'অজানা';
+
+  @override
+  String get txnTransferCannotCopy => 'ট্রান্সফার আলাদাভাবে কপি করা যায় না।';
+
+  @override
+  String get txnCopied => 'কপি হয়েছে।';
+
+  @override
+  String get txnDeleteOneBody =>
+      'অ্যাকাউন্টের ব্যালেন্স আবার হিসাব হবে। এটি কোনো ট্রান্সফারের এক অংশ হলে, অন্য অংশটিও সাথে যাবে।';
+
+  @override
+  String txnUpcomingTab(int count) {
+    return 'আসন্ন ($count)';
+  }
+
+  @override
+  String txnOverdueTab(int count) {
+    return 'মেয়াদ পেরিয়েছে ($count)';
+  }
+
+  @override
+  String get txnNoOverdue => 'মেয়াদোত্তীর্ণ কোনো লেনদেন নেই';
+
+  @override
+  String get txnNoUpcoming => 'আসন্ন কোনো লেনদেন নেই';
+
+  @override
+  String get txnNoOverdueBody => 'আপনার সব পেমেন্ট সময়মতো আছে!';
+
+  @override
+  String get txnNoUpcomingBody => 'আপনার কোনো বাকি পেমেন্ট নির্ধারিত নেই';
+
+  @override
+  String get txnTotalOverdue => 'মোট মেয়াদোত্তীর্ণ';
+
+  @override
+  String get txnTotalUpcoming => 'মোট আসন্ন';
+
+  @override
+  String txnItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি আইটেম',
+      one: '১টি আইটেম',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnDaysOverdue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count দিন পেরিয়েছে',
+      one: '১ দিন পেরিয়েছে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnMarkedPaid(String title) {
+    return '\"$title\" পরিশোধিত হিসেবে চিহ্নিত হয়েছে';
+  }
+
+  @override
+  String txnSkippedTitle(String title) {
+    return '\"$title\" বাদ দেওয়া হয়েছে';
+  }
+
+  @override
+  String txnDateHeaderToday(String date) {
+    return 'আজ, $date';
+  }
+
+  @override
+  String txnDateHeaderYesterday(String date) {
+    return 'গতকাল, $date';
+  }
+
+  @override
+  String txnDateHeaderTomorrow(String date) {
+    return 'আগামীকাল, $date';
+  }
+
+  @override
+  String txnDeleteError(String error) {
+    return 'লেনদেন মুছতে সমস্যা: $error';
+  }
+
+  @override
+  String txnFilterTitle(String title) {
+    return '$title ফিল্টার';
+  }
+
+  @override
+  String get txnMonthlyIncome => 'মাসিক আয়';
+
+  @override
+  String get txnMonthlyExpenses => 'মাসিক খরচ';
+
+  @override
+  String txnStatTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'লেনদেন',
+      one: 'লেনদেন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnAvgPerTransaction => 'প্রতি লেনদেনে গড়';
+
+  @override
+  String get txnNoPlannedIncome => 'কোনো পরিকল্পিত আয় নেই';
+
+  @override
+  String get txnNoPlannedExpenses => 'কোনো পরিকল্পিত খরচ নেই';
+
+  @override
+  String txnAddFutureIncome(String month) {
+    return '$month-এর জন্য ভবিষ্যৎ আয় যোগ করুন';
+  }
+
+  @override
+  String txnAddFutureExpenses(String month) {
+    return '$month-এর জন্য ভবিষ্যৎ খরচ যোগ করুন';
+  }
+
+  @override
+  String get txnNoIncomeYet => 'এই মাসে এখনও কোনো আয় নেই';
+
+  @override
+  String get txnNoExpensesYet => 'এই মাসে এখনও কোনো খরচ নেই';
+
+  @override
+  String get txnStartTrackingIncome =>
+      'এই মাসে আপনার আয়ের হিসাব রাখা শুরু করুন';
+
+  @override
+  String get txnStartTrackingExpenses =>
+      'এই মাসে আপনার খরচের হিসাব রাখা শুরু করুন';
+
+  @override
+  String txnNoIncomeIn(String month) {
+    return '$month-এ কোনো আয় নেই';
+  }
+
+  @override
+  String txnNoExpensesIn(String month) {
+    return '$month-এ কোনো খরচ নেই';
+  }
+
+  @override
+  String txnNoRecordsFor(String month) {
+    return '$month-এর কোনো রেকর্ড নেই';
+  }
+
+  @override
+  String get txnOtherCategory => 'অন্যান্য';
+
+  @override
+  String get txnSearchIncome => 'আয় খুঁজুন';
+
+  @override
+  String get txnSearchExpenses => 'খরচ খুঁজুন';
+
+  @override
+  String txnErrorWith(String error) {
+    return 'ত্রুটি: $error';
+  }
+
+  @override
+  String get txnTapToEditAmount => 'পরিমাণ এডিট করতে ট্যাপ করুন';
+
+  @override
+  String get txnTapToEnterAmount => 'পরিমাণ লিখতে ট্যাপ করুন';
+
+  @override
+  String get txnSpecialDefault => 'সাধারণ';
+
+  @override
+  String get txnSpecialRepetitive => 'পুনরাবৃত্ত';
+
+  @override
+  String get txnRepeatSettings => 'পুনরাবৃত্তির সেটিংস';
+
+  @override
+  String get txnSubscriptionSettings => 'সাবস্ক্রিপশন সেটিংস';
+
+  @override
+  String txnEndsOn(String date) {
+    return 'শেষ: $date';
+  }
+
+  @override
+  String get txnNoEndDate => 'শেষ তারিখ নেই';
+
+  @override
+  String get txnEditTransaction => 'লেনদেন এডিট করুন';
+
+  @override
+  String get txnNewTransaction => 'নতুন লেনদেন';
+
+  @override
+  String get txnFromAccount => 'যে অ্যাকাউন্ট থেকে';
+
+  @override
+  String get txnToAccount => 'যে অ্যাকাউন্টে';
+
+  @override
+  String get txnAmountReceived => 'পাওয়া পরিমাণ';
+
+  @override
+  String txnAmountReceivedHint(String account) {
+    return 'এই অ্যাকাউন্টগুলো আলাদা মুদ্রায় হিসাব রাখে। $account-এ আসলে কত এসেছে লিখুন, অথবা অ্যাপের রেট ব্যবহার করতে ফাঁকা রাখুন।';
+  }
+
+  @override
+  String txnInCurrency(String currency) {
+    return '$currency-এ';
+  }
+
+  @override
+  String get txnTransferTitleHint => 'যেমন সঞ্চয়ে সরানো (ঐচ্ছিক)';
+
+  @override
+  String get txnTitleHint => 'কীসের জন্য ছিল?';
+
+  @override
+  String get txnUpdate => 'আপডেট';
+
+  @override
+  String get txnSelectCategory => 'শ্রেণি বাছুন';
+
+  @override
+  String get txnSearchTransactions => 'লেনদেন খুঁজুন';
+
+  @override
+  String get txnSpecialRegular => 'সাধারণ';
+
+  @override
+  String get txnSpecialLend => 'ধার দিন';
+
+  @override
+  String get txnSpecialBorrow => 'ধার নিন';
+
+  @override
+  String get txnSpecialRegularDesc => 'সাধারণ লেনদেন';
+
+  @override
+  String get txnSpecialUpcomingDesc => 'ভবিষ্যতের পেমেন্ট যা ট্র্যাক করবেন';
+
+  @override
+  String get txnSpecialSubscriptionDesc => 'নিয়মিত সার্ভিসের পেমেন্ট';
+
+  @override
+  String get txnSpecialRepetitiveDesc => 'পুনরাবৃত্ত লেনদেন';
+
+  @override
+  String get txnSpecialLendDesc =>
+      'আপনার ধার দেওয়া টাকা (তারা আপনার কাছে ঋণী)';
+
+  @override
+  String get txnSpecialBorrowDesc =>
+      'আপনার ধার নেওয়া টাকা (আপনি তাদের কাছে ঋণী)';
+
+  @override
+  String txnFilterBoundsInverted(String min, String max) {
+    return 'নিচের সীমা উপরের সীমার চেয়ে বেশি, তাই কিছুই মিলবে না। $min থেকে $max।';
+  }
+
+  @override
+  String get walletMyWallet => 'আমার ওয়ালেট';
+
+  @override
+  String walletCreateFailed(String error) {
+    return 'ওয়ালেট তৈরি করা যায়নি: $error';
+  }
+
+  @override
+  String get walletTypeBankAccount => 'ব্যাংক অ্যাকাউন্ট';
+
+  @override
+  String get walletTypeCreditCard => 'ক্রেডিট কার্ড';
+
+  @override
+  String get walletTypeSubscription => 'সাবস্ক্রিপশন';
+
+  @override
+  String get walletTypeDeposit => 'ডিপোজিট';
+
+  @override
+  String get walletTypeInvestment => 'বিনিয়োগ';
+
+  @override
+  String get walletTypeAsset => 'সম্পদ';
+
+  @override
+  String get walletEnterAccountName => 'অনুগ্রহ করে অ্যাকাউন্টের নাম লিখুন';
+
+  @override
+  String get walletCreditLimitRequired => 'ক্রেডিট লিমিট দিতে হবে';
+
+  @override
+  String get walletEnterValidCreditLimit =>
+      'অনুগ্রহ করে সঠিক ক্রেডিট লিমিট লিখুন';
+
+  @override
+  String get walletEnterValidCreditLimitAboveZero =>
+      'অনুগ্রহ করে ০-এর বেশি সঠিক ক্রেডিট লিমিট লিখুন';
+
+  @override
+  String get walletEditWallet => 'ওয়ালেট এডিট করুন';
+
+  @override
+  String get walletAddNewWallet => 'নতুন ওয়ালেট যোগ করুন';
+
+  @override
+  String get walletEnterWalletNameError => 'অনুগ্রহ করে ওয়ালেটের নাম লিখুন';
+
+  @override
+  String get walletEnterValidNumber => 'অনুগ্রহ করে সঠিক সংখ্যা লিখুন';
+
+  @override
+  String get walletShowCents => 'পয়সা দেখান (যেমন \$1,234.56)';
+
+  @override
+  String get walletWholeNumbersOnly => 'শুধু পূর্ণ সংখ্যা (যেমন \$1,235)';
+
+  @override
+  String get walletCreateWallet => 'ওয়ালেট তৈরি করুন';
+
+  @override
+  String get walletClosedPill =>
+      'বন্ধ। এর ইতিহাস রাখা আছে, কিন্তু এটি আর দেখানো বা গোনা হয় না।';
+
+  @override
+  String get walletExcludedPill => 'সব অ্যাকাউন্টের মোট থেকে বাদ রাখা হয়েছে।';
+
+  @override
+  String get walletReopen => 'আবার খুলুন';
+
+  @override
+  String get walletCloseAccount => 'অ্যাকাউন্ট বন্ধ করুন';
+
+  @override
+  String get walletReopenSubtitle => 'আবার দেখান এবং গুনুন';
+
+  @override
+  String get walletCloseAccountSubtitle => 'ইতিহাস রাখুন, গোনা বন্ধ করুন';
+
+  @override
+  String get walletIncludeInTotal => 'মোটে যোগ করুন';
+
+  @override
+  String get walletLeaveOutOfTotal => 'মোট থেকে বাদ দিন';
+
+  @override
+  String get walletAlreadyTheBalance => 'এটাই এখনকার ব্যালেন্স।';
+
+  @override
+  String get walletCorrectionRecorded =>
+      'পার্থক্যটি সংশোধন হিসেবে লেখা হয়েছে।';
+
+  @override
+  String walletMergeConfirmBody(String name) {
+    return '$name-এর সবকিছু সরে যাবে, আর $name বন্ধ হবে। কিছুই মোছা হবে না।';
+  }
+
+  @override
+  String walletMergeConfirmBodyConverted(String name, String from, String to) {
+    return 'সরানোর সময় পরিমাণ $from থেকে $to-এ রূপান্তর হবে। কিছুই মোছা হবে না, আর $name মুছে না দিয়ে বন্ধ করা হবে।';
+  }
+
+  @override
+  String walletCardInCredit(String amount, String available) {
+    return '$amount জমা · $available পাওয়া যাবে';
+  }
+
+  @override
+  String walletCardOwed(String amount, String available) {
+    return '$amount দেনা · $available এখনও পাওয়া যাবে';
+  }
+
+  @override
+  String walletCorrectBalanceBody(String name) {
+    return '$name-এ আসলে কত আছে লিখুন। পার্থক্যটি একটি লেনদেন হিসেবে লেখা হবে, যাতে অ্যাকাউন্টের হিসাব তার ইতিহাসের সাথে মেলে।';
+  }
+
+  @override
+  String get apiUpdateRequired =>
+      'সিঙ্ক চালু রাখতে The Accountant আপডেট করুন। আপডেট না করা পর্যন্ত সবকিছু এই ফোনেই থাকবে।';
+
+  @override
+  String get apiAccountExistsLink =>
+      'এই ইমেইল দিয়ে আগে থেকেই একটি অ্যাকাউন্ট আছে। অনুগ্রহ করে আপনার অ্যাকাউন্টগুলো লিংক করুন।';
+
+  @override
+  String get apiServerTrouble =>
+      'আমাদের সার্ভারে এই মুহূর্তে সমস্যা হচ্ছে। সবকিছু এই ফোনে নিরাপদ আছে; কয়েক মিনিট পরে আবার চেষ্টা করুন।';
+
+  @override
+  String apiRequestFailedHttp(String status) {
+    return 'অনুরোধ ব্যর্থ হয়েছে (HTTP $status)।';
+  }
+
+  @override
+  String get apiServerTimeout =>
+      'আমাদের সার্ভার উত্তর দিতে অনেক দেরি করেছে। আপনার সংযোগ দেখুন, অথবা কয়েক মিনিট পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get apiCannotReachServer =>
+      'আমাদের সার্ভারে পৌঁছানো যাচ্ছে না। আপনার সংযোগ দেখুন; অনলাইনে থাকলে কয়েক মিনিট পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get apiSomethingWentWrong =>
+      'আমাদের সার্ভারের সাথে যোগাযোগে কিছু ভুল হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।';
+
+  @override
+  String get syncAlreadyInProgress => 'সিঙ্ক ইতিমধ্যে চলছে';
+
+  @override
+  String get syncRequiresPremium =>
+      'ক্লাউড সিঙ্কের জন্য প্রিমিয়াম সাবস্ক্রিপশন লাগবে';
+
+  @override
+  String get syncNoInternet => 'ইন্টারনেট সংযোগ নেই';
+
+  @override
+  String get syncNotAuthenticated => 'সাইন ইন করা নেই';
+
+  @override
+  String get syncCouldNotFetchCloud =>
+      'আপনার ক্লাউড ডেটা আনা যায়নি। এই ডিভাইসের ডেটা অপরিবর্তিত আছে।';
+
+  @override
+  String get syncAccountUnknown =>
+      'সাইন-ইন করা অ্যাকাউন্টটি বোঝা যায়নি; সিঙ্ক বাতিল করা হয়েছে।';
+
+  @override
+  String get syncStoreOtherAccount =>
+      'এই ডিভাইসের ডেটা অন্য একটি অ্যাকাউন্টের। সিঙ্ক করার আগে সেই অ্যাকাউন্টে সাইন ইন করুন, অথবা এই ডিভাইসের ডেটা মুছে ফেলুন।';
+
+  @override
+  String syncRecordsNotSaved(String record) {
+    return 'কিছু ক্লাউড রেকর্ড এই ডিভাইসে সেভ করা যায়নি: $record। পরের সিঙ্কে আবার চেষ্টা করা হবে।';
+  }
+
+  @override
+  String syncRecordsNotSavedMore(String record, int count) {
+    return 'কিছু ক্লাউড রেকর্ড এই ডিভাইসে সেভ করা যায়নি: $record (এবং আরও $countটি)। পরের সিঙ্কে আবার চেষ্টা করা হবে।';
+  }
+
+  @override
+  String notifCardStatementReady(String name) {
+    return '$name-এর স্টেটমেন্ট তৈরি';
+  }
+
+  @override
+  String notifCardStatementPaid(String amount) {
+    return 'মোট $amount, আগেই পরিশোধ হয়েছে। আর কিছু বাকি নেই।';
+  }
+
+  @override
+  String notifCardDueBy(String amount, String date) {
+    return '$date-এর মধ্যে $amount পরিশোধ করতে হবে।';
+  }
+
+  @override
+  String notifCardPaidSoFar(String paid, String owed) {
+    return '$owed-এর মধ্যে $paid আগেই পরিশোধ হয়েছে।';
+  }
+
+  @override
+  String notifCardDueTomorrow(String name) {
+    return '$name-এর বিল কাল পরিশোধের শেষ দিন';
+  }
+
+  @override
+  String notifCardDueInDays(String name, int days) {
+    return '$name-এর বিল $days দিন পরে পরিশোধ করতে হবে';
+  }
+
+  @override
+  String notifPayBy(String amount, String date) {
+    return '$date-এর মধ্যে $amount পরিশোধ করুন।';
+  }
+
+  @override
+  String notifCardDueToday(String name) {
+    return '$name-এর বিল আজ পরিশোধের শেষ দিন';
+  }
+
+  @override
+  String notifCardStillUnpaid(String amount, String paidSoFar) {
+    return '$amount এখনও বাকি।$paidSoFar আজ পরিশোধ করলে লেট ফি এড়ানো যাবে।';
+  }
+
+  @override
+  String get notifWhenToday => 'আজ';
+
+  @override
+  String get notifWhenTomorrow => 'কাল';
+
+  @override
+  String notifWhenInDays(int days) {
+    return '$days দিন পরে';
+  }
+
+  @override
+  String notifPlanPaysOut(String name, String when) {
+    return '$name $when টাকা দেবে';
+  }
+
+  @override
+  String notifPlanPayoutBody(String amount, String account, String date) {
+    return '$date তারিখে $amount $account-এ আসার কথা।';
+  }
+
+  @override
+  String notifPlanMatures(String name, String when) {
+    return '$name-এর মেয়াদ $when পূর্ণ হবে';
+  }
+
+  @override
+  String notifPlanMaturityBody(String amount, String account, String date) {
+    return '$date তারিখে $amount $account-এ ফিরে আসবে।';
+  }
+
+  @override
+  String notifPlanInstallmentDue(
+    String name,
+    String kind,
+    int number,
+    int total,
+    String when,
+  ) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'dps': 'জমা',
+      'insurance': 'প্রিমিয়াম',
+      'sip': 'SIP',
+      'other': 'কিস্তি',
+    });
+    return '$name: $totalটির মধ্যে $number নম্বর $_temp0 $when দিতে হবে';
+  }
+
+  @override
+  String notifInvestBy(String amount, String date) {
+    return '$date-এর মধ্যে $amount বিনিয়োগ করুন।';
+  }
+
+  @override
+  String notifWillBeInvested(String amount, String account, String date) {
+    return '$date তারিখে $account থেকে $amount বিনিয়োগ করা হবে।';
+  }
+
+  @override
+  String notifWillBeRecorded(String amount, String account, String date) {
+    return '$date তারিখে $account থেকে $amount লেখা হবে।';
+  }
+
+  @override
+  String get notifYourAccount => 'আপনার অ্যাকাউন্ট';
+
+  @override
+  String get notifPlansUpdatedTitle => 'EMI ও সঞ্চয় আপডেট হয়েছে';
+
+  @override
+  String notifPlansUpdatedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি প্ল্যান এন্ট্রি নির্ধারিত দিনে লেখা হয়েছে।',
+      one: '১টি প্ল্যান এন্ট্রি নির্ধারিত দিনে লেখা হয়েছে।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifRecurringRecordedTitle => 'পুনরাবৃত্ত লেনদেন লেখা হয়েছে';
+
+  @override
+  String notifRecurringRecordedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি পুনরাবৃত্ত লেনদেন লেখা হয়েছে।',
+      one: '১টি পুনরাবৃত্ত লেনদেন লেখা হয়েছে।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifPaymentsToConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি পেমেন্ট নিশ্চিত করতে হবে',
+      one: '১টি পেমেন্ট নিশ্চিত করতে হবে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifPaymentsToConfirmBody =>
+      'আসন্ন-তে গিয়ে কত কাটা হয়েছে তা নিশ্চিত করুন, অথবা বাদ দিন।';
+
+  @override
+  String notifPaymentsToConfirmBodyNames(String names) {
+    return '$names — আসন্ন-তে গিয়ে কত কাটা হয়েছে তা নিশ্চিত করুন, অথবা বাদ দিন।';
+  }
+
+  @override
+  String get notifUpcomingFallbackTitle => 'আসন্ন লেনদেন';
+
+  @override
+  String notifUpcomingTitle(String title) {
+    return 'আসন্ন: $title';
+  }
+
+  @override
+  String notifUpcomingIncomeBody(String amount) {
+    return '$amount আয় শিগগিরই আসার কথা।';
+  }
+
+  @override
+  String notifUpcomingExpenseBody(String amount) {
+    return '$amount খরচ শিগগিরই দিতে হবে।';
+  }
+
+  @override
+  String get notifCreditFallback => 'ধার';
+
+  @override
+  String get notifDebtFallback => 'দেনা';
+
+  @override
+  String notifOverdueCreditTitle(String title) {
+    return 'বকেয়া ধার: $title';
+  }
+
+  @override
+  String notifOverdueDebtTitle(String title) {
+    return 'বকেয়া দেনা: $title';
+  }
+
+  @override
+  String notifOutstandingBody(String amount) {
+    return '$amount এখনও বাকি আছে। দেখতে ট্যাপ করুন।';
+  }
+
+  @override
+  String get notifRecurringFallbackTitle => 'পুনরাবৃত্ত লেনদেন';
+
+  @override
+  String notifUpcomingRecurringTitle(String title) {
+    return 'আসন্ন পুনরাবৃত্ত: $title';
+  }
+
+  @override
+  String notifDueOnBody(String amount, String date) {
+    return '$date তারিখে $amount দিতে হবে।';
+  }
+
+  @override
+  String notifCreditDueTitle(String title) {
+    return 'ধার ফেরতের সময়: $title';
+  }
+
+  @override
+  String notifDebtDueTitle(String title) {
+    return 'দেনা শোধের সময়: $title';
+  }
+
+  @override
+  String notifSubscriptionDueTitle(String title) {
+    return 'সাবস্ক্রিপশনের পেমেন্ট: $title';
+  }
+
+  @override
+  String notifBillDueTitle(String title) {
+    return 'বিল দেওয়ার সময়: $title';
+  }
+
+  @override
+  String notifDueSoonTitle(String title) {
+    return 'শিগগিরই দিতে হবে: $title';
+  }
+
+  @override
+  String get notifRepetitiveBillFallback => 'পুনরাবৃত্ত বিল';
+
+  @override
+  String notifDueSoonBody(String amount) {
+    return '$amount শিগগিরই দিতে হবে। দেখতে ট্যাপ করুন।';
+  }
+
+  @override
+  String get notifChannelRecurring => 'পুনরাবৃত্ত লেনদেন';
+
+  @override
+  String get notifChannelRecurringDesc =>
+      'নিজে থেকে তৈরি পুনরাবৃত্ত লেনদেনের নোটিফিকেশন';
+
+  @override
+  String get notifChannelUpcoming => 'আসন্ন অনুস্মারক';
+
+  @override
+  String get notifChannelUpcomingDesc => 'আসন্ন লেনদেনের অনুস্মারক';
+
+  @override
+  String get notifChannelLoan => 'ধার-দেনার অনুস্মারক';
+
+  @override
+  String get notifChannelLoanDesc => 'বকেয়া ধার ও দেনার অনুস্মারক';
+
+  @override
+  String get notifChannelDueDate => 'নির্ধারিত তারিখের অনুস্মারক';
+
+  @override
+  String get notifChannelDueDateDesc =>
+      'নির্দিষ্ট লেনদেনের তারিখের জন্য একবারের অনুস্মারক';
+
+  @override
+  String get notifChannelBillsDesc =>
+      'সামনের ক্রেডিট কার্ডের বিল ও প্ল্যানের কিস্তি';
+
+  @override
+  String get notifOffset1Hour => '১ ঘণ্টা আগে';
+
+  @override
+  String get notifOffset1Day => '১ দিন আগে';
+
+  @override
+  String get notifOffset3Days => '৩ দিন আগে';
+
+  @override
+  String get notifOffset1Week => '১ সপ্তাহ আগে';
+
+  @override
+  String notifOffsetMinutes(int minutes) {
+    return '$minutes মিনিট আগে';
+  }
+
+  @override
+  String get notifChannelGeneral => 'সাধারণ';
+
+  @override
+  String get notifChannelGeneralDesc => 'অ্যাকাউন্ট ও অ্যাপের নোটিফিকেশন';
+
+  @override
+  String get notifChannelReminders => 'দৈনিক অনুস্মারক';
+
+  @override
+  String get notifChannelRemindersDesc => 'দিনের খরচ লিখে রাখার একটি তাগিদ';
+
+  @override
+  String get notifChannelBillsStatementsDesc =>
+      'ক্রেডিট কার্ডের স্টেটমেন্ট ও পরিশোধের তারিখ';
+
+  @override
+  String get notifChannelBudgets => 'বাজেট সতর্কতা';
+
+  @override
+  String get notifChannelBudgetsDesc =>
+      'যখন কোনো বাজেট প্রায় বা পুরোপুরি খরচ হয়ে যায়';
+
+  @override
+  String notifOverBudgetTitle(String name) {
+    return 'বাজেট ছাড়িয়েছে: $name';
+  }
+
+  @override
+  String notifBudgetAlertTitle(String name) {
+    return 'বাজেট সতর্কতা: $name';
+  }
+
+  @override
+  String notifOverBudgetBody(String percent, String name) {
+    return 'এই সময়ের জন্য আপনার $name বাজেটের $percent% খরচ করেছেন।';
+  }
+
+  @override
+  String notifBudgetAlertBody(String percent, String name) {
+    return 'আপনার $name বাজেটের $percent% ব্যবহার হয়ে গেছে।';
+  }
+
+  @override
+  String get notifPremiumEndingTitle => 'প্রিমিয়ামের মেয়াদ শিগগিরই শেষ হবে';
+
+  @override
+  String get notifPremiumEndsTomorrow =>
+      'আপনার প্রিমিয়াম কাল শেষ হবে। প্রিমিয়াম ফিচারগুলো রাখতে রিনিউ করুন।';
+
+  @override
+  String notifPremiumEndsInDays(int days) {
+    return 'আপনার প্রিমিয়াম $days দিন পরে শেষ হবে। প্রিমিয়াম ফিচারগুলো রাখতে রিনিউ করুন।';
+  }
+
+  @override
+  String get notifLargeIncomeTitle => 'বড় আয়ের সতর্কতা';
+
+  @override
+  String get notifLargeExpenseTitle => 'বড় খরচের সতর্কতা';
+
+  @override
+  String notifLargeIncomeBodyTitled(String amount, String title) {
+    return '$amount আয় লেখা হয়েছে: $title';
+  }
+
+  @override
+  String notifLargeIncomeBody(String amount) {
+    return '$amount আয় লেখা হয়েছে';
+  }
+
+  @override
+  String notifLargeExpenseBodyTitled(String amount, String title) {
+    return '$amount খরচ লেখা হয়েছে: $title';
+  }
+
+  @override
+  String notifLargeExpenseBody(String amount) {
+    return '$amount খরচ লেখা হয়েছে';
+  }
+
+  @override
+  String get notifChannelDailyRemindersDesc =>
+      'দৈনিক খরচের অনুস্মারক নোটিফিকেশন';
+
+  @override
+  String get notifDailyReminderTitle => 'দৈনিক খরচের অনুস্মারক';
+
+  @override
+  String get notifDailyReminderBody =>
+      'আজকের খরচগুলো লিখতে ভুলবেন না! খরচের হিসাব রাখুন।';
+
+  @override
+  String get notifTestTitle => 'টেস্ট নোটিফিকেশন';
+
+  @override
+  String get notifTestBody => 'এটি দেখতে পেলে নোটিফিকেশন কাজ করছে!';
+
+  @override
+  String get notifActionSnooze1Day => '১ দিন পরে';
+
+  @override
+  String get notifActionSnooze1Week => '১ সপ্তাহ পরে';
+
+  @override
+  String get notifGroupThisWeek => 'এই সপ্তাহ';
+
+  @override
+  String get notifGroupThisMonth => 'এই মাস';
+
+  @override
+  String notifDateAtTime(String date, String time) {
+    return '$date, $time';
+  }
+
+  @override
+  String notifMinutesAgo(int count) {
+    return '$count মি. আগে';
+  }
+
+  @override
+  String notifHoursAgo(int count) {
+    return '$count ঘ. আগে';
+  }
+
+  @override
+  String notifDaysAgo(int count) {
+    return '$count দিন আগে';
+  }
+
+  @override
+  String get notifPrimerSheetBody =>
+      'নোটিফিকেশন চালু করুন, জরুরি বিষয়ে আমরা আগেভাগে জানিয়ে দেব।';
+
+  @override
+  String get notifPrimerBudgetsBody => 'বাজেটের বেশি খরচ করার আগেই জানুন।';
+
+  @override
+  String get notifPrimerBillsTitle => 'বিল ও সাবস্ক্রিপশনের অনুস্মারক';
+
+  @override
+  String get notifPrimerBillsBody => 'কোনো পুনরাবৃত্ত পেমেন্ট আর মিস হবে না।';
+
+  @override
+  String get notifPrimerLargeTitle => 'বড় লেনদেন';
+
+  @override
+  String get notifPrimerLargeBody => 'অস্বাভাবিক লেনদেন হলে জানতে পারবেন।';
+
+  @override
+  String get notifLoadFailed => 'নোটিফিকেশন লোড করা যায়নি';
+
+  @override
+  String get startupReasonSomethingWrong =>
+      'চালু হওয়ার সময় কিছু ভুল হয়েছে। আপনার ডেটা এই ডিভাইসে নিরাপদ আছে।';
+
+  @override
+  String get startupReasonCouldNotOpenLocal =>
+      'এই অ্যাকাউন্টের এই ডিভাইসের ডেটা খোলা যায়নি।';
+
+  @override
+  String get startupReasonSetupFailed =>
+      'এই ডিভাইসে এই অ্যাকাউন্ট সেটআপ শেষ করা যায়নি। কিছুই মুছে ফেলা হয়নি।';
+
+  @override
+  String get startupReasonOffline =>
+      'আপনার অ্যাকাউন্টে পৌঁছানো যায়নি, আর এই ডিভাইসে এখনও এর ডেটা নেই। আগে The Accountant ব্যবহার করে থাকলে ইন্টারনেটে যুক্ত হন, আমরা আপনার ডেটা ফিরিয়ে আনব। নতুন? এখনই এই ডিভাইসে শুরু করতে পারেন।';
+
+  @override
+  String get startupReasonNeedsSubscription =>
+      'এই অ্যাকাউন্টের ডেটা ক্লাউডে সেভ করা আছে। ফিরিয়ে আনতে সক্রিয় সাবস্ক্রিপশন লাগবে। কিছুই মুছে ফেলা হয়নি।';
+
+  @override
+  String get startupReasonConfirmingSubscription =>
+      'এই অ্যাকাউন্টের ডেটা ক্লাউডে আছে। ফিরিয়ে আনার জন্য আমরা এখনও আপনার সাবস্ক্রিপশন যাচাই করছি।';
+
+  @override
+  String startupReasonRestoreFailed(String error) {
+    return 'ফিরিয়ে আনা যায়নি: $error';
+  }
+
+  @override
+  String get startupReasonNotRestoredYet =>
+      'এই অ্যাকাউন্টের ডেটা ক্লাউডে আছে, কিন্তু এখনও ফিরিয়ে আনা যায়নি।';
+
+  @override
+  String get commonBiometricReason =>
+      'The Accountant আনলক করতে পরিচয় যাচাই করুন';
+
+  @override
+  String get commonLoadCurrenciesFailed => 'মুদ্রার তালিকা লোড করা যায়নি';
+
+  @override
+  String get commonLoadRatesFailed => 'বিনিময় হার লোড করা যায়নি';
+
+  @override
+  String get commonRefreshRatesFailed => 'বিনিময় হার রিফ্রেশ করা যায়নি';
+
+  @override
+  String get commonAllCategories => 'সব ক্যাটাগরি';
+
+  @override
+  String commonCategoryCount(int count) {
+    return '$countটি ক্যাটাগরি';
+  }
+
+  @override
+  String get commonTierFree => 'ফ্রি';
+
+  @override
+  String get commonTierMonthly => 'প্রিমিয়াম মাসিক';
+
+  @override
+  String get commonTierYearly => 'প্রিমিয়াম বার্ষিক';
+
+  @override
+  String get commonTierLifetime => 'প্রিমিয়াম লাইফটাইম';
+
+  @override
+  String get commonCategoryMergeSelf =>
+      'কোনো ক্যাটাগরিকে নিজের সাথে মেলানো যায় না।';
+
+  @override
+  String get commonCategoryMergeMissing =>
+      'মেলাতে হলে দুটি ক্যাটাগরিই থাকতে হবে।';
+
+  @override
+  String get commonCategoryMergeSystem =>
+      'অ্যাপের নিজস্ব ক্যাটাগরিগুলো মেলানো যায় না।';
+
+  @override
+  String get commonCategoryMergeKinds =>
+      'আয় ও খরচের ক্যাটাগরি মেলানো যায় না।';
+
+  @override
+  String get commonCategoryOneLevel =>
+      'ওই ক্যাটাগরিটি আরেকটির ভেতরে আছে, আর ক্যাটাগরি কেবল এক স্তর গভীর হতে পারে।';
+
+  @override
+  String get commonCategoryMoveSame =>
+      'সরানোর জন্য অন্য একটি ক্যাটাগরি বেছে নিন।';
+
+  @override
+  String get commonCategoryMoveMissing =>
+      'সরাতে হলে দুটি ক্যাটাগরিই থাকতে হবে।';
+
+  @override
+  String get commonCategoryMoveSystem =>
+      'অ্যাপের নিজস্ব ক্যাটাগরির মধ্যে সরানো যায় না।';
+
+  @override
+  String get commonCategoryMoveKinds =>
+      'আয় ও খরচের লেনদেন একে অপরের ক্যাটাগরিতে যেতে পারে না।';
+
+  @override
+  String get commonCategoryGone => 'ওই ক্যাটাগরিটি আর নেই।';
+
+  @override
+  String get commonCategoryParentSystem =>
+      'অ্যাপের নিজস্ব ক্যাটাগরি সরানো যায় না।';
+
+  @override
+  String get commonCategoryParentSelf =>
+      'কোনো ক্যাটাগরি নিজের ভেতরে থাকতে পারে না।';
+
+  @override
+  String get commonCategoryParentIntoSystem =>
+      'অ্যাপের নিজস্ব ক্যাটাগরির ভেতরে কিছু রাখা যায় না।';
+
+  @override
+  String get commonCategoryParentKinds =>
+      'আয়ের ক্যাটাগরি আর খরচের ক্যাটাগরি একটির ভেতরে আরেকটি রাখা যায় না।';
+
+  @override
+  String get commonCategoryHasChildren =>
+      'এই ক্যাটাগরির নিজস্ব সাব-ক্যাটাগরি আছে, তাই এটি উপরের স্তরেই থাকবে।';
+
+  @override
+  String get commonTapToChange => 'বদলাতে ট্যাপ করুন';
+
+  @override
+  String get commonSelectColor => 'রং বেছে নিন';
+
+  @override
+  String get commonShowPalette => 'প্যালেট দেখান';
+
+  @override
+  String get commonCustomColor => 'নিজের রং';
+
+  @override
+  String get commonSelectCurrency => 'মুদ্রা বেছে নিন';
+
+  @override
+  String get commonEnableCryptoHint =>
+      'ক্রিপ্টো টোকেন খুঁজতে \'ক্রিপ্টো মুদ্রাও দেখান\' চালু করুন।';
+
+  @override
+  String get commonSearchHint => 'খুঁজুন...';
+
+  @override
+  String get aiLoadConversationsFailed => 'কথোপকথনগুলো লোড করা যায়নি।';
+
+  @override
+  String get aiLoadHistoryFailed => 'চ্যাটের ইতিহাস লোড করা যায়নি।';
+
+  @override
+  String get aiPremiumRequired =>
+      'AI সহকারীর জন্য প্রিমিয়াম সাবস্ক্রিপশন লাগবে';
+
+  @override
+  String get aiUnexpectedError =>
+      'অপ্রত্যাশিত একটি সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।';
+
+  @override
+  String get aiResponseFailed =>
+      'AI-এর উত্তর পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।';
+
+  @override
+  String get aiServiceNotAnswering => 'AI পরিষেবা উত্তর দিচ্ছে না।';
+
+  @override
+  String get aiReplyCutOff =>
+      'উত্তরটি মাঝপথে থেমে গেছে। অনুগ্রহ করে আবার চেষ্টা করুন।';
+
+  @override
+  String get aiCouldNotReachServer =>
+      'সার্ভারে পৌঁছানো যায়নি। আপনার সংযোগ দেখে আবার চেষ্টা করুন।';
+
+  @override
+  String get aiSomethingWentWrong => 'কিছু একটা ভুল হয়েছে।';
+
+  @override
+  String get aiOpenConversationFailed => 'কথোপকথনটি খোলা যায়নি।';
+
+  @override
+  String aiChangesSavedReplyLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'আপনার $countটি পরিবর্তন সেভ হয়েছে, কিন্তু কোচ উত্তর শেষ করতে পারেনি। আবার জিজ্ঞেস করার আগে আপনার হিসাবে এগুলো দেখে নিন।',
+      one:
+          'আপনার পরিবর্তনটি সেভ হয়েছে, কিন্তু কোচ উত্তর শেষ করতে পারেনি। আবার জিজ্ঞেস করার আগে আপনার হিসাবে এটি দেখে নিন।',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiServiceNotAnsweringNow =>
+      'AI পরিষেবা এই মুহূর্তে উত্তর দিচ্ছে না। অনুগ্রহ করে আবার চেষ্টা করুন।';
+
+  @override
+  String aiMinutesShort(int count) {
+    return '$count মি.';
+  }
+
+  @override
+  String aiHoursShort(int count) {
+    return '$count ঘ.';
+  }
+
+  @override
+  String aiDaysShort(int count) {
+    return '$count দিন';
+  }
+
+  @override
+  String get aiOcrTextFailed => 'ছবি থেকে লেখা বের করা যায়নি';
+
+  @override
+  String get aiOcrReceiptFailed => 'ছবি থেকে রসিদের তথ্য বের করা যায়নি';
+
+  @override
+  String get coachYes => 'হ্যাঁ';
+
+  @override
+  String get coachNo => 'না';
+
+  @override
+  String get coachTradeBuy => 'কেনা';
+
+  @override
+  String get coachTradeSell => 'বিক্রি';
+
+  @override
+  String get coachTradeDividend => 'লভ্যাংশ';
+
+  @override
+  String get planAccountGone => 'ওই অ্যাকাউন্টটি আর নেই।';
+
+  @override
+  String get planPaidFromOrdinary =>
+      'প্ল্যানের টাকা সাধারণ অ্যাকাউন্ট থেকে দেওয়া হয়, ডিপোজিট থেকে নয়।';
+
+  @override
+  String get planSipChooseHolding =>
+      'এসআইপি কোন ফান্ড বা শেয়ার কিনবে তা বেছে নিন।';
+
+  @override
+  String get planSipPayFromOther => 'অন্য অ্যাকাউন্ট থেকে এসআইপির টাকা দিন।';
+
+  @override
+  String get planNeedNameError => 'প্ল্যানের একটি নাম দিন।';
+
+  @override
+  String get planInstallmentCountRange =>
+      'কিস্তির সংখ্যা ১ থেকে ১২০০-এর মধ্যে হতে হবে।';
+
+  @override
+  String get planIntervalMin => 'ব্যবধান কমপক্ষে ১ হতে হবে।';
+
+  @override
+  String get planRateRange => 'হার ০ থেকে ১০০ শতাংশের মধ্যে হতে হবে।';
+
+  @override
+  String get planTaxRange => 'কর ০ থেকে ১০০ শতাংশের মধ্যে হতে হবে।';
+
+  @override
+  String get planProviderTooLong =>
+      'কোম্পানির নাম ও নম্বর ১০০ অক্ষরের কম রাখুন।';
+
+  @override
+  String get planNeedPremium => 'প্রিমিয়ামের পরিমাণ লিখুন।';
+
+  @override
+  String get planNeedInstallmentAmount => 'প্রতি কিস্তির পরিমাণ লিখুন।';
+
+  @override
+  String get planNeedDeposited => 'জমা দেওয়া পরিমাণ লিখুন।';
+
+  @override
+  String get planTermMonthsOrYears => 'এর মেয়াদ মাস বা বছরে হয়।';
+
+  @override
+  String get planAmountNotNegative => 'পরিমাণ ঋণাত্মক হতে পারে না।';
+
+  @override
+  String planMaturesOnCloseEarly(String name, String date) {
+    return '$name-এর মেয়াদ পূর্ণ হবে $date-এ। তার আগে টাকা তুলতে চাইলে আগেভাগে বন্ধ করুন।';
+  }
+
+  @override
+  String get planNoLongerExists => 'ওই প্ল্যানটি আর নেই।';
+
+  @override
+  String get planReminderDaysRange =>
+      'রিমাইন্ডার ০ (বন্ধ) থেকে ৩০ দিন আগে পর্যন্ত হতে পারে।';
+
+  @override
+  String planStillHoldsMoney(String name, String account) {
+    return '$name-এ এখনো টাকা আছে। আগে এটি বন্ধ করুন, তাতে টাকা $account-এ ফিরে যাবে।';
+  }
+
+  @override
+  String get planItsAccount => 'এর অ্যাকাউন্ট';
+
+  @override
+  String planAlreadyEnded(String name) {
+    return '$name ইতিমধ্যে শেষ হয়ে গেছে।';
+  }
+
+  @override
+  String get investNeedName => 'বিনিয়োগটির একটি নাম দিন।';
+
+  @override
+  String get investNameTooLong => 'নাম ১০০ অক্ষরের কম রাখুন।';
+
+  @override
+  String get investSymbolTooLong => 'সিম্বল ২০ অক্ষরের কম রাখুন।';
+
+  @override
+  String get investPriceNotNegative => 'দাম ঋণাত্মক হতে পারে না।';
+
+  @override
+  String investAlreadyTracked(String name) {
+    return '$name আগে থেকেই ট্র্যাক করা হচ্ছে।';
+  }
+
+  @override
+  String get investNeedPaid => 'কত টাকা দেওয়া হয়েছে লিখুন।';
+
+  @override
+  String get investUnitsBoughtPositive => 'কেনা ইউনিট শূন্যের বেশি হতে হবে।';
+
+  @override
+  String get investPayFromOther => 'অন্য অ্যাকাউন্ট থেকে টাকা দিন।';
+
+  @override
+  String get investNeedSaleAmount => 'বিক্রি থেকে কত টাকা এসেছে লিখুন।';
+
+  @override
+  String get investUnitsSoldPositive =>
+      'বিক্রি করা ইউনিট শূন্যের বেশি হতে হবে।';
+
+  @override
+  String get investSellIntoOther => 'অন্য অ্যাকাউন্টে বিক্রির টাকা নিন।';
+
+  @override
+  String investOnlyUnitsHeld(String units, String name) {
+    return '$name-এর মাত্র $units ইউনিট আছে।';
+  }
+
+  @override
+  String get investNeedDividend => 'পাওয়া লভ্যাংশ লিখুন।';
+
+  @override
+  String get investReceiveIntoOrdinary => 'সাধারণ কোনো অ্যাকাউন্টে টাকা নিন।';
+
+  @override
+  String get investPricePositive => 'দাম শূন্যের বেশি হতে হবে।';
+
+  @override
+  String get investUnitsPositive => 'ইউনিট শূন্যের বেশি হতে হবে।';
+
+  @override
+  String get investNotATrade => 'এটি কোনো বিনিয়োগের কেনাবেচা নয়।';
+
+  @override
+  String investStillHoldsUnits(String name) {
+    return '$name-এ এখনো ইউনিট আছে। আগে সেগুলো বিক্রি করুন।';
+  }
+
+  @override
+  String get investNoLongerExists => 'ওই বিনিয়োগটি আর নেই।';
+
+  @override
+  String get networthNeedAssetName => 'সম্পত্তিটির একটি নাম দিন।';
+
+  @override
+  String get networthValueNotNegative => 'মূল্য ঋণাত্মক হতে পারে না।';
+
+  @override
+  String get networthNeedPaidFor => 'এর জন্য কত টাকা দেওয়া হয়েছে লিখুন।';
+
+  @override
+  String get networthPayFromOrdinary => 'সাধারণ কোনো অ্যাকাউন্ট থেকে টাকা দিন।';
+
+  @override
+  String get networthNeedWorth => 'এর বর্তমান মূল্য লিখুন।';
+
+  @override
+  String get networthNeedSoldFor => 'কত টাকায় বিক্রি হয়েছে লিখুন।';
+
+  @override
+  String get networthReceiveIntoOrdinary => 'সাধারণ কোনো অ্যাকাউন্টে টাকা নিন।';
+
+  @override
+  String networthStillWorth(String name) {
+    return '$name-এর এখনো মূল্য আছে। আগে এটি বিক্রি করুন, অথবা মূল্য শূন্য করে দিন।';
+  }
+
+  @override
+  String get networthAssetGone => 'ওই সম্পত্তি আর ট্র্যাক করা হচ্ছে না।';
+
+  @override
+  String get zakatNeedAmountPaid => 'পরিশোধিত পরিমাণ লিখুন।';
+
+  @override
+  String get zakatPayFromOrdinary => 'সাধারণ কোনো অ্যাকাউন্ট থেকে পরিশোধ করুন।';
+
+  @override
+  String get zakatReminderTitleToday => 'আজ আপনার যাকাত দেওয়ার দিন';
+
+  @override
+  String zakatReminderTitleIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count দিন পর যাকাত দেওয়ার দিন',
+      one: '১ দিন পর যাকাত দেওয়ার দিন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get zakatReminderBodyToday =>
+      'আজ আপনার যাকাত বছর পূর্ণ হচ্ছে। কত দিতে হবে দেখতে ট্যাপ করুন।';
+
+  @override
+  String zakatReminderBodyOn(String date) {
+    return 'আপনার যাকাত বছর পূর্ণ হবে $date-এ। কত দিতে হবে দেখতে ট্যাপ করুন।';
+  }
+
+  @override
+  String get budgetCheckFailed => 'বাজেট যাচাই করা যায়নি';
+
+  @override
+  String get budgetLoadFailed => 'বাজেট লোড করা যায়নি';
+
+  @override
+  String get budgetAddFailed => 'বাজেট যোগ করা যায়নি';
+
+  @override
+  String get budgetNotFound => 'বাজেট পাওয়া যায়নি';
+
+  @override
+  String get budgetUpdateFailed => 'বাজেট হালনাগাদ করা যায়নি';
+
+  @override
+  String get budgetDeleteFailed => 'বাজেট মুছে ফেলা যায়নি';
+
+  @override
+  String get budgetEdit => 'বাজেট সম্পাদনা';
+
+  @override
+  String get budgetNeedName => 'বাজেটের একটি নাম দিন';
+
+  @override
+  String get budgetEnterAmount => 'একটি পরিমাণ লিখুন';
+
+  @override
+  String get budgetAmountMoreThanZero => 'পরিমাণ শূন্যের বেশি হতে হবে';
+
+  @override
+  String get budgetTrackingEarnings => 'আয় ট্র্যাক করা হচ্ছে';
+
+  @override
+  String get budgetTrackingSpending => 'খরচ ট্র্যাক করা হচ্ছে';
+
+  @override
+  String get budgetRepeats => 'পুনরাবৃত্তি';
+
+  @override
+  String get budgetTooBig => 'অনেক বড়';
+
+  @override
+  String get budgetStarts => 'শুরু';
+
+  @override
+  String get budgetEnds => 'শেষ';
+
+  @override
+  String get budgetStopsRepeating => 'পুনরাবৃত্তি বন্ধ';
+
+  @override
+  String get budgetNever => 'কখনো না';
+
+  @override
+  String get budgetCategoriesAll => 'ক্যাটাগরি: সবগুলো';
+
+  @override
+  String budgetCategoriesSelected(int count) {
+    return 'ক্যাটাগরি: $countটি বাছাই করা';
+  }
+
+  @override
+  String get budgetNoIncomeCategories => 'এখনো কোনো আয়ের ক্যাটাগরি নেই।';
+
+  @override
+  String get budgetNoExpenseCategories => 'এখনো কোনো খরচের ক্যাটাগরি নেই।';
+
+  @override
+  String get budgetCategoriesHint =>
+      'সব ক্যাটাগরি দেখতে ফাঁকা রাখুন। বাছাই করা ক্যাটাগরির ভেতরে রাখা সবকিছুও এর মধ্যে গণ্য হবে।';
+
+  @override
+  String get budgetAccountsAll => 'অ্যাকাউন্ট: সবগুলো';
+
+  @override
+  String budgetAccountsSelected(int count) {
+    return 'অ্যাকাউন্ট: $countটি বাছাই করা';
+  }
+
+  @override
+  String get budgetRolloverHint =>
+      'যা খরচ হয়নি তা পরের সময়কালে যোগ হবে। সীমা ছাড়ালে সেই ঘাটতি পরের সময়কালে যায় না।';
+
+  @override
+  String get budgetPeriodDaily => 'দৈনিক';
+
+  @override
+  String get budgetPeriodFortnightly => 'পাক্ষিক';
+
+  @override
+  String get budgetPeriodOneOff => 'একবারের';
+
+  @override
+  String get budgetUnitDays => 'দিন';
+
+  @override
+  String get budgetUnitWeeks => 'সপ্তাহ';
+
+  @override
+  String get budgetUnitFortnights => 'পক্ষ';
+
+  @override
+  String get budgetUnitMonths => 'মাস';
+
+  @override
+  String get budgetUnitYears => 'বছর';
+
+  @override
+  String get budgetOneOffNeedsEnd => 'একবারের বাজেটের একটি শেষ তারিখ লাগবে।';
+
+  @override
+  String get budgetEndAfterStart => 'শেষ তারিখ শুরুর তারিখের পরে হতে হবে।';
+
+  @override
+  String get budgetSaveFailed => 'বাজেট সেভ করা যায়নি।';
+
+  @override
+  String get budgetThisPeriod => 'এই সময়কাল';
+
+  @override
+  String budgetPeriodsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি সময়কাল আগে',
+      one: '১টি সময়কাল আগে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetDateRange(String start, String end) {
+    return '$start থেকে $end';
+  }
+
+  @override
+  String budgetOfLimit(String limit) {
+    return '$limit-এর মধ্যে';
+  }
+
+  @override
+  String budgetOfLimitCarried(String limit, String carried) {
+    return '$limit-এর মধ্যে, আগের থেকে আসা $carried সহ';
+  }
+
+  @override
+  String get budgetUncategorised => 'শ্রেণিহীন';
+
+  @override
+  String budgetOverTheLimit(String amount) {
+    return 'সীমার চেয়ে $amount বেশি।';
+  }
+
+  @override
+  String budgetLeftPerDay(String left, String daily) {
+    return '$left বাকি, দিনে প্রায় $daily।';
+  }
+
+  @override
+  String budgetLeftPlain(String left) {
+    return '$left বাকি।';
+  }
+
+  @override
+  String budgetAveraging(String amount) {
+    return 'গড়ে প্রতি সময়কালে $amount।';
+  }
+
+  @override
+  String budgetHeadingOver(String amount) {
+    return '$amount বেশি হওয়ার পথে';
+  }
+
+  @override
+  String budgetForecastScheduled(String scheduled) {
+    return 'এই হারে, এবং সময়কাল শেষের আগে আগে থেকেই নির্ধারিত $scheduled ধরে।';
+  }
+
+  @override
+  String get budgetForecastPlain => 'এই হারে, সময়কাল শেষ হতে হতে।';
+
+  @override
+  String get budgetCapsExplain =>
+      'বাজেট জানায় সময়কালে বেশি খরচ হয়েছে কি না। সীমা জানায় কোথায়: খাবারের বাজেট সামগ্রিকভাবে ঠিক থাকলেও তার বেশিরভাগ হয়তো বাইরের খাবারে গেছে।';
+
+  @override
+  String get budgetPercentOfBudget => 'বাজেটের শতাংশ';
+
+  @override
+  String get budgetArchivedTitle => 'আর্কাইভ করা বাজেট';
+
+  @override
+  String get budgetShowActive => 'সক্রিয়গুলো দেখান';
+
+  @override
+  String get budgetShowArchived => 'আর্কাইভ করা দেখান';
+
+  @override
+  String get budgetUnpin => 'পিন সরান';
+
+  @override
+  String get budgetPinToTop => 'উপরে পিন করুন';
+
+  @override
+  String get budgetStartCounting => 'আবার গণনা শুরু করুন';
+
+  @override
+  String get budgetStopCounting => 'ইতিহাস থাকবে, গণনা বন্ধ হবে';
+
+  @override
+  String get budgetDeleteBody =>
+      'বাজেট মুছে যাবে, আপনার লেনদেন থাকবে। আপনার লেখা কিছুই মুছবে না।';
+
+  @override
+  String get budgetNothingArchived => 'কিছু আর্কাইভ করা নেই';
+
+  @override
+  String get budgetNoneYet => 'এখনো কোনো বাজেট নেই';
+
+  @override
+  String get budgetArchivedEmptyHint =>
+      'আপনি যেসব বাজেট আর্কাইভ করবেন, সেগুলো এখানে থাকবে।';
+
+  @override
+  String get budgetEmptyHint =>
+      'কোনো ক্যাটাগরির জন্য সীমা ঠিক করুন আর দেখুন মাস কেমন যাচ্ছে।';
+
+  @override
+  String dashLoadFailed(String error) {
+    return 'আর্থিক তথ্য লোড করা যায়নি: $error';
+  }
+
+  @override
+  String get categoryUnknown => 'অজানা';
+
+  @override
+  String dashCardAvailable(String amount) {
+    return 'ব্যবহারযোগ্য: $amount';
+  }
+
+  @override
+  String dashCardInCreditAvailable(String amount) {
+    return 'উদ্বৃত্তে · ব্যবহারযোগ্য: $amount';
+  }
+
+  @override
+  String get dashTypeBank => 'ব্যাংক';
+
+  @override
+  String get dashTypeCredit => 'ক্রেডিট';
+
+  @override
+  String get dashTypeSubs => 'সাবস্ক্রিপশন';
+
+  @override
+  String get dashTypeDeposit => 'ডিপোজিট';
+
+  @override
+  String get dashTypeInvest => 'বিনিয়োগ';
+
+  @override
+  String get dashTypeAsset => 'সম্পত্তি';
+
+  @override
+  String get dashAddAccountTile => 'অ্যাকাউন্ট\nযোগ করুন';
+
+  @override
+  String get categoryLoadFailed => 'ক্যাটাগরি লোড করা যায়নি';
+
+  @override
+  String get categoryAddFailed => 'ক্যাটাগরি যোগ করা যায়নি';
+
+  @override
+  String get categoryNotFound => 'ক্যাটাগরি পাওয়া যায়নি';
+
+  @override
+  String get categoryUpdateFailed => 'ক্যাটাগরি হালনাগাদ করা যায়নি';
+
+  @override
+  String get categoryCannotDeleteSystem =>
+      'অ্যাপের নিজস্ব ক্যাটাগরি মুছে ফেলা যায় না';
+
+  @override
+  String get categoryCannotDeleteWithTransactions =>
+      'লেনদেন আছে এমন ক্যাটাগরি মুছে ফেলা যায় না; আগে সেগুলো সরান বা মুছে ফেলুন';
+
+  @override
+  String get categoryDeleteFailed => 'ক্যাটাগরি মুছে ফেলা যায়নি';
+
+  @override
+  String categorySaveFailed(String error) {
+    return 'ক্যাটাগরি সেভ করা যায়নি: $error';
+  }
+
+  @override
+  String get categoryEditTitle => 'ক্যাটাগরি সম্পাদনা';
+
+  @override
+  String get categoryNewTitle => 'নতুন ক্যাটাগরি';
+
+  @override
+  String get categoryPartOf => 'যার অংশ';
+
+  @override
+  String get categoryNamePlaceholder => 'ক্যাটাগরির নাম';
+
+  @override
+  String get categoryUpdate => 'ক্যাটাগরি হালনাগাদ করুন';
+
+  @override
+  String get categoryCreate => 'ক্যাটাগরি তৈরি করুন';
+
+  @override
+  String reportLoadFailed(String error) {
+    return 'রিপোর্ট লোড করা যায়নি: $error';
+  }
+
+  @override
+  String get goalEdit => 'লক্ষ্য সম্পাদনা';
+
+  @override
+  String get goalNeedName => 'লক্ষ্যের একটি নাম দিন';
+
+  @override
+  String get goalTargetMoreThanZero => 'লক্ষ্যমাত্রা শূন্যের বেশি হতে হবে';
+
+  @override
+  String get goalNoDeadline => 'কোনো সময়সীমা নেই';
+
+  @override
+  String get goalTargetDateAfterStart =>
+      'লক্ষ্যের তারিখ শুরুর তারিখের পরে হতে হবে।';
+
+  @override
+  String get goalSaveFailed => 'লক্ষ্য সেভ করা যায়নি।';
+
+  @override
+  String get goalArchivedTitle => 'আর্কাইভ করা লক্ষ্য';
+
+  @override
+  String get goalHideFromHome => 'হোম থেকে লুকান';
+
+  @override
+  String get goalShowOnHome => 'হোমে দেখান';
+
+  @override
+  String get goalReached => 'পূর্ণ হয়েছে';
+
+  @override
+  String goalToGo(String amount) {
+    return 'আর $amount বাকি';
+  }
+
+  @override
+  String get goalNoneYet => 'এখনো কোনো লক্ষ্য নেই';
+
+  @override
+  String get goalArchivedEmptyHint =>
+      'আপনি যেসব লক্ষ্য আর্কাইভ করবেন, সেগুলো এখানে থাকবে।';
+
+  @override
+  String get goalEmptyHint =>
+      'যার জন্য টাকা জমাচ্ছেন তার নাম দিন, তারপর সেদিকে যাওয়া লেনদেনগুলো যুক্ত করুন।';
+
+  @override
+  String goalSavedOfTarget(String saved, String target) {
+    return '$target-এর মধ্যে $saved';
+  }
+
+  @override
+  String goalOfTarget(String target) {
+    return '$target-এর মধ্যে';
+  }
+
+  @override
+  String get goalReachedNicelyDone => 'পূর্ণ হয়েছে। দারুণ!';
+
+  @override
+  String goalStillToGo(String amount) {
+    return 'এখনো $amount বাকি।';
+  }
+
+  @override
+  String goalDailyToArrive(String amount) {
+    return 'সময়মতো পৌঁছাতে দিনে $amount।';
+  }
+
+  @override
+  String get goalNothingLinked =>
+      'এখনো কিছু যুক্ত হয়নি। কোনো লেনদেনে এই লক্ষ্য বেছে নিন, তাহলে এখানে দেখা যাবে।';
+
+  @override
+  String get goalDeleteBody =>
+      'লক্ষ্য মুছে যাবে, আপনার লেনদেন থাকবে। শুধু সেগুলো আর এর মধ্যে গণ্য হবে না।';
+
+  @override
+  String goalPaymentsOf(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি পেমেন্ট, $amount করে',
+      one: '১টি পেমেন্ট, $amount করে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalFinishingAround(String date) {
+    return '$date-এর কাছাকাছি শেষ হবে।';
+  }
+
+  @override
+  String goalNotFound(String id) {
+    return 'লক্ষ্য পাওয়া যায়নি: $id';
+  }
+
+  @override
+  String get goalPaidOff => 'পরিশোধ হয়ে গেছে!';
+
+  @override
+  String get goalCompleted => 'সম্পূর্ণ!';
+
+  @override
+  String goalPercentComplete(String percent) {
+    return '$percent% সম্পূর্ণ';
+  }
+
+  @override
+  String goalWeeksLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count সপ্তাহ বাকি',
+      one: '১ সপ্তাহ বাকি',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalMonthsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count মাস বাকি',
+      one: '১ মাস বাকি',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalYearsLeft(String years) {
+    return '$years বছর বাকি';
+  }
+
+  @override
+  String get subRecurringBill => 'নিয়মিত বিল';
+
+  @override
+  String subEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'প্রতি $count দিনে',
+      one: 'প্রতি ১ দিনে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'প্রতি $count সপ্তাহে',
+      one: 'প্রতি ১ সপ্তাহে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'প্রতি $count মাসে',
+      one: 'প্রতি ১ মাসে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'প্রতি $count বছরে',
+      one: 'প্রতি ১ বছরে',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryOther(int count, String unit) {
+    return 'প্রতি $count $unit';
+  }
+
+  @override
+  String subLoadFailed(String error) {
+    return 'সাবস্ক্রিপশন লোড করা যায়নি: $error';
+  }
+
+  @override
+  String subPauseFailed(String error) {
+    return 'সাবস্ক্রিপশন থামানো যায়নি: $error';
+  }
+
+  @override
+  String subResumeFailed(String error) {
+    return 'সাবস্ক্রিপশন আবার চালু করা যায়নি: $error';
+  }
+
+  @override
+  String subUpdateFailed(String error) {
+    return 'সাবস্ক্রিপশন হালনাগাদ করা যায়নি: $error';
+  }
+
+  @override
+  String subCancelFailed(String error) {
+    return 'সাবস্ক্রিপশন বাতিল করা যায়নি: $error';
+  }
+
+  @override
+  String subActiveCount(int count) {
+    return 'সক্রিয় ($count)';
+  }
+
+  @override
+  String subPausedCount(int count) {
+    return 'থামানো ($count)';
+  }
+
+  @override
+  String get subEmptyTitle => 'কোনো সাবস্ক্রিপশন বা বিল নেই';
+
+  @override
+  String get subEmptyBody =>
+      'এখানে ট্র্যাক করতে সাবস্ক্রিপশন বা নিয়মিত বিলের লেনদেন যোগ করুন';
+
+  @override
+  String get subRecurringCost => 'নিয়মিত খরচ';
+
+  @override
+  String subPerYear(String amount) {
+    return '$amount / বছর';
+  }
+
+  @override
+  String get subActive => 'সক্রিয়';
+
+  @override
+  String subNext(String date) {
+    return 'পরবর্তী $date';
+  }
+
+  @override
+  String get subResume => 'আবার চালু করুন';
+
+  @override
+  String get subPause => 'থামান';
+
+  @override
+  String get subCancelBillTitle => 'নিয়মিত বিল বাতিল করুন';
+
+  @override
+  String get subCancelSubTitle => 'সাবস্ক্রিপশন বাতিল করুন';
+
+  @override
+  String subCancelConfirm(String name) {
+    return 'আপনি কি নিশ্চিত যে \"$name\" বাতিল করতে চান? এতে ভবিষ্যতের সব নিয়মিত পেমেন্ট বন্ধ হয়ে যাবে।';
+  }
+
+  @override
+  String subCancelled(String name) {
+    return '\"$name\" বাতিল হয়েছে';
+  }
+
+  @override
+  String subSaveError(String error) {
+    return 'ত্রুটি: $error';
+  }
+
+  @override
+  String get subEditBill => 'নিয়মিত বিল সম্পাদনা';
+
+  @override
+  String get subEditSub => 'সাবস্ক্রিপশন সম্পাদনা';
+
+  @override
+  String subUnitDay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'দিন',
+      one: 'দিন',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'সপ্তাহ',
+      one: 'সপ্তাহ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitMonth(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'মাস',
+      one: 'মাস',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitYear(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'বছর',
+      one: 'বছর',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEndsOn(String date) {
+    return 'শেষ: $date';
+  }
+
+  @override
+  String get subNoEndDate => 'কোনো শেষ তারিখ নেই';
 }

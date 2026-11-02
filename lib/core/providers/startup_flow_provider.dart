@@ -10,6 +10,7 @@ import 'package:the_accountant/features/authentication/providers/auth_provider.d
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Where startup has got to.
 ///
@@ -329,9 +330,7 @@ class StartupFlowController extends Notifier<StartupFlowState> {
       debugPrintStack(stackTrace: stack);
       _enterPhase(
         StartupPhase.unavailable,
-        reason:
-            'Something went wrong while starting up. Your data is safe on this '
-            'device.',
+        reason: appL10n.startupReasonSomethingWrong,
       );
     } finally {
       _running = false;
@@ -401,7 +400,7 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     if (!await _awaitStoreOwner(userId)) {
       _enterPhase(
         StartupPhase.unavailable,
-        reason: 'Could not open the local data for this account.',
+        reason: appL10n.startupReasonCouldNotOpenLocal,
       );
       return;
     }
@@ -419,9 +418,7 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     if (storeError != null) {
       _enterPhase(
         StartupPhase.unavailable,
-        reason:
-            'We could not finish setting up this account on this device. '
-            'Nothing has been deleted.',
+        reason: appL10n.startupReasonSetupFailed,
       );
       return;
     }
@@ -452,14 +449,7 @@ class StartupFlowController extends Notifier<StartupFlowState> {
       // No data here and no answer from the server. Not a new account, and not
       // a reason to offer one: the recovery screen keeps checking, and lets the
       // user start fresh on this device only once they have been warned.
-      _enterPhase(
-        StartupPhase.offline,
-        reason:
-            "We couldn't reach your account, and this device doesn't have its "
-            "data yet. If you've used The Accountant before, connect to the "
-            "internet and we'll bring your data back. New here? You can start "
-            'on this device now.',
-      );
+      _enterPhase(StartupPhase.offline, reason: appL10n.startupReasonOffline);
       return;
     }
     state = state.copyWith(account: account);
@@ -478,18 +468,14 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     if (entitlement == EntitlementStatus.notPremium) {
       _enterPhase(
         StartupPhase.entitlementRequired,
-        reason:
-            'This account has data saved in the cloud. Restoring it needs an '
-            'active subscription. Nothing has been deleted.',
+        reason: appL10n.startupReasonNeedsSubscription,
       );
       return;
     }
     if (entitlement == EntitlementStatus.unknown) {
       _enterPhase(
         StartupPhase.checkingEntitlement,
-        reason:
-            'This account has data in the cloud. We are still confirming your '
-            'subscription so it can be restored.',
+        reason: appL10n.startupReasonConfirmingSubscription,
       );
       return;
     }
@@ -499,7 +485,10 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     try {
       await ref.read(syncNotifierProvider.notifier).syncAll();
     } catch (e) {
-      _enterPhase(StartupPhase.unavailable, reason: 'Restore failed: $e');
+      _enterPhase(
+        StartupPhase.unavailable,
+        reason: appL10n.startupReasonRestoreFailed('$e'),
+      );
       return;
     }
 
@@ -513,8 +502,7 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     // a contradiction, not an empty account — do not offer to start over.
     _enterPhase(
       StartupPhase.unavailable,
-      reason:
-          'This account has data in the cloud but it could not be restored yet.',
+      reason: appL10n.startupReasonNotRestoredYet,
     );
   }
 

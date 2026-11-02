@@ -194,9 +194,9 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
         unselectedLabelColor: AppColors.textMuted,
         labelStyle: AppTypography.labelLarge,
         unselectedLabelStyle: AppTypography.labelLarge,
-        tabs: const [
-          Tab(text: 'Privacy Policy'),
-          Tab(text: 'Terms'),
+        tabs: [
+          Tab(text: L10n.of(context).settingsPrivacyPolicy),
+          Tab(text: L10n.of(context).legalTermsTab),
         ],
       ),
     );
@@ -226,8 +226,7 @@ class _LegalAcceptanceScreenState extends State<LegalAcceptanceScreen>
             child: GestureDetector(
               onTap: () => setState(() => _accepted = !_accepted),
               child: Text(
-                'I have read and agree to the Privacy Policy and Terms & '
-                'Conditions',
+                L10n.of(context).legalConsent,
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                   height: 1.4,

@@ -41,6 +41,16 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     with WidgetsBindingObserver {
   bool _busy = false;
 
+  /// The strings, kept from the last build so a snackbar after an await does
+  /// not have to look anything up through a context that may be gone.
+  late L10n _l10n;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = L10n.of(context);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -78,14 +88,10 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
         child: ListView(
           padding: EdgeInsets.all(AppSpacing.md),
           children: [
-            _infoCard(
-              'A backup is a single file holding everything on this device — '
-              'every transaction, account, budget and goal. Keep one somewhere '
-              'safe and nothing here is ever lost for good.',
-            ),
+            _infoCard(L10n.of(context).backupIntro),
             SizedBox(height: AppSpacing.lg),
 
-            _header('ON THIS DEVICE'),
+            _header(L10n.of(context).backupSectionOnDevice),
             _card([
               _tile(
                 icon: Icons.save_alt,
@@ -105,11 +111,14 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
             ]),
             SizedBox(height: AppSpacing.lg),
 
-            _header('GOOGLE DRIVE'),
+            _header(L10n.of(context).backupSectionGoogleDrive),
             _driveSection(),
             SizedBox(height: AppSpacing.lg),
 
-            _header('BACKUPS IN DRIVE', action: _refreshDriveButton()),
+            _header(
+              L10n.of(context).backupSectionInDrive,
+              action: _refreshDriveButton(),
+            ),
             _driveList(),
             SizedBox(height: AppSpacing.xl),
           ],
@@ -141,13 +150,13 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
         contents: await ref.read(backupCodecProvider).encode(document),
       );
       if (saved) {
-        _say('Backed up ${document.rowCount} records.');
+        _say(_l10n.backupBackedUpCount(document.rowCount));
         // The system dialog can write into Drive itself, and if it did then the
         // list below is already out of date.
         await _refreshDriveBackups();
       }
     } catch (e) {
-      _say('The backup could not be taken: $e', bad: true);
+      _say(_l10n.backupTakeFailed(e.toString()), bad: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -165,7 +174,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       mimeType: 'application/json',
       type: FileType.custom,
       allowedExtensions: const ['json'],
-      dialogTitle: 'Save backup',
+      dialogTitle: _l10n.backupSaveDialogTitle,
     );
     return destination != null;
   }
@@ -206,7 +215,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     final picked = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: const ['json'],
-      dialogTitle: 'Choose a backup file',
+      dialogTitle: _l10n.backupChooseFileTitle,
     );
     if (picked == null) return;
 
@@ -223,7 +232,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       _say(e.message, bad: true);
       return;
     } catch (e) {
-      _say('That file could not be read: $e', bad: true);
+      _say(_l10n.backupFileUnreadable(e.toString()), bad: true);
       return;
     }
     if (document == null) return;
@@ -254,7 +263,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     // has read a page of warnings. It is not the guarantee — a sync can start
     // while the dialog below is open, so the restore itself takes the lock.
     if (ref.read(syncServiceProvider).isBusy) {
-      _say(L10n.of(context).backupBusySyncing, bad: true);
+      _say(_l10n.backupBusySyncing, bad: true);
       return;
     }
 
@@ -270,16 +279,19 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       context: context,
       title: L10n.of(context).backupRestoreThisBackup,
       message: [
-        'Taken ${AppDateFormatter.formatDate(metadata.createdAt, dateFormat)}'
-            '${metadata.device.isEmpty ? '' : ' on ${metadata.device}'}.',
+        metadata.device.isEmpty
+            ? L10n.of(context).backupTakenOn(
+                AppDateFormatter.formatDate(metadata.createdAt, dateFormat),
+              )
+            : L10n.of(context).backupTakenOnDevice(
+                AppDateFormatter.formatDate(metadata.createdAt, dateFormat),
+                metadata.device,
+              ),
         if (metadata.ownerEmail != null)
-          'It belonged to ${metadata.ownerEmail}.',
-        if (differentAccount)
-          'That is not the account signed in here. Restoring will put someone '
-              "else's records on this device.",
+          L10n.of(context).backupBelongedTo(metadata.ownerEmail!),
+        if (differentAccount) L10n.of(context).backupDifferentAccountWarning,
         '',
-        'Everything currently on this device is erased and replaced. Anything '
-            'that has not synced yet is lost. This cannot be undone.',
+        L10n.of(context).backupRestoreEraseWarning,
       ].join('\n'),
       confirmText: L10n.of(context).backupEraseRestore,
       isDangerous: true,
@@ -293,20 +305,19 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       final summary = await ref.read(syncServiceProvider).runExclusively(run);
       if (!mounted) return;
       if (summary == null) {
-        _say(L10n.of(context).backupBusySyncing, bad: true);
+        _say(_l10n.backupBusySyncing, bad: true);
         return;
       }
       reloadAllData(ref);
       _say(
         summary.isComplete
-            ? 'Restored ${summary.rowsRestored} records.'
-            : 'Restored ${summary.rowsRestored} records. Some of the file did '
-                  'not fit this version and was left out.',
+            ? L10n.of(context).backupRestoredCount(summary.rowsRestored)
+            : L10n.of(context).backupRestoredPartial(summary.rowsRestored),
       );
     } on BackupFormatException catch (e) {
       _say(e.message, bad: true);
     } catch (e) {
-      _say('Nothing was changed — the restore failed: $e', bad: true);
+      _say(_l10n.backupRestoreFailed(e.toString()), bad: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -335,9 +346,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
             _tile(
               icon: Icons.add_to_drive,
               title: L10n.of(context).backupConnectGoogleDrive,
-              subtitle:
-                  'Backups go in a private folder only this app can open. '
-                  'Your other files are never read.',
+              subtitle: L10n.of(context).backupConnectDriveSubtitle,
               onTap: _busy ? null : _connectDrive,
             ),
           ]);
@@ -353,7 +362,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
             key: const ValueKey('drive-connected'),
             leading: _leading(Icons.check_circle, AppColors.success),
             title: Text(
-              'Google Drive connected',
+              L10n.of(context).backupDriveConnectedTitle,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
@@ -361,10 +370,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
             ),
             subtitle: Text(
               current.lastBackupAt == null
-                  ? 'Backups from this device will go to a folder called '
-                        '"${DriveBackupClient.folderName}" in your Drive.'
-                  : 'Backups go to "${DriveBackupClient.folderName}" in your '
-                        'Drive.',
+                  ? L10n.of(
+                      context,
+                    ).backupDriveFolderFirst(DriveBackupClient.folderName)
+                  : L10n.of(
+                      context,
+                    ).backupDriveFolder(DriveBackupClient.folderName),
               style: TextStyle(color: AppColors.textMuted, fontSize: 13),
             ),
           ),
@@ -373,9 +384,13 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
             icon: Icons.backup,
             title: L10n.of(context).backupBackUpNow,
             subtitle: current.lastBackupAt == null
-                ? 'No backup has gone up from this device yet'
-                : 'Last backed up '
-                      '${AppDateFormatter.formatDate(current.lastBackupAt!, ref.watch(dateFormatSettingProvider))}',
+                ? L10n.of(context).backupNoneYet
+                : L10n.of(context).backupLastBackedUp(
+                    AppDateFormatter.formatDate(
+                      current.lastBackupAt!,
+                      ref.watch(dateFormatSettingProvider),
+                    ),
+                  ),
             onTap: _busy ? null : _backupToDrive,
           ),
           _divider(),
@@ -389,9 +404,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
           _tile(
             icon: Icons.layers,
             title: L10n.of(context).backupKeep,
-            subtitle:
-                '${current.keep} backups — older ones are removed after a new '
-                'one lands',
+            subtitle: L10n.of(context).backupKeepSubtitle(current.keep),
             onTap: _busy ? null : () => _pickKeep(current),
           ),
           if (current.lastFailure != null) ...[
@@ -408,9 +421,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
           _tile(
             icon: Icons.link_off,
             title: L10n.of(context).backupDisconnectGoogleDrive,
-            subtitle:
-                'Stops automatic backups. Nothing already saved is '
-                'deleted.',
+            subtitle: L10n.of(context).backupDisconnectSubtitle,
             onTap: _busy ? null : _disconnectDrive,
           ),
         ]);
@@ -427,7 +438,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       error: (e, _) => _card([
         ListTile(
           title: Text(
-            e is DriveException ? e.message : 'Could not list your backups: $e',
+            e is DriveException
+                ? e.message
+                : L10n.of(context).backupListFailed(e.toString()),
             style: TextStyle(color: AppColors.textSecondary),
           ),
         ),
@@ -527,14 +540,14 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
           .read(googleDriveAuthorizationProvider)
           .requestAccess();
       if (!granted) {
-        _say('Google Drive access was not granted.', bad: true);
+        _say(_l10n.backupDriveNotGranted, bad: true);
         return;
       }
       ref.invalidate(driveAuthorizedProvider);
       ref.invalidate(driveBackupsProvider);
-      _say('Google Drive connected.');
+      _say(_l10n.backupDriveConnected);
     } catch (e) {
-      _say('Google Drive could not be connected: $e', bad: true);
+      _say(_l10n.backupDriveConnectFailed(e.toString()), bad: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -544,9 +557,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     final confirmed = await showConfirmationDialog(
       context: context,
       title: L10n.of(context).backupDisconnectGoogleDrive2,
-      message:
-          'Automatic backups stop. The backups already in Drive stay where '
-          'they are, and you can reconnect at any time.',
+      message: L10n.of(context).backupDisconnectBody,
       confirmText: L10n.of(context).backupDisconnect,
     );
     if (confirmed != true || !mounted) return;
@@ -574,7 +585,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
             device: await ref.read(deviceLabelProvider.future),
             appVersion: await ref.read(appVersionLabelProvider.future),
           );
-      _say('Saved ${file.name} to Google Drive.');
+      _say(_l10n.backupSavedToDrive(file.name));
       ref.invalidate(backupScheduleProvider);
       // Awaited, not just invalidated. A rebuild triggered by an invalidation
       // is not a guarantee that the new listing has arrived, and a backup that
@@ -584,7 +595,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     } on DriveException catch (e) {
       _say(e.message, bad: true);
     } catch (e) {
-      _say('The backup could not be taken: $e', bad: true);
+      _say(_l10n.backupTakeFailed(e.toString()), bad: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -630,7 +641,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     } on DriveException catch (e) {
       _say(e.message, bad: true);
     } catch (e) {
-      _say('That backup could not be saved: $e', bad: true);
+      _say(_l10n.backupCopyFailed(e.toString()), bad: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -640,7 +651,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     final confirmed = await showConfirmationDialog(
       context: context,
       title: L10n.of(context).backupDeleteThisBackup,
-      message: 'It is removed from Google Drive for good.',
+      message: L10n.of(context).backupDeleteBody,
       confirmText: L10n.of(context).actionDelete,
       isDangerous: true,
     );
@@ -780,7 +791,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       key: const ValueKey('refresh-drive-backups'),
       onPressed: _refreshDriveBackups,
       icon: Icon(Icons.refresh, size: 20, color: AppColors.textMuted),
-      tooltip: 'Refresh',
+      tooltip: L10n.of(context).backupRefresh,
       visualDensity: VisualDensity.compact,
       constraints: const BoxConstraints(),
       padding: const EdgeInsets.all(8),

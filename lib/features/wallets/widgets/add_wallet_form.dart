@@ -379,13 +379,13 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
     final symbol = CurrencyInfo.getSymbol(_selectedCurrency);
 
     String typeLabel(WalletType t) => switch (t) {
-      WalletType.cash => 'Cash',
-      WalletType.bankAccount => 'Bank Account',
-      WalletType.creditCard => 'Credit Card',
-      WalletType.subscription => 'Subscription',
-      WalletType.deposit => 'Deposit',
-      WalletType.investment => 'Investment',
-      WalletType.asset => 'Asset',
+      WalletType.cash => l10n.walletsTypeCash,
+      WalletType.bankAccount => l10n.walletTypeBankAccount,
+      WalletType.creditCard => l10n.walletTypeCreditCard,
+      WalletType.subscription => l10n.walletTypeSubscription,
+      WalletType.deposit => l10n.walletTypeDeposit,
+      WalletType.investment => l10n.walletTypeInvestment,
+      WalletType.asset => l10n.walletTypeAsset,
     };
     IconData typeIcon(WalletType t) => switch (t) {
       WalletType.cash => Symbols.payments_rounded,
@@ -404,7 +404,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            widget.isEditing ? 'Edit Wallet' : 'Add New Wallet',
+            widget.isEditing ? l10n.walletEditWallet : l10n.walletAddNewWallet,
             style: SunriseType.section.copyWith(color: c.ink, fontSize: 20),
           ),
           const SizedBox(height: 16),
@@ -451,7 +451,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
             textCapitalization: TextCapitalization.words,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter a wallet name';
+                return L10n.of(context).walletEnterWalletNameError;
               }
               return null;
             },
@@ -482,11 +482,13 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
               validator: (value) {
                 if (_walletType == WalletType.creditCard) {
                   if (value == null || value.isEmpty) {
-                    return 'Credit limit is required';
+                    return L10n.of(context).walletCreditLimitRequired;
                   }
                   final limit = double.tryParse(value);
                   if (limit == null || limit <= 0) {
-                    return 'Please enter a valid credit limit greater than 0';
+                    return L10n.of(
+                      context,
+                    ).walletEnterValidCreditLimitAboveZero;
                   }
                 }
                 return null;
@@ -562,7 +564,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
             validator: (value) {
               if (value != null && value.isNotEmpty) {
                 if (double.tryParse(value) == null) {
-                  return 'Please enter a valid number';
+                  return L10n.of(context).walletEnterValidNumber;
                 }
               }
               return null;
@@ -651,8 +653,8 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
                 iconBackground: c.tintSky,
                 title: l10n.walletUseDecimals,
                 subtitle: _useDecimals
-                    ? 'Show cents (e.g., \$1,234.56)'
-                    : 'Whole numbers only (e.g., \$1,235)',
+                    ? l10n.walletShowCents
+                    : l10n.walletWholeNumbersOnly,
                 value: _useDecimals,
                 onChanged: (v) => setState(() => _useDecimals = v),
               ),
@@ -661,7 +663,9 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
           const SizedBox(height: 22),
 
           SunriseButton(
-            label: widget.isEditing ? 'Save Changes' : 'Create Wallet',
+            label: widget.isEditing
+                ? l10n.authSaveChanges
+                : l10n.walletCreateWallet,
             onPressed: _submit,
           ),
           const SizedBox(height: 10),

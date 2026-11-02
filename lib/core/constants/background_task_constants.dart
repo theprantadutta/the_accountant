@@ -1,3 +1,5 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
+
 /// Constants for background task processing via WorkManager.
 class BackgroundTaskConstants {
   BackgroundTaskConstants._();
@@ -10,31 +12,26 @@ class BackgroundTaskConstants {
 
   // === Notification Channel IDs ===
   static const String recurringChannelId = 'recurring_processing_channel';
-  static const String recurringChannelName = 'Recurring Transactions';
-  static const String recurringChannelDesc =
-      'Notifications for auto-created recurring transactions';
+  static String get recurringChannelName => appL10n.notifChannelRecurring;
+  static String get recurringChannelDesc => appL10n.notifChannelRecurringDesc;
 
   static const String upcomingChannelId = 'upcoming_reminder_channel';
-  static const String upcomingChannelName = 'Upcoming Reminders';
-  static const String upcomingChannelDesc =
-      'Reminders for upcoming transactions';
+  static String get upcomingChannelName => appL10n.notifChannelUpcoming;
+  static String get upcomingChannelDesc => appL10n.notifChannelUpcomingDesc;
 
   static const String loanChannelId = 'loan_reminder_channel';
-  static const String loanChannelName = 'Loan Reminders';
-  static const String loanChannelDesc =
-      'Reminders for overdue credits and debts';
+  static String get loanChannelName => appL10n.notifChannelLoan;
+  static String get loanChannelDesc => appL10n.notifChannelLoanDesc;
 
   static const String dueDateChannelId = 'due_date_reminder_channel';
-  static const String dueDateChannelName = 'Due Date Reminders';
-  static const String dueDateChannelDesc =
-      'One-off reminders for specific transaction due dates';
+  static String get dueDateChannelName => appL10n.notifChannelDueDate;
+  static String get dueDateChannelDesc => appL10n.notifChannelDueDateDesc;
 
   /// The same channel the server's card reminders used, so the user's choice
   /// of sound and importance for it carries over.
   static const String billsChannelId = 'bills';
-  static const String billsChannelName = 'Card bills';
-  static const String billsChannelDesc =
-      'Credit card bills and plan installments coming due';
+  static String get billsChannelName => appL10n.cardBillsTitle;
+  static String get billsChannelDesc => appL10n.notifChannelBillsDesc;
 
   // === Notification ID Ranges ===
   // Existing: budget=2000, daily=1001, subscription=5000, test=9999
@@ -76,15 +73,15 @@ class BackgroundTaskConstants {
   static String offsetLabel(int minutes) {
     switch (minutes) {
       case offset1Hour:
-        return '1 hour before';
+        return appL10n.notifOffset1Hour;
       case offset1Day:
-        return '1 day before';
+        return appL10n.notifOffset1Day;
       case offset3Days:
-        return '3 days before';
+        return appL10n.notifOffset3Days;
       case offset1Week:
-        return '1 week before';
+        return appL10n.notifOffset1Week;
       default:
-        return '$minutes minutes before';
+        return appL10n.notifOffsetMinutes(minutes);
     }
   }
 

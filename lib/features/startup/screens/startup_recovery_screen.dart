@@ -41,12 +41,7 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
     final confirmed = await showSunriseConfirm(
       context: context,
       title: L10n.of(context).startupContinueWithoutChecking,
-      message:
-          'Your data stays exactly where it is — nothing on this device or in '
-          'the cloud will be deleted.\n\n'
-          'But if the account does have data saved, anything you add now will '
-          'sit alongside it once you restore — you may end up with duplicates '
-          'to tidy up.',
+      message: L10n.of(context).startupOfflineConfirmBody,
       confirmLabel: L10n.of(context).startupContinueOffline,
       cancelLabel: L10n.of(context).actionCancel,
       icon: Symbols.cloud_off_rounded,
@@ -86,15 +81,14 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
                       const SizedBox(height: 20),
                       Text(
                         needsSubscription
-                            ? 'Your data is waiting in the cloud'
-                            : "We couldn't finish loading your account",
+                            ? L10n.of(context).startupDataInCloudTitle
+                            : L10n.of(context).startupLoadFailedTitle,
                         style: SunriseType.pushTitle.copyWith(color: c.ink),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        flow.reason ??
-                            'Something went wrong while checking this account.',
+                        flow.reason ?? L10n.of(context).startupGenericReason,
                         style: SunriseType.body.copyWith(color: c.body),
                         textAlign: TextAlign.center,
                       ),
@@ -106,7 +100,9 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
                       ),
                       const SizedBox(height: 28),
                       SunriseButton(
-                        label: _retrying ? 'Checking…' : 'Try again',
+                        label: _retrying
+                            ? L10n.of(context).backupChecking
+                            : L10n.of(context).notifTryAgain,
                         icon: Symbols.refresh_rounded,
                         loading: _retrying,
                         onPressed: _retrying ? null : _retry,
@@ -132,8 +128,8 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
                       SunriseButton(
                         style: SunriseButtonStyle.ghost,
                         label: needsSubscription
-                            ? 'Use the app without restoring'
-                            : 'Continue offline',
+                            ? L10n.of(context).startupUseWithoutRestoring
+                            : L10n.of(context).startupContinueOffline,
                         onPressed: _retrying ? null : _startOffline,
                       ),
                     ],

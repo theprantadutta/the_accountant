@@ -28,6 +28,7 @@ import 'package:the_accountant/data/models/local_store_meta.dart';
 import 'package:the_accountant/data/models/category_reconciliation.dart';
 import 'package:the_accountant/data/models/import_template.dart';
 import 'package:the_accountant/data/models/local_id_repair.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 part 'app_database.g.dart';
 
@@ -1862,7 +1863,7 @@ class AppDatabase extends _$AppDatabase {
       final cat = row.readTableOrNull(categories);
       return {
         'transaction': txn,
-        'categoryName': cat?.name ?? 'Uncategorized',
+        'categoryName': cat?.name ?? appL10n.txUncategorized,
         'categoryColor': cat?.color ?? '#808080',
         'categoryIconName': cat?.iconName ?? 'category',
       };
@@ -1891,7 +1892,7 @@ class AppDatabase extends _$AppDatabase {
     final cat = row.readTableOrNull(categories);
     return {
       'transaction': row.readTable(transactions),
-      'categoryName': cat?.name ?? 'Uncategorized',
+      'categoryName': cat?.name ?? appL10n.txUncategorized,
       'categoryColor': cat?.color ?? '#808080',
       'categoryIconName': cat?.iconName ?? 'category',
     };
@@ -2600,7 +2601,7 @@ class AppDatabase extends _$AppDatabase {
     required String targetId,
   }) async {
     if (sourceId == targetId) {
-      throw ArgumentError('A category cannot be merged into itself.');
+      throw ArgumentError(appL10n.commonCategoryMergeSelf);
     }
     final source = await findCategoryById(sourceId);
     final target = await findCategoryById(targetId);
@@ -2608,14 +2609,14 @@ class AppDatabase extends _$AppDatabase {
         target == null ||
         source.deletedAt != null ||
         target.deletedAt != null) {
-      throw ArgumentError('Both categories must exist to merge them.');
+      throw ArgumentError(appL10n.commonCategoryMergeMissing);
     }
     if (SystemCategoryKeys.all.contains(source.defaultKey) ||
         SystemCategoryKeys.all.contains(target.defaultKey)) {
-      throw ArgumentError('The app\'s own categories cannot be merged.');
+      throw ArgumentError(appL10n.commonCategoryMergeSystem);
     }
     if (source.isIncome != target.isIncome) {
-      throw ArgumentError('Income and spending categories cannot be merged.');
+      throw ArgumentError(appL10n.commonCategoryMergeKinds);
     }
     final sourceHasChildren =
         await (select(categories)..where(
@@ -2626,9 +2627,7 @@ class AppDatabase extends _$AppDatabase {
     if (target.mainCategoryId != null &&
         target.mainCategoryId != sourceId &&
         sourceHasChildren) {
-      throw ArgumentError(
-        'That category is inside another one, and categories are one level deep.',
-      );
+      throw ArgumentError(appL10n.commonCategoryOneLevel);
     }
 
     await transaction(() async {
@@ -2682,7 +2681,7 @@ class AppDatabase extends _$AppDatabase {
     required String targetId,
   }) async {
     if (sourceId == targetId) {
-      throw ArgumentError('Pick a different category to move them to.');
+      throw ArgumentError(appL10n.commonCategoryMoveSame);
     }
     final source = await findCategoryById(sourceId);
     final target = await findCategoryById(targetId);
@@ -2690,16 +2689,14 @@ class AppDatabase extends _$AppDatabase {
         target == null ||
         source.deletedAt != null ||
         target.deletedAt != null) {
-      throw ArgumentError('Both categories must exist to move between them.');
+      throw ArgumentError(appL10n.commonCategoryMoveMissing);
     }
     if (SystemCategoryKeys.all.contains(source.defaultKey) ||
         SystemCategoryKeys.all.contains(target.defaultKey)) {
-      throw ArgumentError("The app's own categories cannot be moved between.");
+      throw ArgumentError(appL10n.commonCategoryMoveSystem);
     }
     if (source.isIncome != target.isIncome) {
-      throw ArgumentError(
-        'Income and spending transactions cannot swap categories.',
-      );
+      throw ArgumentError(appL10n.commonCategoryMoveKinds);
     }
     return transaction(() async {
       final moving =
@@ -2726,34 +2723,28 @@ class AppDatabase extends _$AppDatabase {
   Future<void> setCategoryParent(String id, String? parentId) async {
     final category = await findCategoryById(id);
     if (category == null || category.deletedAt != null) {
-      throw ArgumentError('That category no longer exists.');
+      throw ArgumentError(appL10n.commonCategoryGone);
     }
     if (SystemCategoryKeys.all.contains(category.defaultKey)) {
-      throw ArgumentError("The app's own categories cannot be moved.");
+      throw ArgumentError(appL10n.commonCategoryParentSystem);
     }
     if (parentId == category.mainCategoryId) return;
     if (parentId != null) {
       if (parentId == id) {
-        throw ArgumentError('A category cannot sit inside itself.');
+        throw ArgumentError(appL10n.commonCategoryParentSelf);
       }
       final parent = await findCategoryById(parentId);
       if (parent == null || parent.deletedAt != null) {
-        throw ArgumentError('That category no longer exists.');
+        throw ArgumentError(appL10n.commonCategoryGone);
       }
       if (SystemCategoryKeys.all.contains(parent.defaultKey)) {
-        throw ArgumentError(
-          "Nothing can be filed inside the app's own categories.",
-        );
+        throw ArgumentError(appL10n.commonCategoryParentIntoSystem);
       }
       if (parent.mainCategoryId != null) {
-        throw ArgumentError(
-          'That category is inside another one, and categories are one level deep.',
-        );
+        throw ArgumentError(appL10n.commonCategoryOneLevel);
       }
       if (parent.isIncome != category.isIncome) {
-        throw ArgumentError(
-          'An income category and a spending one cannot be nested.',
-        );
+        throw ArgumentError(appL10n.commonCategoryParentKinds);
       }
       final children =
           await (select(categories)..where(
@@ -2761,9 +2752,7 @@ class AppDatabase extends _$AppDatabase {
               ))
               .get();
       if (children.isNotEmpty) {
-        throw ArgumentError(
-          'This category has subcategories of its own, so it stays at the top level.',
-        );
+        throw ArgumentError(appL10n.commonCategoryHasChildren);
       }
     }
     await customStatement(

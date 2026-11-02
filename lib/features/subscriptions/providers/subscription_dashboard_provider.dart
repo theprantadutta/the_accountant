@@ -6,6 +6,7 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
 import 'package:the_accountant/features/recurring/services/recurring_service.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Aggregated subscription data for the dashboard
 class SubscriptionDashboardState {
@@ -81,8 +82,8 @@ class SubscriptionItem {
   String get name => baseTransaction.title.isNotEmpty
       ? baseTransaction.title
       : (specialType == TransactionSpecialType.repetitive
-            ? 'Recurring Bill'
-            : 'Subscription');
+            ? appL10n.subRecurringBill
+            : appL10n.settingsSubscription);
 
   /// What each payment from now on is for, in minor units.
   int get amount => config.amount ?? baseTransaction.amount;
@@ -119,28 +120,28 @@ class SubscriptionItem {
     if (periodLength == 1) {
       switch (frequency.toLowerCase()) {
         case 'daily':
-          return 'Daily';
+          return appL10n.budgetPeriodDaily;
         case 'weekly':
-          return 'Weekly';
+          return appL10n.planWeekly;
         case 'monthly':
-          return 'Monthly';
+          return appL10n.planMonthly;
         case 'yearly':
-          return 'Yearly';
+          return appL10n.planYearly;
         default:
           return frequency;
       }
     }
     switch (frequency.toLowerCase()) {
       case 'daily':
-        return 'Every $periodLength days';
+        return appL10n.subEveryDays(periodLength);
       case 'weekly':
-        return 'Every $periodLength weeks';
+        return appL10n.subEveryWeeks(periodLength);
       case 'monthly':
-        return 'Every $periodLength months';
+        return appL10n.subEveryMonths(periodLength);
       case 'yearly':
-        return 'Every $periodLength years';
+        return appL10n.subEveryYears(periodLength);
       default:
-        return 'Every $periodLength $frequency';
+        return appL10n.subEveryOther(periodLength, frequency);
     }
   }
 }
@@ -214,7 +215,7 @@ class SubscriptionDashboardNotifier
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to load subscriptions: ${e.toString()}',
+        error: appL10n.subLoadFailed(e.toString()),
       );
     }
   }
@@ -228,9 +229,7 @@ class SubscriptionDashboardNotifier
       );
       await loadSubscriptions();
     } catch (e) {
-      state = state.copyWith(
-        error: 'Failed to pause subscription: ${e.toString()}',
-      );
+      state = state.copyWith(error: appL10n.subPauseFailed(e.toString()));
     }
   }
 
@@ -243,9 +242,7 @@ class SubscriptionDashboardNotifier
       );
       await loadSubscriptions();
     } catch (e) {
-      state = state.copyWith(
-        error: 'Failed to resume subscription: ${e.toString()}',
-      );
+      state = state.copyWith(error: appL10n.subResumeFailed(e.toString()));
     }
   }
 
@@ -276,7 +273,7 @@ class SubscriptionDashboardNotifier
       );
       await loadSubscriptions();
     } catch (e) {
-      state = state.copyWith(error: 'Failed to update subscription: $e');
+      state = state.copyWith(error: appL10n.subUpdateFailed('$e'));
     }
   }
 
@@ -286,9 +283,7 @@ class SubscriptionDashboardNotifier
       await _recurringService.deleteRecurringConfig(configId);
       await loadSubscriptions();
     } catch (e) {
-      state = state.copyWith(
-        error: 'Failed to cancel subscription: ${e.toString()}',
-      );
+      state = state.copyWith(error: appL10n.subCancelFailed(e.toString()));
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -249,7 +250,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       debugPrint('[OnboardingProvider] Error completing onboarding: $e');
       state = state.copyWith(
         isCompleting: false,
-        error: 'Failed to complete onboarding: $e',
+        error: appL10n.onboardingCompleteFailed(e.toString()),
       );
     }
   }
@@ -266,7 +267,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       debugPrint('[OnboardingProvider] Error skipping onboarding: $e');
       state = state.copyWith(
         isCompleting: false,
-        error: 'Failed to skip onboarding',
+        error: appL10n.onboardingSkipFailed,
       );
     }
   }

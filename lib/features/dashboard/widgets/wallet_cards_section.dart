@@ -303,7 +303,23 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                               const SizedBox(height: 4),
                               if (isVisible)
                                 Text(
-                                  '${card.inCredit > 0 ? 'In credit · ' : ''}Available: ${_formatCurrency(available * _balanceAnimation.value, wallet.currency, wallet.useDecimals)}',
+                                  card.inCredit > 0
+                                      ? L10n.of(
+                                          context,
+                                        ).dashCardInCreditAvailable(
+                                          _formatCurrency(
+                                            available * _balanceAnimation.value,
+                                            wallet.currency,
+                                            wallet.useDecimals,
+                                          ),
+                                        )
+                                      : L10n.of(context).dashCardAvailable(
+                                          _formatCurrency(
+                                            available * _balanceAnimation.value,
+                                            wallet.currency,
+                                            wallet.useDecimals,
+                                          ),
+                                        ),
                                   style: AppTypography.labelSmall.copyWith(
                                     color: AppColors.textSecondary,
                                     fontSize: 9,
@@ -379,7 +395,10 @@ class _WalletCardState extends ConsumerState<_WalletCard>
                               borderRadius: AppSpacing.borderRadiusSm,
                             ),
                             child: Text(
-                              _walletTypeLabel(wallet.walletType),
+                              _walletTypeLabel(
+                                L10n.of(context),
+                                wallet.walletType,
+                              ),
                               style: AppTypography.labelSmall.copyWith(
                                 color: AppColors.textMuted,
                                 fontWeight: FontWeight.w500,
@@ -426,22 +445,22 @@ class _WalletCardState extends ConsumerState<_WalletCard>
     showEditWalletSheet(context, ref, widget.wallet);
   }
 
-  static String _walletTypeLabel(WalletType type) {
+  static String _walletTypeLabel(L10n l10n, WalletType type) {
     switch (type) {
       case WalletType.bankAccount:
-        return 'Bank';
+        return l10n.dashTypeBank;
       case WalletType.creditCard:
-        return 'Credit';
+        return l10n.dashTypeCredit;
       case WalletType.subscription:
-        return 'Subs';
+        return l10n.dashTypeSubs;
       case WalletType.cash:
-        return 'Cash';
+        return l10n.walletsTypeCash;
       case WalletType.deposit:
-        return 'Deposit';
+        return l10n.dashTypeDeposit;
       case WalletType.investment:
-        return 'Invest';
+        return l10n.dashTypeInvest;
       case WalletType.asset:
-        return 'Asset';
+        return l10n.dashTypeAsset;
     }
   }
 
@@ -525,7 +544,7 @@ class _AddAccountCard extends StatelessWidget {
             ),
             AppSpacing.gapMd,
             Text(
-              'Add\nAccount',
+              L10n.of(context).dashAddAccountTile,
               style: AppTypography.labelMedium.copyWith(
                 color: AppColors.textSecondary,
               ),

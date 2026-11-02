@@ -19,11 +19,21 @@ import 'package:the_accountant/features/transactions/providers/payment_method_pr
 class PaymentMethodsScreen extends ConsumerWidget {
   const PaymentMethodsScreen({super.key});
 
-  static const Map<String, ({String label, IconData icon})> _kinds = {
-    'card': (label: 'Card', icon: Icons.credit_card),
-    'bank': (label: 'Bank account', icon: Icons.account_balance),
-    'cash': (label: 'Cash', icon: Icons.payments_outlined),
-    'digital_wallet': (label: 'Digital wallet', icon: Icons.phone_iphone),
+  static final Map<String, ({String Function(L10n) label, IconData icon})>
+  _kinds = {
+    'card': (label: (l10n) => l10n.txnPmKindCard, icon: Icons.credit_card),
+    'bank': (
+      label: (l10n) => l10n.walletsTypeBank,
+      icon: Icons.account_balance,
+    ),
+    'cash': (
+      label: (l10n) => l10n.walletsTypeCash,
+      icon: Icons.payments_outlined,
+    ),
+    'digital_wallet': (
+      label: (l10n) => l10n.txnPmKindDigitalWallet,
+      icon: Icons.phone_iphone,
+    ),
   };
 
   @override
@@ -90,7 +100,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
       ),
       subtitle: Text(
         [
-          kind.label,
+          kind.label(L10n.of(context)),
           if (method.institution?.isNotEmpty ?? false) method.institution!,
           if (method.lastFourDigits?.isNotEmpty ?? false)
             '···· ${method.lastFourDigits}',
@@ -133,8 +143,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
           ),
           AppSpacing.gapSm,
           Text(
-            'Add the cards and accounts you pay with, and you can pick one on '
-            'a transaction.',
+            L10n.of(context).txnPmEmptyHint,
             textAlign: TextAlign.center,
             style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),
@@ -195,9 +204,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
     final confirmed = await showConfirmationDialog(
       context: context,
       title: L10n.of(context).payDeleteTitle(method.name),
-      message:
-          'Transactions already filed against it keep their record. They '
-          'simply stop naming a payment method.',
+      message: L10n.of(context).txnPmDeleteBody,
       confirmText: L10n.of(context).actionDelete,
       isDangerous: true,
     );
@@ -260,7 +267,9 @@ class _MethodDialogState extends State<_MethodDialog> {
 
     return AlertDialog(
       title: Text(
-        widget.existing == null ? 'New payment method' : 'Edit payment method',
+        widget.existing == null
+            ? L10n.of(context).txnPmNew
+            : L10n.of(context).txnPmEdit,
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -282,7 +291,7 @@ class _MethodDialogState extends State<_MethodDialog> {
                 for (final entry in PaymentMethodsScreen._kinds.entries)
                   DropdownMenuItem(
                     value: entry.key,
-                    child: Text(entry.value.label),
+                    child: Text(entry.value.label(L10n.of(context))),
                   ),
               ],
               onChanged: (v) => setState(() => _type = v!),

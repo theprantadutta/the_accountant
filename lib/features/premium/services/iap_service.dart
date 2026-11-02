@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -178,14 +179,20 @@ class IAPService {
   Future<bool> purchase(String productId) async {
     if (!_isAvailable) {
       _logger.w('IAP not available');
-      onPurchaseUpdate?.call(PurchaseFlowStatus.error, 'IAP not available');
+      onPurchaseUpdate?.call(
+        PurchaseFlowStatus.error,
+        appL10n.premiumIapUnavailable,
+      );
       return false;
     }
 
     final product = _products[productId];
     if (product == null) {
       _logger.w('Product not found: $productId');
-      onPurchaseUpdate?.call(PurchaseFlowStatus.error, 'Product not found');
+      onPurchaseUpdate?.call(
+        PurchaseFlowStatus.error,
+        appL10n.premiumProductNotFound,
+      );
       return false;
     }
 
@@ -196,7 +203,7 @@ class IAPService {
       if (props == null) {
         onPurchaseUpdate?.call(
           PurchaseFlowStatus.error,
-          'This plan is not available on your account right now',
+          appL10n.premiumPlanUnavailable,
         );
         return false;
       }
@@ -313,7 +320,10 @@ class IAPService {
   Future<void> restorePurchases() async {
     if (!_isAvailable) {
       _logger.w('IAP not available');
-      onPurchaseUpdate?.call(PurchaseFlowStatus.error, 'IAP not available');
+      onPurchaseUpdate?.call(
+        PurchaseFlowStatus.error,
+        appL10n.premiumIapUnavailable,
+      );
       return;
     }
 
@@ -329,7 +339,7 @@ class IAPService {
       _logger.e('Restore error: $e');
       onPurchaseUpdate?.call(
         PurchaseFlowStatus.error,
-        'Failed to restore purchases',
+        appL10n.premiumRestoreFailed,
       );
     } finally {
       _restoring = false;
@@ -350,7 +360,10 @@ class IAPService {
       case PurchaseState.Purchased:
         await _fulfil(purchase);
       case PurchaseState.Unknown:
-        onPurchaseUpdate?.call(PurchaseFlowStatus.error, 'Purchase failed');
+        onPurchaseUpdate?.call(
+          PurchaseFlowStatus.error,
+          appL10n.premiumPurchaseFailed,
+        );
     }
   }
 
@@ -388,7 +401,10 @@ class IAPService {
       final payload = backendPayloadFor(purchase);
       if (payload == null) {
         _logger.w('Purchase ${purchase.productId} carries no token to verify');
-        onPurchaseUpdate?.call(PurchaseFlowStatus.error, 'Verification failed');
+        onPurchaseUpdate?.call(
+          PurchaseFlowStatus.error,
+          appL10n.premiumVerificationFailed,
+        );
         return;
       }
 
@@ -399,7 +415,7 @@ class IAPService {
           if (identity != null) _provisional.remove(identity);
           onPurchaseUpdate?.call(
             PurchaseFlowStatus.error,
-            'Verification failed',
+            appL10n.premiumVerificationFailed,
           );
           // Android: leave it unfinished on purpose. Play refunds it in three
           // days, which is the right outcome for something we would not honour.
@@ -593,7 +609,7 @@ class SubscriptionStatus {
   bool get isExpiringSoon => daysRemaining != null && daysRemaining! <= 7;
 
   String get tierDisplayName {
-    if (tier == null) return 'Free';
+    if (tier == null) return appL10n.settingsProfileFree;
     return TheAccountantProducts.getTierDisplayName(tier!);
   }
 }
@@ -616,9 +632,9 @@ class PremiumProduct {
 
   String get displayTitle {
     final lower = id.toLowerCase();
-    if (lower.contains('monthly')) return 'Monthly';
-    if (lower.contains('yearly')) return 'Yearly';
-    if (lower.contains('lifetime')) return 'Lifetime';
+    if (lower.contains('monthly')) return appL10n.premiumMonthly;
+    if (lower.contains('yearly')) return appL10n.premiumYearly;
+    if (lower.contains('lifetime')) return appL10n.premiumLifetime;
     return title;
   }
 

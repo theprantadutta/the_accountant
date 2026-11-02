@@ -3,6 +3,7 @@ import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart'
     show BudgetView;
 
@@ -375,9 +376,9 @@ class FinancialCalculationService {
             budgetName: p.budget.name,
             categoryId: scope.length == 1 ? scope.first : '',
             categoryName: switch (scope.length) {
-              0 => 'All categories',
-              1 => only?.name ?? 'All categories',
-              _ => '${scope.length} categories',
+              0 => appL10n.commonAllCategories,
+              1 => only?.name ?? appL10n.commonAllCategories,
+              _ => appL10n.commonCategoryCount(scope.length),
             },
             colorCode: only?.color ?? '#999999',
             spent: p.spent,

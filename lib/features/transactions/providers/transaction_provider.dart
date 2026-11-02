@@ -24,6 +24,7 @@ import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/reports/providers/reports_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Sentinel for tri-state optional args in [TransactionNotifier.updateTransaction]:
 /// pass a value to SET, pass null to CLEAR, or omit to KEEP the existing value.
@@ -280,7 +281,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         if (!silent) {
           state = state.copyWith(
             isLoading: false,
-            errorMessage: 'Failed to load transactions: $e',
+            errorMessage: appL10n.txnLoadFailed('$e'),
           );
         }
       }
@@ -359,7 +360,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to add transaction',
+        errorMessage: appL10n.txnAddFailed,
       );
     }
   }
@@ -495,7 +496,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to add transaction: $e',
+        errorMessage: appL10n.txnAddFailedWithError('$e'),
       );
       return null;
     }
@@ -530,7 +531,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     try {
       final existing = await _db.findTransactionById(id);
       if (existing == null) {
-        throw Exception('Transaction not found');
+        throw Exception(appL10n.txnNotFound);
       }
 
       // Transfers must go through the paired update so both legs stay
@@ -661,7 +662,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to update transaction',
+        errorMessage: appL10n.txnUpdateFailed,
       );
     }
   }
@@ -687,10 +688,10 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     try {
       final existing = await _db.findTransactionById(id);
       if (existing == null) {
-        throw Exception('Transaction not found');
+        throw Exception(appL10n.txnNotFound);
       }
       if (!TransactionPolicy.isTransfer(existing)) {
-        throw Exception('Transaction $id is not a transfer');
+        throw Exception(appL10n.txnNotATransfer(id));
       }
 
       // `walletId` describes THIS leg: an incoming leg is the destination, an
@@ -718,7 +719,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to update transfer: $e',
+        errorMessage: appL10n.txnUpdateTransferFailed('$e'),
       );
     }
   }
@@ -1026,7 +1027,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to delete transaction',
+        errorMessage: appL10n.txnDeleteFailed,
       );
     }
   }

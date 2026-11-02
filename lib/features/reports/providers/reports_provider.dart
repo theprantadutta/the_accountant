@@ -10,6 +10,7 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/reports/providers/stats_period_provider.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:the_accountant/features/categories/providers/category_provider.dart'
     as cat_provider;
 
@@ -237,7 +238,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to load reports: ${e.toString()}',
+        error: appL10n.reportLoadFailed(e.toString()),
       );
     }
   }
@@ -263,8 +264,8 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
         orElse: () => cat_provider.Category(
           id: entry.key,
           name: entry.key == TransactionPolicy.uncategorizedKey
-              ? 'Uncategorized'
-              : 'Unknown',
+              ? appL10n.txUncategorized
+              : appL10n.categoryUnknown,
           colorCode: '#999999',
           type: 'expense',
           isDefault: false,
@@ -315,7 +316,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
         top5.add(
           CategorySpendingData(
             categoryId: 'other',
-            categoryName: 'Other',
+            categoryName: appL10n.investmentKindOther,
             color: const Color(0xFF999999),
             amount: otherTotal,
             percentage: otherPercentage,
@@ -384,7 +385,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
             date: cursor,
             amount: weekExpenses,
             // The day the week starts, which is what tells two bars apart.
-            dayLabel: DateFormat('d MMM').format(cursor),
+            dayLabel: DateFormat('d MMM', appL10n.localeName).format(cursor),
           ),
         );
 
@@ -453,28 +454,13 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     ];
   }
 
-  String _getDayLabel(DateTime date) {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return days[date.weekday - 1];
-  }
+  // Short day and month names in the user's language ("Mon", "Jan" in
+  // English), from the locale's own date symbols.
+  String _getDayLabel(DateTime date) =>
+      DateFormat.E(appL10n.localeName).format(date);
 
-  String _getMonthLabel(int month) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return months[month - 1];
-  }
+  String _getMonthLabel(int month) =>
+      DateFormat.MMM(appL10n.localeName).format(DateTime(2000, month));
 
   Color _parseColor(String colorCode) {
     try {

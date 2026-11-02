@@ -38,10 +38,16 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_showArchived ? 'Archived budgets' : 'Budgets'),
+        title: Text(
+          _showArchived
+              ? L10n.of(context).budgetArchivedTitle
+              : L10n.of(context).settingsBudgets,
+        ),
         actions: [
           IconButton(
-            tooltip: _showArchived ? 'Show active' : 'Show archived',
+            tooltip: _showArchived
+                ? L10n.of(context).budgetShowActive
+                : L10n.of(context).budgetShowArchived,
             icon: Icon(
               _showArchived ? Icons.inbox_outlined : Icons.archive_outlined,
             ),
@@ -142,7 +148,11 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
               leading: Icon(
                 budget.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
               ),
-              title: Text(budget.isPinned ? 'Unpin' : 'Pin to top'),
+              title: Text(
+                budget.isPinned
+                    ? L10n.of(context).budgetUnpin
+                    : L10n.of(context).budgetPinToTop,
+              ),
               onTap: () => Navigator.pop(context, 'pin'),
             ),
             ListTile(
@@ -151,11 +161,15 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
                     ? Icons.unarchive_outlined
                     : Icons.archive_outlined,
               ),
-              title: Text(budget.isArchived ? 'Restore' : 'Archive'),
+              title: Text(
+                budget.isArchived
+                    ? L10n.of(context).trashRestore
+                    : L10n.of(context).catArchive,
+              ),
               subtitle: Text(
                 budget.isArchived
-                    ? 'Start counting it again'
-                    : 'Keep its history, stop counting it',
+                    ? L10n.of(context).budgetStartCounting
+                    : L10n.of(context).budgetStopCounting,
               ),
               onTap: () => Navigator.pop(context, 'archive'),
             ),
@@ -187,9 +201,7 @@ class _BudgetListScreenState extends ConsumerState<BudgetListScreen> {
         final confirmed = await showConfirmationDialog(
           context: context,
           title: L10n.of(context).budgetDeleteTitle(budget.name),
-          message:
-              'The budget goes, your transactions stay. Nothing you have '
-              'recorded is removed.',
+          message: L10n.of(context).budgetDeleteBody,
           confirmText: L10n.of(context).actionDelete,
           isDangerous: true,
         );
@@ -243,10 +255,12 @@ class _EmptyBudgets extends StatelessWidget {
   Widget build(BuildContext context) => Center(
     child: EmptyState(
       icon: archived ? Symbols.archive_rounded : Symbols.donut_large_rounded,
-      title: archived ? 'Nothing archived' : 'No budgets yet',
+      title: archived
+          ? L10n.of(context).budgetNothingArchived
+          : L10n.of(context).budgetNoneYet,
       message: archived
-          ? 'Budgets you archive are kept here.'
-          : 'Set a limit for a category and see how the month is going.',
+          ? L10n.of(context).budgetArchivedEmptyHint
+          : L10n.of(context).budgetEmptyHint,
       actionLabel: archived || onCreate == null
           ? null
           : L10n.of(context).budgetCreate,

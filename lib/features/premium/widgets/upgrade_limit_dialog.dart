@@ -93,13 +93,15 @@ class UpgradeLimitDialog extends StatelessWidget {
 
             // Message
             Text(
-              'You\'ve used $currentCount of $limit free $displayName.',
+              L10n.of(
+                context,
+              ).premiumLimitUsed(currentCount, limit, displayName),
               style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              'Upgrade to Premium for unlimited $displayName and more!',
+              L10n.of(context).premiumLimitUpgrade(displayName),
               style: TextStyle(fontSize: 14, color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),

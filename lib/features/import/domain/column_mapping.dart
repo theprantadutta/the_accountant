@@ -2,30 +2,42 @@ import 'dart:convert';
 
 import 'package:the_accountant/features/import/domain/csv_reader.dart';
 import 'package:the_accountant/features/import/domain/import_values.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Something an imported row can say.
 enum ImportField {
-  date('Date', required: true),
+  date(required: true),
 
   /// A single column holding a signed amount: negative is money out.
-  amount('Amount'),
+  amount,
 
   /// The pair some banks use instead: two columns, one of which is filled.
-  moneyIn('Money in'),
-  moneyOut('Money out'),
+  moneyIn,
+  moneyOut,
 
-  title('Description'),
+  title,
 
   /// A word saying which way the money went, when the amount is unsigned.
-  direction('Type (credit/debit)'),
+  direction,
 
-  category('Category'),
-  account('Account'),
-  notes('Notes');
+  category,
+  account,
+  notes;
 
-  const ImportField(this.label, {this.required = false});
+  const ImportField({this.required = false});
 
-  final String label;
+  /// The field's name, in the user's language.
+  String get label => switch (this) {
+    ImportField.date => appL10n.previewDate,
+    ImportField.amount => appL10n.previewAmount,
+    ImportField.moneyIn => appL10n.txnMoneyIn,
+    ImportField.moneyOut => appL10n.txnMoneyOut,
+    ImportField.title => appL10n.importFieldDescription,
+    ImportField.direction => appL10n.importFieldDirection,
+    ImportField.category => appL10n.entityCategory,
+    ImportField.account => appL10n.entityAccount,
+    ImportField.notes => appL10n.txNotes,
+  };
 
   /// Whether a mapping is unusable without it.
   final bool required;
@@ -75,11 +87,11 @@ class ColumnMapping {
 
   /// What is still missing, phrased for the screen.
   List<String> get missing => [
-    if (!has(ImportField.date)) 'a date column',
+    if (!has(ImportField.date)) appL10n.importMissingDate,
     if (!has(ImportField.amount) &&
         !has(ImportField.moneyIn) &&
         !has(ImportField.moneyOut))
-      'an amount column',
+      appL10n.importMissingAmount,
   ];
 
   ColumnMapping copyWith({

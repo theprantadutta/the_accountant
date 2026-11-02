@@ -6,6 +6,7 @@ import 'package:the_accountant/data/models/wallet.dart';
 import 'package:the_accountant/features/cards/domain/card_statement.dart';
 import 'package:the_accountant/features/plans/domain/plan_terms.dart';
 import 'package:the_accountant/features/plans/services/plan_service.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Credit-card bill and plan reminders, worked out on the phone.
 ///
@@ -47,17 +48,17 @@ class BillReminders {
       out.add(
         BillReminder(
           key: '$key:statement',
-          title: '${card.name} statement is ready',
+          title: appL10n.notifCardStatementReady(card.name),
           body: bill.isSettled
-              ? 'It came to ${money(bill.owed)}, already paid. Nothing more is due.'
-              : '${money(bill.remaining)} is due by $due.',
+              ? appL10n.notifCardStatementPaid(money(bill.owed))
+              : appL10n.notifCardDueBy(money(bill.remaining), due),
         ),
       );
     }
     if (bill.isSettled) return out;
 
     final paidSoFar = bill.paid > 0
-        ? ' ${money(bill.paid)} of ${money(bill.owed)} is already paid.'
+        ? ' ${appL10n.notifCardPaidSoFar(money(bill.paid), money(bill.owed))}'
         : '';
     final remindBefore = card.dueReminderDays;
     if (remindBefore > 0 && daysLeft == remindBefore) {
@@ -65,9 +66,9 @@ class BillReminders {
         BillReminder(
           key: '$key:due',
           title: daysLeft == 1
-              ? '${card.name} bill is due tomorrow'
-              : '${card.name} bill is due in $daysLeft days',
-          body: 'Pay ${money(bill.remaining)} by $due.$paidSoFar',
+              ? appL10n.notifCardDueTomorrow(card.name)
+              : appL10n.notifCardDueInDays(card.name, daysLeft),
+          body: '${appL10n.notifPayBy(money(bill.remaining), due)}$paidSoFar',
         ),
       );
     }
@@ -75,9 +76,8 @@ class BillReminders {
       out.add(
         BillReminder(
           key: '$key:today',
-          title: '${card.name} bill is due today',
-          body:
-              '${money(bill.remaining)} is still unpaid.$paidSoFar Paying today avoids a late fee.',
+          title: appL10n.notifCardDueToday(card.name),
+          body: appL10n.notifCardStillUnpaid(money(bill.remaining), paidSoFar),
         ),
       );
     }
@@ -105,9 +105,9 @@ class BillReminders {
     }
 
     final when = switch (daysLeft) {
-      0 => 'today',
-      1 => 'tomorrow',
-      _ => 'in $daysLeft days',
+      0 => appL10n.notifWhenToday,
+      1 => appL10n.notifWhenTomorrow,
+      _ => appL10n.notifWhenInDays(daysLeft),
     };
     final key = 'plan:${plan.id}:${next.number}:$daysLeft';
     final amount = money(next.amount);
@@ -117,32 +117,40 @@ class BillReminders {
       return plan.kind == PlanKind.insurance
           ? BillReminder(
               key: key,
-              title: '${plan.name} pays out $when',
-              body: '$amount is due to $account on $onDay.',
+              title: appL10n.notifPlanPaysOut(plan.name, when),
+              body: appL10n.notifPlanPayoutBody(amount, account, onDay),
             )
           : BillReminder(
               key: key,
-              title: '${plan.name} matures $when',
-              body: '$amount comes back to $account on $onDay.',
+              title: appL10n.notifPlanMatures(plan.name, when),
+              body: appL10n.notifPlanMaturityBody(amount, account, onDay),
             );
     }
 
     final what = switch (plan.kind) {
-      PlanKind.dps => 'deposit',
-      PlanKind.insurance => 'premium',
-      PlanKind.sip => 'SIP',
-      _ => 'installment',
+      PlanKind.dps => 'dps',
+      PlanKind.insurance => 'insurance',
+      PlanKind.sip => 'sip',
+      _ => 'other',
     };
     return BillReminder(
       key: key,
-      title:
-          '${plan.name}: $what ${next.number} of ${plan.installmentCount} due $when',
+      title: appL10n.notifPlanInstallmentDue(
+        plan.name,
+        what,
+        next.number,
+        plan.installmentCount,
+        when,
+      ),
       body: switch ((byHand, plan.kind)) {
-        (true, PlanKind.sip) => 'Invest $amount by $onDay.',
-        (true, _) => 'Pay $amount by $onDay.',
-        (false, PlanKind.sip) =>
-          '$amount will be invested from $account on $onDay.',
-        _ => '$amount will be recorded from $account on $onDay.',
+        (true, PlanKind.sip) => appL10n.notifInvestBy(amount, onDay),
+        (true, _) => appL10n.notifPayBy(amount, onDay),
+        (false, PlanKind.sip) => appL10n.notifWillBeInvested(
+          amount,
+          account,
+          onDay,
+        ),
+        _ => appL10n.notifWillBeRecorded(amount, account, onDay),
       },
     );
   }
@@ -208,7 +216,7 @@ class BillReminders {
       final reminder = forPlan(
         plan: plan,
         next: upcoming,
-        account: names[plan.walletId] ?? 'your account',
+        account: names[plan.walletId] ?? appL10n.notifYourAccount,
         today: now,
         money: (m) => money(m, plan.walletId),
         date: date,

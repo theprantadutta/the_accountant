@@ -76,7 +76,11 @@ class _UpcomingTransactionsScreenState
                   children: [
                     const Icon(Icons.schedule, size: 18),
                     const SizedBox(width: 8),
-                    Text('Upcoming (${state.upcomingTransactions.length})'),
+                    Text(
+                      L10n.of(
+                        context,
+                      ).txnUpcomingTab(state.upcomingTransactions.length),
+                    ),
                   ],
                 ),
               ),
@@ -86,7 +90,11 @@ class _UpcomingTransactionsScreenState
                   children: [
                     Icon(Icons.warning_amber, size: 18, color: AppColors.error),
                     const SizedBox(width: 8),
-                    Text('Overdue (${state.overdueTransactions.length})'),
+                    Text(
+                      L10n.of(
+                        context,
+                      ).txnOverdueTab(state.overdueTransactions.length),
+                    ),
                   ],
                 ),
               ),
@@ -142,10 +150,12 @@ class _UpcomingTransactionsScreenState
       icon: isOverdue
           ? Symbols.task_alt_rounded
           : Symbols.event_available_rounded,
-      title: isOverdue ? 'No overdue transactions' : 'No upcoming transactions',
+      title: isOverdue
+          ? L10n.of(context).txnNoOverdue
+          : L10n.of(context).txnNoUpcoming,
       message: isOverdue
-          ? 'All your payments are up to date!'
-          : 'You have no pending payments scheduled',
+          ? L10n.of(context).txnNoOverdueBody
+          : L10n.of(context).txnNoUpcomingBody,
     ),
   );
 
@@ -186,7 +196,9 @@ class _UpcomingTransactionsScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isOverdue ? 'Total Overdue' : 'Total Upcoming',
+                    isOverdue
+                        ? L10n.of(context).txnTotalOverdue
+                        : L10n.of(context).txnTotalUpcoming,
                     style: AppTypography.labelMedium.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -206,7 +218,7 @@ class _UpcomingTransactionsScreenState
               ),
             ),
             Text(
-              '${transactions.length} items',
+              L10n.of(context).txnItemsCount(transactions.length),
               style: AppTypography.labelMedium.copyWith(
                 color: AppColors.textMuted,
               ),
@@ -223,7 +235,7 @@ class _UpcomingTransactionsScreenState
       (c) => c.id == transaction.categoryId,
       orElse: () => cat_provider.Category(
         id: '',
-        name: 'Uncategorized',
+        name: L10n.of(context).txUncategorized,
         colorCode: '#999999',
         type: 'expense',
         isDefault: false,
@@ -249,18 +261,16 @@ class _UpcomingTransactionsScreenState
 
     if (isOverdue) {
       final daysOverdue = DateTime.now().difference(transaction.date).inDays;
-      dueDateText = daysOverdue == 1
-          ? '1 day overdue'
-          : '$daysOverdue days overdue';
+      dueDateText = L10n.of(context).txnDaysOverdue(daysOverdue);
       dueDateColor = AppColors.error;
     } else if (isToday) {
-      dueDateText = 'Due today';
+      dueDateText = L10n.of(context).cardStatusDueToday;
       dueDateColor = AppColors.warning;
     } else if (isTomorrow) {
-      dueDateText = 'Due tomorrow';
+      dueDateText = L10n.of(context).cardStatusDueIn(1);
       dueDateColor = AppColors.info;
     } else {
-      dueDateText = 'Due in $daysUntilDue days';
+      dueDateText = L10n.of(context).cardStatusDueIn(daysUntilDue);
       dueDateColor = AppColors.textSecondary;
     }
 
@@ -403,7 +413,7 @@ class _UpcomingTransactionsScreenState
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Marked "${transaction.title}" as paid'),
+          content: Text(L10n.of(context).txnMarkedPaid(transaction.title)),
           backgroundColor: AppColors.success,
           action: SnackBarAction(
             label: L10n.of(context).txUndo,
@@ -471,7 +481,7 @@ class _UpcomingTransactionsScreenState
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Skipped "${transaction.title}"'),
+          content: Text(L10n.of(context).txnSkippedTitle(transaction.title)),
           backgroundColor: AppColors.textMuted,
         ),
       );

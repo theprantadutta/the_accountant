@@ -7,6 +7,7 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/budgets/domain/budget_engine.dart';
 import 'package:the_accountant/features/budgets/providers/budget_provider.dart';
 import 'package:the_accountant/features/settings/providers/notification_preferences_provider.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 class BudgetNotificationState {
   final bool isLoading;
@@ -88,7 +89,7 @@ class BudgetNotificationNotifier
         );
       }
     } catch (e) {
-      state = state.copyWith(errorMessage: 'Failed to check budgets');
+      state = state.copyWith(errorMessage: appL10n.budgetCheckFailed);
     }
   }
 

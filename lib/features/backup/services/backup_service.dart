@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
@@ -88,9 +89,10 @@ class BackupService {
     // quietly missing whatever the newer version had added.
     if (document.metadata.schemaVersion > _db.schemaVersion) {
       throw BackupFormatException(
-        'This backup was made by a newer version of the app (database '
-        '${document.metadata.schemaVersion}, this build reads up to '
-        '${_db.schemaVersion}). Update The Accountant and try again.',
+        appL10n.backupErrNewerSchema(
+          document.metadata.schemaVersion,
+          _db.schemaVersion,
+        ),
       );
     }
 

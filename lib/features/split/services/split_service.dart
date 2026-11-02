@@ -6,6 +6,7 @@ import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/transaction.dart'
     show TransactionSpecialType;
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// How a bill is shared out.
 enum SplitMode {
@@ -148,20 +149,17 @@ class SplitService {
   /// Throws [ArgumentError] with a message to show when the bill cannot be
   /// split as asked.
   static List<SplitShare> shares(SplitDraft d) {
-    if (d.total <= 0) throw ArgumentError('Enter the amount of the bill.');
+    if (d.total <= 0) throw ArgumentError(appL10n.splitErrNoTotal);
     final people = _people(d.people);
     if (people.isEmpty) {
-      throw ArgumentError('Add someone to split it with.');
+      throw ArgumentError(appL10n.splitErrNoPeople);
     }
     final payer = d.paidBy == null ? null : _match(people, d.paidBy!);
     if (d.paidBy != null && payer == null) {
-      throw ArgumentError('${d.paidBy!.trim()} is not in on the bill.');
+      throw ArgumentError(appL10n.splitErrPayerNotOnBill(d.paidBy!.trim()));
     }
     if (!d.iPaid && !d.includeMe) {
-      throw ArgumentError(
-        'Someone else paid and you had none of it, so there is nothing to '
-        'record.',
-      );
+      throw ArgumentError(appL10n.splitErrNothingToRecord);
     }
 
     final parts = <String?>[if (d.includeMe) null, ...people];
@@ -198,16 +196,18 @@ class SplitService {
       final v = _lookup(d.amounts, p);
       if (v == null) {
         throw ArgumentError(
-          p == null ? 'Give your own share.' : "Give $p's share.",
+          p == null
+              ? appL10n.splitErrGiveOwnShare
+              : appL10n.splitErrGiveShare(p),
         );
       }
-      if (v < 0) throw ArgumentError('A share cannot be negative.');
+      if (v < 0) throw ArgumentError(appL10n.splitErrNegativeShare);
       out.add(v);
     }
     final sum = out.fold<int>(0, (a, b) => a + b);
     if (sum != d.total) {
       throw ArgumentError(
-        'The shares add up to ${_plain(sum)}, not ${_plain(d.total)}.',
+        appL10n.splitErrSharesSum(_plain(sum), _plain(d.total)),
       );
     }
     return out;
@@ -217,14 +217,12 @@ class SplitService {
     final pcts = <double>[];
     for (final p in parts) {
       final v = _lookup(d.percents, p) ?? 0;
-      if (v < 0) throw ArgumentError('A share cannot be negative.');
+      if (v < 0) throw ArgumentError(appL10n.splitErrNegativeShare);
       pcts.add(v);
     }
     final sum = pcts.fold<double>(0, (a, b) => a + b);
     if ((sum - 100).abs() > 0.001) {
-      throw ArgumentError(
-        'The percentages add up to ${_trim(sum)}%, not 100%.',
-      );
+      throw ArgumentError(appL10n.splitErrPercentSum(_trim(sum)));
     }
     final out = [for (final p in pcts) (d.total * p / 100).round()];
     final diff = d.total - out.fold<int>(0, (a, b) => a + b);
@@ -254,10 +252,10 @@ class SplitService {
       final name = raw.trim();
       if (name.isEmpty) continue;
       if (name.length > 100) {
-        throw ArgumentError('Keep names under 100 characters.');
+        throw ArgumentError(appL10n.splitErrNameTooLong);
       }
       if (out.any((n) => _same(n, name))) {
-        throw ArgumentError('$name is on the bill twice.');
+        throw ArgumentError(appL10n.splitErrDuplicateName(name));
       }
       out.add(name);
     }
@@ -318,14 +316,14 @@ class SplitService {
   Future<String> record(SplitDraft d) async {
     final title = d.title.trim();
     if (title.length > 200) {
-      throw ArgumentError('Keep the title under 200 characters.');
+      throw ArgumentError(appL10n.splitErrTitleTooLong);
     }
     final wallet = await _db.findWalletById(d.walletId);
     if (wallet == null || wallet.deletedAt != null || wallet.isArchived) {
-      throw ArgumentError('Choose the account it was paid from.');
+      throw ArgumentError(appL10n.splitErrChooseAccount);
     }
     if (wallet.walletType.isManaged) {
-      throw ArgumentError('Choose an ordinary account.');
+      throw ArgumentError(appL10n.splitErrOrdinaryAccount);
     }
     final shares = SplitService.shares(d);
 
@@ -411,9 +409,9 @@ class SplitService {
           notes: label,
         );
       } else {
-        throw ArgumentError('Your share is nothing, so there is nothing owed.');
+        throw ArgumentError(appL10n.splitErrYourShareNothing);
       }
-      if (n == 0) throw ArgumentError('Every share is nothing.');
+      if (n == 0) throw ArgumentError(appL10n.splitErrEveryShareNothing);
     });
     await _balances.updateWalletBalance(wallet.id);
     return id;

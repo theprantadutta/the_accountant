@@ -644,7 +644,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               amount: (_amount * 100).round(), // dollars -> integer cents
               date: _selectedDateTime,
               title: _titleController.text.isEmpty
-                  ? 'Transfer'
+                  ? L10n.of(context).txTransfer
                   : _titleController.text,
               notes: _notesController.text.isEmpty
                   ? null
@@ -661,7 +661,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               amount: (_amount * 100).round(), // dollars -> integer cents
               date: _selectedDateTime,
               title: _titleController.text.isEmpty
-                  ? 'Transfer'
+                  ? L10n.of(context).txTransfer
                   : _titleController.text,
               notes: _notesController.text.isEmpty
                   ? null
@@ -787,7 +787,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: Text(L10n.of(context).txnErrorWith('$e')),
             backgroundColor: AppColors.error,
           ),
         );
@@ -870,7 +870,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         labelIcon: labelIcon,
         items: items,
         selectedItem: selectedId,
-        labelBuilder: (id) => id == null ? 'None' : nameOf(id),
+        labelBuilder: (id) =>
+            id == null ? L10n.of(context).filterNone : nameOf(id),
         iconBuilder: iconOf == null
             ? null
             : (id) => id == null ? Icons.block : iconOf(id),
@@ -1288,7 +1289,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              hasAmount ? 'Tap to edit amount' : 'Tap to enter amount',
+              hasAmount
+                  ? L10n.of(context).txnTapToEditAmount
+                  : L10n.of(context).txnTapToEnterAmount,
               style: SunriseType.caption.copyWith(
                 color: c.onFill.withValues(alpha: .8),
               ),
@@ -1490,13 +1493,13 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             labelBuilder: (type) {
               switch (type) {
                 case TransactionSpecialType.none:
-                  return 'Default';
+                  return L10n.of(context).txnSpecialDefault;
                 case TransactionSpecialType.upcoming:
-                  return 'Upcoming';
+                  return L10n.of(context).forecastKindUpcoming;
                 case TransactionSpecialType.subscription:
-                  return 'Subscription';
+                  return L10n.of(context).forecastKindSubscription;
                 case TransactionSpecialType.repetitive:
-                  return 'Repetitive';
+                  return L10n.of(context).txnSpecialRepetitive;
                 default:
                   return type.label;
               }
@@ -1519,20 +1522,20 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         : AppColors.neonPurple;
     final sectionIcon = isRepetitive ? Icons.repeat : Icons.autorenew;
     final sectionTitle = isRepetitive
-        ? 'Repeat Settings'
-        : 'Subscription Settings';
+        ? L10n.of(context).txnRepeatSettings
+        : L10n.of(context).txnSubscriptionSettings;
     final frequencies = ['daily', 'weekly', 'monthly', 'yearly'];
 
     String frequencyLabel(String freq) {
       switch (freq) {
         case 'daily':
-          return 'Daily';
+          return L10n.of(context).recurringDaily;
         case 'weekly':
-          return 'Weekly';
+          return L10n.of(context).planWeekly;
         case 'monthly':
-          return 'Monthly';
+          return L10n.of(context).planMonthly;
         case 'yearly':
-          return 'Yearly';
+          return L10n.of(context).planYearly;
         default:
           return freq;
       }
@@ -1661,8 +1664,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   Expanded(
                     child: Text(
                       _subscriptionEndDate != null
-                          ? 'Ends: ${_subscriptionEndDate!.day}/${_subscriptionEndDate!.month}/${_subscriptionEndDate!.year}'
-                          : 'No end date',
+                          ? L10n.of(context).txnEndsOn(
+                              '${_subscriptionEndDate!.day}/${_subscriptionEndDate!.month}/${_subscriptionEndDate!.year}',
+                            )
+                          : L10n.of(context).txnNoEndDate,
                       style: TextStyle(
                         fontSize: 14,
                         color: _subscriptionEndDate != null
@@ -1714,7 +1719,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         icon: const CloseButtonIcon(),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
+      title: Text(
+        _isEditing
+            ? L10n.of(context).txnEditTransaction
+            : L10n.of(context).txnNewTransaction,
+      ),
     ),
     body: CappedBody(child: const Center(child: CircularProgressIndicator())),
   );
@@ -1737,7 +1746,11 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           icon: const CloseButtonIcon(),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(_isEditing ? 'Edit Transaction' : 'New Transaction'),
+        title: Text(
+          _isEditing
+              ? L10n.of(context).txnEditTransaction
+              : L10n.of(context).txnNewTransaction,
+        ),
       ),
       body: CappedBody(
         child: Center(
@@ -1860,7 +1873,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _transferFieldLabel(
-            'From account',
+            L10n.of(context).txnFromAccount,
             Icons.arrow_upward,
             AppColors.error,
           ),
@@ -1920,7 +1933,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           AppSpacing.gapMd,
 
           _transferFieldLabel(
-            'To account',
+            L10n.of(context).txnToAccount,
             Icons.arrow_downward,
             AppColors.success,
           ),
@@ -1983,11 +1996,12 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Amount received', style: AppTypography.titleSmall),
           Text(
-            'These accounts count in different currencies. Enter what actually '
-            'landed in ${destination.name}, or leave it blank to use the '
-            "app's rate.",
+            L10n.of(context).txnAmountReceived,
+            style: AppTypography.titleSmall,
+          ),
+          Text(
+            L10n.of(context).txnAmountReceivedHint(destination.name),
             style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
           ),
           AppSpacing.gapMd,
@@ -2010,7 +2024,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                   AppSpacing.gapHMd,
                   Expanded(
                     child: Text(
-                      'In ${destination.currency}',
+                      L10n.of(context).txnInCurrency(destination.currency),
                       style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -2299,8 +2313,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         style: SunriseType.rowTitle.copyWith(color: c.ink),
         decoration: InputDecoration(
           hintText: _isTransfer
-              ? 'e.g. Move to savings (optional)'
-              : 'What was it for?',
+              ? L10n.of(context).txnTransferTitleHint
+              : L10n.of(context).txnTitleHint,
           filled: false,
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
@@ -2429,8 +2443,10 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           child: SunriseContentWidth(
             child: NeoButton(
               label: _isEditing
-                  ? 'Update'
-                  : (_isTransfer ? 'Transfer' : 'Save'),
+                  ? L10n.of(context).txnUpdate
+                  : (_isTransfer
+                        ? L10n.of(context).txTransfer
+                        : L10n.of(context).actionSave),
               onPressed: _canSave && !_isSaving ? _saveTransaction : null,
               isLoading: _isSaving,
               isExpanded: true,

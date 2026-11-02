@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'dart:convert';
 
 /// A backup is a snapshot of every row this device holds, plus enough about
@@ -50,52 +51,39 @@ class BackupDocument {
     try {
       raw = jsonDecode(source);
     } on FormatException {
-      throw const BackupFormatException(
-        'This file is not a backup — it could not be read as JSON.',
-      );
+      throw BackupFormatException(appL10n.backupErrNotJson);
     }
 
     if (raw is! Map<String, Object?>) {
-      throw const BackupFormatException(
-        'This file is not a backup from The Accountant.',
-      );
+      throw BackupFormatException(appL10n.backupErrNotOurs);
     }
 
     final formatVersion = raw['format_version'];
     if (formatVersion is! int) {
-      throw const BackupFormatException(
-        'This file is not a backup from The Accountant.',
-      );
+      throw BackupFormatException(appL10n.backupErrNotOurs);
     }
     if (formatVersion > currentFormatVersion) {
-      throw BackupFormatException(
-        'This backup was written by a newer version of the app. Update The '
-        'Accountant and try again.',
-      );
+      throw BackupFormatException(appL10n.backupErrNewerVersion);
     }
 
     final metadata = BackupMetadata.fromJson(raw['metadata']);
 
     if (metadata.schemaVersion < minimumSchemaVersion) {
       throw BackupFormatException(
-        'This backup is from an older version of the app than this one can '
-        'read (database ${metadata.schemaVersion}, oldest supported '
-        '$minimumSchemaVersion).',
+        appL10n.backupErrTooOld(metadata.schemaVersion, minimumSchemaVersion),
       );
     }
 
     final rawTables = raw['tables'];
     if (rawTables is! Map<String, Object?>) {
-      throw const BackupFormatException('This backup has no data in it.');
+      throw BackupFormatException(appL10n.backupErrNoData);
     }
 
     final tables = <String, List<Map<String, Object?>>>{};
     for (final entry in rawTables.entries) {
       final rows = entry.value;
       if (rows is! List) {
-        throw BackupFormatException(
-          'The "${entry.key}" section of this backup is damaged.',
-        );
+        throw BackupFormatException(appL10n.backupErrSectionDamaged(entry.key));
       }
       tables[entry.key] = [
         for (final row in rows)
@@ -103,7 +91,7 @@ class BackupDocument {
             row
           else
             throw BackupFormatException(
-              'The "${entry.key}" section of this backup is damaged.',
+              appL10n.backupErrSectionDamaged(entry.key),
             ),
       ];
     }
@@ -151,24 +139,17 @@ class BackupMetadata {
 
   factory BackupMetadata.fromJson(Object? raw) {
     if (raw is! Map<String, Object?>) {
-      throw const BackupFormatException(
-        'This backup is missing the header that says what it is.',
-      );
+      throw BackupFormatException(appL10n.backupErrNoHeader);
     }
 
     final schemaVersion = raw['schema_version'];
     if (schemaVersion is! int) {
-      throw const BackupFormatException(
-        'This backup does not say which database version it was taken from, '
-        'so it cannot be restored safely.',
-      );
+      throw BackupFormatException(appL10n.backupErrNoSchemaVersion);
     }
 
     final createdAt = DateTime.tryParse('${raw['created_at']}');
     if (createdAt == null) {
-      throw const BackupFormatException(
-        'This backup does not say when it was taken.',
-      );
+      throw BackupFormatException(appL10n.backupErrNoDate);
     }
 
     return BackupMetadata(

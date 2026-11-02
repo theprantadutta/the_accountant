@@ -184,9 +184,11 @@ void main() {
     ]..sort();
 
     // {name} and the subject of {name, plural, …}: what the code fills in.
+    // The text of an ICU branch, `=1{Tag}` or `other{days}`, is not one: it
+    // sits straight after its selector, which a placeholder never does.
     Set<String> placeholders(String s) => {
       for (final m in RegExp(
-        r'\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*[,}]',
+        r'(?<![A-Za-z0-9=_])\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*[,}]',
       ).allMatches(s))
         m.group(1)!,
     };
@@ -253,7 +255,10 @@ void main() {
     // clutter a reviewer has to guess about — and every one costs a translator
     // real effort for nothing. Vocabulary arrives with the screen that needs
     // it.
-    final direct = RegExp(r'\bl10n[?!]?\.([A-Za-z0-9_]+)');
+    // `l10n.x` in widgets; `appL10n.x` where there is no widget tree.
+    final direct = RegExp(
+      r'(?:\bl10n|\bappL10n|\b_l10n)[?!]?\.([A-Za-z0-9_]+)',
+    );
     // dart format may split the call over lines, so allow whitespace and a
     // trailing comma inside the parentheses.
     final viaOf = RegExp(

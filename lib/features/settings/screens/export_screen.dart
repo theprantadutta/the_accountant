@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -66,7 +67,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             SizedBox(height: AppSpacing.lg),
 
             // Date range selection
-            _buildSectionHeader('DATE RANGE'),
+            _buildSectionHeader(
+              L10n.of(context).settingsExportSectionDateRange,
+            ),
             _buildSettingsCard([_buildDateRangeTile()]),
             SizedBox(height: AppSpacing.md),
 
@@ -75,7 +78,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             SizedBox(height: AppSpacing.lg),
 
             // Export format
-            _buildSectionHeader('FORMAT'),
+            _buildSectionHeader(L10n.of(context).settingsExportSectionFormat),
             _buildSettingsCard([
               _buildFormatTile(
                 icon: Icons.table_chart_outlined,
@@ -101,7 +104,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             SizedBox(height: AppSpacing.lg),
 
             // Export options
-            _buildSectionHeader('INCLUDE'),
+            _buildSectionHeader(L10n.of(context).settingsExportSectionInclude),
             _buildSettingsCard([
               _buildCheckboxTile(
                 title: L10n.of(context).navTransactions,
@@ -211,7 +214,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     final df = ref.watch(dateFormatSettingProvider);
     final rangeText = _selectedDateRange != null
         ? '${AppDateFormatter.formatDate(_selectedDateRange!.start, df)} - ${AppDateFormatter.formatDate(_selectedDateRange!.end, df)}'
-        : 'All Time';
+        : L10n.of(context).settingsExportAllTime;
 
     return ListTile(
       leading: Container(
@@ -244,11 +247,23 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       spacing: AppSpacing.sm,
       runSpacing: AppSpacing.sm,
       children: [
-        _buildQuickDateChip('This Month', _getThisMonthRange()),
-        _buildQuickDateChip('Last Month', _getLastMonthRange()),
-        _buildQuickDateChip('Last 3 Months', _getLast3MonthsRange()),
-        _buildQuickDateChip('This Year', _getThisYearRange()),
-        _buildQuickDateChip('All Time', null),
+        _buildQuickDateChip(
+          L10n.of(context).settingsExportThisMonth,
+          _getThisMonthRange(),
+        ),
+        _buildQuickDateChip(
+          L10n.of(context).settingsExportLastMonth,
+          _getLastMonthRange(),
+        ),
+        _buildQuickDateChip(
+          L10n.of(context).settingsExportLast3Months,
+          _getLast3MonthsRange(),
+        ),
+        _buildQuickDateChip(
+          L10n.of(context).settingsExportThisYear,
+          _getThisYearRange(),
+        ),
+        _buildQuickDateChip(L10n.of(context).settingsExportAllTime, null),
       ],
     );
   }
@@ -421,9 +436,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           ],
         ),
         content: Text(
-          'CSV export is free — your data is always yours. The formatted PDF '
-          'report, with summaries and category & wallet breakdowns, is a Premium '
-          'feature.',
+          L10n.of(context).settingsExportPdfPremiumBody,
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
@@ -514,7 +527,9 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                 Icon(Icons.download),
                 SizedBox(width: AppSpacing.sm),
                 Text(
-                  'Export ${_selectedFormat.toUpperCase()}',
+                  L10n.of(
+                    context,
+                  ).settingsExportButton(_selectedFormat.toUpperCase()),
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ],
@@ -602,7 +617,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Export failed: $e'),
+            content: Text(L10n.of(context).settingsExportFailed(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -652,14 +667,16 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path)],
-        subject: 'The Accountant - Export',
+        subject: appL10n.settingsExportShareSubject,
       ),
     );
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Exported ${transactions.length} transactions'),
+          content: Text(
+            L10n.of(context).settingsExportedCount(transactions.length),
+          ),
           backgroundColor: AppColors.success,
         ),
       );
@@ -685,7 +702,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path)],
-        subject: 'The Accountant - Financial Report',
+        subject: appL10n.settingsExportPdfShareSubject,
       ),
     );
 
@@ -693,7 +710,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'PDF report generated with ${transactions.length} transactions',
+            L10n.of(context).settingsExportPdfGenerated(transactions.length),
           ),
           backgroundColor: AppColors.success,
         ),

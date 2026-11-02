@@ -5,6 +5,7 @@ import 'package:the_accountant/core/domain/transaction_policy.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:uuid/uuid.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// A violated invariant of a transfer pair, with enough context to act on it.
 class TransferIntegrityIssue {
@@ -210,13 +211,13 @@ class TransferService {
     int? receivedAmount,
   }) async {
     if (sourceWalletId == destinationWalletId) {
-      throw ArgumentError('Source and destination wallets must be different');
+      throw ArgumentError(appL10n.txnTransferSameWallet);
     }
     if (amount <= 0) {
-      throw ArgumentError('Transfer amount must be positive');
+      throw ArgumentError(appL10n.txnTransferAmountPositive);
     }
     if (feeAmount < 0) {
-      throw ArgumentError('Transfer fee cannot be negative');
+      throw ArgumentError(appL10n.txnTransferFeeNegative);
     }
     final conversion = await _resolveConversion(
       sourceWalletId,
@@ -234,14 +235,16 @@ class TransferService {
       final sourceWallet = await _db.findWalletById(sourceWalletId);
       final destWallet = await _db.findWalletById(destinationWalletId);
       if (sourceWallet == null) {
-        throw Exception('Source wallet not found: $sourceWalletId');
+        throw Exception(appL10n.txnSourceWalletNotFound(sourceWalletId));
       }
       if (destWallet == null) {
-        throw Exception('Destination wallet not found: $destinationWalletId');
+        throw Exception(
+          appL10n.txnDestinationWalletNotFound(destinationWalletId),
+        );
       }
 
       final transferTitle =
-          title ?? 'Transfer: ${sourceWallet.name} → ${destWallet.name}';
+          title ?? appL10n.txnTransferTitle(sourceWallet.name, destWallet.name);
 
       // Resolved by slug, not by a hard-coded id: category ids are random per
       // install because the backend's category key is global.
@@ -339,18 +342,21 @@ class TransferService {
 
     if (source == null || destination == null) {
       throw ArgumentError(
-        'Both wallets must exist to transfer between them '
-        '(source: ${source?.name ?? sourceId}, '
-        'destination: ${destination?.name ?? destinationId}).',
+        appL10n.txnTransferWalletsMissing(
+          source?.name ?? sourceId,
+          destination?.name ?? destinationId,
+        ),
       );
     }
 
     if (source.currency == destination.currency) {
       if (received != null && received != amount) {
         throw ArgumentError(
-          'A transfer within one currency moves one figure: ${source.name} and '
-          '${destination.name} are both in ${source.currency}, so the amount '
-          'received cannot differ.',
+          appL10n.txnTransferSameCurrencyReceived(
+            source.name,
+            destination.name,
+            source.currency,
+          ),
         );
       }
       return const _Conversion(
@@ -370,16 +376,17 @@ class TransferService {
 
     if (landed == null) {
       throw ArgumentError(
-        'No rate is known between ${source.currency} and '
-        '${destination.currency}, so enter what actually landed in '
-        '${destination.name}.',
+        appL10n.txnTransferNoRate(
+          source.currency,
+          destination.currency,
+          destination.name,
+        ),
       );
     }
 
     if (landed <= 0) {
       throw ArgumentError(
-        'The amount received has to be more than zero. Enter what actually '
-        'landed in ${destination.name}.',
+        appL10n.txnTransferReceivedPositive(destination.name),
       );
     }
 
@@ -441,7 +448,7 @@ class TransferService {
         id: Value(feeId),
         amount: Value(amount),
         isIncome: const Value(false),
-        title: Value('Fee: $transferTitle'),
+        title: Value(appL10n.txnFeeTitle(transferTitle)),
         date: Value(date),
         categoryId: Value(feeCategoryId),
         walletId: Value(walletId),
@@ -516,18 +523,16 @@ class TransferService {
     int? receivedAmount,
   }) async {
     if (amount != null && amount <= 0) {
-      throw ArgumentError('Transfer amount must be positive');
+      throw ArgumentError(appL10n.txnTransferAmountPositive);
     }
 
     await _db.transaction(() async {
       final transaction = await _db.findTransactionById(transactionId);
       if (transaction == null) {
-        throw Exception('Transaction not found: $transactionId');
+        throw Exception(appL10n.txnNotFoundWithId(transactionId));
       }
       if (transaction.pairedTransactionId == null) {
-        throw Exception(
-          'Transaction is not a transfer (no paired transaction)',
-        );
+        throw Exception(appL10n.txnNotATransferNoPair);
       }
 
       final pairedTransaction = await _db.findTransactionById(
@@ -535,8 +540,7 @@ class TransferService {
       );
       if (pairedTransaction == null) {
         throw Exception(
-          'Paired transaction ${transaction.pairedTransactionId} not found; '
-          'refusing to edit half a transfer.',
+          appL10n.txnPairedNotFound('${transaction.pairedTransactionId}'),
         );
       }
 
@@ -548,7 +552,7 @@ class TransferService {
       final newSourceWalletId = sourceWalletId ?? expenseTxn.walletId;
       final newDestinationWalletId = destinationWalletId ?? incomeTxn.walletId;
       if (newSourceWalletId == newDestinationWalletId) {
-        throw ArgumentError('Source and destination wallets must be different');
+        throw ArgumentError(appL10n.txnTransferSameWallet);
       }
       final now = DateTime.now();
       final transferCategoryId = await _db.requireSystemCategoryId(
@@ -671,7 +675,7 @@ class TransferService {
     await _db.transaction(() async {
       final transaction = await _db.findTransactionById(transactionId);
       if (transaction == null) {
-        throw Exception('Transaction not found: $transactionId');
+        throw Exception(appL10n.txnNotFoundWithId(transactionId));
       }
 
       final affectedWallets = <String>{transaction.walletId};

@@ -39,6 +39,9 @@ import 'package:the_accountant/features/zakat/domain/zakat_settings.dart';
 import 'package:the_accountant/features/zakat/providers/zakat_provider.dart';
 import 'package:the_accountant/features/zakat/services/zakat_service.dart';
 import 'package:the_accountant/core/domain/default_wallet.dart';
+import 'package:the_accountant/features/investments/widgets/investment_labels.dart';
+import 'package:the_accountant/features/networth/widgets/net_worth_labels.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 enum CoachActionKind {
   add,
@@ -1101,8 +1104,16 @@ class CoachToolRunner {
             kind == PlanKind.insurance ? 'payout_at_end' : 'maturity',
             maturity.formatCurrency(c),
           ),
-        if (periodic) ('payout', payout.name),
-        ('auto_collect', autoCollect ? 'yes' : 'no'),
+        if (periodic)
+          (
+            'payout',
+            switch (payout) {
+              PlanPayout.monthly => appL10n.planPayoutMonthly,
+              PlanPayout.quarterly => appL10n.planPayoutQuarterly,
+              PlanPayout.atMaturity => appL10n.planPayoutAtMaturity,
+            },
+          ),
+        ('auto_collect', autoCollect ? appL10n.coachYes : appL10n.coachNo),
       ],
     );
 
@@ -1234,7 +1245,10 @@ class CoachToolRunner {
       if (name != null && name.isNotEmpty && name != plan.name)
         'title': (plan.name, name),
       if (auto != null && auto != plan.autoCollect)
-        'auto_collect': (plan.autoCollect ? 'yes' : 'no', auto ? 'yes' : 'no'),
+        'auto_collect': (
+          plan.autoCollect ? appL10n.coachYes : appL10n.coachNo,
+          auto ? appL10n.coachYes : appL10n.coachNo,
+        ),
       if (remind != null && remind != plan.reminderDaysBefore)
         'remind': ('${plan.reminderDaysBefore}', '$remind'),
       if (maturity != null && maturity != plan.maturityAmount)
@@ -1369,7 +1383,7 @@ class CoachToolRunner {
       isIncome: false,
       date: DateTime.now(),
       lines: [
-        ('kind', kind.name),
+        ('kind', kind.label(appL10n)),
         if (symbol != null && symbol.isNotEmpty) ('symbol', symbol),
         if (amount > 0) ...[
           ('account', wallet.name),
@@ -1438,7 +1452,12 @@ class CoachToolRunner {
     }
     final preview = CoachActionPreview(
       kind: CoachActionKind.tradeInvestment,
-      title: '${i.name}: $action',
+      title:
+          '${i.name}: ${switch (action) {
+            'sell' => appL10n.coachTradeSell,
+            'dividend' => appL10n.coachTradeDividend,
+            _ => appL10n.coachTradeBuy,
+          }}',
       amount: amount,
       currency: c,
       isIncome: action != 'buy',
@@ -1707,7 +1726,7 @@ class CoachToolRunner {
       isIncome: false,
       date: DateTime.now(),
       lines: [
-        ('kind', kind.key),
+        ('kind', kind.label(appL10n)),
         if (from != null) ...[
           ('account', from.name),
           ('paid', (paid ?? value).formatCurrency(currency)),
@@ -2072,7 +2091,7 @@ class CoachToolRunner {
         : DateTime(day.year, day.month, day.day, 12);
     final preview = CoachActionPreview(
       kind: CoachActionKind.payZakat,
-      title: 'Zakat',
+      title: appL10n.zakatTitle,
       amount: amount,
       currency: wallet.currency,
       isIncome: false,

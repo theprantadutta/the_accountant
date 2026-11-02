@@ -5,6 +5,7 @@ import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/features/notifications/models/notification_item.dart';
 import 'package:the_accountant/features/notifications/services/local_notification_log.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// State for notification history.
 class NotificationHistoryState {
@@ -126,7 +127,7 @@ class NotificationHistoryNotifier
         isLoading: false,
         notifications: local,
         hasMore: false,
-        errorMessage: local.isEmpty ? 'Failed to load notifications' : null,
+        errorMessage: local.isEmpty ? appL10n.notifLoadFailed : null,
       );
     }
   }

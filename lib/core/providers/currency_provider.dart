@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// State for currency management
 class CurrencyState {
@@ -118,7 +119,7 @@ class CurrencyNotifier extends StateNotifier<CurrencyState> {
       debugPrint('[CurrencyProvider] Error loading currencies: $e');
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to load currencies',
+        error: appL10n.commonLoadCurrenciesFailed,
       );
     }
   }
@@ -140,7 +141,7 @@ class CurrencyNotifier extends StateNotifier<CurrencyState> {
       debugPrint('[CurrencyProvider] Error loading rates: $e');
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to load exchange rates',
+        error: appL10n.commonLoadRatesFailed,
       );
     }
   }
@@ -160,7 +161,7 @@ class CurrencyNotifier extends StateNotifier<CurrencyState> {
       debugPrint('[CurrencyProvider] Error refreshing rates: $e');
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to refresh exchange rates',
+        error: appL10n.commonRefreshRatesFailed,
       );
     }
   }

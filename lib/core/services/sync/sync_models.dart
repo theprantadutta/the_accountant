@@ -1,3 +1,5 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
+
 // Data models for synchronization operations
 // Aligned with backend API: TheAccountant.Application.Features.Sync.DTOs
 
@@ -758,10 +760,10 @@ class SyncResult {
     if (applyFailures.isEmpty) return null;
     final first = applyFailures.first;
     final more = applyFailures.length - 1;
-    final suffix = more > 0 ? ' (and $more more)' : '';
-    return 'Some cloud records could not be saved on this device: '
-        '${first.tableName} ${first.entityId} — ${first.reason}$suffix. '
-        'They will be retried on the next sync.';
+    final record = '${first.tableName} ${first.entityId} — ${first.reason}';
+    return more > 0
+        ? appL10n.syncRecordsNotSavedMore(record, more)
+        : appL10n.syncRecordsNotSaved(record);
   }
 
   factory SyncResult.success({

@@ -106,7 +106,7 @@ class ConfirmationDialog extends StatelessWidget {
 Future<T?> showLoadingDialog<T>({
   required BuildContext context,
   required Future<T> Function() operation,
-  String message = 'Please wait...',
+  String? message,
 }) async {
   showSunriseDialog<void>(
     context: context,
@@ -130,7 +130,7 @@ Future<T?> showLoadingDialog<T>({
                 const SizedBox(width: 18),
                 Flexible(
                   child: Text(
-                    message,
+                    message ?? L10n.of(context).settingsPleaseWait,
                     style: SunriseType.rowTitle.copyWith(color: c.ink),
                   ),
                 ),

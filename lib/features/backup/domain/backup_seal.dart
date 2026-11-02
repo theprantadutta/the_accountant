@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
@@ -97,19 +98,14 @@ class BackupSeal {
     try {
       raw = jsonDecode(source);
     } on FormatException {
-      throw const BackupFormatException('This backup file is damaged.');
+      throw BackupFormatException(appL10n.backupErrDamaged);
     }
     if (raw is! Map || raw['format'] != formatTag) {
-      throw const BackupFormatException(
-        'This file is not a backup from The Accountant.',
-      );
+      throw BackupFormatException(appL10n.backupErrNotOurs);
     }
     final version = raw['version'];
     if (version is! int || version > currentVersion) {
-      throw const BackupFormatException(
-        'This backup was written by a newer version of the app. Update The '
-        'Accountant and try again.',
-      );
+      throw BackupFormatException(appL10n.backupErrNewerVersion);
     }
 
     final List<int> nonce;
@@ -118,11 +114,11 @@ class BackupSeal {
       nonce = base64Decode(raw['nonce'] as String);
       data = base64Decode(raw['data'] as String);
     } catch (_) {
-      throw const BackupFormatException('This backup file is damaged.');
+      throw BackupFormatException(appL10n.backupErrDamaged);
     }
     const tagLength = 16;
     if (data.length < tagLength) {
-      throw const BackupFormatException('This backup file is damaged.');
+      throw BackupFormatException(appL10n.backupErrDamaged);
     }
 
     try {
@@ -150,11 +146,10 @@ class BackupSeal {
 
 /// The key a sealed backup was opened with is not the one it was made with.
 class BackupWrongKey extends BackupFormatException {
-  const BackupWrongKey()
-    : super(
-        'This backup belongs to a different account, or the file has been '
-        'changed. Sign in with the account that made it to restore it.',
-      );
+  const BackupWrongKey() : super('');
+
+  @override
+  String get message => appL10n.backupErrWrongKey;
 }
 
 /// The account key, locked under the passphrase and under the recovery code.

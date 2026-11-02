@@ -50,7 +50,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
   Future<void> _submit() async {
     final message = _messageController.text.trim();
     if (message.isEmpty) {
-      _snack('Please describe your issue first', AppColors.error);
+      _snack(L10n.of(context).settingsSupportDescribeFirst, AppColors.error);
       return;
     }
 
@@ -66,14 +66,11 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
         },
       );
       if (!mounted) return;
-      _snack('Thanks! Your message has been sent.', AppColors.success);
+      _snack(L10n.of(context).settingsSupportSent, AppColors.success);
       Navigator.of(context).pop();
     } catch (_) {
       if (!mounted) return;
-      _snack(
-        "Couldn't send right now. Please try again or email us directly.",
-        AppColors.error,
-      );
+      _snack(L10n.of(context).settingsSupportSendFailed, AppColors.error);
       setState(() => _isSending = false);
     }
   }
@@ -112,7 +109,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
             NeoTextField(
               controller: _subjectController,
               label: L10n.of(context).settingsSubject,
-              hint: "What's this about?",
+              hint: L10n.of(context).settingsSupportSubjectHint,
               prefixIcon: Icons.subject,
               textCapitalization: TextCapitalization.sentences,
             ),
@@ -120,7 +117,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
             NeoTextField(
               controller: _messageController,
               label: L10n.of(context).settingsMessage,
-              hint: 'Describe your question, issue, or feedback…',
+              hint: L10n.of(context).settingsSupportMessageHint,
               prefixIcon: Icons.chat_bubble_outline,
               maxLines: 6,
               minLines: 4,
@@ -188,7 +185,7 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
           ),
           SizedBox(height: AppSpacing.xs),
           Text(
-            "Questions, bugs, or feedback — send it over and we'll get back to you.",
+            L10n.of(context).settingsSupportHeroBody,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
@@ -240,11 +237,11 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
             ),
           ),
           SizedBox(height: AppSpacing.sm),
-          _buildBulletPoint('A clear description of your issue'),
+          _buildBulletPoint(L10n.of(context).settingsSupportTipDescription),
           SizedBox(height: AppSpacing.xs),
-          _buildBulletPoint("Steps to reproduce (if it's a bug)"),
+          _buildBulletPoint(L10n.of(context).settingsSupportTipSteps),
           SizedBox(height: AppSpacing.xs),
-          _buildBulletPoint('Your device model and Android version'),
+          _buildBulletPoint(L10n.of(context).settingsSupportTipDevice),
         ],
       ),
     );
@@ -279,7 +276,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
         onPressed: _launchEmail,
         icon: Icon(Icons.email_outlined, size: 18, color: AppColors.textMuted),
         label: Text(
-          'Prefer email? ${ContactSupportScreen._email}',
+          L10n.of(
+            context,
+          ).settingsSupportPreferEmail(ContactSupportScreen._email),
           style: TextStyle(color: AppColors.textMuted, fontSize: 13),
         ),
       ),
@@ -296,7 +295,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
       await launchUrl(uri);
     } else {
       Clipboard.setData(const ClipboardData(text: ContactSupportScreen._email));
-      if (mounted) _snack('Email copied to clipboard', AppColors.info);
+      if (mounted) {
+        _snack(L10n.of(context).settingsSupportEmailCopied, AppColors.info);
+      }
     }
   }
 }

@@ -3,6 +3,7 @@ import 'package:logger/logger.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
 import 'package:the_accountant/features/ai_assistant/models/conversation.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Service for AI chat communication with the backend
 class AiChatService {
@@ -34,7 +35,7 @@ class AiChatService {
     } catch (e) {
       _logger.e('Unexpected error loading conversations: $e');
       throw AiChatException(
-        'Failed to load conversations.',
+        appL10n.aiLoadConversationsFailed,
         errorType: 'unknown_error',
       );
     }
@@ -73,7 +74,7 @@ class AiChatService {
     } catch (e) {
       _logger.e('Unexpected error loading conversation messages: $e');
       throw AiChatException(
-        'Failed to load chat history.',
+        appL10n.aiLoadHistoryFailed,
         errorType: 'unknown_error',
       );
     }
@@ -114,7 +115,7 @@ class AiChatService {
       final data = e.response?.data;
       if (data is Map && data['code'] == 'PREMIUM_REQUIRED') {
         throw AiChatException(
-          'Premium subscription required for AI Assistant',
+          appL10n.aiPremiumRequired,
           errorType: 'premium_required',
         );
       }
@@ -149,7 +150,7 @@ class AiChatService {
         final data = e.response?.data;
         if (data is Map && data['code'] == 'PREMIUM_REQUIRED') {
           throw AiChatException(
-            'Premium subscription required for AI Assistant',
+            appL10n.aiPremiumRequired,
             errorType: 'premium_required',
           );
         }
@@ -160,7 +161,7 @@ class AiChatService {
     } catch (e) {
       _logger.e('Unexpected error in AI chat: $e');
       throw AiChatException(
-        'An unexpected error occurred. Please try again.',
+        appL10n.aiUnexpectedError,
         errorType: 'unknown_error',
       );
     }
@@ -177,13 +178,11 @@ class AiChatService {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
-        return 'Our server took too long to answer. Check your connection, or '
-            'try again in a few minutes.';
+        return appL10n.apiServerTimeout;
       case DioExceptionType.connectionError:
-        return 'Cannot reach our server. Check your connection; if you are '
-            'online, try again in a few minutes.';
+        return appL10n.apiCannotReachServer;
       default:
-        return 'Failed to get AI response. Please try again.';
+        return appL10n.aiResponseFailed;
     }
   }
 

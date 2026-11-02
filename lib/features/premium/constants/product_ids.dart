@@ -1,3 +1,5 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
+
 /// Product IDs and billing constants for The Accountant premium subscriptions.
 ///
 /// IDs are unified across Android and iOS so the backend's ProductTierMapping
@@ -48,17 +50,17 @@ class TheAccountantProducts {
   /// Get the tier display name from a product ID
   static String getTierDisplayName(String productId) {
     final lower = productId.toLowerCase();
-    if (lower.contains('monthly')) return 'Premium Monthly';
-    if (lower.contains('yearly')) return 'Premium Yearly';
-    if (lower.contains('lifetime')) return 'Premium Lifetime';
-    return 'Free';
+    if (lower.contains('monthly')) return appL10n.settingsPremiumMonthly;
+    if (lower.contains('yearly')) return appL10n.settingsPremiumYearly;
+    if (lower.contains('lifetime')) return appL10n.settingsPremiumLifetime;
+    return appL10n.settingsProfileFree;
   }
 
   /// Get savings text for a product
   static String? getSavingsText(String productId) {
     final lower = productId.toLowerCase();
-    if (lower.contains('yearly')) return 'Save ~44%';
-    if (lower.contains('lifetime')) return 'Best Value';
+    if (lower.contains('yearly')) return appL10n.premiumSaveAbout44;
+    if (lower.contains('lifetime')) return appL10n.premiumBestValue;
     return null;
   }
 }

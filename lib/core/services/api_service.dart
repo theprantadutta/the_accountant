@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 /// Exception thrown when account linking is required
@@ -48,10 +49,9 @@ class ApiException implements Exception {
   bool get isUpdateRequired => statusCode == 426;
 
   /// What a 426 says. Public so a sync failure carrying it can be told apart
-  /// from an ordinary one and shown as it is.
-  static const String updateRequiredMessage =
-      'Update The Accountant to keep syncing. Everything stays on this phone '
-      'until you do.';
+  /// from an ordinary one and shown as it is. A getter, in the user's
+  /// language: the thrower and the comparer read it the same way.
+  static String get updateRequiredMessage => appL10n.apiUpdateRequired;
 
   @override
   String toString() => message;
@@ -167,7 +167,9 @@ class ApiService {
             try {
               await _refreshAccessToken().timeout(_refreshCap);
             } on TimeoutException {
-              _logger.w('Token refresh is taking too long - using the old token');
+              _logger.w(
+                'Token refresh is taking too long - using the old token',
+              );
             }
           }
 
@@ -659,7 +661,7 @@ class ApiService {
       if (e.response?.statusCode == 409) {
         // Return the error with conflict flag for handling
         throw AccountLinkingRequiredException(
-          'An account with this email already exists. Please link your accounts.',
+          appL10n.apiAccountExistsLink,
           requiresLinking: true,
         );
       }
@@ -860,15 +862,11 @@ class ApiService {
       // sentence for a person. Our server being down is not the user's
       // fault, and their data is safe on the phone.
       if (status != null && status >= 500) {
-        return ApiException(
-          'Our server is having trouble right now. Everything is safe on '
-          'this phone; try again in a few minutes.',
-          statusCode: status,
-        );
+        return ApiException(appL10n.apiServerTrouble, statusCode: status);
       }
       final detail = data is Map && data['detail'] != null
           ? data['detail'].toString()
-          : 'Request failed (HTTP $status).';
+          : appL10n.apiRequestFailedHttp('$status');
       return ApiException(detail, statusCode: status);
     }
 
@@ -877,22 +875,13 @@ class ApiService {
     if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
         error.type == DioExceptionType.sendTimeout) {
-      return const ApiException(
-        'Our server took too long to answer. Check your connection, or try '
-        'again in a few minutes.',
-      );
+      return ApiException(appL10n.apiServerTimeout);
     }
 
     if (error.type == DioExceptionType.connectionError) {
-      return const ApiException(
-        'Cannot reach our server. Check your connection; if you are online, '
-        'try again in a few minutes.',
-      );
+      return ApiException(appL10n.apiCannotReachServer);
     }
 
-    return const ApiException(
-      'Something went wrong talking to our server. Please try again.',
-    );
+    return ApiException(appL10n.apiSomethingWentWrong);
   }
-
 }

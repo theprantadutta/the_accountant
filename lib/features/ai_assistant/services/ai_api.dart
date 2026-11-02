@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/features/ai_assistant/models/ai_quota.dart';
 import 'package:the_accountant/features/ai_assistant/models/chat_message.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Why an AI request did not produce an answer.
 class AiException implements Exception {
@@ -345,15 +346,12 @@ class AiApi {
         case 'error':
           throw AiException(
             data['code'] as String? ?? AiException.unavailable,
-            data['detail'] as String? ?? 'The AI service is not answering.',
+            data['detail'] as String? ?? appL10n.aiServiceNotAnswering,
           );
       }
     }
 
-    throw const AiException(
-      AiException.unavailable,
-      'The reply was cut off. Please try again.',
-    );
+    throw AiException(AiException.unavailable, appL10n.aiReplyCutOff);
   }
 
   Future<String> monthlySummary(Map<String, dynamic> context) async {
@@ -461,23 +459,20 @@ class AiApi {
   AiException _toAiException(DioException e) {
     final response = e.response;
     if (response == null) {
-      return const AiException(
-        AiException.network,
-        'Could not reach the server. Check your connection and try again.',
-      );
+      return AiException(AiException.network, appL10n.aiCouldNotReachServer);
     }
 
     final data = response.data;
     if (data is Map) {
       return AiException(
         data['code'] as String? ?? 'HTTP_${response.statusCode}',
-        data['detail']?.toString() ?? 'Something went wrong.',
+        data['detail']?.toString() ?? appL10n.aiSomethingWentWrong,
         statusCode: response.statusCode,
       );
     }
     return AiException(
       'HTTP_${response.statusCode}',
-      'Something went wrong.',
+      appL10n.aiSomethingWentWrong,
       statusCode: response.statusCode,
     );
   }
@@ -492,7 +487,7 @@ class AiApi {
         if (data is Map) {
           return AiException(
             data['code'] as String? ?? 'HTTP_${e.response?.statusCode}',
-            data['detail']?.toString() ?? 'Something went wrong.',
+            data['detail']?.toString() ?? appL10n.aiSomethingWentWrong,
             statusCode: e.response?.statusCode,
           );
         }

@@ -236,7 +236,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Remaining: $symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(remaining / 100.0)}',
+                  L10n.of(context).creditRemaining(
+                    '$symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(remaining / 100.0)}',
+                  ),
                   style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
                 const SizedBox(height: 16),
@@ -390,7 +392,9 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Payment of $symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(amount)} recorded',
+            L10n.of(context).creditPaymentRecorded(
+              '$symbol${AppNumberFormatter.get(ref.watch(numberFormatSettingProvider)).format(amount)}',
+            ),
           ),
           backgroundColor: AppColors.success,
         ),
@@ -405,8 +409,8 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen> {
         SnackBar(
           content: Text(
             isCredit
-                ? 'Marked as collected from "${transaction.title}"'
-                : 'Marked "${transaction.title}" as paid',
+                ? L10n.of(context).creditMarkedCollected(transaction.title)
+                : L10n.of(context).txnMarkedPaid(transaction.title),
           ),
           backgroundColor: AppColors.success,
           action: SnackBarAction(

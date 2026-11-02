@@ -5,6 +5,7 @@ import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 
 /// A modern glass-styled text field with animations.
 ///
@@ -328,7 +329,7 @@ class NeoSearchField extends StatefulWidget {
   const NeoSearchField({
     super.key,
     this.controller,
-    this.hint = 'Search...',
+    this.hint,
     this.onChanged,
     this.onSubmitted,
     this.onClear,
@@ -336,7 +337,7 @@ class NeoSearchField extends StatefulWidget {
   });
 
   final TextEditingController? controller;
-  final String hint;
+  final String? hint;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final VoidCallback? onClear;
@@ -397,7 +398,7 @@ class _NeoSearchFieldState extends State<NeoSearchField> {
         style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
         cursorColor: AppColors.primaryAccent,
         decoration: InputDecoration(
-          hintText: widget.hint,
+          hintText: widget.hint ?? L10n.of(context).commonSearchHint,
           hintStyle: AppTypography.bodyMedium.copyWith(
             color: AppColors.textMuted,
           ),
@@ -434,7 +435,7 @@ class NeoCurrencyField extends StatelessWidget {
   const NeoCurrencyField({
     super.key,
     this.controller,
-    this.label = 'Amount',
+    this.label,
     this.currencySymbol = '\$',
     this.onChanged,
     this.errorText,
@@ -442,7 +443,7 @@ class NeoCurrencyField extends StatelessWidget {
   });
 
   final TextEditingController? controller;
-  final String label;
+  final String? label;
   final String currencySymbol;
   final ValueChanged<String>? onChanged;
   final String? errorText;
@@ -452,7 +453,7 @@ class NeoCurrencyField extends StatelessWidget {
   Widget build(BuildContext context) {
     return NeoTextField(
       controller: controller,
-      label: label,
+      label: label ?? L10n.of(context).addAmount,
       hint: '0.00',
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       onChanged: onChanged,

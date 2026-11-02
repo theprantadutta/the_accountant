@@ -5607,4 +5607,4142 @@ class L10nEn extends L10n {
   @override
   String get backupLockedBody =>
       'This backup is protected with a passphrase. Enter it, or your recovery code, to open it. This works without an internet connection.';
+
+  @override
+  String get settingsSupportDescribeFirst => 'Please describe your issue first';
+
+  @override
+  String get settingsSupportSent => 'Thanks! Your message has been sent.';
+
+  @override
+  String get settingsSupportSendFailed =>
+      'Couldn\'t send right now. Please try again or email us directly.';
+
+  @override
+  String get settingsSupportSubjectHint => 'What\'s this about?';
+
+  @override
+  String get settingsSupportMessageHint =>
+      'Describe your question, issue, or feedback…';
+
+  @override
+  String get settingsSupportHeroBody =>
+      'Questions, bugs, or feedback — send it over and we\'ll get back to you.';
+
+  @override
+  String get settingsSupportTipDescription =>
+      'A clear description of your issue';
+
+  @override
+  String get settingsSupportTipSteps => 'Steps to reproduce (if it\'s a bug)';
+
+  @override
+  String get settingsSupportTipDevice =>
+      'Your device model and Android version';
+
+  @override
+  String settingsSupportPreferEmail(String email) {
+    return 'Prefer email? $email';
+  }
+
+  @override
+  String get settingsSupportEmailCopied => 'Email copied to clipboard';
+
+  @override
+  String get settingsAboutTagline => 'Your Personal Finance Companion';
+
+  @override
+  String settingsAboutVersion(String version) {
+    return 'Version: $version';
+  }
+
+  @override
+  String get settingsAboutDescription =>
+      'A personal finance app with a focus\non privacy and beautiful UI/UX.';
+
+  @override
+  String settingsBaseCurrencyLabel(String currency) {
+    return 'Base Currency: $currency';
+  }
+
+  @override
+  String settingsRatesLastUpdated(String when) {
+    return 'Last updated: $when';
+  }
+
+  @override
+  String settingsEditRateTitle(String base, String target) {
+    return 'Edit Rate: $base → $target';
+  }
+
+  @override
+  String settingsCurrentApiRate(String rate) {
+    return 'Current API rate: $rate';
+  }
+
+  @override
+  String settingsMinutesAgo(int count) {
+    return '$count minutes ago';
+  }
+
+  @override
+  String settingsHoursAgo(int count) {
+    return '$count hours ago';
+  }
+
+  @override
+  String settingsDaysAgo(int count) {
+    return '$count days ago';
+  }
+
+  @override
+  String get settingsExportSectionDateRange => 'DATE RANGE';
+
+  @override
+  String get settingsExportSectionFormat => 'FORMAT';
+
+  @override
+  String get settingsExportSectionInclude => 'INCLUDE';
+
+  @override
+  String get settingsExportAllTime => 'All Time';
+
+  @override
+  String get settingsExportThisMonth => 'This Month';
+
+  @override
+  String get settingsExportLastMonth => 'Last Month';
+
+  @override
+  String get settingsExportLast3Months => 'Last 3 Months';
+
+  @override
+  String get settingsExportThisYear => 'This Year';
+
+  @override
+  String get settingsExportPdfPremiumBody =>
+      'CSV export is free — your data is always yours. The formatted PDF report, with summaries and category & wallet breakdowns, is a Premium feature.';
+
+  @override
+  String settingsExportButton(String format) {
+    return 'Export $format';
+  }
+
+  @override
+  String settingsExportFailed(String error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String get settingsExportShareSubject => 'The Accountant - Export';
+
+  @override
+  String settingsExportedCount(int count) {
+    return 'Exported $count transactions';
+  }
+
+  @override
+  String get settingsExportPdfShareSubject =>
+      'The Accountant - Financial Report';
+
+  @override
+  String settingsExportPdfGenerated(int count) {
+    return 'PDF report generated with $count transactions';
+  }
+
+  @override
+  String get settingsNumberFormatCommaThousands => 'Comma for thousands';
+
+  @override
+  String get settingsNumberFormatDotThousands => 'Dot for thousands';
+
+  @override
+  String get settingsNumberFormatSpaceThousands => 'Space for thousands';
+
+  @override
+  String get settingsNumberFormatNoSeparator => 'No separator';
+
+  @override
+  String get settingsAutoLockImmediately => 'Immediately';
+
+  @override
+  String settingsAutoLockMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsAutoLockNever => 'Never';
+
+  @override
+  String get settingsBiometricUnavailable =>
+      'Biometric authentication not available on this device';
+
+  @override
+  String get settingsSetPassword => 'Set Password';
+
+  @override
+  String get settingsChangePassword => 'Change Password';
+
+  @override
+  String get settingsAddPasswordSubtitle => 'Add password to your account';
+
+  @override
+  String get settingsPasswordChanged => 'Password changed successfully';
+
+  @override
+  String get settingsPasswordSet => 'Password set successfully';
+
+  @override
+  String get settingsClearCacheBody =>
+      'This will clear cached data and force a re-sync on next app launch. Your data will not be deleted.';
+
+  @override
+  String get settingsClearingCache => 'Clearing cache...';
+
+  @override
+  String get settingsCacheCleared => 'Cache cleared and sync triggered';
+
+  @override
+  String get settingsClearCacheFailed => 'Failed to clear cache';
+
+  @override
+  String get settingsClearAllDataBody =>
+      'This will permanently delete ALL your transactions, budgets, wallets, categories, and settings. This action cannot be undone!';
+
+  @override
+  String get settingsClearAllDataConfirmBody =>
+      'All your financial data will be permanently erased.';
+
+  @override
+  String get settingsClearingAllData => 'Clearing all data...';
+
+  @override
+  String get settingsAllDataCleared => 'All data cleared successfully';
+
+  @override
+  String settingsClearDataFailed(String error) {
+    return 'Failed to clear data: $error';
+  }
+
+  @override
+  String get settingsDeleteAccountBody =>
+      'You\'ll be taken to a form to request account deletion. The process takes a few days to complete. Once processed, all data on the server will be permanently deleted.';
+
+  @override
+  String get settingsLockAuthFailed =>
+      'Authentication failed. Please try again.';
+
+  @override
+  String get settingsLockError => 'An error occurred. Please try again.';
+
+  @override
+  String get settingsLockAuthenticating => 'Authenticating...';
+
+  @override
+  String get settingsProfileNameEmpty => 'Name cannot be empty';
+
+  @override
+  String get settingsProfileUpdated => 'Profile updated successfully';
+
+  @override
+  String get settingsProfileUpdateFailed => 'Failed to update profile';
+
+  @override
+  String get settingsProfileSaveChanges => 'Save changes';
+
+  @override
+  String get settingsProfileSaved => 'Saved';
+
+  @override
+  String get settingsProfilePhotoSoon => 'Photo upload coming soon';
+
+  @override
+  String get settingsProfileAccountInformation => 'Account Information';
+
+  @override
+  String get settingsProfileMemberSince => 'Member Since';
+
+  @override
+  String get settingsProfileUnknown => 'Unknown';
+
+  @override
+  String get settingsProfileFree => 'Free';
+
+  @override
+  String get settingsProfileUserId => 'User ID';
+
+  @override
+  String get settingsProfileUserIdCopied => 'User ID copied';
+
+  @override
+  String get settingsPremiumMonthly => 'Premium Monthly';
+
+  @override
+  String get settingsPremiumYearly => 'Premium Yearly';
+
+  @override
+  String get settingsPremiumLifetime => 'Premium Lifetime';
+
+  @override
+  String get settingsUnsavedChangesBody =>
+      'You have unsaved changes. Are you sure you want to leave?';
+
+  @override
+  String settingsShareAppText(String url) {
+    return 'Check out The Accountant - a beautiful personal finance app!\n\n$url';
+  }
+
+  @override
+  String get settingsShareAppSubject => 'The Accountant - Personal Finance App';
+
+  @override
+  String get settingsCloudSyncGateBody =>
+      'Keep your financial data synchronized across all your devices. Never lose your data again.';
+
+  @override
+  String settingsSyncPushed(int count) {
+    return 'Pushed $count';
+  }
+
+  @override
+  String settingsSyncPulled(int count) {
+    return 'Pulled $count';
+  }
+
+  @override
+  String settingsSyncConflicts(int count) {
+    return '$count conflicts';
+  }
+
+  @override
+  String get settingsSyncNowSubtitle => 'Push and pull all changes';
+
+  @override
+  String settingsSyncComplete(int pushed, int pulled) {
+    return 'Sync complete — pushed $pushed, pulled $pulled';
+  }
+
+  @override
+  String settingsSyncIncomplete(int count, String details) {
+    return 'Sync incomplete — $count record(s) could not be saved and will be retried. $details';
+  }
+
+  @override
+  String settingsSyncFailed(String error) {
+    return 'Sync failed: $error';
+  }
+
+  @override
+  String get settingsRestoreFromCloudSubtitle =>
+      'Replace this device\'s data with your cloud data';
+
+  @override
+  String get settingsRestoreFromCloudBody =>
+      'This erases ALL data on this device and replaces it with your cloud data. Any changes on this device that have not synced yet will be lost. This cannot be undone.';
+
+  @override
+  String settingsRestoredFromCloud(int count) {
+    return 'Restored $count items from the cloud';
+  }
+
+  @override
+  String settingsRestoreCancelled(String details) {
+    return 'Restore cancelled — your local data was left unchanged. $details';
+  }
+
+  @override
+  String settingsRestoreFailed(String error) {
+    return 'Restore failed: $error';
+  }
+
+  @override
+  String get settingsSyncInfoBody =>
+      'Your data syncs automatically every 15 minutes and when you open the app. Amounts, names and notes are encrypted on this phone before they sync, so our server cannot read them.';
+
+  @override
+  String settingsSyncCompletedSeconds(int seconds) {
+    return 'Completed in ${seconds}s';
+  }
+
+  @override
+  String settingsSyncCompletedMinutes(int minutes, int seconds) {
+    return 'Completed in ${minutes}m ${seconds}s';
+  }
+
+  @override
+  String settingsReconcileQuestion(String name) {
+    return 'Is this your \"$name\" category?';
+  }
+
+  @override
+  String get settingsReconcileSavedPending =>
+      'Saved. This will be applied the next time you sync.';
+
+  @override
+  String settingsReconcileBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Your account already has $count categories called \"$name\". Tell us whether to use one of them as the built-in category, or keep it separate. Nothing changes until you choose.',
+      one:
+          'Your account already has a category called \"$name\". Tell us whether to use it as the built-in category, or keep it separate. Nothing changes until you choose.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepMine =>
+      'No — keep mine and add a separate one';
+
+  @override
+  String get settingsReconcileNoneOfThese =>
+      'None of these — add a separate one';
+
+  @override
+  String settingsReconcileKeepSeparateBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Your existing \"$name\" categories stay exactly as they are, with all its transactions. A new built-in \"$name\" will be added alongside.',
+      one:
+          'Your existing \"$name\" category stays exactly as it is, with all its transactions. A new built-in \"$name\" will be added alongside.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepSeparate => 'Keep separate';
+
+  @override
+  String settingsReconcileTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+      zero: 'No transactions',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsReconcileUseTitle(String name) {
+    return 'Use \"$name\"?';
+  }
+
+  @override
+  String settingsReconcileUseBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'It becomes the built-in \"$name\" category and keeps all $count of its transactions, along with its subcategories. Nothing is deleted.',
+      zero:
+          'It becomes the built-in \"$name\" category and keeps everything filed under it, along with its subcategories. Nothing is deleted.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileUseThisOne => 'Use this one';
+
+  @override
+  String settingsReconcileWillUse(String name) {
+    return 'Will use \"$name\".';
+  }
+
+  @override
+  String settingsReconcileWillAdd(String name) {
+    return 'Will add a separate \"$name\".';
+  }
+
+  @override
+  String get settingsChangePasswordSubtitle =>
+      'Enter your current password and choose a new one';
+
+  @override
+  String get settingsSetPasswordSubtitle =>
+      'Add a password to your account for additional security';
+
+  @override
+  String get settingsEnterCurrentPassword =>
+      'Please enter your current password';
+
+  @override
+  String get settingsEnterNewPassword => 'Please enter a new password';
+
+  @override
+  String get settingsPasswordMinLength =>
+      'Password must be at least 8 characters';
+
+  @override
+  String get settingsConfirmYourPassword => 'Please confirm your password';
+
+  @override
+  String get settingsPasswordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get settingsPleaseWait => 'Please wait...';
+
+  @override
+  String settingsTypeToConfirm(String word) {
+    return 'Type \"$word\" to confirm';
+  }
+
+  @override
+  String settingsPercentOfBudget(int percent) {
+    return '$percent% of budget';
+  }
+
+  @override
+  String get authTooManyAttempts =>
+      'Too many attempts. Please wait a minute and try again.';
+
+  @override
+  String get authServerDown =>
+      'We could not reach our servers. This is on our side — please try again in a few minutes.';
+
+  @override
+  String get authInitFailed => 'Failed to initialize authentication';
+
+  @override
+  String get authSignInError => 'An error occurred during sign in';
+
+  @override
+  String get authSignUpError => 'An error occurred during sign up';
+
+  @override
+  String get authGoogleCancelled => 'Google Sign-In was cancelled or failed';
+
+  @override
+  String get authFirebaseTokenFailed => 'Failed to get Firebase ID token';
+
+  @override
+  String get authGoogleSignInError => 'An error occurred during Google sign in';
+
+  @override
+  String get authAccountExistsDifferentCredential =>
+      'An account already exists with the same email address but different sign-in credentials.';
+
+  @override
+  String get authInvalidCredential =>
+      'The supplied auth credential is malformed or has expired.';
+
+  @override
+  String get authGoogleDisabled => 'Google sign-in is disabled.';
+
+  @override
+  String get authUserDisabled => 'The user account has been disabled.';
+
+  @override
+  String get authAppleSignInError => 'An error occurred during Apple sign in';
+
+  @override
+  String get authAppleDisabled => 'Apple sign-in is disabled.';
+
+  @override
+  String get authNoPendingLink => 'No pending account to link';
+
+  @override
+  String get authLinkFailed => 'Failed to link account';
+
+  @override
+  String get authIncorrectPassword => 'Incorrect password. Please try again.';
+
+  @override
+  String get authSignOutError => 'An error occurred during sign out';
+
+  @override
+  String get authLinkSubtitle =>
+      'An account with this email already exists. Enter your password to link your Google account.';
+
+  @override
+  String get authEnterYourPasswordHint => 'Enter your password';
+
+  @override
+  String get authEnterYourPassword => 'Please enter your password';
+
+  @override
+  String get authLinkInfo =>
+      'After linking, you can use either email/password or Google to sign in.';
+
+  @override
+  String get authEnterYourEmail => 'Please enter your email';
+
+  @override
+  String get authEnterValidEmail => 'Please enter a valid email';
+
+  @override
+  String get authPasswordMin6 => 'Password must be at least 6 characters';
+
+  @override
+  String get authNoAccountPrompt => 'Don\'t have an account? ';
+
+  @override
+  String get authForgotPasswordTitle => 'Forgot Password';
+
+  @override
+  String get authCheckYourEmail => 'Check Your Email';
+
+  @override
+  String get authForgotPasswordSubtitle =>
+      'Enter your email and we\'ll send you a code to reset your password.';
+
+  @override
+  String authCodeSentSubtitle(String email) {
+    return 'We sent a 6-digit code to $email. Enter it below with your new password.';
+  }
+
+  @override
+  String get authEnterYourEmailHint => 'Enter your email';
+
+  @override
+  String get authSixDigitCodeHint => '6-digit code';
+
+  @override
+  String get authEnterTheCode => 'Please enter the code';
+
+  @override
+  String get authCodeIsSixDigits => 'The code is 6 digits';
+
+  @override
+  String get authCreateNewPasswordHint => 'Create a new password';
+
+  @override
+  String get authReenterNewPasswordHint => 'Re-enter your new password';
+
+  @override
+  String get authEnterYourNameHint => 'Enter your name';
+
+  @override
+  String get authEnterFullName => 'Please enter your full name';
+
+  @override
+  String get authNameMin2 => 'Name must be at least 2 characters';
+
+  @override
+  String get authCreatePasswordHint => 'Create a password';
+
+  @override
+  String get authPasswordComplexity =>
+      'Must contain uppercase, lowercase, and number';
+
+  @override
+  String get authReenterPasswordHint => 'Re-enter your password';
+
+  @override
+  String get authStrengthWeak => 'Weak';
+
+  @override
+  String get authStrengthFair => 'Fair';
+
+  @override
+  String get authStrengthGood => 'Good';
+
+  @override
+  String get authStrengthStrong => 'Strong';
+
+  @override
+  String authAgreeToTerms(String terms, String privacy) {
+    return 'I agree to the $terms and $privacy';
+  }
+
+  @override
+  String get authDefaultUserName => 'User';
+
+  @override
+  String authMemberSince(String date) {
+    return 'Member since $date';
+  }
+
+  @override
+  String get authFieldRequired => 'This field is required';
+
+  @override
+  String authSignOutFailed(String error) {
+    return 'Failed to sign out: $error';
+  }
+
+  @override
+  String authPickImageFailed(String error) {
+    return 'Failed to pick image: $error';
+  }
+
+  @override
+  String authUpdateProfileFailed(String error) {
+    return 'Failed to update profile: $error';
+  }
+
+  @override
+  String get premiumSaveAbout44 => 'Save ~44%';
+
+  @override
+  String get premiumBestValue => 'Best Value';
+
+  @override
+  String get premiumIapUnavailable => 'IAP not available';
+
+  @override
+  String get premiumProductNotFound => 'Product not found';
+
+  @override
+  String get premiumPlanUnavailable =>
+      'This plan is not available on your account right now';
+
+  @override
+  String get premiumRestoreFailed => 'Failed to restore purchases';
+
+  @override
+  String get premiumPurchaseFailed => 'Purchase failed';
+
+  @override
+  String get premiumVerificationFailed => 'Verification failed';
+
+  @override
+  String premiumPeriodDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks',
+      one: '1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months',
+      one: '1 month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count years',
+      one: '1 year',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumLimitUsed(int count, int limit, String items) {
+    return 'You\'ve used $count of $limit free $items.';
+  }
+
+  @override
+  String premiumLimitUpgrade(String items) {
+    return 'Upgrade to Premium for unlimited $items and more!';
+  }
+
+  @override
+  String premiumFreeLimitMessage(int limit, String items) {
+    return 'You\'ve reached the free tier limit of $limit $items. Upgrade to Premium for unlimited $items.';
+  }
+
+  @override
+  String get premiumLimitWallets => 'wallets';
+
+  @override
+  String get premiumLimitCategories => 'custom categories';
+
+  @override
+  String get premiumLimitBudgets => 'active budgets';
+
+  @override
+  String get premiumLimitObjectives => 'active objectives';
+
+  @override
+  String get premiumLimitPaymentMethods => 'payment methods';
+
+  @override
+  String get backupErrNotJson =>
+      'This file is not a backup — it could not be read as JSON.';
+
+  @override
+  String get backupErrNotOurs =>
+      'This file is not a backup from The Accountant.';
+
+  @override
+  String get backupErrNewerVersion =>
+      'This backup was written by a newer version of the app. Update The Accountant and try again.';
+
+  @override
+  String backupErrTooOld(int version, int oldest) {
+    return 'This backup is from an older version of the app than this one can read (database $version, oldest supported $oldest).';
+  }
+
+  @override
+  String get backupErrNoData => 'This backup has no data in it.';
+
+  @override
+  String backupErrSectionDamaged(String section) {
+    return 'The \"$section\" section of this backup is damaged.';
+  }
+
+  @override
+  String get backupErrNoHeader =>
+      'This backup is missing the header that says what it is.';
+
+  @override
+  String get backupErrNoSchemaVersion =>
+      'This backup does not say which database version it was taken from, so it cannot be restored safely.';
+
+  @override
+  String get backupErrNoDate => 'This backup does not say when it was taken.';
+
+  @override
+  String get backupErrDamaged => 'This backup file is damaged.';
+
+  @override
+  String get backupErrWrongKey =>
+      'This backup belongs to a different account, or the file has been changed. Sign in with the account that made it to restore it.';
+
+  @override
+  String get backupErrNoPassphraseLock =>
+      'This backup cannot be opened with a passphrase.';
+
+  @override
+  String get backupErrNeedsSecret =>
+      'This backup is protected with a passphrase. Enter it, or the recovery code, to restore it.';
+
+  @override
+  String get backupErrWrongSecret =>
+      'That passphrase or recovery code does not open this backup.';
+
+  @override
+  String backupErrNewerSchema(int version, int supported) {
+    return 'This backup was made by a newer version of the app (database $version, this build reads up to $supported). Update The Accountant and try again.';
+  }
+
+  @override
+  String backupDriveUnreachable(String error) {
+    return 'Google Drive could not be reached: $error';
+  }
+
+  @override
+  String get backupDriveNotAllowed =>
+      'The Accountant is not allowed to use Google Drive yet.';
+
+  @override
+  String get backupDriveNoFolder =>
+      'Google Drive would not make a folder to keep backups in.';
+
+  @override
+  String get backupDriveNoFileId =>
+      'Google Drive accepted the backup but did not say where it put it.';
+
+  @override
+  String get backupDriveTimeout =>
+      'Google Drive is taking too long to answer. Try again later.';
+
+  @override
+  String get backupDriveOffline =>
+      'No connection to Google Drive. Try again once you are online.';
+
+  @override
+  String get backupDriveDenied =>
+      'Google Drive turned the request down. Grant access again and retry.';
+
+  @override
+  String get backupDriveFileGone => 'That backup is no longer in Google Drive.';
+
+  @override
+  String backupDriveHttpError(int status, String reason) {
+    return 'Google Drive answered $status. $reason';
+  }
+
+  @override
+  String get backupDriveTryAgainSoon => 'Try again in a moment.';
+
+  @override
+  String backupTakeFailed(String error) {
+    return 'The backup could not be taken: $error';
+  }
+
+  @override
+  String get backupUnrestorableNewer =>
+      'Written by a newer version of the app.';
+
+  @override
+  String get backupUnrestorableOlder =>
+      'Older than this version of the app can read.';
+
+  @override
+  String get backupKeyUnusable =>
+      'The server sent an unusable encryption key. Try again later.';
+
+  @override
+  String get backupKeyNeedsSignIn =>
+      'Sign in to make or restore a backup — backups are encrypted with your account.';
+
+  @override
+  String get backupKeyNeedsInternet =>
+      'Connect to the internet once so your data can be encrypted, then try again.';
+
+  @override
+  String get backupKeyLocked =>
+      'Your data is protected with a passphrase. Unlock it on this device first.';
+
+  @override
+  String get backupFrequencyManual => 'Only when I ask';
+
+  @override
+  String get backupFrequencyDaily => 'Every day';
+
+  @override
+  String get backupFrequencyWeekly => 'Every week';
+
+  @override
+  String get backupFrequencyMonthly => 'Every month';
+
+  @override
+  String get backupIntro =>
+      'A backup is a single file holding everything on this device — every transaction, account, budget and goal. Keep one somewhere safe and nothing here is ever lost for good.';
+
+  @override
+  String get backupSectionOnDevice => 'ON THIS DEVICE';
+
+  @override
+  String get backupSectionGoogleDrive => 'GOOGLE DRIVE';
+
+  @override
+  String get backupSectionInDrive => 'BACKUPS IN DRIVE';
+
+  @override
+  String backupBackedUpCount(int count) {
+    return 'Backed up $count records.';
+  }
+
+  @override
+  String get backupSaveDialogTitle => 'Save backup';
+
+  @override
+  String get backupChooseFileTitle => 'Choose a backup file';
+
+  @override
+  String backupFileUnreadable(String error) {
+    return 'That file could not be read: $error';
+  }
+
+  @override
+  String backupTakenOn(String date) {
+    return 'Taken $date.';
+  }
+
+  @override
+  String backupTakenOnDevice(String date, String device) {
+    return 'Taken $date on $device.';
+  }
+
+  @override
+  String backupBelongedTo(String email) {
+    return 'It belonged to $email.';
+  }
+
+  @override
+  String get backupDifferentAccountWarning =>
+      'That is not the account signed in here. Restoring will put someone else\'s records on this device.';
+
+  @override
+  String get backupRestoreEraseWarning =>
+      'Everything currently on this device is erased and replaced. Anything that has not synced yet is lost. This cannot be undone.';
+
+  @override
+  String backupRestoredCount(int count) {
+    return 'Restored $count records.';
+  }
+
+  @override
+  String backupRestoredPartial(int count) {
+    return 'Restored $count records. Some of the file did not fit this version and was left out.';
+  }
+
+  @override
+  String backupRestoreFailed(String error) {
+    return 'Nothing was changed — the restore failed: $error';
+  }
+
+  @override
+  String get backupConnectDriveSubtitle =>
+      'Backups go in a private folder only this app can open. Your other files are never read.';
+
+  @override
+  String get backupDriveConnectedTitle => 'Google Drive connected';
+
+  @override
+  String backupDriveFolderFirst(String folder) {
+    return 'Backups from this device will go to a folder called \"$folder\" in your Drive.';
+  }
+
+  @override
+  String backupDriveFolder(String folder) {
+    return 'Backups go to \"$folder\" in your Drive.';
+  }
+
+  @override
+  String get backupNoneYet => 'No backup has gone up from this device yet';
+
+  @override
+  String backupLastBackedUp(String date) {
+    return 'Last backed up $date';
+  }
+
+  @override
+  String backupKeepSubtitle(int count) {
+    return '$count backups — older ones are removed after a new one lands';
+  }
+
+  @override
+  String get backupDisconnectSubtitle =>
+      'Stops automatic backups. Nothing already saved is deleted.';
+
+  @override
+  String backupListFailed(String error) {
+    return 'Could not list your backups: $error';
+  }
+
+  @override
+  String get backupDriveNotGranted => 'Google Drive access was not granted.';
+
+  @override
+  String get backupDriveConnected => 'Google Drive connected.';
+
+  @override
+  String backupDriveConnectFailed(String error) {
+    return 'Google Drive could not be connected: $error';
+  }
+
+  @override
+  String get backupDisconnectBody =>
+      'Automatic backups stop. The backups already in Drive stay where they are, and you can reconnect at any time.';
+
+  @override
+  String backupSavedToDrive(String name) {
+    return 'Saved $name to Google Drive.';
+  }
+
+  @override
+  String backupCopyFailed(String error) {
+    return 'That backup could not be saved: $error';
+  }
+
+  @override
+  String get backupDeleteBody => 'It is removed from Google Drive for good.';
+
+  @override
+  String get backupRefresh => 'Refresh';
+
+  @override
+  String get ppErrKdfParams => 'Unacceptable key-derivation parameters.';
+
+  @override
+  String get ppErrKdfAlgorithm => 'Unknown key-derivation algorithm.';
+
+  @override
+  String get onboardingIntroAccountsTitle => 'Every account, one balance';
+
+  @override
+  String get onboardingIntroAccountsBody =>
+      'Keep cash, cards and savings side by side, and see what you actually have left.';
+
+  @override
+  String get onboardingIntroBudgetsTitle => 'Budgets that tell you early';
+
+  @override
+  String get onboardingIntroBudgetsBody =>
+      'Set a limit per category. The app watches the total and warns you before you pass it, not after.';
+
+  @override
+  String get onboardingIntroAskTitle => 'Ask about your own spending';
+
+  @override
+  String get onboardingIntroAskBody =>
+      'Scan a receipt, or ask where the money went last month, and get an answer drawn from your records.';
+
+  @override
+  String get onboardingIntroThemeTitle => 'Make it look like yours';
+
+  @override
+  String get onboardingIntroThemeBody =>
+      'Pick a theme now, or change it whenever you like from settings.';
+
+  @override
+  String get onboardingCreateYourAccount => 'Create your account';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingCurrencyInfo =>
+      'This will be used as your primary currency. You can add accounts with different currencies later.';
+
+  @override
+  String get onboardingTypeCash => 'Cash';
+
+  @override
+  String get onboardingTypeBank => 'Bank Account';
+
+  @override
+  String get onboardingTypeCard => 'Credit Card';
+
+  @override
+  String get onboardingTypeDeposit => 'Deposit';
+
+  @override
+  String get onboardingTypeInvestment => 'Investment';
+
+  @override
+  String get onboardingTypeAsset => 'Asset';
+
+  @override
+  String onboardingDayN(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get onboardingAllSet => 'You\'re All Set!';
+
+  @override
+  String onboardingCompleteFailed(String error) {
+    return 'Failed to complete onboarding: $error';
+  }
+
+  @override
+  String get onboardingSkipFailed => 'Failed to skip onboarding';
+
+  @override
+  String get startupOfflineConfirmBody =>
+      'Your data stays exactly where it is — nothing on this device or in the cloud will be deleted.\n\nBut if the account does have data saved, anything you add now will sit alongside it once you restore — you may end up with duplicates to tidy up.';
+
+  @override
+  String get startupDataInCloudTitle => 'Your data is waiting in the cloud';
+
+  @override
+  String get startupLoadFailedTitle =>
+      'We couldn\'t finish loading your account';
+
+  @override
+  String get startupGenericReason =>
+      'Something went wrong while checking this account.';
+
+  @override
+  String get startupUseWithoutRestoring => 'Use the app without restoring';
+
+  @override
+  String get legalTermsTab => 'Terms';
+
+  @override
+  String get legalConsent =>
+      'I have read and agree to the Privacy Policy and Terms & Conditions';
+
+  @override
+  String get walkthroughGotIt => 'Got it!';
+
+  @override
+  String get settingsFaqSectionGettingStarted => 'Getting Started';
+
+  @override
+  String get settingsFaq01Question => 'How do I add a transaction?';
+
+  @override
+  String get settingsFaq01Answer =>
+      'Tap the + button at the bottom of the home screen. Fill in the amount, select a category, choose a wallet, and optionally add notes. Tap Save to record your transaction.';
+
+  @override
+  String get settingsFaq02Question =>
+      'What is the difference between wallets and categories?';
+
+  @override
+  String get settingsFaq02Answer =>
+      'Wallets represent where your money is stored (e.g., Cash, Bank Account, Credit Card). Categories describe what the money was spent on or where it came from (e.g., Food, Salary, Entertainment).';
+
+  @override
+  String get settingsFaq03Question =>
+      'How do I customize my date and number format?';
+
+  @override
+  String get settingsFaq03Answer =>
+      'Go to Settings > Regional Settings. You can change your default currency, date format (e.g., DD/MM/YYYY or MM/DD/YYYY), and number format (e.g., 1,234.56 or 1.234,56). A live preview shows how your settings will look.';
+
+  @override
+  String get settingsFaqSectionTransactions => 'Transactions';
+
+  @override
+  String get settingsFaq04Question => 'Can I track recurring transactions?';
+
+  @override
+  String get settingsFaq04Answer =>
+      'Yes! When adding a transaction, enable the \"Recurring\" option. You can set it to repeat daily, weekly, monthly, or yearly. The app will automatically create these transactions for you.';
+
+  @override
+  String get settingsFaq05Question =>
+      'How do I transfer money between wallets?';
+
+  @override
+  String get settingsFaq05Answer =>
+      'When adding a transaction, select \"Transfer\" as the type. Choose the source wallet, destination wallet, and enter the amount. The app will automatically deduct from one and add to the other.';
+
+  @override
+  String get settingsFaq06Question => 'What are upcoming transactions?';
+
+  @override
+  String get settingsFaq06Answer =>
+      'Upcoming transactions are future expenses or income you expect but haven\'t paid yet. They won\'t affect your wallet balance until you mark them as paid. You can find overdue and upcoming items in the transactions section.';
+
+  @override
+  String get settingsFaq07Question => 'How do I track subscriptions?';
+
+  @override
+  String get settingsFaq07Answer =>
+      'When adding a transaction, set the special type to Subscription. This marks it as a recurring service payment. You can view all your subscriptions in one place and track your monthly subscription spending.';
+
+  @override
+  String get settingsFaq08Question => 'How does credit and debt tracking work?';
+
+  @override
+  String get settingsFaq08Answer =>
+      'Use Credit to track money you\'ve lent to someone, and Debt to track money you\'ve borrowed. Each entry tracks the amount, who owes whom, and payment progress. You can record partial payments and mark debts as settled when fully repaid.';
+
+  @override
+  String get settingsFaq09Question =>
+      'Can I add notes or receipts to transactions?';
+
+  @override
+  String get settingsFaq09Answer =>
+      'Yes! When adding or editing a transaction, you can type notes in the notes field. Premium users can also scan receipts using the AI-powered receipt scanner, which automatically extracts the amount and merchant details.';
+
+  @override
+  String get settingsFaqSectionWalletsCurrencies => 'Wallets & Currencies';
+
+  @override
+  String get settingsFaq10Question =>
+      'How do I manage multiple wallet accounts?';
+
+  @override
+  String get settingsFaq10Answer =>
+      'The app supports four account types: Cash, Bank Account, Credit Card, and Subscription. To add a new account, go to \'Your Accounts\' on the dashboard and tap \'Add Account\'. Each account can have its own name, icon, color, and currency. Your first account is automatically set as the default. Credit card accounts also let you set a credit limit and billing cycle day so you can track available credit.';
+
+  @override
+  String get settingsFaq11Question => 'Can I use multiple currencies?';
+
+  @override
+  String get settingsFaq11Answer =>
+      'Yes! Each wallet can have its own currency. The app supports automatic currency conversion using live exchange rates. You can also set custom exchange rates in Settings > Regional Settings.';
+
+  @override
+  String get settingsFaq12Question => 'How does currency conversion work?';
+
+  @override
+  String get settingsFaq12Answer =>
+      'Each wallet can have a different currency, and the app automatically converts amounts using live exchange rates updated every few hours. You can also set custom exchange rates for any currency pair in Settings > Regional Settings. The app supports over 150 currencies with automatic rate fetching.';
+
+  @override
+  String get settingsFaq13Question =>
+      'What happens if I delete a category with transactions?';
+
+  @override
+  String get settingsFaq13Answer =>
+      'Those transactions will be moved to \"Uncategorized\". You can then reassign them to a different category or leave them uncategorized.';
+
+  @override
+  String get settingsFaq14Question =>
+      'What are subcategories and how do I use them?';
+
+  @override
+  String get settingsFaq14Answer =>
+      'You can create subcategories under any main category for more detailed tracking. For example, under \'Food\', you could have \'Groceries\', \'Restaurants\', and \'Coffee\'. Subcategories help you see exactly where your money goes.';
+
+  @override
+  String get settingsFaq15Question => 'What is a balance correction?';
+
+  @override
+  String get settingsFaq15Answer =>
+      'A balance correction lets you adjust a wallet\'s balance when it doesn\'t match the actual amount. This creates a special transaction that brings your tracked balance in line with reality, without manually adding income or expense entries.';
+
+  @override
+  String get settingsFaqSectionBudgetsGoals => 'Budgets & Goals';
+
+  @override
+  String get settingsFaq16Question => 'How do I set up a budget?';
+
+  @override
+  String get settingsFaq16Answer =>
+      'Go to the Budgets tab and tap \"Create Budget\". Choose a name, set your spending limit, select the time period (weekly/monthly), and pick which categories to track. The app will alert you when you approach your limit.';
+
+  @override
+  String get settingsFaq17Question => 'What are savings goals?';
+
+  @override
+  String get settingsFaq17Answer =>
+      'Savings goals let you set a target amount you want to save. Create a goal in the Objectives section, set your target, and link transactions to track your progress. The app shows a progress bar and percentage toward your target.';
+
+  @override
+  String get settingsFaq18Question => 'How do I track a loan?';
+
+  @override
+  String get settingsFaq18Answer =>
+      'Create a Loan objective in the Objectives section with the total amount owed. As you make payments, link those transactions to the loan to track your repayment progress. The app shows how much you\'ve paid and what remains.';
+
+  @override
+  String get settingsFaqSectionDataSync => 'Data & Sync';
+
+  @override
+  String get settingsFaq19Question => 'How does Cloud Sync work?';
+
+  @override
+  String get settingsFaq19Answer =>
+      'Cloud Sync keeps your data synchronized across devices. Go to Settings > Data Management > Cloud Sync to enable it. Sync runs automatically every 15 minutes and when you open the app. You can also tap \'Sync Now\' for an immediate sync. This is a Premium feature.';
+
+  @override
+  String get settingsFaq20Question => 'How do I export my data?';
+
+  @override
+  String get settingsFaq20Answer =>
+      'Go to Settings > Data Management > Export Data. Choose a date range, select CSV (for spreadsheets) or PDF (for a formatted report), and tap Export. You can include or exclude category and wallet breakdowns. This is a Premium feature.';
+
+  @override
+  String get settingsFaq21Question => 'What happens if I clear my data?';
+
+  @override
+  String get settingsFaq21Answer =>
+      'Go to Settings > Privacy & Security. \'Clear Cache\' removes temporary data and forces a re-sync without deleting your transactions. \'Clear All Data\' permanently deletes everything — you\'ll need to type DELETE to confirm. This action cannot be undone.';
+
+  @override
+  String get settingsFaqSectionPremiumAiFeatures => 'Premium & AI Features';
+
+  @override
+  String get settingsFaq22Question => 'What features are included in Premium?';
+
+  @override
+  String get settingsFaq22Answer =>
+      'Premium unlocks: unlimited AI (the coach, monthly summaries, receipt reading and Describe it) with no ads, Cloud Sync, PDF reports, Premium Themes, and removes limits on wallets, categories, budgets, goals, and payment methods. You also get priority support.';
+
+  @override
+  String get settingsFaq23Question => 'What are the free tier limits?';
+
+  @override
+  String get settingsFaq23Answer =>
+      'Free users can create up to 3 wallets, 10 custom categories, 3 active budgets, 2 active goals/loans, and 5 payment methods. Upgrading to Premium removes all these limits.';
+
+  @override
+  String get settingsFaq24Question => 'What can the AI Assistant do?';
+
+  @override
+  String get settingsFaq24Answer =>
+      'The money coach answers questions about your own money: where it went, whether you are on track with your budgets and goals, which bills are coming, and how to spend less or save more. It sees a summary of your figures (totals, categories, budgets, goals, bills and recent transactions) so its answers use your real numbers, and it suggests follow-up questions after each reply. It gives general guidance, not professional financial advice. Your conversations are saved so you can pick up where you left off, and you can delete them at any time.';
+
+  @override
+  String get settingsFaq25Question => 'How do AI Insights work?';
+
+  @override
+  String get settingsFaq25Answer =>
+      'The monthly summary (Stats > Spending Insights) shows this month against last month: what you earned and spent, and how each category moved. Tap Write my summary and the AI picks out what stood out and suggests one thing to try. The numbers are free for everyone; the AI write-up uses one AI request.';
+
+  @override
+  String get settingsFaq26Question => 'What is Smart Categorization?';
+
+  @override
+  String get settingsFaq26Answer =>
+      'When you file a transaction by hand, the app remembers which category that title belongs to and picks it for you next time (you can see and edit these under Naming rules). For something new, tap the sparkle button on the add screen and Describe it: type something like \'lunch 250 yesterday from bKash\' and the AI fills in the amount, date, category and account for you to check.';
+
+  @override
+  String get settingsFaq27Question => 'How does the AI receipt scanner work?';
+
+  @override
+  String get settingsFaq27Answer =>
+      'Take or pick a photo of a receipt. Your phone reads the text on the device and suggests the merchant and total. Tap Read with AI and the AI works out the real total, the date, each item and the right category, even on a messy receipt; only the text is sent, never the photo. You can review and edit before saving. Reading with AI uses one AI request.';
+
+  @override
+  String get settingsFaq28Question =>
+      'How many AI requests do I get, and what are the ads for?';
+
+  @override
+  String get settingsFaq28Answer =>
+      'Everyone gets 10 free AI requests a month, and they come back on the 1st. If you want more, you can choose to watch a short ad for one extra request, up to 10 more a month. Ads can also unlock a 24-hour premium theme trial or a PDF export. An ad only ever plays after you tap a button and confirm; there are no banner ads and nothing appears on its own. Premium members get unlimited AI and everything else with no ads at all.';
+
+  @override
+  String get settingsFaq29Question => 'How do I manage my Premium purchase?';
+
+  @override
+  String get settingsFaq29Answer =>
+      'Premium purchases are managed through Google Play. Go to your Google Play subscription settings to view or manage your plan. Premium is available as a monthly, yearly, or one-time lifetime purchase.';
+
+  @override
+  String get settingsFaqSectionPrivacySecurity => 'Privacy & Security';
+
+  @override
+  String get settingsFaq30Question => 'How do I set up biometric lock?';
+
+  @override
+  String get settingsFaq30Answer =>
+      'Go to Settings > Privacy & Security and enable Biometric Lock. Once enabled, you\'ll need your fingerprint or face to open the app. You can also configure an auto-lock timer so the app locks after a period of inactivity.';
+
+  @override
+  String get settingsFaq31Question => 'Is my financial data secure?';
+
+  @override
+  String get settingsFaq31Answer =>
+      'Yes. All your data is stored locally on your device. If you enable Cloud Sync, your data is encrypted during transfer. We never share your financial data with third parties. You can review our Privacy Policy in Settings > About.';
+
+  @override
+  String get txnLoadPaymentMethodsFailed => 'Failed to load payment methods';
+
+  @override
+  String get txnAddPaymentMethodFailed => 'Failed to add payment method';
+
+  @override
+  String get txnPaymentMethodNotFound => 'Payment method not found';
+
+  @override
+  String get txnUpdatePaymentMethodFailed => 'Failed to update payment method';
+
+  @override
+  String get txnDeletePaymentMethodFailed => 'Failed to delete payment method';
+
+  @override
+  String txnLoadFailed(String error) {
+    return 'Failed to load transactions: $error';
+  }
+
+  @override
+  String get txnAddFailed => 'Failed to add transaction';
+
+  @override
+  String txnAddFailedWithError(String error) {
+    return 'Failed to add transaction: $error';
+  }
+
+  @override
+  String get txnNotFound => 'Transaction not found';
+
+  @override
+  String get txnUpdateFailed => 'Failed to update transaction';
+
+  @override
+  String txnNotATransfer(String id) {
+    return 'Transaction $id is not a transfer';
+  }
+
+  @override
+  String txnUpdateTransferFailed(String error) {
+    return 'Failed to update transfer: $error';
+  }
+
+  @override
+  String get txnDeleteFailed => 'Failed to delete transaction';
+
+  @override
+  String txnLoadTransfersFailed(String error) {
+    return 'Failed to load transfers: $error';
+  }
+
+  @override
+  String txnCreateTransferFailed(String error) {
+    return 'Failed to create transfer: $error';
+  }
+
+  @override
+  String txnDeleteTransferFailed(String error) {
+    return 'Failed to delete transfer: $error';
+  }
+
+  @override
+  String txnLoadDataFailed(String error) {
+    return 'Failed to load data: $error';
+  }
+
+  @override
+  String txnMarkPaidFailed(String error) {
+    return 'Failed to mark as paid: $error';
+  }
+
+  @override
+  String txnMarkUnpaidFailed(String error) {
+    return 'Failed to mark as unpaid: $error';
+  }
+
+  @override
+  String txnSkipFailed(String error) {
+    return 'Failed to skip transaction: $error';
+  }
+
+  @override
+  String creditReceivedTitle(String title) {
+    return 'Received: $title';
+  }
+
+  @override
+  String creditPaidTitle(String title) {
+    return 'Paid: $title';
+  }
+
+  @override
+  String creditReversedTitle(String title) {
+    return 'Reversed: $title';
+  }
+
+  @override
+  String creditMarkSettledFailed(String error) {
+    return 'Failed to mark as settled: $error';
+  }
+
+  @override
+  String get creditPaymentMustBePositive => 'Payment amount must be positive';
+
+  @override
+  String creditRecordPaymentFailed(String error) {
+    return 'Failed to record payment: $error';
+  }
+
+  @override
+  String creditMarkPendingFailed(String error) {
+    return 'Failed to mark as pending: $error';
+  }
+
+  @override
+  String creditRemaining(String amount) {
+    return 'Remaining: $amount';
+  }
+
+  @override
+  String creditPaymentRecorded(String amount) {
+    return 'Payment of $amount recorded';
+  }
+
+  @override
+  String creditMarkedCollected(String title) {
+    return 'Marked as collected from \"$title\"';
+  }
+
+  @override
+  String get importFieldDescription => 'Description';
+
+  @override
+  String get importFieldDirection => 'Type (credit/debit)';
+
+  @override
+  String get importMissingDate => 'a date column';
+
+  @override
+  String get importMissingAmount => 'an amount column';
+
+  @override
+  String importColumnN(int index) {
+    return 'Column $index';
+  }
+
+  @override
+  String get importNoDate => 'No date';
+
+  @override
+  String importDateMismatch(String date, String format) {
+    return 'The date \"$date\" does not match $format';
+  }
+
+  @override
+  String get importAnyKnownFormat => 'any known format';
+
+  @override
+  String get importNoAmount => 'No amount';
+
+  @override
+  String get importIntro =>
+      'Export a CSV from your bank and open it here. The columns are worked out for you, and nothing is added until you have seen exactly what it will be.';
+
+  @override
+  String get importSavedBanks => 'SAVED BANKS';
+
+  @override
+  String get importChooseStatement => 'Choose a statement';
+
+  @override
+  String get importNoRows => 'There are no rows in that file.';
+
+  @override
+  String importUsingSavedMapping(String name) {
+    return 'Using your saved mapping for $name.';
+  }
+
+  @override
+  String importCouldNotRead(String error) {
+    return 'That file could not be read: $error';
+  }
+
+  @override
+  String importForgetTitle(String name) {
+    return 'Forget $name?';
+  }
+
+  @override
+  String get importForgetBody =>
+      'You will be asked to map the columns again next time.';
+
+  @override
+  String get importColumnsHeader => 'COLUMNS';
+
+  @override
+  String get importHowToRead => 'HOW TO READ THE VALUES';
+
+  @override
+  String get importWhereItGoes => 'WHERE IT GOES';
+
+  @override
+  String get importWhatWillBeAdded => 'WHAT WILL BE ADDED';
+
+  @override
+  String importRowsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows',
+      one: '1 row',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importColumnsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count columns',
+      one: '1 column',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSeparatedBy(String separator) {
+    return 'separated by $separator';
+  }
+
+  @override
+  String importMappedAs(String name) {
+    return 'mapped as $name';
+  }
+
+  @override
+  String get importDelimCommas => 'commas';
+
+  @override
+  String get importDelimSemicolons => 'semicolons';
+
+  @override
+  String get importDelimTabs => 'tabs';
+
+  @override
+  String get importDelimPipes => 'pipes';
+
+  @override
+  String get importRequired => 'Required';
+
+  @override
+  String get importNotImported => 'Not imported';
+
+  @override
+  String get importEmptySample => 'empty';
+
+  @override
+  String get importPickDateColumnFirst => 'Pick a date column first.';
+
+  @override
+  String importDateDoesNotFit(String sample) {
+    return '\"$sample\" does not fit this format.';
+  }
+
+  @override
+  String importDateReadsAs(String sample, String date) {
+    return '\"$sample\" reads as $date';
+  }
+
+  @override
+  String get importDecimalAuto => 'Worked out from the file';
+
+  @override
+  String get importDecimalFullStop => 'A full stop, as in 1,234.56';
+
+  @override
+  String get importDecimalComma => 'A comma, as in 1.234,56';
+
+  @override
+  String get importDuplicatesHint =>
+      'Matches on the day, the amount and the description, so re-importing an overlapping statement does not double anything';
+
+  @override
+  String importStillNeeds(String item) {
+    return 'Still needs $item.';
+  }
+
+  @override
+  String importStillNeedsBoth(String first, String second) {
+    return 'Still needs $first and $second.';
+  }
+
+  @override
+  String get importNothingReadable =>
+      'Nothing in this file can be read with these settings. Check the date format and which column holds the amount.';
+
+  @override
+  String importTransactionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importAmountIn(String amount) {
+    return '$amount in';
+  }
+
+  @override
+  String importAmountOut(String amount) {
+    return '$amount out';
+  }
+
+  @override
+  String importAndMore(int count) {
+    return 'and $count more';
+  }
+
+  @override
+  String importLinesSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lines will be skipped',
+      one: '1 line will be skipped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLinesSkippedSentence(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lines will be skipped.',
+      one: '1 line will be skipped.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLineProblem(int line, String problem) {
+    return 'Line $line: $problem';
+  }
+
+  @override
+  String get importAddAccountFirst => 'Add an account first';
+
+  @override
+  String importImportCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Import $count transactions',
+      one: 'Import 1 transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Import $count transactions?',
+      one: 'Import 1 transaction?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importConfirmBody =>
+      'They are added to your records and uploaded on the next sync.';
+
+  @override
+  String get importConfirmDuplicates =>
+      'Anything already here on the same day, for the same amount and description, is left alone.';
+
+  @override
+  String importFailed(String error) {
+    return 'The import failed: $error';
+  }
+
+  @override
+  String importImportedTitle(int count) {
+    return 'Imported $count';
+  }
+
+  @override
+  String importSkippedDuplicates(int count) {
+    return '$count were already here and were left alone.';
+  }
+
+  @override
+  String importUnreadableLines(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lines could not be read.',
+      one: '1 line could not be read.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importNewCategories(String names) {
+    return 'New categories: $names.';
+  }
+
+  @override
+  String importUnmatchedAccounts(String names) {
+    return 'These account names had nothing here to match, so their rows went to the account you chose: $names.';
+  }
+
+  @override
+  String get importRememberBody =>
+      'The next file with these same columns will be mapped this way without asking.';
+
+  @override
+  String get importNoHeaderCannotSave =>
+      'A file with no column titles cannot be recognised again, so there is nothing to match on.';
+
+  @override
+  String get importTemplateSaved =>
+      'Saved. Files with these columns will use it from now on.';
+
+  @override
+  String get txnTransferSameWallet =>
+      'Source and destination wallets must be different';
+
+  @override
+  String get txnTransferAmountPositive => 'Transfer amount must be positive';
+
+  @override
+  String get txnTransferFeeNegative => 'Transfer fee cannot be negative';
+
+  @override
+  String txnSourceWalletNotFound(String id) {
+    return 'Source wallet not found: $id';
+  }
+
+  @override
+  String txnDestinationWalletNotFound(String id) {
+    return 'Destination wallet not found: $id';
+  }
+
+  @override
+  String txnTransferTitle(String from, String to) {
+    return 'Transfer: $from → $to';
+  }
+
+  @override
+  String txnTransferWalletsMissing(String source, String destination) {
+    return 'Both wallets must exist to transfer between them (source: $source, destination: $destination).';
+  }
+
+  @override
+  String txnTransferSameCurrencyReceived(
+    String source,
+    String destination,
+    String currency,
+  ) {
+    return 'A transfer within one currency moves one figure: $source and $destination are both in $currency, so the amount received cannot differ.';
+  }
+
+  @override
+  String txnTransferNoRate(String from, String to, String destination) {
+    return 'No rate is known between $from and $to, so enter what actually landed in $destination.';
+  }
+
+  @override
+  String txnTransferReceivedPositive(String destination) {
+    return 'The amount received has to be more than zero. Enter what actually landed in $destination.';
+  }
+
+  @override
+  String txnFeeTitle(String title) {
+    return 'Fee: $title';
+  }
+
+  @override
+  String txnNotFoundWithId(String id) {
+    return 'Transaction not found: $id';
+  }
+
+  @override
+  String get txnNotATransferNoPair =>
+      'Transaction is not a transfer (no paired transaction)';
+
+  @override
+  String txnPairedNotFound(String id) {
+    return 'Paired transaction $id not found; refusing to edit half a transfer.';
+  }
+
+  @override
+  String walletNoSuchAccount(String id) {
+    return 'No such account: $id';
+  }
+
+  @override
+  String get walletCorrectionTitle => 'Balance correction';
+
+  @override
+  String walletCorrectionNote(String name) {
+    return 'Adjusted $name to match its real balance.';
+  }
+
+  @override
+  String get walletMergeIntoItself =>
+      'An account cannot be merged into itself.';
+
+  @override
+  String get walletMergeBothMustExist =>
+      'Both accounts must exist to merge them.';
+
+  @override
+  String walletMergeNoRate(String from, String to) {
+    return 'No rate is known between $from and $to, so these accounts cannot be merged yet.';
+  }
+
+  @override
+  String get walletMergeAdjustmentTitle => 'Merge adjustment';
+
+  @override
+  String walletMergeAdjustmentNote(String name) {
+    return 'The rate a transfer between these accounts was made at differs from the rate $name was merged at. This records the difference so the total is unchanged.';
+  }
+
+  @override
+  String get splitErrNoTotal => 'Enter the amount of the bill.';
+
+  @override
+  String get splitErrNoPeople => 'Add someone to split it with.';
+
+  @override
+  String splitErrPayerNotOnBill(String name) {
+    return '$name is not in on the bill.';
+  }
+
+  @override
+  String get splitErrNothingToRecord =>
+      'Someone else paid and you had none of it, so there is nothing to record.';
+
+  @override
+  String get splitErrGiveOwnShare => 'Give your own share.';
+
+  @override
+  String splitErrGiveShare(String name) {
+    return 'Give $name\'s share.';
+  }
+
+  @override
+  String get splitErrNegativeShare => 'A share cannot be negative.';
+
+  @override
+  String splitErrSharesSum(String sum, String total) {
+    return 'The shares add up to $sum, not $total.';
+  }
+
+  @override
+  String splitErrPercentSum(String sum) {
+    return 'The percentages add up to $sum%, not 100%.';
+  }
+
+  @override
+  String get splitErrNameTooLong => 'Keep names under 100 characters.';
+
+  @override
+  String splitErrDuplicateName(String name) {
+    return '$name is on the bill twice.';
+  }
+
+  @override
+  String get splitErrTitleTooLong => 'Keep the title under 200 characters.';
+
+  @override
+  String get splitErrChooseAccount => 'Choose the account it was paid from.';
+
+  @override
+  String get splitErrOrdinaryAccount => 'Choose an ordinary account.';
+
+  @override
+  String get splitErrYourShareNothing =>
+      'Your share is nothing, so there is nothing owed.';
+
+  @override
+  String get splitErrEveryShareNothing => 'Every share is nothing.';
+
+  @override
+  String get recurringDaily => 'Daily';
+
+  @override
+  String recurringEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count days',
+      one: 'Every day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count weeks',
+      one: 'Every week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count months',
+      one: 'Every month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count years',
+      one: 'Every year',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryOther(int count, String unit) {
+    return 'Every $count $unit';
+  }
+
+  @override
+  String get recurringUntitled => 'Recurring Transaction';
+
+  @override
+  String recurringInDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'In $count days',
+      one: 'In 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringNextWeek => 'Next week';
+
+  @override
+  String recurringInWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'In $count weeks',
+      one: 'In 1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnPmKindCard => 'Card';
+
+  @override
+  String get txnPmKindDigitalWallet => 'Digital wallet';
+
+  @override
+  String get txnPmEmptyHint =>
+      'Add the cards and accounts you pay with, and you can pick one on a transaction.';
+
+  @override
+  String get txnPmDeleteBody =>
+      'Transactions already filed against it keep their record. They simply stop naming a payment method.';
+
+  @override
+  String get txnPmNew => 'New payment method';
+
+  @override
+  String get txnPmEdit => 'Edit payment method';
+
+  @override
+  String get txnRecentlyDeletedFooter =>
+      'Deleted transactions are kept for thirty days, then removed for good.';
+
+  @override
+  String get txnUnknownCategory => 'Unknown';
+
+  @override
+  String txnRuleSubtitle(String match, String category) {
+    return '$match → $category';
+  }
+
+  @override
+  String get txnRuleExactly => 'Exactly this';
+
+  @override
+  String get txnRuleContaining => 'Anything containing this';
+
+  @override
+  String get txnRulesFooter =>
+      'A rule matches anywhere in the title unless you make it exact. The app adds one for you each time you file something by hand.';
+
+  @override
+  String get txnRulesEmptyHint =>
+      'Teach the app where something belongs once, and it files it that way from then on.';
+
+  @override
+  String get txnRuleNew => 'New rule';
+
+  @override
+  String get txnRuleEdit => 'Edit rule';
+
+  @override
+  String get txnRuleExactHint => 'Only titles that are exactly this';
+
+  @override
+  String get txnRuleContainingHint => 'Any title containing it';
+
+  @override
+  String get txnKindTransfer => 'Transfer between accounts';
+
+  @override
+  String get txnKindRecurring => 'From a repeating entry';
+
+  @override
+  String get txnMoneyIn => 'Money in';
+
+  @override
+  String get txnMoneyOut => 'Money out';
+
+  @override
+  String get txnNotYetPaid => 'Not yet paid';
+
+  @override
+  String get txnLentOut => 'Lent out';
+
+  @override
+  String get txnSettledInFull => 'Settled in full.';
+
+  @override
+  String txnLoanProgress(String paid, String owed) {
+    return '$paid back, $owed still owed.';
+  }
+
+  @override
+  String get txnUncategorised => 'Uncategorised';
+
+  @override
+  String get txnUnknownAccount => 'Unknown';
+
+  @override
+  String get txnTransferCannotCopy => 'A transfer cannot be copied on its own.';
+
+  @override
+  String get txnCopied => 'Copied.';
+
+  @override
+  String get txnDeleteOneBody =>
+      'The account balance is recalculated. If this is one leg of a transfer, the other half goes with it.';
+
+  @override
+  String txnUpcomingTab(int count) {
+    return 'Upcoming ($count)';
+  }
+
+  @override
+  String txnOverdueTab(int count) {
+    return 'Overdue ($count)';
+  }
+
+  @override
+  String get txnNoOverdue => 'No overdue transactions';
+
+  @override
+  String get txnNoUpcoming => 'No upcoming transactions';
+
+  @override
+  String get txnNoOverdueBody => 'All your payments are up to date!';
+
+  @override
+  String get txnNoUpcomingBody => 'You have no pending payments scheduled';
+
+  @override
+  String get txnTotalOverdue => 'Total Overdue';
+
+  @override
+  String get txnTotalUpcoming => 'Total Upcoming';
+
+  @override
+  String txnItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnDaysOverdue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days overdue',
+      one: '1 day overdue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnMarkedPaid(String title) {
+    return 'Marked \"$title\" as paid';
+  }
+
+  @override
+  String txnSkippedTitle(String title) {
+    return 'Skipped \"$title\"';
+  }
+
+  @override
+  String txnDateHeaderToday(String date) {
+    return 'Today, $date';
+  }
+
+  @override
+  String txnDateHeaderYesterday(String date) {
+    return 'Yesterday, $date';
+  }
+
+  @override
+  String txnDateHeaderTomorrow(String date) {
+    return 'Tomorrow, $date';
+  }
+
+  @override
+  String txnDeleteError(String error) {
+    return 'Error deleting transaction: $error';
+  }
+
+  @override
+  String txnFilterTitle(String title) {
+    return 'Filter $title';
+  }
+
+  @override
+  String get txnMonthlyIncome => 'Monthly Income';
+
+  @override
+  String get txnMonthlyExpenses => 'Monthly Expenses';
+
+  @override
+  String txnStatTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'transactions',
+      one: 'transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnAvgPerTransaction => 'avg per transaction';
+
+  @override
+  String get txnNoPlannedIncome => 'No planned income';
+
+  @override
+  String get txnNoPlannedExpenses => 'No planned expenses';
+
+  @override
+  String txnAddFutureIncome(String month) {
+    return 'Add future income for $month';
+  }
+
+  @override
+  String txnAddFutureExpenses(String month) {
+    return 'Add future expenses for $month';
+  }
+
+  @override
+  String get txnNoIncomeYet => 'No income yet this month';
+
+  @override
+  String get txnNoExpensesYet => 'No expenses yet this month';
+
+  @override
+  String get txnStartTrackingIncome => 'Start tracking your income this month';
+
+  @override
+  String get txnStartTrackingExpenses =>
+      'Start tracking your expenses this month';
+
+  @override
+  String txnNoIncomeIn(String month) {
+    return 'No income in $month';
+  }
+
+  @override
+  String txnNoExpensesIn(String month) {
+    return 'No expenses in $month';
+  }
+
+  @override
+  String txnNoRecordsFor(String month) {
+    return 'No records for $month';
+  }
+
+  @override
+  String get txnOtherCategory => 'Other';
+
+  @override
+  String get txnSearchIncome => 'Search income';
+
+  @override
+  String get txnSearchExpenses => 'Search expenses';
+
+  @override
+  String txnErrorWith(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get txnTapToEditAmount => 'Tap to edit amount';
+
+  @override
+  String get txnTapToEnterAmount => 'Tap to enter amount';
+
+  @override
+  String get txnSpecialDefault => 'Default';
+
+  @override
+  String get txnSpecialRepetitive => 'Repetitive';
+
+  @override
+  String get txnRepeatSettings => 'Repeat Settings';
+
+  @override
+  String get txnSubscriptionSettings => 'Subscription Settings';
+
+  @override
+  String txnEndsOn(String date) {
+    return 'Ends: $date';
+  }
+
+  @override
+  String get txnNoEndDate => 'No end date';
+
+  @override
+  String get txnEditTransaction => 'Edit Transaction';
+
+  @override
+  String get txnNewTransaction => 'New Transaction';
+
+  @override
+  String get txnFromAccount => 'From account';
+
+  @override
+  String get txnToAccount => 'To account';
+
+  @override
+  String get txnAmountReceived => 'Amount received';
+
+  @override
+  String txnAmountReceivedHint(String account) {
+    return 'These accounts count in different currencies. Enter what actually landed in $account, or leave it blank to use the app\'s rate.';
+  }
+
+  @override
+  String txnInCurrency(String currency) {
+    return 'In $currency';
+  }
+
+  @override
+  String get txnTransferTitleHint => 'e.g. Move to savings (optional)';
+
+  @override
+  String get txnTitleHint => 'What was it for?';
+
+  @override
+  String get txnUpdate => 'Update';
+
+  @override
+  String get txnSelectCategory => 'Select category';
+
+  @override
+  String get txnSearchTransactions => 'Search transactions';
+
+  @override
+  String get txnSpecialRegular => 'Regular';
+
+  @override
+  String get txnSpecialLend => 'Lend';
+
+  @override
+  String get txnSpecialBorrow => 'Borrow';
+
+  @override
+  String get txnSpecialRegularDesc => 'Normal transaction';
+
+  @override
+  String get txnSpecialUpcomingDesc => 'Future payment to track';
+
+  @override
+  String get txnSpecialSubscriptionDesc => 'Recurring service payment';
+
+  @override
+  String get txnSpecialRepetitiveDesc => 'Repeating transaction';
+
+  @override
+  String get txnSpecialLendDesc => 'Money you lent (they owe you)';
+
+  @override
+  String get txnSpecialBorrowDesc => 'Money you borrowed (you owe them)';
+
+  @override
+  String txnFilterBoundsInverted(String min, String max) {
+    return 'The lower bound is above the upper one, so nothing can match. $min to $max.';
+  }
+
+  @override
+  String get walletMyWallet => 'My Wallet';
+
+  @override
+  String walletCreateFailed(String error) {
+    return 'Failed to create wallet: $error';
+  }
+
+  @override
+  String get walletTypeBankAccount => 'Bank Account';
+
+  @override
+  String get walletTypeCreditCard => 'Credit Card';
+
+  @override
+  String get walletTypeSubscription => 'Subscription';
+
+  @override
+  String get walletTypeDeposit => 'Deposit';
+
+  @override
+  String get walletTypeInvestment => 'Investment';
+
+  @override
+  String get walletTypeAsset => 'Asset';
+
+  @override
+  String get walletEnterAccountName => 'Please enter an account name';
+
+  @override
+  String get walletCreditLimitRequired => 'Credit limit is required';
+
+  @override
+  String get walletEnterValidCreditLimit => 'Please enter a valid credit limit';
+
+  @override
+  String get walletEnterValidCreditLimitAboveZero =>
+      'Please enter a valid credit limit greater than 0';
+
+  @override
+  String get walletEditWallet => 'Edit Wallet';
+
+  @override
+  String get walletAddNewWallet => 'Add New Wallet';
+
+  @override
+  String get walletEnterWalletNameError => 'Please enter a wallet name';
+
+  @override
+  String get walletEnterValidNumber => 'Please enter a valid number';
+
+  @override
+  String get walletShowCents => 'Show cents (e.g., \$1,234.56)';
+
+  @override
+  String get walletWholeNumbersOnly => 'Whole numbers only (e.g., \$1,235)';
+
+  @override
+  String get walletCreateWallet => 'Create Wallet';
+
+  @override
+  String get walletClosedPill =>
+      'Closed. Its history is kept, but it is not offered or counted.';
+
+  @override
+  String get walletExcludedPill => 'Left out of the total across accounts.';
+
+  @override
+  String get walletReopen => 'Reopen';
+
+  @override
+  String get walletCloseAccount => 'Close account';
+
+  @override
+  String get walletReopenSubtitle => 'Offer it again and count it';
+
+  @override
+  String get walletCloseAccountSubtitle => 'Keep its history, stop counting it';
+
+  @override
+  String get walletIncludeInTotal => 'Include in the total';
+
+  @override
+  String get walletLeaveOutOfTotal => 'Leave out of the total';
+
+  @override
+  String get walletAlreadyTheBalance => 'That is already the balance.';
+
+  @override
+  String get walletCorrectionRecorded =>
+      'Recorded the difference as a correction.';
+
+  @override
+  String walletMergeConfirmBody(String name) {
+    return 'Everything filed against $name moves across, and $name is closed. Nothing is deleted.';
+  }
+
+  @override
+  String walletMergeConfirmBodyConverted(String name, String from, String to) {
+    return 'Amounts are converted from $from to $to as they move. Nothing is deleted, and $name is closed rather than removed.';
+  }
+
+  @override
+  String walletCardInCredit(String amount, String available) {
+    return '$amount in credit · $available available';
+  }
+
+  @override
+  String walletCardOwed(String amount, String available) {
+    return '$amount owed · $available still available';
+  }
+
+  @override
+  String walletCorrectBalanceBody(String name) {
+    return 'Enter what $name really holds. The difference is recorded as a transaction, so the account still adds up to its own history.';
+  }
+
+  @override
+  String get apiUpdateRequired =>
+      'Update The Accountant to keep syncing. Everything stays on this phone until you do.';
+
+  @override
+  String get apiAccountExistsLink =>
+      'An account with this email already exists. Please link your accounts.';
+
+  @override
+  String get apiServerTrouble =>
+      'Our server is having trouble right now. Everything is safe on this phone; try again in a few minutes.';
+
+  @override
+  String apiRequestFailedHttp(String status) {
+    return 'Request failed (HTTP $status).';
+  }
+
+  @override
+  String get apiServerTimeout =>
+      'Our server took too long to answer. Check your connection, or try again in a few minutes.';
+
+  @override
+  String get apiCannotReachServer =>
+      'Cannot reach our server. Check your connection; if you are online, try again in a few minutes.';
+
+  @override
+  String get apiSomethingWentWrong =>
+      'Something went wrong talking to our server. Please try again.';
+
+  @override
+  String get syncAlreadyInProgress => 'Sync already in progress';
+
+  @override
+  String get syncRequiresPremium => 'Cloud sync requires Premium subscription';
+
+  @override
+  String get syncNoInternet => 'No internet connection';
+
+  @override
+  String get syncNotAuthenticated => 'Not authenticated';
+
+  @override
+  String get syncCouldNotFetchCloud =>
+      'Could not fetch your cloud data. Local data is unchanged.';
+
+  @override
+  String get syncAccountUnknown =>
+      'Could not determine the signed-in account; sync cancelled.';
+
+  @override
+  String get syncStoreOtherAccount =>
+      'This device\'s data belongs to a different account. Sign in as that account, or clear the local data, before syncing.';
+
+  @override
+  String syncRecordsNotSaved(String record) {
+    return 'Some cloud records could not be saved on this device: $record. They will be retried on the next sync.';
+  }
+
+  @override
+  String syncRecordsNotSavedMore(String record, int count) {
+    return 'Some cloud records could not be saved on this device: $record (and $count more). They will be retried on the next sync.';
+  }
+
+  @override
+  String notifCardStatementReady(String name) {
+    return '$name statement is ready';
+  }
+
+  @override
+  String notifCardStatementPaid(String amount) {
+    return 'It came to $amount, already paid. Nothing more is due.';
+  }
+
+  @override
+  String notifCardDueBy(String amount, String date) {
+    return '$amount is due by $date.';
+  }
+
+  @override
+  String notifCardPaidSoFar(String paid, String owed) {
+    return '$paid of $owed is already paid.';
+  }
+
+  @override
+  String notifCardDueTomorrow(String name) {
+    return '$name bill is due tomorrow';
+  }
+
+  @override
+  String notifCardDueInDays(String name, int days) {
+    return '$name bill is due in $days days';
+  }
+
+  @override
+  String notifPayBy(String amount, String date) {
+    return 'Pay $amount by $date.';
+  }
+
+  @override
+  String notifCardDueToday(String name) {
+    return '$name bill is due today';
+  }
+
+  @override
+  String notifCardStillUnpaid(String amount, String paidSoFar) {
+    return '$amount is still unpaid.$paidSoFar Paying today avoids a late fee.';
+  }
+
+  @override
+  String get notifWhenToday => 'today';
+
+  @override
+  String get notifWhenTomorrow => 'tomorrow';
+
+  @override
+  String notifWhenInDays(int days) {
+    return 'in $days days';
+  }
+
+  @override
+  String notifPlanPaysOut(String name, String when) {
+    return '$name pays out $when';
+  }
+
+  @override
+  String notifPlanPayoutBody(String amount, String account, String date) {
+    return '$amount is due to $account on $date.';
+  }
+
+  @override
+  String notifPlanMatures(String name, String when) {
+    return '$name matures $when';
+  }
+
+  @override
+  String notifPlanMaturityBody(String amount, String account, String date) {
+    return '$amount comes back to $account on $date.';
+  }
+
+  @override
+  String notifPlanInstallmentDue(
+    String name,
+    String kind,
+    int number,
+    int total,
+    String when,
+  ) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'dps': 'deposit',
+      'insurance': 'premium',
+      'sip': 'SIP',
+      'other': 'installment',
+    });
+    return '$name: $_temp0 $number of $total due $when';
+  }
+
+  @override
+  String notifInvestBy(String amount, String date) {
+    return 'Invest $amount by $date.';
+  }
+
+  @override
+  String notifWillBeInvested(String amount, String account, String date) {
+    return '$amount will be invested from $account on $date.';
+  }
+
+  @override
+  String notifWillBeRecorded(String amount, String account, String date) {
+    return '$amount will be recorded from $account on $date.';
+  }
+
+  @override
+  String get notifYourAccount => 'your account';
+
+  @override
+  String get notifPlansUpdatedTitle => 'EMI and savings updated';
+
+  @override
+  String notifPlansUpdatedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count plan entries recorded on their day.',
+      one: '1 plan entry recorded on its day.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifRecurringRecordedTitle => 'Recurring transactions recorded';
+
+  @override
+  String notifRecurringRecordedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count recurring transactions recorded.',
+      one: '1 recurring transaction recorded.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifPaymentsToConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments to confirm',
+      one: '1 payment to confirm',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifPaymentsToConfirmBody =>
+      'Confirm what was charged, or skip it, in Upcoming.';
+
+  @override
+  String notifPaymentsToConfirmBodyNames(String names) {
+    return '$names — confirm what was charged, or skip it, in Upcoming.';
+  }
+
+  @override
+  String get notifUpcomingFallbackTitle => 'Upcoming Transaction';
+
+  @override
+  String notifUpcomingTitle(String title) {
+    return 'Upcoming: $title';
+  }
+
+  @override
+  String notifUpcomingIncomeBody(String amount) {
+    return 'Income of $amount is due soon.';
+  }
+
+  @override
+  String notifUpcomingExpenseBody(String amount) {
+    return 'Expense of $amount is due soon.';
+  }
+
+  @override
+  String get notifCreditFallback => 'Credit';
+
+  @override
+  String get notifDebtFallback => 'Debt';
+
+  @override
+  String notifOverdueCreditTitle(String title) {
+    return 'Overdue Credit: $title';
+  }
+
+  @override
+  String notifOverdueDebtTitle(String title) {
+    return 'Overdue Debt: $title';
+  }
+
+  @override
+  String notifOutstandingBody(String amount) {
+    return '$amount is still outstanding. Tap to review.';
+  }
+
+  @override
+  String get notifRecurringFallbackTitle => 'Recurring Transaction';
+
+  @override
+  String notifUpcomingRecurringTitle(String title) {
+    return 'Upcoming Recurring: $title';
+  }
+
+  @override
+  String notifDueOnBody(String amount, String date) {
+    return '$amount due on $date.';
+  }
+
+  @override
+  String notifCreditDueTitle(String title) {
+    return 'Credit Due: $title';
+  }
+
+  @override
+  String notifDebtDueTitle(String title) {
+    return 'Debt Due: $title';
+  }
+
+  @override
+  String notifSubscriptionDueTitle(String title) {
+    return 'Subscription Due: $title';
+  }
+
+  @override
+  String notifBillDueTitle(String title) {
+    return 'Bill Due: $title';
+  }
+
+  @override
+  String notifDueSoonTitle(String title) {
+    return 'Due Soon: $title';
+  }
+
+  @override
+  String get notifRepetitiveBillFallback => 'Repetitive Bill';
+
+  @override
+  String notifDueSoonBody(String amount) {
+    return '$amount is due soon. Tap to review.';
+  }
+
+  @override
+  String get notifChannelRecurring => 'Recurring Transactions';
+
+  @override
+  String get notifChannelRecurringDesc =>
+      'Notifications for auto-created recurring transactions';
+
+  @override
+  String get notifChannelUpcoming => 'Upcoming Reminders';
+
+  @override
+  String get notifChannelUpcomingDesc => 'Reminders for upcoming transactions';
+
+  @override
+  String get notifChannelLoan => 'Loan Reminders';
+
+  @override
+  String get notifChannelLoanDesc => 'Reminders for overdue credits and debts';
+
+  @override
+  String get notifChannelDueDate => 'Due Date Reminders';
+
+  @override
+  String get notifChannelDueDateDesc =>
+      'One-off reminders for specific transaction due dates';
+
+  @override
+  String get notifChannelBillsDesc =>
+      'Credit card bills and plan installments coming due';
+
+  @override
+  String get notifOffset1Hour => '1 hour before';
+
+  @override
+  String get notifOffset1Day => '1 day before';
+
+  @override
+  String get notifOffset3Days => '3 days before';
+
+  @override
+  String get notifOffset1Week => '1 week before';
+
+  @override
+  String notifOffsetMinutes(int minutes) {
+    return '$minutes minutes before';
+  }
+
+  @override
+  String get notifChannelGeneral => 'General';
+
+  @override
+  String get notifChannelGeneralDesc => 'Account and app notifications';
+
+  @override
+  String get notifChannelReminders => 'Daily reminders';
+
+  @override
+  String get notifChannelRemindersDesc => 'A nudge to log the day\'s spending';
+
+  @override
+  String get notifChannelBillsStatementsDesc =>
+      'Credit card statements and due dates';
+
+  @override
+  String get notifChannelBudgets => 'Budget alerts';
+
+  @override
+  String get notifChannelBudgetsDesc =>
+      'When a budget is nearly or fully spent';
+
+  @override
+  String notifOverBudgetTitle(String name) {
+    return 'Over budget: $name';
+  }
+
+  @override
+  String notifBudgetAlertTitle(String name) {
+    return 'Budget alert: $name';
+  }
+
+  @override
+  String notifOverBudgetBody(String percent, String name) {
+    return 'You have spent $percent% of your $name budget for this period.';
+  }
+
+  @override
+  String notifBudgetAlertBody(String percent, String name) {
+    return 'You have used $percent% of your $name budget.';
+  }
+
+  @override
+  String get notifPremiumEndingTitle => 'Premium is ending soon';
+
+  @override
+  String get notifPremiumEndsTomorrow =>
+      'Your Premium ends tomorrow. Renew to keep your Premium features.';
+
+  @override
+  String notifPremiumEndsInDays(int days) {
+    return 'Your Premium ends in $days days. Renew to keep your Premium features.';
+  }
+
+  @override
+  String get notifLargeIncomeTitle => 'Large Income Alert';
+
+  @override
+  String get notifLargeExpenseTitle => 'Large Expense Alert';
+
+  @override
+  String notifLargeIncomeBodyTitled(String amount, String title) {
+    return 'Income of $amount recorded: $title';
+  }
+
+  @override
+  String notifLargeIncomeBody(String amount) {
+    return 'Income of $amount recorded';
+  }
+
+  @override
+  String notifLargeExpenseBodyTitled(String amount, String title) {
+    return 'Expense of $amount recorded: $title';
+  }
+
+  @override
+  String notifLargeExpenseBody(String amount) {
+    return 'Expense of $amount recorded';
+  }
+
+  @override
+  String get notifChannelDailyRemindersDesc =>
+      'Daily expense reminder notifications';
+
+  @override
+  String get notifDailyReminderTitle => 'Daily Expense Reminder';
+
+  @override
+  String get notifDailyReminderBody =>
+      'Don\'t forget to log your expenses today! Keep track of your spending.';
+
+  @override
+  String get notifTestTitle => 'Test Notification';
+
+  @override
+  String get notifTestBody => 'If you see this, notifications are working!';
+
+  @override
+  String get notifActionSnooze1Day => 'Snooze 1d';
+
+  @override
+  String get notifActionSnooze1Week => 'Snooze 1w';
+
+  @override
+  String get notifGroupThisWeek => 'This Week';
+
+  @override
+  String get notifGroupThisMonth => 'This Month';
+
+  @override
+  String notifDateAtTime(String date, String time) {
+    return '$date at $time';
+  }
+
+  @override
+  String notifMinutesAgo(int count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String notifHoursAgo(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String notifDaysAgo(int count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String get notifPrimerSheetBody =>
+      'Turn on notifications and we\'ll give you a heads-up on the things that matter.';
+
+  @override
+  String get notifPrimerBudgetsBody => 'Know before you overspend a budget.';
+
+  @override
+  String get notifPrimerBillsTitle => 'Bill & subscription reminders';
+
+  @override
+  String get notifPrimerBillsBody => 'Never miss a recurring payment.';
+
+  @override
+  String get notifPrimerLargeTitle => 'Large transactions';
+
+  @override
+  String get notifPrimerLargeBody => 'Get notified about unusual activity.';
+
+  @override
+  String get notifLoadFailed => 'Failed to load notifications';
+
+  @override
+  String get startupReasonSomethingWrong =>
+      'Something went wrong while starting up. Your data is safe on this device.';
+
+  @override
+  String get startupReasonCouldNotOpenLocal =>
+      'Could not open the local data for this account.';
+
+  @override
+  String get startupReasonSetupFailed =>
+      'We could not finish setting up this account on this device. Nothing has been deleted.';
+
+  @override
+  String get startupReasonOffline =>
+      'We couldn\'t reach your account, and this device doesn\'t have its data yet. If you\'ve used The Accountant before, connect to the internet and we\'ll bring your data back. New here? You can start on this device now.';
+
+  @override
+  String get startupReasonNeedsSubscription =>
+      'This account has data saved in the cloud. Restoring it needs an active subscription. Nothing has been deleted.';
+
+  @override
+  String get startupReasonConfirmingSubscription =>
+      'This account has data in the cloud. We are still confirming your subscription so it can be restored.';
+
+  @override
+  String startupReasonRestoreFailed(String error) {
+    return 'Restore failed: $error';
+  }
+
+  @override
+  String get startupReasonNotRestoredYet =>
+      'This account has data in the cloud but it could not be restored yet.';
+
+  @override
+  String get commonBiometricReason => 'Authenticate to unlock The Accountant';
+
+  @override
+  String get commonLoadCurrenciesFailed => 'Failed to load currencies';
+
+  @override
+  String get commonLoadRatesFailed => 'Failed to load exchange rates';
+
+  @override
+  String get commonRefreshRatesFailed => 'Failed to refresh exchange rates';
+
+  @override
+  String get commonAllCategories => 'All categories';
+
+  @override
+  String commonCategoryCount(int count) {
+    return '$count categories';
+  }
+
+  @override
+  String get commonTierFree => 'Free';
+
+  @override
+  String get commonTierMonthly => 'Premium Monthly';
+
+  @override
+  String get commonTierYearly => 'Premium Yearly';
+
+  @override
+  String get commonTierLifetime => 'Premium Lifetime';
+
+  @override
+  String get commonCategoryMergeSelf =>
+      'A category cannot be merged into itself.';
+
+  @override
+  String get commonCategoryMergeMissing =>
+      'Both categories must exist to merge them.';
+
+  @override
+  String get commonCategoryMergeSystem =>
+      'The app\'s own categories cannot be merged.';
+
+  @override
+  String get commonCategoryMergeKinds =>
+      'Income and spending categories cannot be merged.';
+
+  @override
+  String get commonCategoryOneLevel =>
+      'That category is inside another one, and categories are one level deep.';
+
+  @override
+  String get commonCategoryMoveSame =>
+      'Pick a different category to move them to.';
+
+  @override
+  String get commonCategoryMoveMissing =>
+      'Both categories must exist to move between them.';
+
+  @override
+  String get commonCategoryMoveSystem =>
+      'The app\'s own categories cannot be moved between.';
+
+  @override
+  String get commonCategoryMoveKinds =>
+      'Income and spending transactions cannot swap categories.';
+
+  @override
+  String get commonCategoryGone => 'That category no longer exists.';
+
+  @override
+  String get commonCategoryParentSystem =>
+      'The app\'s own categories cannot be moved.';
+
+  @override
+  String get commonCategoryParentSelf => 'A category cannot sit inside itself.';
+
+  @override
+  String get commonCategoryParentIntoSystem =>
+      'Nothing can be filed inside the app\'s own categories.';
+
+  @override
+  String get commonCategoryParentKinds =>
+      'An income category and a spending one cannot be nested.';
+
+  @override
+  String get commonCategoryHasChildren =>
+      'This category has subcategories of its own, so it stays at the top level.';
+
+  @override
+  String get commonTapToChange => 'Tap to change';
+
+  @override
+  String get commonSelectColor => 'Select color';
+
+  @override
+  String get commonShowPalette => 'Show palette';
+
+  @override
+  String get commonCustomColor => 'Custom color';
+
+  @override
+  String get commonSelectCurrency => 'Select currency';
+
+  @override
+  String get commonEnableCryptoHint =>
+      'Enable \'Include crypto currencies\' to search crypto tokens.';
+
+  @override
+  String get commonSearchHint => 'Search...';
+
+  @override
+  String get aiLoadConversationsFailed => 'Failed to load conversations.';
+
+  @override
+  String get aiLoadHistoryFailed => 'Failed to load chat history.';
+
+  @override
+  String get aiPremiumRequired =>
+      'Premium subscription required for AI Assistant';
+
+  @override
+  String get aiUnexpectedError =>
+      'An unexpected error occurred. Please try again.';
+
+  @override
+  String get aiResponseFailed => 'Failed to get AI response. Please try again.';
+
+  @override
+  String get aiServiceNotAnswering => 'The AI service is not answering.';
+
+  @override
+  String get aiReplyCutOff => 'The reply was cut off. Please try again.';
+
+  @override
+  String get aiCouldNotReachServer =>
+      'Could not reach the server. Check your connection and try again.';
+
+  @override
+  String get aiSomethingWentWrong => 'Something went wrong.';
+
+  @override
+  String get aiOpenConversationFailed => 'Failed to open conversation.';
+
+  @override
+  String aiChangesSavedReplyLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Your $count changes were saved, but the coach could not finish its reply. Check them in your records before asking again.',
+      one:
+          'Your change was saved, but the coach could not finish its reply. Check it in your records before asking again.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiServiceNotAnsweringNow =>
+      'The AI service is not answering right now. Please try again.';
+
+  @override
+  String aiMinutesShort(int count) {
+    return '${count}m';
+  }
+
+  @override
+  String aiHoursShort(int count) {
+    return '${count}h';
+  }
+
+  @override
+  String aiDaysShort(int count) {
+    return '${count}d';
+  }
+
+  @override
+  String get aiOcrTextFailed => 'Failed to extract text from image';
+
+  @override
+  String get aiOcrReceiptFailed => 'Failed to extract receipt data from image';
+
+  @override
+  String get coachYes => 'yes';
+
+  @override
+  String get coachNo => 'no';
+
+  @override
+  String get coachTradeBuy => 'buy';
+
+  @override
+  String get coachTradeSell => 'sell';
+
+  @override
+  String get coachTradeDividend => 'dividend';
+
+  @override
+  String get planAccountGone => 'That account no longer exists.';
+
+  @override
+  String get planPaidFromOrdinary =>
+      'A plan is paid from an ordinary account, not from a deposit.';
+
+  @override
+  String get planSipChooseHolding => 'Choose the fund or share the SIP buys.';
+
+  @override
+  String get planSipPayFromOther => 'Pay for the SIP from another account.';
+
+  @override
+  String get planNeedNameError => 'Give the plan a name.';
+
+  @override
+  String get planInstallmentCountRange =>
+      'The number of installments must be 1 to 1200.';
+
+  @override
+  String get planIntervalMin => 'The interval must be at least 1.';
+
+  @override
+  String get planRateRange => 'The rate must be between 0 and 100 percent.';
+
+  @override
+  String get planTaxRange => 'The tax must be between 0 and 100 percent.';
+
+  @override
+  String get planProviderTooLong =>
+      'Keep the company and number under 100 characters.';
+
+  @override
+  String get planNeedPremium => 'Enter the premium.';
+
+  @override
+  String get planNeedInstallmentAmount =>
+      'Enter the amount of each installment.';
+
+  @override
+  String get planNeedDeposited => 'Enter the amount deposited.';
+
+  @override
+  String get planTermMonthsOrYears => 'It runs for months or years.';
+
+  @override
+  String get planAmountNotNegative => 'The amount cannot be negative.';
+
+  @override
+  String planMaturesOnCloseEarly(String name, String date) {
+    return '$name matures on $date. To take the money out before then, close it early.';
+  }
+
+  @override
+  String get planNoLongerExists => 'That plan no longer exists.';
+
+  @override
+  String get planReminderDaysRange =>
+      'Reminders can be 0 (off) to 30 days before.';
+
+  @override
+  String planStillHoldsMoney(String name, String account) {
+    return '$name still holds money. Close it first, which moves the money back to $account.';
+  }
+
+  @override
+  String get planItsAccount => 'its account';
+
+  @override
+  String planAlreadyEnded(String name) {
+    return '$name has already ended.';
+  }
+
+  @override
+  String get investNeedName => 'Give the investment a name.';
+
+  @override
+  String get investNameTooLong => 'Keep the name under 100 characters.';
+
+  @override
+  String get investSymbolTooLong => 'Keep the symbol under 20 characters.';
+
+  @override
+  String get investPriceNotNegative => 'A price cannot be negative.';
+
+  @override
+  String investAlreadyTracked(String name) {
+    return '$name is already tracked.';
+  }
+
+  @override
+  String get investNeedPaid => 'Enter what was paid.';
+
+  @override
+  String get investUnitsBoughtPositive =>
+      'Units bought must be more than zero.';
+
+  @override
+  String get investPayFromOther => 'Pay for it from another account.';
+
+  @override
+  String get investNeedSaleAmount => 'Enter what the sale brought in.';
+
+  @override
+  String get investUnitsSoldPositive => 'Units sold must be more than zero.';
+
+  @override
+  String get investSellIntoOther => 'Sell into another account.';
+
+  @override
+  String investOnlyUnitsHeld(String units, String name) {
+    return 'Only $units units of $name are held.';
+  }
+
+  @override
+  String get investNeedDividend => 'Enter the dividend received.';
+
+  @override
+  String get investReceiveIntoOrdinary =>
+      'Receive it into an ordinary account.';
+
+  @override
+  String get investPricePositive => 'A price must be more than zero.';
+
+  @override
+  String get investUnitsPositive => 'Units must be more than zero.';
+
+  @override
+  String get investNotATrade => 'That is not a trade of an investment.';
+
+  @override
+  String investStillHoldsUnits(String name) {
+    return '$name still holds units. Sell them first.';
+  }
+
+  @override
+  String get investNoLongerExists => 'That investment no longer exists.';
+
+  @override
+  String get networthNeedAssetName => 'Give the asset a name.';
+
+  @override
+  String get networthValueNotNegative => 'A value cannot be negative.';
+
+  @override
+  String get networthNeedPaidFor => 'Enter what was paid for it.';
+
+  @override
+  String get networthPayFromOrdinary => 'Pay for it from an ordinary account.';
+
+  @override
+  String get networthNeedWorth => 'Enter what it is worth.';
+
+  @override
+  String get networthNeedSoldFor => 'Enter what it was sold for.';
+
+  @override
+  String get networthReceiveIntoOrdinary =>
+      'Receive the money into an ordinary account.';
+
+  @override
+  String networthStillWorth(String name) {
+    return '$name is still worth something. Sell it, or set its value to zero, first.';
+  }
+
+  @override
+  String get networthAssetGone => 'That asset is no longer tracked.';
+
+  @override
+  String get zakatNeedAmountPaid => 'Enter the amount paid.';
+
+  @override
+  String get zakatPayFromOrdinary => 'Pay it from an ordinary account.';
+
+  @override
+  String get zakatReminderTitleToday => 'Your zakat is due today';
+
+  @override
+  String zakatReminderTitleIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Zakat due in $count days',
+      one: 'Zakat due in 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get zakatReminderBodyToday =>
+      'Your zakat year completes today. Tap to see what is due.';
+
+  @override
+  String zakatReminderBodyOn(String date) {
+    return 'Your zakat year completes on $date. Tap to see what is due.';
+  }
+
+  @override
+  String get budgetCheckFailed => 'Failed to check budgets';
+
+  @override
+  String get budgetLoadFailed => 'Failed to load budgets';
+
+  @override
+  String get budgetAddFailed => 'Failed to add budget';
+
+  @override
+  String get budgetNotFound => 'Budget not found';
+
+  @override
+  String get budgetUpdateFailed => 'Failed to update budget';
+
+  @override
+  String get budgetDeleteFailed => 'Failed to delete budget';
+
+  @override
+  String get budgetEdit => 'Edit budget';
+
+  @override
+  String get budgetNeedName => 'Give the budget a name';
+
+  @override
+  String get budgetEnterAmount => 'Enter an amount';
+
+  @override
+  String get budgetAmountMoreThanZero => 'The amount must be more than zero';
+
+  @override
+  String get budgetTrackingEarnings => 'Tracking earnings';
+
+  @override
+  String get budgetTrackingSpending => 'Tracking spending';
+
+  @override
+  String get budgetRepeats => 'Repeats';
+
+  @override
+  String get budgetTooBig => 'Too big';
+
+  @override
+  String get budgetStarts => 'Starts';
+
+  @override
+  String get budgetEnds => 'Ends';
+
+  @override
+  String get budgetStopsRepeating => 'Stops repeating';
+
+  @override
+  String get budgetNever => 'Never';
+
+  @override
+  String get budgetCategoriesAll => 'Categories: all of them';
+
+  @override
+  String budgetCategoriesSelected(int count) {
+    return 'Categories: $count selected';
+  }
+
+  @override
+  String get budgetNoIncomeCategories => 'No income categories yet.';
+
+  @override
+  String get budgetNoExpenseCategories => 'No expense categories yet.';
+
+  @override
+  String get budgetCategoriesHint =>
+      'Leave empty to watch every category. Anything filed inside a chosen category counts toward it too.';
+
+  @override
+  String get budgetAccountsAll => 'Accounts: all of them';
+
+  @override
+  String budgetAccountsSelected(int count) {
+    return 'Accounts: $count selected';
+  }
+
+  @override
+  String get budgetRolloverHint =>
+      'Anything unspent is added to the next period. Going over does not carry a debt forward.';
+
+  @override
+  String get budgetPeriodDaily => 'Daily';
+
+  @override
+  String get budgetPeriodFortnightly => 'Fortnightly';
+
+  @override
+  String get budgetPeriodOneOff => 'One-off';
+
+  @override
+  String get budgetUnitDays => 'days';
+
+  @override
+  String get budgetUnitWeeks => 'weeks';
+
+  @override
+  String get budgetUnitFortnights => 'fortnights';
+
+  @override
+  String get budgetUnitMonths => 'months';
+
+  @override
+  String get budgetUnitYears => 'years';
+
+  @override
+  String get budgetOneOffNeedsEnd => 'A one-off budget needs an end date.';
+
+  @override
+  String get budgetEndAfterStart =>
+      'The end date has to come after the start date.';
+
+  @override
+  String get budgetSaveFailed => 'Could not save the budget.';
+
+  @override
+  String get budgetThisPeriod => 'This period';
+
+  @override
+  String budgetPeriodsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count periods ago',
+      one: '1 period ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetDateRange(String start, String end) {
+    return '$start to $end';
+  }
+
+  @override
+  String budgetOfLimit(String limit) {
+    return 'of $limit';
+  }
+
+  @override
+  String budgetOfLimitCarried(String limit, String carried) {
+    return 'of $limit including $carried carried over';
+  }
+
+  @override
+  String get budgetUncategorised => 'Uncategorised';
+
+  @override
+  String budgetOverTheLimit(String amount) {
+    return '$amount over the limit.';
+  }
+
+  @override
+  String budgetLeftPerDay(String left, String daily) {
+    return '$left left, about $daily a day.';
+  }
+
+  @override
+  String budgetLeftPlain(String left) {
+    return '$left left.';
+  }
+
+  @override
+  String budgetAveraging(String amount) {
+    return 'Averaging $amount a period.';
+  }
+
+  @override
+  String budgetHeadingOver(String amount) {
+    return 'Heading for $amount over';
+  }
+
+  @override
+  String budgetForecastScheduled(String scheduled) {
+    return 'At this rate, and counting $scheduled already scheduled before the period ends.';
+  }
+
+  @override
+  String get budgetForecastPlain => 'At this rate, by the end of the period.';
+
+  @override
+  String get budgetCapsExplain =>
+      'A budget says whether the period is overspent. A cap says where: a food budget on track overall can still be mostly takeaway.';
+
+  @override
+  String get budgetPercentOfBudget => 'Percent of budget';
+
+  @override
+  String get budgetArchivedTitle => 'Archived budgets';
+
+  @override
+  String get budgetShowActive => 'Show active';
+
+  @override
+  String get budgetShowArchived => 'Show archived';
+
+  @override
+  String get budgetUnpin => 'Unpin';
+
+  @override
+  String get budgetPinToTop => 'Pin to top';
+
+  @override
+  String get budgetStartCounting => 'Start counting it again';
+
+  @override
+  String get budgetStopCounting => 'Keep its history, stop counting it';
+
+  @override
+  String get budgetDeleteBody =>
+      'The budget goes, your transactions stay. Nothing you have recorded is removed.';
+
+  @override
+  String get budgetNothingArchived => 'Nothing archived';
+
+  @override
+  String get budgetNoneYet => 'No budgets yet';
+
+  @override
+  String get budgetArchivedEmptyHint => 'Budgets you archive are kept here.';
+
+  @override
+  String get budgetEmptyHint =>
+      'Set a limit for a category and see how the month is going.';
+
+  @override
+  String dashLoadFailed(String error) {
+    return 'Failed to load financial data: $error';
+  }
+
+  @override
+  String get categoryUnknown => 'Unknown';
+
+  @override
+  String dashCardAvailable(String amount) {
+    return 'Available: $amount';
+  }
+
+  @override
+  String dashCardInCreditAvailable(String amount) {
+    return 'In credit · Available: $amount';
+  }
+
+  @override
+  String get dashTypeBank => 'Bank';
+
+  @override
+  String get dashTypeCredit => 'Credit';
+
+  @override
+  String get dashTypeSubs => 'Subs';
+
+  @override
+  String get dashTypeDeposit => 'Deposit';
+
+  @override
+  String get dashTypeInvest => 'Invest';
+
+  @override
+  String get dashTypeAsset => 'Asset';
+
+  @override
+  String get dashAddAccountTile => 'Add\nAccount';
+
+  @override
+  String get categoryLoadFailed => 'Failed to load categories';
+
+  @override
+  String get categoryAddFailed => 'Failed to add category';
+
+  @override
+  String get categoryNotFound => 'Category not found';
+
+  @override
+  String get categoryUpdateFailed => 'Failed to update category';
+
+  @override
+  String get categoryCannotDeleteSystem =>
+      'Cannot delete the app\'s own categories';
+
+  @override
+  String get categoryCannotDeleteWithTransactions =>
+      'Cannot delete a category with transactions; move or delete them first';
+
+  @override
+  String get categoryDeleteFailed => 'Failed to delete category';
+
+  @override
+  String categorySaveFailed(String error) {
+    return 'Failed to save category: $error';
+  }
+
+  @override
+  String get categoryEditTitle => 'Edit Category';
+
+  @override
+  String get categoryNewTitle => 'New Category';
+
+  @override
+  String get categoryPartOf => 'Part of';
+
+  @override
+  String get categoryNamePlaceholder => 'Category Name';
+
+  @override
+  String get categoryUpdate => 'Update Category';
+
+  @override
+  String get categoryCreate => 'Create Category';
+
+  @override
+  String reportLoadFailed(String error) {
+    return 'Failed to load reports: $error';
+  }
+
+  @override
+  String get goalEdit => 'Edit goal';
+
+  @override
+  String get goalNeedName => 'Give the goal a name';
+
+  @override
+  String get goalTargetMoreThanZero => 'The target must be more than zero';
+
+  @override
+  String get goalNoDeadline => 'No deadline';
+
+  @override
+  String get goalTargetDateAfterStart =>
+      'The target date has to come after the start date.';
+
+  @override
+  String get goalSaveFailed => 'Could not save the goal.';
+
+  @override
+  String get goalArchivedTitle => 'Archived goals';
+
+  @override
+  String get goalHideFromHome => 'Hide from home';
+
+  @override
+  String get goalShowOnHome => 'Show on home';
+
+  @override
+  String get goalReached => 'Reached';
+
+  @override
+  String goalToGo(String amount) {
+    return '$amount to go';
+  }
+
+  @override
+  String get goalNoneYet => 'No goals yet';
+
+  @override
+  String get goalArchivedEmptyHint => 'Goals you archive are kept here.';
+
+  @override
+  String get goalEmptyHint =>
+      'Name something you are saving for, then link the transactions that go toward it.';
+
+  @override
+  String goalSavedOfTarget(String saved, String target) {
+    return '$saved of $target';
+  }
+
+  @override
+  String goalOfTarget(String target) {
+    return 'of $target';
+  }
+
+  @override
+  String get goalReachedNicelyDone => 'Reached. Nicely done.';
+
+  @override
+  String goalStillToGo(String amount) {
+    return '$amount still to go.';
+  }
+
+  @override
+  String goalDailyToArrive(String amount) {
+    return '$amount a day to arrive on time.';
+  }
+
+  @override
+  String get goalNothingLinked =>
+      'Nothing linked yet. Pick this goal on a transaction and it will show up here.';
+
+  @override
+  String get goalDeleteBody =>
+      'The goal goes, your transactions stay. They are simply no longer counted toward it.';
+
+  @override
+  String goalPaymentsOf(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments of $amount',
+      one: '1 payment of $amount',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalFinishingAround(String date) {
+    return 'Finishing around $date.';
+  }
+
+  @override
+  String goalNotFound(String id) {
+    return 'Objective not found: $id';
+  }
+
+  @override
+  String get goalPaidOff => 'Paid off!';
+
+  @override
+  String get goalCompleted => 'Completed!';
+
+  @override
+  String goalPercentComplete(String percent) {
+    return '$percent% complete';
+  }
+
+  @override
+  String goalWeeksLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks left',
+      one: '1 week left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalMonthsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months left',
+      one: '1 month left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalYearsLeft(String years) {
+    return '$years years left';
+  }
+
+  @override
+  String get subRecurringBill => 'Recurring Bill';
+
+  @override
+  String subEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count days',
+      one: 'Every 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count weeks',
+      one: 'Every 1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count months',
+      one: 'Every 1 month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Every $count years',
+      one: 'Every 1 year',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryOther(int count, String unit) {
+    return 'Every $count $unit';
+  }
+
+  @override
+  String subLoadFailed(String error) {
+    return 'Failed to load subscriptions: $error';
+  }
+
+  @override
+  String subPauseFailed(String error) {
+    return 'Failed to pause subscription: $error';
+  }
+
+  @override
+  String subResumeFailed(String error) {
+    return 'Failed to resume subscription: $error';
+  }
+
+  @override
+  String subUpdateFailed(String error) {
+    return 'Failed to update subscription: $error';
+  }
+
+  @override
+  String subCancelFailed(String error) {
+    return 'Failed to cancel subscription: $error';
+  }
+
+  @override
+  String subActiveCount(int count) {
+    return 'Active ($count)';
+  }
+
+  @override
+  String subPausedCount(int count) {
+    return 'Paused ($count)';
+  }
+
+  @override
+  String get subEmptyTitle => 'No subscriptions or bills';
+
+  @override
+  String get subEmptyBody =>
+      'Add subscription or recurring bill transactions to track them here';
+
+  @override
+  String get subRecurringCost => 'Recurring Cost';
+
+  @override
+  String subPerYear(String amount) {
+    return '$amount / year';
+  }
+
+  @override
+  String get subActive => 'Active';
+
+  @override
+  String subNext(String date) {
+    return 'Next $date';
+  }
+
+  @override
+  String get subResume => 'Resume';
+
+  @override
+  String get subPause => 'Pause';
+
+  @override
+  String get subCancelBillTitle => 'Cancel Recurring Bill';
+
+  @override
+  String get subCancelSubTitle => 'Cancel Subscription';
+
+  @override
+  String subCancelConfirm(String name) {
+    return 'Are you sure you want to cancel \"$name\"? This will stop all future recurring payments.';
+  }
+
+  @override
+  String subCancelled(String name) {
+    return '\"$name\" cancelled';
+  }
+
+  @override
+  String subSaveError(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get subEditBill => 'Edit Recurring Bill';
+
+  @override
+  String get subEditSub => 'Edit Subscription';
+
+  @override
+  String subUnitDay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days',
+      one: 'day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'weeks',
+      one: 'week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitMonth(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'months',
+      one: 'month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitYear(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'years',
+      one: 'year',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEndsOn(String date) {
+    return 'Ends: $date';
+  }
+
+  @override
+  String get subNoEndDate => 'No end date';
 }

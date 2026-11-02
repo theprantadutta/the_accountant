@@ -20,6 +20,7 @@ import 'package:the_accountant/features/premium/providers/premium_provider.dart'
 import 'package:drift/drift.dart';
 import 'package:the_accountant/core/services/sync/sync_sealer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Thrown to roll back a cloud restore when any record in the server payload
 /// cannot be applied. Rolling back is the whole point: a restore that clears the
@@ -127,7 +128,7 @@ class SyncService {
     if (_syncInProgress) {
       return SyncResult.notRun(
         SyncNotRunReason.busy,
-        'Sync already in progress',
+        appL10n.syncAlreadyInProgress,
       );
     }
     _syncInProgress = true;
@@ -169,7 +170,7 @@ class SyncService {
   /// any local-only changes that haven't been pushed to the cloud.
   Future<SyncResult> restoreFromCloud() async {
     if (_syncInProgress) {
-      return SyncResult.failure('Sync already in progress');
+      return SyncResult.failure(appL10n.syncAlreadyInProgress);
     }
     _syncInProgress = true;
     try {
@@ -185,7 +186,7 @@ class SyncService {
       final premiumState = _ref.read(premiumProvider);
       if (!premiumState.isPremium) {
         _setState(SyncOperationState.error);
-        return SyncResult.failure('Cloud sync requires Premium subscription');
+        return SyncResult.failure(appL10n.syncRequiresPremium);
       }
     }
 
@@ -193,11 +194,11 @@ class SyncService {
 
     if (!await isOnline()) {
       _setState(SyncOperationState.offline);
-      return SyncResult.failure('No internet connection');
+      return SyncResult.failure(appL10n.syncNoInternet);
     }
     if (!await _transport.hasToken()) {
       _setState(SyncOperationState.error);
-      return SyncResult.failure('Not authenticated');
+      return SyncResult.failure(appL10n.syncNotAuthenticated);
     }
 
     final ownershipError = await _assertStoreOwnership();
@@ -212,9 +213,7 @@ class SyncService {
       final pull = await _pullAllChanges(since: null);
       if (pull == null) {
         _setState(SyncOperationState.error);
-        return SyncResult.failure(
-          'Could not fetch your cloud data. Local data is unchanged.',
-        );
+        return SyncResult.failure(appL10n.syncCouldNotFetchCloud);
       }
 
       // Wipe-and-replace runs inside ONE database transaction, and any record
@@ -281,7 +280,7 @@ class SyncService {
         _setState(SyncOperationState.error);
         return SyncResult.notRun(
           SyncNotRunReason.notPremium,
-          'Cloud sync requires Premium subscription',
+          appL10n.syncRequiresPremium,
         );
       }
     }
@@ -294,7 +293,7 @@ class SyncService {
       _setState(SyncOperationState.offline);
       return SyncResult.notRun(
         SyncNotRunReason.offline,
-        'No internet connection',
+        appL10n.syncNoInternet,
       );
     }
 
@@ -303,7 +302,7 @@ class SyncService {
       _setState(SyncOperationState.error);
       return SyncResult.notRun(
         SyncNotRunReason.notSignedIn,
-        'Not authenticated',
+        appL10n.syncNotAuthenticated,
       );
     }
 
@@ -512,7 +511,7 @@ class SyncService {
   Future<String?> _assertStoreOwnership() async {
     final jwtUserId = await _authenticatedUserId();
     if (jwtUserId == null || jwtUserId.isEmpty) {
-      return 'Could not determine the signed-in account; sync cancelled.';
+      return appL10n.syncAccountUnknown;
     }
 
     final owner = await _database.getLocalStoreOwnerUserId();
@@ -523,8 +522,7 @@ class SyncService {
       return null;
     }
     if (owner != jwtUserId) {
-      return 'This device\'s data belongs to a different account. '
-          'Sign in as that account, or clear the local data, before syncing.';
+      return appL10n.syncStoreOtherAccount;
     }
     return null;
   }

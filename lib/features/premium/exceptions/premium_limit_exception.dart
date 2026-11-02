@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:the_accountant/data/models/premium_features.dart';
 
 /// Exception thrown when a free tier limit is reached
@@ -13,9 +14,7 @@ class PremiumLimitException implements Exception {
     required this.limit,
     String? message,
   }) : message =
-           message ??
-           'You\'ve reached the free tier limit of $limit ${entityType}s. '
-               'Upgrade to Premium for unlimited ${entityType}s.';
+           message ?? appL10n.premiumFreeLimitMessage(limit, '${entityType}s');
   // Nothing raises this any more — see `FreeTierLimits`. Kept because it is
   // the shape a future limit would be reported in, and deleting it would take
   // the upgrade dialog with it.
@@ -37,15 +36,15 @@ class PremiumLimitException implements Exception {
   static String getEntityDisplayName(String entityType) {
     switch (entityType) {
       case 'wallet':
-        return 'wallets';
+        return appL10n.premiumLimitWallets;
       case 'category':
-        return 'custom categories';
+        return appL10n.premiumLimitCategories;
       case 'budget':
-        return 'active budgets';
+        return appL10n.premiumLimitBudgets;
       case 'objective':
-        return 'active objectives';
+        return appL10n.premiumLimitObjectives;
       case 'payment_method':
-        return 'payment methods';
+        return appL10n.premiumLimitPaymentMethods;
       default:
         return entityType;
     }

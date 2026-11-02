@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/backup/domain/backup_document.dart';
@@ -190,7 +191,7 @@ class DriveBackupService {
       return false;
     } catch (e) {
       await writeSchedule(
-        schedule.copyWith(lastFailure: 'The backup could not be taken: $e'),
+        schedule.copyWith(lastFailure: appL10n.backupTakeFailed(e.toString())),
       );
       return false;
     }
@@ -204,10 +205,10 @@ class DriveBackupService {
     final version = file.schemaVersion;
     if (version == null) return null;
     if (version > _db.schemaVersion) {
-      return 'Written by a newer version of the app.';
+      return appL10n.backupUnrestorableNewer;
     }
     if (version < BackupDocument.minimumSchemaVersion) {
-      return 'Older than this version of the app can read.';
+      return appL10n.backupUnrestorableOlder;
     }
     return null;
   }

@@ -83,12 +83,16 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Base Currency: $_baseCurrency',
+                                  L10n.of(
+                                    context,
+                                  ).settingsBaseCurrencyLabel(_baseCurrency),
                                   style: AppTypography.titleMedium,
                                 ),
                                 if (currencyState.lastFetched != null)
                                   Text(
-                                    'Last updated: ${_formatDate(currencyState.lastFetched!)}',
+                                    L10n.of(context).settingsRatesLastUpdated(
+                                      _formatDate(currencyState.lastFetched!),
+                                    ),
                                     style: AppTypography.bodySmall.copyWith(
                                       color: AppColors.textSecondary,
                                     ),
@@ -245,11 +249,11 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
     final diff = now.difference(date);
 
     if (diff.inMinutes < 60) {
-      return '${diff.inMinutes} minutes ago';
+      return L10n.of(context).settingsMinutesAgo(diff.inMinutes);
     } else if (diff.inHours < 24) {
-      return '${diff.inHours} hours ago';
+      return L10n.of(context).settingsHoursAgo(diff.inHours);
     } else {
-      return '${diff.inDays} days ago';
+      return L10n.of(context).settingsDaysAgo(diff.inDays);
     }
   }
 
@@ -259,13 +263,15 @@ class _ExchangeRatesScreenState extends ConsumerState<ExchangeRatesScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Edit Rate: $_baseCurrency → $currencyCode'),
+        title: Text(
+          L10n.of(context).settingsEditRateTitle(_baseCurrency, currencyCode),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Current API rate: $currentRate',
+              L10n.of(context).settingsCurrentApiRate(currentRate.toString()),
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.textSecondary,
               ),

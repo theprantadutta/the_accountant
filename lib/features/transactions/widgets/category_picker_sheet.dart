@@ -163,7 +163,7 @@ class _CategoryPickerSheetState extends ConsumerState<_CategoryPickerSheet> {
                   ],
                   Expanded(
                     child: Text(
-                      openParent?.name ?? 'Select category',
+                      openParent?.name ?? L10n.of(context).txnSelectCategory,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.headlineSmall,

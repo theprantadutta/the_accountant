@@ -4,6 +4,7 @@ import 'package:the_accountant/core/services/currency_service.dart';
 import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:uuid/uuid.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// The two things people need to do to an account that are not editing it.
 ///
@@ -40,7 +41,7 @@ class WalletMaintenanceService {
   }) async {
     final wallet = await _db.findWalletById(walletId);
     if (wallet == null) {
-      throw ArgumentError('No such account: $walletId');
+      throw ArgumentError(appL10n.walletNoSuchAccount(walletId));
     }
 
     final difference = actualBalance - wallet.balance;
@@ -57,10 +58,8 @@ class WalletMaintenanceService {
       TransactionsCompanion.insert(
         id: id,
         amount: difference.abs(),
-        title: Value(title ?? 'Balance correction'),
-        notes: Value(
-          notes ?? 'Adjusted ${wallet.name} to match its real balance.',
-        ),
+        title: Value(title ?? appL10n.walletCorrectionTitle),
+        notes: Value(notes ?? appL10n.walletCorrectionNote(wallet.name)),
         date: date ?? now,
         // A shortfall is money that left without being recorded, and a surplus
         // is money that arrived the same way.
@@ -106,13 +105,13 @@ class WalletMaintenanceService {
     required String destinationId,
   }) async {
     if (sourceId == destinationId) {
-      throw ArgumentError('An account cannot be merged into itself.');
+      throw ArgumentError(appL10n.walletMergeIntoItself);
     }
 
     final source = await _db.findWalletById(sourceId);
     final destination = await _db.findWalletById(destinationId);
     if (source == null || destination == null) {
-      throw ArgumentError('Both accounts must exist to merge them.');
+      throw ArgumentError(appL10n.walletMergeBothMustExist);
     }
 
     final rows = (await _db.getAllTransactions())
@@ -139,8 +138,7 @@ class WalletMaintenanceService {
       );
       if (known == null || known <= 0) {
         throw ArgumentError(
-          'No rate is known between ${source.currency} and '
-          '${destination.currency}, so these accounts cannot be merged yet.',
+          appL10n.walletMergeNoRate(source.currency, destination.currency),
         );
       }
       rate = known;
@@ -382,12 +380,8 @@ class WalletMaintenanceService {
       TransactionsCompanion.insert(
         id: const Uuid().v4(),
         amount: amount.abs(),
-        title: const Value('Merge adjustment'),
-        notes: Value(
-          'The rate a transfer between these accounts was made at differs '
-          'from the rate $sourceName was merged at. This records the '
-          'difference so the total is unchanged.',
-        ),
+        title: Value(appL10n.walletMergeAdjustmentTitle),
+        notes: Value(appL10n.walletMergeAdjustmentNote(sourceName)),
         date: now,
         isIncome: Value(amount > 0),
         categoryId: Value(categoryId),

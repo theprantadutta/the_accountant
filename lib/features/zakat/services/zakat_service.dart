@@ -7,6 +7,7 @@ import 'package:the_accountant/core/services/wallet_balance_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/data/models/wallet.dart' show WalletType;
 import 'package:the_accountant/features/zakat/domain/zakat_settings.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// The kinds of line a zakat calculation is made of, in the order they are
 /// shown.
@@ -373,13 +374,13 @@ class ZakatService {
     String title = 'Zakat',
     String? notes,
   }) async {
-    if (amount <= 0) throw ArgumentError('Enter the amount paid.');
+    if (amount <= 0) throw ArgumentError(appL10n.zakatNeedAmountPaid);
     final wallet = await _db.findWalletById(walletId);
     if (wallet == null ||
         wallet.isArchived ||
         wallet.deletedAt != null ||
         wallet.walletType.isManaged) {
-      throw ArgumentError('Pay it from an ordinary account.');
+      throw ArgumentError(appL10n.zakatPayFromOrdinary);
     }
     final now = DateTime.now();
     final when = date == null || date.isAfter(now) ? now : date;

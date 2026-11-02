@@ -169,9 +169,8 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
                       ? Symbols.archive_rounded
                       : Symbols.functions_rounded,
                   label: wallet.isArchived
-                      ? 'Closed. Its history is kept, but it is not offered '
-                            'or counted.'
-                      : 'Left out of the total across accounts.',
+                      ? L10n.of(context).walletClosedPill
+                      : L10n.of(context).walletExcludedPill,
                   color: context.sunrise.onFill,
                   background: onGlass,
                 ),
@@ -267,10 +266,12 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
               icon: wallet.isArchived
                   ? Symbols.unarchive_rounded
                   : Symbols.archive_rounded,
-              label: wallet.isArchived ? 'Reopen' : 'Close account',
+              label: wallet.isArchived
+                  ? L10n.of(context).walletReopen
+                  : L10n.of(context).walletCloseAccount,
               subtitle: wallet.isArchived
-                  ? 'Offer it again and count it'
-                  : 'Keep its history, stop counting it',
+                  ? L10n.of(context).walletReopenSubtitle
+                  : L10n.of(context).walletCloseAccountSubtitle,
               onTap: () => run(sheet, 'archive'),
             ),
             SheetAction(
@@ -287,8 +288,8 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
             SheetAction(
               icon: Symbols.functions_rounded,
               label: wallet.excludeFromTotal
-                  ? 'Include in the total'
-                  : 'Leave out of the total',
+                  ? L10n.of(context).walletIncludeInTotal
+                  : L10n.of(context).walletLeaveOutOfTotal,
               onTap: () => run(sheet, 'exclude'),
             ),
           ],
@@ -334,8 +335,8 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
       SnackBar(
         content: Text(
           id == null
-              ? 'That is already the balance.'
-              : 'Recorded the difference as a correction.',
+              ? L10n.of(context).walletAlreadyTheBalance
+              : L10n.of(context).walletCorrectionRecorded,
         ),
       ),
     );
@@ -376,11 +377,12 @@ class _WalletDetailScreenState extends ConsumerState<WalletDetailScreen> {
       context: context,
       title: L10n.of(context).walletMergeConfirmTitle(wallet.name, target.name),
       message: target.currency == wallet.currency
-          ? 'Everything filed against ${wallet.name} moves across, and '
-                '${wallet.name} is closed. Nothing is deleted.'
-          : 'Amounts are converted from ${wallet.currency} to '
-                '${target.currency} as they move. Nothing is deleted, and '
-                '${wallet.name} is closed rather than removed.',
+          ? L10n.of(context).walletMergeConfirmBody(wallet.name)
+          : L10n.of(context).walletMergeConfirmBodyConverted(
+              wallet.name,
+              wallet.currency,
+              target.currency,
+            ),
       confirmText: L10n.of(context).walletMergeAction,
     );
     if (confirmed != true || !mounted) return;
@@ -458,8 +460,8 @@ class _CreditSummary extends StatelessWidget {
         AppSpacing.gapSm,
         SensitiveText(
           position.inCredit > 0
-              ? '$first in credit · $available available'
-              : '$first owed · $available still available',
+              ? L10n.of(context).walletCardInCredit(first, available)
+              : L10n.of(context).walletCardOwed(first, available),
           amounts: [first, available],
           style: SunriseType.body.copyWith(
             color: context.sunrise.onFill.withValues(alpha: .9),
@@ -507,9 +509,7 @@ class _CorrectBalanceDialogState extends ConsumerState<_CorrectBalanceDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Enter what ${widget.wallet.name} really holds. The difference is '
-            'recorded as a transaction, so the account still adds up to its '
-            'own history.',
+            L10n.of(context).walletCorrectBalanceBody(widget.wallet.name),
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.textSecondary,
             ),

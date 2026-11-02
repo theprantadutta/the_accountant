@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Transaction types for the type selector
 enum TransactionTypeSelection { expense, income, transfer }
@@ -12,11 +13,11 @@ extension TransactionTypeExtension on TransactionTypeSelection {
   String get label {
     switch (this) {
       case TransactionTypeSelection.expense:
-        return 'Expense';
+        return appL10n.addTypeExpense;
       case TransactionTypeSelection.income:
-        return 'Income';
+        return appL10n.addTypeIncome;
       case TransactionTypeSelection.transfer:
-        return 'Transfer';
+        return appL10n.addTypeTransfer;
     }
   }
 

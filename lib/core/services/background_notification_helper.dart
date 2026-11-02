@@ -6,6 +6,7 @@ import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/notification_action_handler.dart';
 import 'package:the_accountant/features/notifications/models/notification_item.dart';
 import 'package:the_accountant/features/notifications/services/local_notification_log.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Lightweight notification helper for background isolates.
 /// Does NOT use Firebase, singletons, or any Riverpod state.
@@ -114,19 +115,19 @@ class BackgroundNotificationHelper {
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
           BackgroundTaskConstants.actionSnooze1Day,
-          'Snooze 1d',
+          appL10n.notifActionSnooze1Day,
           showsUserInterface: false,
           cancelNotification: true,
         ),
         AndroidNotificationAction(
           BackgroundTaskConstants.actionSnooze1Week,
-          'Snooze 1w',
+          appL10n.notifActionSnooze1Week,
           showsUserInterface: false,
           cancelNotification: true,
         ),
         AndroidNotificationAction(
           BackgroundTaskConstants.actionSkip,
-          'Skip',
+          appL10n.txSkip,
           showsUserInterface: false,
           cancelNotification: true,
         ),

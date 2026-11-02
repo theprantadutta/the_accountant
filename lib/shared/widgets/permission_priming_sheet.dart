@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 import 'package:the_accountant/core/themes/app_spacing.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
+import 'package:the_accountant/l10n/generated/app_localizations.dart';
 
 /// A single explanatory point shown in a permission-priming sheet.
 class PrimingPoint {
@@ -24,9 +25,11 @@ Future<bool> showPermissionPrimingSheet(
   required String title,
   required String message,
   List<PrimingPoint> points = const [],
-  String allowLabel = 'Continue',
-  String cancelLabel = 'Not now',
+  String? allowLabel,
+  String? cancelLabel,
 }) async {
+  final allow = allowLabel ?? L10n.of(context).settingsContinue;
+  final cancel = cancelLabel ?? L10n.of(context).settingsNotNow;
   HapticFeedback.lightImpact();
   final result = await showModalBottomSheet<bool>(
     context: context,
@@ -128,7 +131,7 @@ Future<bool> showPermissionPrimingSheet(
                 ],
                 SizedBox(height: AppSpacing.xl),
                 NeoButton(
-                  label: allowLabel,
+                  label: allow,
                   isExpanded: true,
                   onPressed: () => Navigator.pop(ctx, true),
                 ),
@@ -136,7 +139,7 @@ Future<bool> showPermissionPrimingSheet(
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
                   child: Text(
-                    cancelLabel,
+                    cancel,
                     style: TextStyle(color: AppColors.textMuted),
                   ),
                 ),

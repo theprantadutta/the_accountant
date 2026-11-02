@@ -100,7 +100,7 @@ class NotificationTile extends StatelessWidget {
                   ),
                   AppSpacing.gapSm,
                   Text(
-                    _formatTimeAgo(notification.createdAt),
+                    _formatTimeAgo(context, notification.createdAt),
                     style: AppTypography.labelSmall.copyWith(
                       color: AppColors.textMuted,
                     ),
@@ -114,18 +114,19 @@ class NotificationTile extends StatelessWidget {
     );
   }
 
-  String _formatTimeAgo(DateTime dateTime) {
+  String _formatTimeAgo(BuildContext context, DateTime dateTime) {
+    final l10n = L10n.of(context);
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
     if (difference.inMinutes < 1) {
-      return 'Just now';
+      return l10n.aiJustNow;
     } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
+      return l10n.notifMinutesAgo(difference.inMinutes);
     } else if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
+      return l10n.notifHoursAgo(difference.inHours);
     } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
+      return l10n.notifDaysAgo(difference.inDays);
     } else {
       return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
     }

@@ -13,6 +13,7 @@ import 'package:the_accountant/shared/widgets/color_picker.dart';
 import 'package:the_accountant/shared/widgets/currency_picker.dart';
 import 'package:the_accountant/shared/widgets/icon_picker.dart';
 import 'package:the_accountant/shared/widgets/neo_button.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// Screen shown when user has no wallets - they must create one to continue
 class CreateFirstWalletScreen extends ConsumerStatefulWidget {
@@ -28,7 +29,7 @@ class CreateFirstWalletScreen extends ConsumerStatefulWidget {
 class _CreateFirstWalletScreenState
     extends ConsumerState<CreateFirstWalletScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController(text: 'My Wallet');
+  final _nameController = TextEditingController(text: appL10n.walletMyWallet);
   final _balanceController = TextEditingController(text: '0');
   final _creditLimitController = TextEditingController();
 
@@ -113,9 +114,9 @@ class _CreateFirstWalletScreenState
       widget.onWalletCreated();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to create wallet: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(L10n.of(context).walletCreateFailed('$e'))),
+        );
       }
     } finally {
       if (mounted) {
@@ -162,13 +163,23 @@ class _CreateFirstWalletScreenState
                     children: WalletType.creatable.map((type) {
                       final isSelected = _walletType == type;
                       final label = switch (type) {
-                        WalletType.cash => 'Cash',
-                        WalletType.bankAccount => 'Bank Account',
-                        WalletType.creditCard => 'Credit Card',
-                        WalletType.subscription => 'Subscription',
-                        WalletType.deposit => 'Deposit',
-                        WalletType.investment => 'Investment',
-                        WalletType.asset => 'Asset',
+                        WalletType.cash => L10n.of(context).walletsTypeCash,
+                        WalletType.bankAccount => L10n.of(
+                          context,
+                        ).walletTypeBankAccount,
+                        WalletType.creditCard => L10n.of(
+                          context,
+                        ).walletTypeCreditCard,
+                        WalletType.subscription => L10n.of(
+                          context,
+                        ).walletTypeSubscription,
+                        WalletType.deposit => L10n.of(
+                          context,
+                        ).walletTypeDeposit,
+                        WalletType.investment => L10n.of(
+                          context,
+                        ).walletTypeInvestment,
+                        WalletType.asset => L10n.of(context).walletTypeAsset,
                       };
                       final icon = switch (type) {
                         WalletType.cash => Icons.wallet,
@@ -256,7 +267,7 @@ class _CreateFirstWalletScreenState
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Please enter an account name';
+                      return L10n.of(context).walletEnterAccountName;
                     }
                     return null;
                   },
@@ -353,11 +364,11 @@ class _CreateFirstWalletScreenState
                     validator: (value) {
                       if (_walletType == WalletType.creditCard) {
                         if (value == null || value.isEmpty) {
-                          return 'Credit limit is required';
+                          return L10n.of(context).walletCreditLimitRequired;
                         }
                         final limit = double.tryParse(value);
                         if (limit == null || limit <= 0) {
-                          return 'Please enter a valid credit limit';
+                          return L10n.of(context).walletEnterValidCreditLimit;
                         }
                       }
                       return null;
@@ -396,7 +407,7 @@ class _CreateFirstWalletScreenState
                         .map(
                           (day) => DropdownMenuItem(
                             value: day,
-                            child: Text('Day $day'),
+                            child: Text(L10n.of(context).cardDayOfMonth(day)),
                           ),
                         )
                         .toList(),

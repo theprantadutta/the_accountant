@@ -1,17 +1,25 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
+
 /// How often a backup should go up on its own, once the user has asked for it.
 ///
 /// An interval and a number of files to keep go together: an interval alone fills the account for ever, and a retained
 /// count alone never runs.
 enum BackupFrequency {
   /// Only when the button is pressed.
-  manual('Only when I ask', null),
-  daily('Every day', Duration(days: 1)),
-  weekly('Every week', Duration(days: 7)),
-  monthly('Every month', Duration(days: 30));
+  manual(null),
+  daily(Duration(days: 1)),
+  weekly(Duration(days: 7)),
+  monthly(Duration(days: 30));
 
-  const BackupFrequency(this.label, this.interval);
+  const BackupFrequency(this.interval);
 
-  final String label;
+  /// What the option is called on screen, in the user's language.
+  String get label => switch (this) {
+    BackupFrequency.manual => appL10n.backupFrequencyManual,
+    BackupFrequency.daily => appL10n.backupFrequencyDaily,
+    BackupFrequency.weekly => appL10n.backupFrequencyWeekly,
+    BackupFrequency.monthly => appL10n.backupFrequencyMonthly,
+  };
 
   /// How long after the last backup the next one is due, or null when it never
   /// becomes due on its own.

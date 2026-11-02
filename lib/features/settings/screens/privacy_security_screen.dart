@@ -150,7 +150,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                     if (context.mounted) {
                       showErrorSnackBar(
                         context,
-                        'Biometric authentication not available on this device',
+                        L10n.of(context).settingsBiometricUnavailable,
                       );
                     }
                     return;
@@ -177,9 +177,11 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
               icon: Symbols.password_rounded,
               iconColor: const Color(0xFF0284C7),
               iconBackground: c.tintSky,
-              title: _hasPassword == false ? 'Set Password' : 'Change Password',
+              title: _hasPassword == false
+                  ? L10n.of(context).settingsSetPassword
+                  : L10n.of(context).settingsChangePassword,
               subtitle: _hasPassword == false
-                  ? 'Add password to your account'
+                  ? L10n.of(context).settingsAddPasswordSubtitle
                   : null,
               onTap: () async {
                 final hasPassword = _hasPassword ?? true;
@@ -192,8 +194,8 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
                   showSuccessSnackBar(
                     context,
                     hasPassword
-                        ? 'Password changed successfully'
-                        : 'Password set successfully',
+                        ? L10n.of(context).settingsPasswordChanged
+                        : L10n.of(context).settingsPasswordSet,
                   );
                   _loadAuthProviders();
                 }
@@ -270,7 +272,9 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     final timeouts = ref.read(autoLockTimeoutsProvider);
     final match = timeouts.firstWhere(
       (t) => t['value'] == minutes,
-      orElse: () => {'label': '$minutes minutes'},
+      orElse: () => {
+        'label': L10n.of(context).settingsAutoLockMinutes(minutes),
+      },
     );
     return match['label'];
   }
@@ -309,8 +313,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     final confirmed = await showConfirmationDialog(
       context: context,
       title: L10n.of(context).settingsClearCache,
-      message:
-          'This will clear cached data and force a re-sync on next app launch. Your data will not be deleted.',
+      message: L10n.of(context).settingsClearCacheBody,
       confirmText: L10n.of(context).settingsClearCache,
       isDangerous: false,
     );
@@ -326,7 +329,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     try {
       await showLoadingDialog(
         context: context,
-        message: 'Clearing cache...',
+        message: L10n.of(context).settingsClearingCache,
         operation: () async {
           final db = ref.read(databaseProvider);
           await db.clearCache();
@@ -335,11 +338,11 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
       );
 
       if (mounted) {
-        showSuccessSnackBar(context, 'Cache cleared and sync triggered');
+        showSuccessSnackBar(context, L10n.of(context).settingsCacheCleared);
       }
     } catch (e) {
       if (mounted) {
-        showErrorSnackBar(context, 'Failed to clear cache');
+        showErrorSnackBar(context, L10n.of(context).settingsClearCacheFailed);
       }
     } finally {
       if (mounted) {
@@ -352,8 +355,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     final confirmed = await showConfirmationDialog(
       context: context,
       title: L10n.of(context).settingsClearAllData,
-      message:
-          'This will permanently delete ALL your transactions, budgets, wallets, categories, and settings. This action cannot be undone!',
+      message: L10n.of(context).settingsClearAllDataBody,
       confirmText: L10n.of(context).settingsDeleteEverything,
       isDangerous: true,
     );
@@ -363,7 +365,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
       final doubleConfirmed = await showDestructiveConfirmationDialog(
         context: context,
         title: L10n.of(context).settingsAreYouAbsolutelySure,
-        message: 'All your financial data will be permanently erased.',
+        message: L10n.of(context).settingsClearAllDataConfirmBody,
         confirmationWord: 'DELETE',
         confirmText: L10n.of(context).settingsYesDeleteAll,
       );
@@ -380,7 +382,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     try {
       await showLoadingDialog(
         context: context,
-        message: 'Clearing all data...',
+        message: L10n.of(context).settingsClearingAllData,
         operation: () async {
           final db = ref.read(databaseProvider);
           await db.clearAllData();
@@ -410,14 +412,17 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
       );
 
       if (mounted) {
-        showSuccessSnackBar(context, 'All data cleared successfully');
+        showSuccessSnackBar(context, L10n.of(context).settingsAllDataCleared);
         // Back to the dashboard under the auth gate, not a fresh copy of it
         // with the gate removed (which left sign-out with nowhere to go).
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       if (mounted) {
-        showErrorSnackBar(context, 'Failed to clear data: ${e.toString()}');
+        showErrorSnackBar(
+          context,
+          L10n.of(context).settingsClearDataFailed(e.toString()),
+        );
       }
     } finally {
       if (mounted) {
@@ -466,10 +471,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
     final confirmed = await showConfirmationDialog(
       context: context,
       title: L10n.of(context).settingsDeleteAccount,
-      message:
-          'You\'ll be taken to a form to request account deletion. '
-          'The process takes a few days to complete. '
-          'Once processed, all data on the server will be permanently deleted.',
+      message: L10n.of(context).settingsDeleteAccountBody,
       confirmText: L10n.of(context).settingsContinue,
       isDangerous: true,
     );

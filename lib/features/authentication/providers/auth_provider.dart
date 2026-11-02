@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -104,12 +105,11 @@ String _describeAuthFailure(Object error, String fallback) {
   if (error.isNetworkError) return error.message;
 
   if (error.isRateLimited) {
-    return 'Too many attempts. Please wait a minute and try again.';
+    return appL10n.authTooManyAttempts;
   }
 
   if (error.isServerError) {
-    return 'We could not reach our servers. This is on our side — '
-        'please try again in a few minutes.';
+    return appL10n.authServerDown;
   }
 
   // 4xx: the server explained itself ("Incorrect email or password",
@@ -143,7 +143,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(
         isAuthenticated: false,
         isLoading: false,
-        error: 'Failed to initialize authentication',
+        error: appL10n.authInitFailed,
       );
     }
   }
@@ -188,7 +188,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isAuthenticated: false,
-        error: _describeAuthFailure(e, 'An error occurred during sign in'),
+        error: _describeAuthFailure(e, appL10n.authSignInError),
         isLoading: false,
       );
     }
@@ -230,7 +230,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isAuthenticated: false,
-        error: _describeAuthFailure(e, 'An error occurred during sign up'),
+        error: _describeAuthFailure(e, appL10n.authSignUpError),
         isLoading: false,
       );
     }
@@ -247,7 +247,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (userCredential == null || userCredential.user == null) {
         state = state.copyWith(
           isLoading: false,
-          error: 'Google Sign-In was cancelled or failed',
+          error: appL10n.authGoogleCancelled,
         );
         return;
       }
@@ -262,7 +262,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (firebaseToken == null) {
         state = state.copyWith(
           isLoading: false,
-          error: 'Failed to get Firebase ID token',
+          error: appL10n.authFirebaseTokenFailed,
         );
         return;
       }
@@ -302,17 +302,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      String errorMessage = 'An error occurred during Google sign in';
+      String errorMessage = appL10n.authGoogleSignInError;
       if (e.code == 'account-exists-with-different-credential') {
-        errorMessage =
-            'An account already exists with the same email address but different sign-in credentials.';
+        errorMessage = appL10n.authAccountExistsDifferentCredential;
       } else if (e.code == 'invalid-credential') {
-        errorMessage =
-            'The supplied auth credential is malformed or has expired.';
+        errorMessage = appL10n.authInvalidCredential;
       } else if (e.code == 'operation-not-allowed') {
-        errorMessage = 'Google sign-in is disabled.';
+        errorMessage = appL10n.authGoogleDisabled;
       } else if (e.code == 'user-disabled') {
-        errorMessage = 'The user account has been disabled.';
+        errorMessage = appL10n.authUserDisabled;
       }
 
       state = state.copyWith(
@@ -323,10 +321,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isAuthenticated: false,
-        error: _describeAuthFailure(
-          e,
-          'An error occurred during Google sign in',
-        ),
+        error: _describeAuthFailure(e, appL10n.authGoogleSignInError),
         isLoading: false,
       );
     }
@@ -356,7 +351,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (firebaseToken == null) {
         state = state.copyWith(
           isLoading: false,
-          error: 'Failed to get Firebase ID token',
+          error: appL10n.authFirebaseTokenFailed,
         );
         return;
       }
@@ -397,17 +392,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      String errorMessage = 'An error occurred during Apple sign in';
+      String errorMessage = appL10n.authAppleSignInError;
       if (e.code == 'account-exists-with-different-credential') {
-        errorMessage =
-            'An account already exists with the same email address but different sign-in credentials.';
+        errorMessage = appL10n.authAccountExistsDifferentCredential;
       } else if (e.code == 'invalid-credential') {
-        errorMessage =
-            'The supplied auth credential is malformed or has expired.';
+        errorMessage = appL10n.authInvalidCredential;
       } else if (e.code == 'operation-not-allowed') {
-        errorMessage = 'Apple sign-in is disabled.';
+        errorMessage = appL10n.authAppleDisabled;
       } else if (e.code == 'user-disabled') {
-        errorMessage = 'The user account has been disabled.';
+        errorMessage = appL10n.authUserDisabled;
       }
 
       state = state.copyWith(
@@ -418,10 +411,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isAuthenticated: false,
-        error: _describeAuthFailure(
-          e,
-          'An error occurred during Apple sign in',
-        ),
+        error: _describeAuthFailure(e, appL10n.authAppleSignInError),
         isLoading: false,
       );
     }
@@ -429,7 +419,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> linkGoogleAccount(String password) async {
     if (state.pendingFirebaseToken == null) {
-      state = state.copyWith(error: 'No pending account to link');
+      state = state.copyWith(error: appL10n.authNoPendingLink);
       return;
     }
 
@@ -456,9 +446,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
     } catch (e) {
-      String errorMessage = 'Failed to link account';
+      String errorMessage = appL10n.authLinkFailed;
       if (e.toString().contains('Incorrect password')) {
-        errorMessage = 'Incorrect password. Please try again.';
+        errorMessage = appL10n.authIncorrectPassword;
       }
 
       state = state.copyWith(error: errorMessage, isLoading: false);
@@ -485,7 +475,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       state = const AuthState(isAuthenticated: false, isLoading: false);
     } catch (e) {
-      state = state.copyWith(error: 'An error occurred during sign out');
+      state = state.copyWith(error: appL10n.authSignOutError);
     }
   }
 

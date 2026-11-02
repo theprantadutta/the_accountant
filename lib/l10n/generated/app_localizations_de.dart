@@ -5641,4 +5641,4217 @@ class L10nDe extends L10n {
   @override
   String get backupLockedBody =>
       'Dieses Backup ist mit einer Passphrase geschützt. Gib sie oder deinen Wiederherstellungscode ein, um es zu öffnen. Das funktioniert auch ohne Internetverbindung.';
+
+  @override
+  String get settingsSupportDescribeFirst =>
+      'Bitte beschreibe zuerst dein Anliegen';
+
+  @override
+  String get settingsSupportSent => 'Danke! Deine Nachricht wurde gesendet.';
+
+  @override
+  String get settingsSupportSendFailed =>
+      'Senden gerade nicht möglich. Versuch es noch einmal oder schreib uns direkt eine E-Mail.';
+
+  @override
+  String get settingsSupportSubjectHint => 'Worum geht es?';
+
+  @override
+  String get settingsSupportMessageHint =>
+      'Beschreibe deine Frage, dein Problem oder dein Feedback…';
+
+  @override
+  String get settingsSupportHeroBody =>
+      'Fragen, Fehler oder Feedback – schick es uns, und wir melden uns bei dir.';
+
+  @override
+  String get settingsSupportTipDescription =>
+      'Eine klare Beschreibung deines Problems';
+
+  @override
+  String get settingsSupportTipSteps =>
+      'Schritte zum Nachstellen (bei einem Fehler)';
+
+  @override
+  String get settingsSupportTipDevice =>
+      'Dein Gerätemodell und deine Android-Version';
+
+  @override
+  String settingsSupportPreferEmail(String email) {
+    return 'Lieber per E-Mail? $email';
+  }
+
+  @override
+  String get settingsSupportEmailCopied => 'E-Mail-Adresse kopiert';
+
+  @override
+  String get settingsAboutTagline => 'Dein persönlicher Finanzbegleiter';
+
+  @override
+  String settingsAboutVersion(String version) {
+    return 'Version: $version';
+  }
+
+  @override
+  String get settingsAboutDescription =>
+      'Eine Finanz-App mit Fokus\nauf Datenschutz und schönem Design.';
+
+  @override
+  String settingsBaseCurrencyLabel(String currency) {
+    return 'Basiswährung: $currency';
+  }
+
+  @override
+  String settingsRatesLastUpdated(String when) {
+    return 'Zuletzt aktualisiert: $when';
+  }
+
+  @override
+  String settingsEditRateTitle(String base, String target) {
+    return 'Kurs bearbeiten: $base → $target';
+  }
+
+  @override
+  String settingsCurrentApiRate(String rate) {
+    return 'Aktueller API-Kurs: $rate';
+  }
+
+  @override
+  String settingsMinutesAgo(int count) {
+    return 'vor $count Minuten';
+  }
+
+  @override
+  String settingsHoursAgo(int count) {
+    return 'vor $count Stunden';
+  }
+
+  @override
+  String settingsDaysAgo(int count) {
+    return 'vor $count Tagen';
+  }
+
+  @override
+  String get settingsExportSectionDateRange => 'ZEITRAUM';
+
+  @override
+  String get settingsExportSectionFormat => 'FORMAT';
+
+  @override
+  String get settingsExportSectionInclude => 'EINSCHLIESSEN';
+
+  @override
+  String get settingsExportAllTime => 'Gesamter Zeitraum';
+
+  @override
+  String get settingsExportThisMonth => 'Dieser Monat';
+
+  @override
+  String get settingsExportLastMonth => 'Letzter Monat';
+
+  @override
+  String get settingsExportLast3Months => 'Letzte 3 Monate';
+
+  @override
+  String get settingsExportThisYear => 'Dieses Jahr';
+
+  @override
+  String get settingsExportPdfPremiumBody =>
+      'Der CSV-Export ist kostenlos – deine Daten gehören immer dir. Der formatierte PDF-Bericht mit Zusammenfassungen und Aufschlüsselung nach Kategorie und Konto ist eine Premium-Funktion.';
+
+  @override
+  String settingsExportButton(String format) {
+    return '$format exportieren';
+  }
+
+  @override
+  String settingsExportFailed(String error) {
+    return 'Export fehlgeschlagen: $error';
+  }
+
+  @override
+  String get settingsExportShareSubject => 'The Accountant – Export';
+
+  @override
+  String settingsExportedCount(int count) {
+    return '$count Buchungen exportiert';
+  }
+
+  @override
+  String get settingsExportPdfShareSubject => 'The Accountant – Finanzbericht';
+
+  @override
+  String settingsExportPdfGenerated(int count) {
+    return 'PDF-Bericht mit $count Buchungen erstellt';
+  }
+
+  @override
+  String get settingsNumberFormatCommaThousands => 'Komma für Tausender';
+
+  @override
+  String get settingsNumberFormatDotThousands => 'Punkt für Tausender';
+
+  @override
+  String get settingsNumberFormatSpaceThousands => 'Leerzeichen für Tausender';
+
+  @override
+  String get settingsNumberFormatNoSeparator => 'Kein Trennzeichen';
+
+  @override
+  String get settingsAutoLockImmediately => 'Sofort';
+
+  @override
+  String settingsAutoLockMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Minuten',
+      one: '1 Minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsAutoLockNever => 'Nie';
+
+  @override
+  String get settingsBiometricUnavailable =>
+      'Biometrische Anmeldung ist auf diesem Gerät nicht verfügbar';
+
+  @override
+  String get settingsSetPassword => 'Passwort festlegen';
+
+  @override
+  String get settingsChangePassword => 'Passwort ändern';
+
+  @override
+  String get settingsAddPasswordSubtitle =>
+      'Füge deinem Konto ein Passwort hinzu';
+
+  @override
+  String get settingsPasswordChanged => 'Passwort geändert';
+
+  @override
+  String get settingsPasswordSet => 'Passwort festgelegt';
+
+  @override
+  String get settingsClearCacheBody =>
+      'Dadurch werden zwischengespeicherte Daten geleert und beim nächsten App-Start neu synchronisiert. Deine Daten werden nicht gelöscht.';
+
+  @override
+  String get settingsClearingCache => 'Cache wird geleert...';
+
+  @override
+  String get settingsCacheCleared =>
+      'Cache geleert und Synchronisierung gestartet';
+
+  @override
+  String get settingsClearCacheFailed => 'Cache konnte nicht geleert werden';
+
+  @override
+  String get settingsClearAllDataBody =>
+      'Dadurch werden ALLE deine Buchungen, Budgets, Konten, Kategorien und Einstellungen endgültig gelöscht. Das kann nicht rückgängig gemacht werden!';
+
+  @override
+  String get settingsClearAllDataConfirmBody =>
+      'Alle deine Finanzdaten werden endgültig gelöscht.';
+
+  @override
+  String get settingsClearingAllData => 'Alle Daten werden gelöscht...';
+
+  @override
+  String get settingsAllDataCleared => 'Alle Daten gelöscht';
+
+  @override
+  String settingsClearDataFailed(String error) {
+    return 'Daten konnten nicht gelöscht werden: $error';
+  }
+
+  @override
+  String get settingsDeleteAccountBody =>
+      'Du wirst zu einem Formular weitergeleitet, um die Löschung deines Kontos zu beantragen. Das dauert ein paar Tage. Danach werden alle Daten auf dem Server endgültig gelöscht.';
+
+  @override
+  String get settingsLockAuthFailed =>
+      'Authentifizierung fehlgeschlagen. Bitte versuch es noch einmal.';
+
+  @override
+  String get settingsLockError =>
+      'Ein Fehler ist aufgetreten. Bitte versuch es noch einmal.';
+
+  @override
+  String get settingsLockAuthenticating => 'Authentifizierung läuft...';
+
+  @override
+  String get settingsProfileNameEmpty => 'Der Name darf nicht leer sein';
+
+  @override
+  String get settingsProfileUpdated => 'Profil aktualisiert';
+
+  @override
+  String get settingsProfileUpdateFailed =>
+      'Profil konnte nicht aktualisiert werden';
+
+  @override
+  String get settingsProfileSaveChanges => 'Änderungen speichern';
+
+  @override
+  String get settingsProfileSaved => 'Gespeichert';
+
+  @override
+  String get settingsProfilePhotoSoon => 'Foto-Upload kommt bald';
+
+  @override
+  String get settingsProfileAccountInformation => 'Kontoinformationen';
+
+  @override
+  String get settingsProfileMemberSince => 'Mitglied seit';
+
+  @override
+  String get settingsProfileUnknown => 'Unbekannt';
+
+  @override
+  String get settingsProfileFree => 'Kostenlos';
+
+  @override
+  String get settingsProfileUserId => 'Benutzer-ID';
+
+  @override
+  String get settingsProfileUserIdCopied => 'Benutzer-ID kopiert';
+
+  @override
+  String get settingsPremiumMonthly => 'Premium monatlich';
+
+  @override
+  String get settingsPremiumYearly => 'Premium jährlich';
+
+  @override
+  String get settingsPremiumLifetime => 'Premium lebenslang';
+
+  @override
+  String get settingsUnsavedChangesBody =>
+      'Du hast ungespeicherte Änderungen. Möchtest du wirklich gehen?';
+
+  @override
+  String settingsShareAppText(String url) {
+    return 'Schau dir The Accountant an – eine schöne App für deine Finanzen!\n\n$url';
+  }
+
+  @override
+  String get settingsShareAppSubject =>
+      'The Accountant – App für persönliche Finanzen';
+
+  @override
+  String get settingsCloudSyncGateBody =>
+      'Halte deine Finanzdaten auf all deinen Geräten synchron. Verliere nie wieder deine Daten.';
+
+  @override
+  String settingsSyncPushed(int count) {
+    return '$count gesendet';
+  }
+
+  @override
+  String settingsSyncPulled(int count) {
+    return '$count empfangen';
+  }
+
+  @override
+  String settingsSyncConflicts(int count) {
+    return '$count Konflikte';
+  }
+
+  @override
+  String get settingsSyncNowSubtitle => 'Alle Änderungen senden und abrufen';
+
+  @override
+  String settingsSyncComplete(int pushed, int pulled) {
+    return 'Synchronisierung abgeschlossen – $pushed gesendet, $pulled empfangen';
+  }
+
+  @override
+  String settingsSyncIncomplete(int count, String details) {
+    return 'Synchronisierung unvollständig – $count Eintrag/Einträge konnten nicht gespeichert werden und werden erneut versucht. $details';
+  }
+
+  @override
+  String settingsSyncFailed(String error) {
+    return 'Synchronisierung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get settingsRestoreFromCloudSubtitle =>
+      'Daten auf diesem Gerät durch deine Cloud-Daten ersetzen';
+
+  @override
+  String get settingsRestoreFromCloudBody =>
+      'Dadurch werden ALLE Daten auf diesem Gerät gelöscht und durch deine Cloud-Daten ersetzt. Noch nicht synchronisierte Änderungen auf diesem Gerät gehen verloren. Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String settingsRestoredFromCloud(int count) {
+    return '$count Einträge aus der Cloud wiederhergestellt';
+  }
+
+  @override
+  String settingsRestoreCancelled(String details) {
+    return 'Wiederherstellung abgebrochen – deine lokalen Daten bleiben unverändert. $details';
+  }
+
+  @override
+  String settingsRestoreFailed(String error) {
+    return 'Wiederherstellung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get settingsSyncInfoBody =>
+      'Deine Daten werden alle 15 Minuten und beim Öffnen der App automatisch synchronisiert. Beträge, Namen und Notizen werden vor der Synchronisierung auf diesem Handy verschlüsselt, sodass unser Server sie nicht lesen kann.';
+
+  @override
+  String settingsSyncCompletedSeconds(int seconds) {
+    return 'Abgeschlossen in $seconds s';
+  }
+
+  @override
+  String settingsSyncCompletedMinutes(int minutes, int seconds) {
+    return 'Abgeschlossen in $minutes min $seconds s';
+  }
+
+  @override
+  String settingsReconcileQuestion(String name) {
+    return 'Ist das deine Kategorie „$name“?';
+  }
+
+  @override
+  String get settingsReconcileSavedPending =>
+      'Gespeichert. Das wird bei der nächsten Synchronisierung übernommen.';
+
+  @override
+  String settingsReconcileBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Dein Konto hat bereits $count Kategorien namens „$name“. Sag uns, ob eine davon als integrierte Kategorie verwendet werden soll oder ob sie getrennt bleiben. Bis du dich entscheidest, ändert sich nichts.',
+      one:
+          'Dein Konto hat bereits eine Kategorie namens „$name“. Sag uns, ob sie als integrierte Kategorie verwendet werden oder getrennt bleiben soll. Bis du dich entscheidest, ändert sich nichts.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepMine =>
+      'Nein – meine behalten und eine separate hinzufügen';
+
+  @override
+  String get settingsReconcileNoneOfThese =>
+      'Keine davon – eine separate hinzufügen';
+
+  @override
+  String settingsReconcileKeepSeparateBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Deine bestehenden Kategorien „$name“ bleiben genau so, wie sie sind, mit all ihren Buchungen. Eine neue integrierte Kategorie „$name“ wird daneben hinzugefügt.',
+      one:
+          'Deine bestehende Kategorie „$name“ bleibt genau so, wie sie ist, mit all ihren Buchungen. Eine neue integrierte Kategorie „$name“ wird daneben hinzugefügt.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileKeepSeparate => 'Getrennt halten';
+
+  @override
+  String settingsReconcileTransactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Buchungen',
+      one: '1 Buchung',
+      zero: 'Keine Buchungen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String settingsReconcileUseTitle(String name) {
+    return '„$name“ verwenden?';
+  }
+
+  @override
+  String settingsReconcileUseBody(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Sie wird zur integrierten Kategorie „$name“ und behält alle $count Buchungen samt Unterkategorien. Nichts wird gelöscht.',
+      zero:
+          'Sie wird zur integrierten Kategorie „$name“ und behält alles, was darunter abgelegt ist, samt Unterkategorien. Nichts wird gelöscht.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsReconcileUseThisOne => 'Diese verwenden';
+
+  @override
+  String settingsReconcileWillUse(String name) {
+    return '„$name“ wird verwendet.';
+  }
+
+  @override
+  String settingsReconcileWillAdd(String name) {
+    return 'Eine separate Kategorie „$name“ wird hinzugefügt.';
+  }
+
+  @override
+  String get settingsChangePasswordSubtitle =>
+      'Gib dein aktuelles Passwort ein und wähle ein neues';
+
+  @override
+  String get settingsSetPasswordSubtitle =>
+      'Füge deinem Konto ein Passwort für zusätzliche Sicherheit hinzu';
+
+  @override
+  String get settingsEnterCurrentPassword =>
+      'Bitte gib dein aktuelles Passwort ein';
+
+  @override
+  String get settingsEnterNewPassword => 'Bitte gib ein neues Passwort ein';
+
+  @override
+  String get settingsPasswordMinLength =>
+      'Das Passwort muss mindestens 8 Zeichen lang sein';
+
+  @override
+  String get settingsConfirmYourPassword => 'Bitte bestätige dein Passwort';
+
+  @override
+  String get settingsPasswordsDoNotMatch =>
+      'Die Passwörter stimmen nicht überein';
+
+  @override
+  String get settingsPleaseWait => 'Bitte warten...';
+
+  @override
+  String settingsTypeToConfirm(String word) {
+    return 'Gib „$word“ zur Bestätigung ein';
+  }
+
+  @override
+  String settingsPercentOfBudget(int percent) {
+    return '$percent % des Budgets';
+  }
+
+  @override
+  String get authTooManyAttempts =>
+      'Zu viele Versuche. Bitte warte eine Minute und versuch es dann noch einmal.';
+
+  @override
+  String get authServerDown =>
+      'Wir konnten unsere Server nicht erreichen. Das liegt an uns – bitte versuch es in ein paar Minuten noch einmal.';
+
+  @override
+  String get authInitFailed => 'Anmeldung konnte nicht initialisiert werden';
+
+  @override
+  String get authSignInError => 'Bei der Anmeldung ist ein Fehler aufgetreten';
+
+  @override
+  String get authSignUpError =>
+      'Bei der Registrierung ist ein Fehler aufgetreten';
+
+  @override
+  String get authGoogleCancelled =>
+      'Die Google-Anmeldung wurde abgebrochen oder ist fehlgeschlagen';
+
+  @override
+  String get authFirebaseTokenFailed =>
+      'Firebase-ID-Token konnte nicht abgerufen werden';
+
+  @override
+  String get authGoogleSignInError =>
+      'Bei der Google-Anmeldung ist ein Fehler aufgetreten';
+
+  @override
+  String get authAccountExistsDifferentCredential =>
+      'Es gibt bereits ein Konto mit dieser E-Mail-Adresse, aber mit anderen Anmeldedaten.';
+
+  @override
+  String get authInvalidCredential =>
+      'Die Anmeldedaten sind ungültig oder abgelaufen.';
+
+  @override
+  String get authGoogleDisabled => 'Die Google-Anmeldung ist deaktiviert.';
+
+  @override
+  String get authUserDisabled => 'Dieses Benutzerkonto wurde deaktiviert.';
+
+  @override
+  String get authAppleSignInError =>
+      'Bei der Apple-Anmeldung ist ein Fehler aufgetreten';
+
+  @override
+  String get authAppleDisabled => 'Die Apple-Anmeldung ist deaktiviert.';
+
+  @override
+  String get authNoPendingLink => 'Kein Konto zum Verknüpfen vorhanden';
+
+  @override
+  String get authLinkFailed => 'Konto konnte nicht verknüpft werden';
+
+  @override
+  String get authIncorrectPassword =>
+      'Falsches Passwort. Bitte versuch es noch einmal.';
+
+  @override
+  String get authSignOutError => 'Beim Abmelden ist ein Fehler aufgetreten';
+
+  @override
+  String get authLinkSubtitle =>
+      'Mit dieser E-Mail-Adresse gibt es bereits ein Konto. Gib dein Passwort ein, um dein Google-Konto zu verknüpfen.';
+
+  @override
+  String get authEnterYourPasswordHint => 'Gib dein Passwort ein';
+
+  @override
+  String get authEnterYourPassword => 'Bitte gib dein Passwort ein';
+
+  @override
+  String get authLinkInfo =>
+      'Nach dem Verknüpfen kannst du dich per E-Mail/Passwort oder mit Google anmelden.';
+
+  @override
+  String get authEnterYourEmail => 'Bitte gib deine E-Mail-Adresse ein';
+
+  @override
+  String get authEnterValidEmail => 'Bitte gib eine gültige E-Mail-Adresse ein';
+
+  @override
+  String get authPasswordMin6 =>
+      'Das Passwort muss mindestens 6 Zeichen lang sein';
+
+  @override
+  String get authNoAccountPrompt => 'Noch kein Konto? ';
+
+  @override
+  String get authForgotPasswordTitle => 'Passwort vergessen';
+
+  @override
+  String get authCheckYourEmail => 'Prüfe deine E-Mails';
+
+  @override
+  String get authForgotPasswordSubtitle =>
+      'Gib deine E-Mail-Adresse ein, und wir schicken dir einen Code zum Zurücksetzen deines Passworts.';
+
+  @override
+  String authCodeSentSubtitle(String email) {
+    return 'Wir haben einen 6-stelligen Code an $email geschickt. Gib ihn unten zusammen mit deinem neuen Passwort ein.';
+  }
+
+  @override
+  String get authEnterYourEmailHint => 'Gib deine E-Mail-Adresse ein';
+
+  @override
+  String get authSixDigitCodeHint => '6-stelliger Code';
+
+  @override
+  String get authEnterTheCode => 'Bitte gib den Code ein';
+
+  @override
+  String get authCodeIsSixDigits => 'Der Code hat 6 Ziffern';
+
+  @override
+  String get authCreateNewPasswordHint => 'Neues Passwort erstellen';
+
+  @override
+  String get authReenterNewPasswordHint => 'Neues Passwort erneut eingeben';
+
+  @override
+  String get authEnterYourNameHint => 'Gib deinen Namen ein';
+
+  @override
+  String get authEnterFullName => 'Bitte gib deinen vollständigen Namen ein';
+
+  @override
+  String get authNameMin2 => 'Der Name muss mindestens 2 Zeichen lang sein';
+
+  @override
+  String get authCreatePasswordHint => 'Passwort erstellen';
+
+  @override
+  String get authPasswordComplexity =>
+      'Muss Groß- und Kleinbuchstaben sowie eine Zahl enthalten';
+
+  @override
+  String get authReenterPasswordHint => 'Passwort erneut eingeben';
+
+  @override
+  String get authStrengthWeak => 'Schwach';
+
+  @override
+  String get authStrengthFair => 'Mittel';
+
+  @override
+  String get authStrengthGood => 'Gut';
+
+  @override
+  String get authStrengthStrong => 'Stark';
+
+  @override
+  String authAgreeToTerms(String terms, String privacy) {
+    return 'Ich stimme den $terms und der $privacy zu';
+  }
+
+  @override
+  String get authDefaultUserName => 'Nutzer';
+
+  @override
+  String authMemberSince(String date) {
+    return 'Mitglied seit $date';
+  }
+
+  @override
+  String get authFieldRequired => 'Dieses Feld ist erforderlich';
+
+  @override
+  String authSignOutFailed(String error) {
+    return 'Abmelden fehlgeschlagen: $error';
+  }
+
+  @override
+  String authPickImageFailed(String error) {
+    return 'Bild konnte nicht ausgewählt werden: $error';
+  }
+
+  @override
+  String authUpdateProfileFailed(String error) {
+    return 'Profil konnte nicht aktualisiert werden: $error';
+  }
+
+  @override
+  String get premiumSaveAbout44 => 'Spare ca. 44 %';
+
+  @override
+  String get premiumBestValue => 'Bestes Angebot';
+
+  @override
+  String get premiumIapUnavailable => 'IAP nicht verfügbar';
+
+  @override
+  String get premiumProductNotFound => 'Produkt nicht gefunden';
+
+  @override
+  String get premiumPlanUnavailable =>
+      'Dieser Tarif ist für dein Konto gerade nicht verfügbar';
+
+  @override
+  String get premiumRestoreFailed =>
+      'Käufe konnten nicht wiederhergestellt werden';
+
+  @override
+  String get premiumPurchaseFailed => 'Kauf fehlgeschlagen';
+
+  @override
+  String get premiumVerificationFailed => 'Überprüfung fehlgeschlagen';
+
+  @override
+  String premiumPeriodDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Tage',
+      one: '1 Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Wochen',
+      one: '1 Woche',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Monate',
+      one: '1 Monat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumPeriodYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Jahre',
+      one: '1 Jahr',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String premiumLimitUsed(int count, int limit, String items) {
+    return 'Du hast $count von $limit kostenlosen $items genutzt.';
+  }
+
+  @override
+  String premiumLimitUpgrade(String items) {
+    return 'Hol dir Premium für unbegrenzte $items und mehr!';
+  }
+
+  @override
+  String premiumFreeLimitMessage(int limit, String items) {
+    return 'Du hast das kostenlose Limit von $limit $items erreicht. Hol dir Premium für unbegrenzte $items.';
+  }
+
+  @override
+  String get premiumLimitWallets => 'Konten';
+
+  @override
+  String get premiumLimitCategories => 'eigene Kategorien';
+
+  @override
+  String get premiumLimitBudgets => 'aktive Budgets';
+
+  @override
+  String get premiumLimitObjectives => 'aktive Ziele';
+
+  @override
+  String get premiumLimitPaymentMethods => 'Zahlungsmethoden';
+
+  @override
+  String get backupErrNotJson =>
+      'Diese Datei ist keine Sicherung – sie konnte nicht als JSON gelesen werden.';
+
+  @override
+  String get backupErrNotOurs =>
+      'Diese Datei ist keine Sicherung von The Accountant.';
+
+  @override
+  String get backupErrNewerVersion =>
+      'Diese Sicherung stammt von einer neueren Version der App. Aktualisiere The Accountant und versuch es noch einmal.';
+
+  @override
+  String backupErrTooOld(int version, int oldest) {
+    return 'Diese Sicherung stammt von einer älteren App-Version, als diese lesen kann (Datenbank $version, älteste unterstützte $oldest).';
+  }
+
+  @override
+  String get backupErrNoData => 'Diese Sicherung enthält keine Daten.';
+
+  @override
+  String backupErrSectionDamaged(String section) {
+    return 'Der Abschnitt „$section“ dieser Sicherung ist beschädigt.';
+  }
+
+  @override
+  String get backupErrNoHeader =>
+      'Dieser Sicherung fehlt die Kopfzeile, die angibt, was sie ist.';
+
+  @override
+  String get backupErrNoSchemaVersion =>
+      'Diese Sicherung gibt nicht an, von welcher Datenbankversion sie stammt, und kann daher nicht sicher wiederhergestellt werden.';
+
+  @override
+  String get backupErrNoDate =>
+      'Diese Sicherung gibt nicht an, wann sie erstellt wurde.';
+
+  @override
+  String get backupErrDamaged => 'Diese Sicherungsdatei ist beschädigt.';
+
+  @override
+  String get backupErrWrongKey =>
+      'Diese Sicherung gehört zu einem anderen Konto, oder die Datei wurde verändert. Melde dich mit dem Konto an, mit dem sie erstellt wurde, um sie wiederherzustellen.';
+
+  @override
+  String get backupErrNoPassphraseLock =>
+      'Diese Sicherung kann nicht mit einer Passphrase geöffnet werden.';
+
+  @override
+  String get backupErrNeedsSecret =>
+      'Diese Sicherung ist mit einer Passphrase geschützt. Gib sie oder den Wiederherstellungscode ein, um sie wiederherzustellen.';
+
+  @override
+  String get backupErrWrongSecret =>
+      'Diese Passphrase oder dieser Wiederherstellungscode öffnet diese Sicherung nicht.';
+
+  @override
+  String backupErrNewerSchema(int version, int supported) {
+    return 'Diese Sicherung wurde mit einer neueren Version der App erstellt (Datenbank $version, diese Version liest bis $supported). Aktualisiere The Accountant und versuch es noch einmal.';
+  }
+
+  @override
+  String backupDriveUnreachable(String error) {
+    return 'Google Drive war nicht erreichbar: $error';
+  }
+
+  @override
+  String get backupDriveNotAllowed =>
+      'The Accountant darf Google Drive noch nicht verwenden.';
+
+  @override
+  String get backupDriveNoFolder =>
+      'Google Drive konnte keinen Ordner für Sicherungen anlegen.';
+
+  @override
+  String get backupDriveNoFileId =>
+      'Google Drive hat die Sicherung angenommen, aber nicht mitgeteilt, wo sie liegt.';
+
+  @override
+  String get backupDriveTimeout =>
+      'Google Drive antwortet zu langsam. Versuch es später noch einmal.';
+
+  @override
+  String get backupDriveOffline =>
+      'Keine Verbindung zu Google Drive. Versuch es noch einmal, sobald du online bist.';
+
+  @override
+  String get backupDriveDenied =>
+      'Google Drive hat die Anfrage abgelehnt. Erteile den Zugriff erneut und versuch es noch einmal.';
+
+  @override
+  String get backupDriveFileGone =>
+      'Diese Sicherung ist nicht mehr in Google Drive.';
+
+  @override
+  String backupDriveHttpError(int status, String reason) {
+    return 'Google Drive hat mit $status geantwortet. $reason';
+  }
+
+  @override
+  String get backupDriveTryAgainSoon => 'Versuch es gleich noch einmal.';
+
+  @override
+  String backupTakeFailed(String error) {
+    return 'Die Sicherung konnte nicht erstellt werden: $error';
+  }
+
+  @override
+  String get backupUnrestorableNewer =>
+      'Von einer neueren Version der App erstellt.';
+
+  @override
+  String get backupUnrestorableOlder =>
+      'Älter, als diese Version der App lesen kann.';
+
+  @override
+  String get backupKeyUnusable =>
+      'Der Server hat einen unbrauchbaren Schlüssel gesendet. Versuch es später noch einmal.';
+
+  @override
+  String get backupKeyNeedsSignIn =>
+      'Melde dich an, um eine Sicherung zu erstellen oder wiederherzustellen – Sicherungen werden mit deinem Konto verschlüsselt.';
+
+  @override
+  String get backupKeyNeedsInternet =>
+      'Verbinde dich einmal mit dem Internet, damit deine Daten verschlüsselt werden können, und versuch es dann noch einmal.';
+
+  @override
+  String get backupKeyLocked =>
+      'Deine Daten sind mit einer Passphrase geschützt. Entsperre sie zuerst auf diesem Gerät.';
+
+  @override
+  String get backupFrequencyManual => 'Nur auf Anfrage';
+
+  @override
+  String get backupFrequencyDaily => 'Jeden Tag';
+
+  @override
+  String get backupFrequencyWeekly => 'Jede Woche';
+
+  @override
+  String get backupFrequencyMonthly => 'Jeden Monat';
+
+  @override
+  String get backupIntro =>
+      'Eine Sicherung ist eine einzige Datei mit allem auf diesem Gerät – jeder Buchung, jedem Konto, jedem Budget und jedem Ziel. Bewahre eine an einem sicheren Ort auf, und nichts hier geht jemals endgültig verloren.';
+
+  @override
+  String get backupSectionOnDevice => 'AUF DIESEM GERÄT';
+
+  @override
+  String get backupSectionGoogleDrive => 'GOOGLE DRIVE';
+
+  @override
+  String get backupSectionInDrive => 'SICHERUNGEN IN DRIVE';
+
+  @override
+  String backupBackedUpCount(int count) {
+    return '$count Einträge gesichert.';
+  }
+
+  @override
+  String get backupSaveDialogTitle => 'Sicherung speichern';
+
+  @override
+  String get backupChooseFileTitle => 'Sicherungsdatei auswählen';
+
+  @override
+  String backupFileUnreadable(String error) {
+    return 'Diese Datei konnte nicht gelesen werden: $error';
+  }
+
+  @override
+  String backupTakenOn(String date) {
+    return 'Erstellt am $date.';
+  }
+
+  @override
+  String backupTakenOnDevice(String date, String device) {
+    return 'Erstellt am $date auf $device.';
+  }
+
+  @override
+  String backupBelongedTo(String email) {
+    return 'Sie gehörte zu $email.';
+  }
+
+  @override
+  String get backupDifferentAccountWarning =>
+      'Das ist nicht das hier angemeldete Konto. Beim Wiederherstellen landen die Daten einer anderen Person auf diesem Gerät.';
+
+  @override
+  String get backupRestoreEraseWarning =>
+      'Alles, was sich gerade auf diesem Gerät befindet, wird gelöscht und ersetzt. Noch nicht Synchronisiertes geht verloren. Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String backupRestoredCount(int count) {
+    return '$count Einträge wiederhergestellt.';
+  }
+
+  @override
+  String backupRestoredPartial(int count) {
+    return '$count Einträge wiederhergestellt. Ein Teil der Datei passte nicht zu dieser Version und wurde weggelassen.';
+  }
+
+  @override
+  String backupRestoreFailed(String error) {
+    return 'Nichts wurde geändert – die Wiederherstellung ist fehlgeschlagen: $error';
+  }
+
+  @override
+  String get backupConnectDriveSubtitle =>
+      'Sicherungen landen in einem privaten Ordner, den nur diese App öffnen kann. Deine anderen Dateien werden nie gelesen.';
+
+  @override
+  String get backupDriveConnectedTitle => 'Google Drive verbunden';
+
+  @override
+  String backupDriveFolderFirst(String folder) {
+    return 'Sicherungen von diesem Gerät werden in einem Ordner namens „$folder“ in deinem Drive gespeichert.';
+  }
+
+  @override
+  String backupDriveFolder(String folder) {
+    return 'Sicherungen werden in „$folder“ in deinem Drive gespeichert.';
+  }
+
+  @override
+  String get backupNoneYet =>
+      'Von diesem Gerät wurde noch keine Sicherung hochgeladen';
+
+  @override
+  String backupLastBackedUp(String date) {
+    return 'Zuletzt gesichert: $date';
+  }
+
+  @override
+  String backupKeepSubtitle(int count) {
+    return '$count Sicherungen – ältere werden entfernt, sobald eine neue ankommt';
+  }
+
+  @override
+  String get backupDisconnectSubtitle =>
+      'Beendet automatische Sicherungen. Bereits Gespeichertes wird nicht gelöscht.';
+
+  @override
+  String backupListFailed(String error) {
+    return 'Deine Sicherungen konnten nicht aufgelistet werden: $error';
+  }
+
+  @override
+  String get backupDriveNotGranted =>
+      'Der Zugriff auf Google Drive wurde nicht erteilt.';
+
+  @override
+  String get backupDriveConnected => 'Google Drive verbunden.';
+
+  @override
+  String backupDriveConnectFailed(String error) {
+    return 'Google Drive konnte nicht verbunden werden: $error';
+  }
+
+  @override
+  String get backupDisconnectBody =>
+      'Automatische Sicherungen werden beendet. Die Sicherungen in Drive bleiben, wo sie sind, und du kannst dich jederzeit wieder verbinden.';
+
+  @override
+  String backupSavedToDrive(String name) {
+    return '$name in Google Drive gespeichert.';
+  }
+
+  @override
+  String backupCopyFailed(String error) {
+    return 'Diese Sicherung konnte nicht gespeichert werden: $error';
+  }
+
+  @override
+  String get backupDeleteBody =>
+      'Sie wird endgültig aus Google Drive entfernt.';
+
+  @override
+  String get backupRefresh => 'Aktualisieren';
+
+  @override
+  String get ppErrKdfParams =>
+      'Unzulässige Parameter für die Schlüsselableitung.';
+
+  @override
+  String get ppErrKdfAlgorithm =>
+      'Unbekanntes Verfahren zur Schlüsselableitung.';
+
+  @override
+  String get onboardingIntroAccountsTitle => 'Alle Konten, ein Saldo';
+
+  @override
+  String get onboardingIntroAccountsBody =>
+      'Behalte Bargeld, Karten und Ersparnisse nebeneinander im Blick und sieh, was dir wirklich bleibt.';
+
+  @override
+  String get onboardingIntroBudgetsTitle => 'Budgets, die rechtzeitig warnen';
+
+  @override
+  String get onboardingIntroBudgetsBody =>
+      'Lege ein Limit pro Kategorie fest. Die App behält die Summe im Blick und warnt dich, bevor du es überschreitest, nicht erst danach.';
+
+  @override
+  String get onboardingIntroAskTitle => 'Frag nach deinen eigenen Ausgaben';
+
+  @override
+  String get onboardingIntroAskBody =>
+      'Scanne einen Beleg oder frag, wohin das Geld letzten Monat gegangen ist, und erhalte eine Antwort aus deinen eigenen Einträgen.';
+
+  @override
+  String get onboardingIntroThemeTitle => 'Mach sie zu deiner';
+
+  @override
+  String get onboardingIntroThemeBody =>
+      'Wähle jetzt ein Design oder ändere es jederzeit in den Einstellungen.';
+
+  @override
+  String get onboardingCreateYourAccount => 'Erstelle dein Konto';
+
+  @override
+  String get onboardingNext => 'Weiter';
+
+  @override
+  String get onboardingCurrencyInfo =>
+      'Diese Währung wird deine Hauptwährung. Konten in anderen Währungen kannst du später hinzufügen.';
+
+  @override
+  String get onboardingTypeCash => 'Bargeld';
+
+  @override
+  String get onboardingTypeBank => 'Bankkonto';
+
+  @override
+  String get onboardingTypeCard => 'Kreditkarte';
+
+  @override
+  String get onboardingTypeDeposit => 'Festgeld';
+
+  @override
+  String get onboardingTypeInvestment => 'Investment';
+
+  @override
+  String get onboardingTypeAsset => 'Vermögenswert';
+
+  @override
+  String onboardingDayN(int day) {
+    return 'Tag $day';
+  }
+
+  @override
+  String get onboardingAllSet => 'Alles bereit!';
+
+  @override
+  String onboardingCompleteFailed(String error) {
+    return 'Einrichtung konnte nicht abgeschlossen werden: $error';
+  }
+
+  @override
+  String get onboardingSkipFailed =>
+      'Einrichtung konnte nicht übersprungen werden';
+
+  @override
+  String get startupOfflineConfirmBody =>
+      'Deine Daten bleiben genau, wo sie sind – nichts auf diesem Gerät oder in der Cloud wird gelöscht.\n\nWenn das Konto aber bereits gespeicherte Daten hat, landet alles, was du jetzt hinzufügst, nach der Wiederherstellung daneben – eventuell musst du dann Duplikate aufräumen.';
+
+  @override
+  String get startupDataInCloudTitle => 'Deine Daten warten in der Cloud';
+
+  @override
+  String get startupLoadFailedTitle =>
+      'Wir konnten dein Konto nicht fertig laden';
+
+  @override
+  String get startupGenericReason =>
+      'Beim Prüfen dieses Kontos ist etwas schiefgelaufen.';
+
+  @override
+  String get startupUseWithoutRestoring =>
+      'App ohne Wiederherstellung verwenden';
+
+  @override
+  String get legalTermsTab => 'Bedingungen';
+
+  @override
+  String get legalConsent =>
+      'Ich habe die Datenschutzerklärung und die Nutzungsbedingungen gelesen und stimme ihnen zu';
+
+  @override
+  String get walkthroughGotIt => 'Verstanden!';
+
+  @override
+  String get settingsFaqSectionGettingStarted => 'Erste Schritte';
+
+  @override
+  String get settingsFaq01Question => 'Wie füge ich eine Buchung hinzu?';
+
+  @override
+  String get settingsFaq01Answer =>
+      'Tippe auf die Schaltfläche + unten auf dem Startbildschirm. Gib den Betrag ein, wähle eine Kategorie und ein Konto und füge bei Bedarf Notizen hinzu. Tippe auf Speichern, um die Buchung zu erfassen.';
+
+  @override
+  String get settingsFaq02Question =>
+      'Was ist der Unterschied zwischen Konten und Kategorien?';
+
+  @override
+  String get settingsFaq02Answer =>
+      'Konten zeigen, wo dein Geld liegt (z. B. Bargeld, Bankkonto, Kreditkarte). Kategorien beschreiben, wofür das Geld ausgegeben wurde oder woher es kam (z. B. Essen, Gehalt, Unterhaltung).';
+
+  @override
+  String get settingsFaq03Question =>
+      'Wie passe ich Datums- und Zahlenformat an?';
+
+  @override
+  String get settingsFaq03Answer =>
+      'Geh zu Einstellungen > Regionale Einstellungen. Dort kannst du deine Standardwährung, das Datumsformat (z. B. DD/MM/YYYY oder MM/DD/YYYY) und das Zahlenformat (z. B. 1,234.56 oder 1.234,56) ändern. Eine Live-Vorschau zeigt, wie deine Einstellungen aussehen.';
+
+  @override
+  String get settingsFaqSectionTransactions => 'Buchungen';
+
+  @override
+  String get settingsFaq04Question =>
+      'Kann ich wiederkehrende Buchungen erfassen?';
+
+  @override
+  String get settingsFaq04Answer =>
+      'Ja! Aktiviere beim Hinzufügen einer Buchung die Option „Wiederkehrend“. Du kannst sie täglich, wöchentlich, monatlich oder jährlich wiederholen lassen. Die App legt diese Buchungen dann automatisch für dich an.';
+
+  @override
+  String get settingsFaq05Question => 'Wie buche ich Geld zwischen Konten um?';
+
+  @override
+  String get settingsFaq05Answer =>
+      'Wähle beim Hinzufügen einer Buchung „Umbuchung“ als Typ. Wähle das Quellkonto und das Zielkonto und gib den Betrag ein. Die App zieht den Betrag automatisch von einem Konto ab und schreibt ihn dem anderen gut.';
+
+  @override
+  String get settingsFaq06Question => 'Was sind anstehende Buchungen?';
+
+  @override
+  String get settingsFaq06Answer =>
+      'Anstehende Buchungen sind künftige Ausgaben oder Einnahmen, die du erwartest, aber noch nicht bezahlt hast. Sie wirken sich erst auf deinen Kontostand aus, wenn du sie als bezahlt markierst. Überfällige und anstehende Einträge findest du im Bereich Buchungen.';
+
+  @override
+  String get settingsFaq07Question => 'Wie behalte ich meine Abos im Blick?';
+
+  @override
+  String get settingsFaq07Answer =>
+      'Setze beim Hinzufügen einer Buchung den Typ auf Abo. So wird sie als regelmäßige Zahlung für einen Dienst markiert. Du siehst alle deine Abos an einem Ort und behältst deine monatlichen Abo-Ausgaben im Blick.';
+
+  @override
+  String get settingsFaq08Question =>
+      'Wie funktionieren Forderungen und Schulden?';
+
+  @override
+  String get settingsFaq08Answer =>
+      'Nutze Forderung für Geld, das du jemandem geliehen hast, und Schuld für Geld, das du dir geliehen hast. Jeder Eintrag hält den Betrag fest, wer wem etwas schuldet und wie viel schon zurückgezahlt ist. Du kannst Teilzahlungen erfassen und Schulden als beglichen markieren, wenn alles zurückgezahlt ist.';
+
+  @override
+  String get settingsFaq09Question =>
+      'Kann ich Buchungen Notizen oder Belege hinzufügen?';
+
+  @override
+  String get settingsFaq09Answer =>
+      'Ja! Beim Hinzufügen oder Bearbeiten einer Buchung kannst du Notizen ins Notizfeld schreiben. Premium-Nutzer können außerdem Belege mit dem KI-Beleg-Scan erfassen, der Betrag und Händler automatisch ausliest.';
+
+  @override
+  String get settingsFaqSectionWalletsCurrencies => 'Konten & Währungen';
+
+  @override
+  String get settingsFaq10Question => 'Wie verwalte ich mehrere Konten?';
+
+  @override
+  String get settingsFaq10Answer =>
+      'Die App kennt vier Kontotypen: Bargeld, Bankkonto, Kreditkarte und Abo. Um ein neues Konto anzulegen, geh auf dem Dashboard zu „Deine Konten“ und tippe auf „Konto hinzufügen“. Jedes Konto kann einen eigenen Namen, ein Symbol, eine Farbe und eine Währung haben. Dein erstes Konto wird automatisch zum Standardkonto. Bei Kreditkarten kannst du außerdem ein Kreditlimit und den Abrechnungstag festlegen, damit du deinen verfügbaren Kredit im Blick hast.';
+
+  @override
+  String get settingsFaq11Question => 'Kann ich mehrere Währungen nutzen?';
+
+  @override
+  String get settingsFaq11Answer =>
+      'Ja! Jedes Konto kann eine eigene Währung haben. Die App rechnet Währungen automatisch mit aktuellen Wechselkursen um. Eigene Wechselkurse kannst du unter Einstellungen > Regionale Einstellungen festlegen.';
+
+  @override
+  String get settingsFaq12Question =>
+      'Wie funktioniert die Währungsumrechnung?';
+
+  @override
+  String get settingsFaq12Answer =>
+      'Jedes Konto kann eine andere Währung haben, und die App rechnet Beträge automatisch mit aktuellen Wechselkursen um, die alle paar Stunden aktualisiert werden. Eigene Wechselkurse für jedes Währungspaar kannst du unter Einstellungen > Regionale Einstellungen festlegen. Die App unterstützt über 150 Währungen und ruft die Kurse automatisch ab.';
+
+  @override
+  String get settingsFaq13Question =>
+      'Was passiert, wenn ich eine Kategorie mit Buchungen lösche?';
+
+  @override
+  String get settingsFaq13Answer =>
+      'Diese Buchungen werden nach „Ohne Kategorie“ verschoben. Du kannst sie dann einer anderen Kategorie zuordnen oder ohne Kategorie lassen.';
+
+  @override
+  String get settingsFaq14Question =>
+      'Was sind Unterkategorien und wie nutze ich sie?';
+
+  @override
+  String get settingsFaq14Answer =>
+      'Du kannst unter jeder Hauptkategorie Unterkategorien anlegen, um genauer zu erfassen. Unter „Essen“ zum Beispiel „Lebensmittel“, „Restaurants“ und „Kaffee“. Mit Unterkategorien siehst du genau, wohin dein Geld geht.';
+
+  @override
+  String get settingsFaq15Question => 'Was ist eine Saldokorrektur?';
+
+  @override
+  String get settingsFaq15Answer =>
+      'Mit einer Saldokorrektur passt du den Kontostand an, wenn er nicht mit dem tatsächlichen Betrag übereinstimmt. Dabei entsteht eine besondere Buchung, die deinen erfassten Stand an die Wirklichkeit angleicht, ohne dass du von Hand Einnahmen oder Ausgaben eintragen musst.';
+
+  @override
+  String get settingsFaqSectionBudgetsGoals => 'Budgets & Ziele';
+
+  @override
+  String get settingsFaq16Question => 'Wie lege ich ein Budget an?';
+
+  @override
+  String get settingsFaq16Answer =>
+      'Geh zum Tab Budgets und tippe auf „Neues Budget“. Gib einen Namen ein, lege dein Ausgabenlimit fest, wähle den Zeitraum (wöchentlich/monatlich) und wähle die Kategorien, die erfasst werden sollen. Die App warnt dich, wenn du dich deinem Limit näherst.';
+
+  @override
+  String get settingsFaq17Question => 'Was sind Sparziele?';
+
+  @override
+  String get settingsFaq17Answer =>
+      'Mit Sparzielen legst du einen Betrag fest, den du sparen möchtest. Erstelle im Bereich Ziele ein Ziel, lege den Zielbetrag fest und verknüpfe Buchungen, um deinen Fortschritt zu verfolgen. Die App zeigt einen Fortschrittsbalken und wie viel Prozent du schon erreicht hast.';
+
+  @override
+  String get settingsFaq18Question => 'Wie behalte ich ein Darlehen im Blick?';
+
+  @override
+  String get settingsFaq18Answer =>
+      'Lege im Bereich Ziele ein Darlehen mit dem gesamten geschuldeten Betrag an. Verknüpfe deine Zahlungen mit dem Darlehen, um zu sehen, wie weit du mit der Rückzahlung bist. Die App zeigt, wie viel du schon gezahlt hast und was noch offen ist.';
+
+  @override
+  String get settingsFaqSectionDataSync => 'Daten & Sync';
+
+  @override
+  String get settingsFaq19Question => 'Wie funktioniert Cloud-Sync?';
+
+  @override
+  String get settingsFaq19Answer =>
+      'Cloud-Sync hält deine Daten auf allen Geräten aktuell. Geh zu Einstellungen > Datenverwaltung > Cloud-Sync, um es einzuschalten. Die Synchronisierung läuft automatisch alle 15 Minuten und beim Öffnen der App. Du kannst auch auf „Jetzt synchronisieren“ tippen, um sofort zu synchronisieren. Das ist eine Premium-Funktion.';
+
+  @override
+  String get settingsFaq20Question => 'Wie exportiere ich meine Daten?';
+
+  @override
+  String get settingsFaq20Answer =>
+      'Geh zu Einstellungen > Datenverwaltung > Daten exportieren. Wähle einen Zeitraum, dann CSV (für Tabellen) oder PDF (für einen formatierten Bericht) und tippe auf Exportieren. Du kannst Aufschlüsselungen nach Kategorie und Konto ein- oder ausblenden. Das ist eine Premium-Funktion.';
+
+  @override
+  String get settingsFaq21Question =>
+      'Was passiert, wenn ich meine Daten lösche?';
+
+  @override
+  String get settingsFaq21Answer =>
+      'Geh zu Einstellungen > Datenschutz & Sicherheit. „Cache leeren“ entfernt temporäre Daten und erzwingt eine neue Synchronisierung, ohne deine Buchungen zu löschen. „Alle Daten löschen“ löscht alles endgültig – zur Bestätigung musst du DELETE eintippen. Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get settingsFaqSectionPremiumAiFeatures => 'Premium & KI-Funktionen';
+
+  @override
+  String get settingsFaq22Question => 'Was ist in Premium enthalten?';
+
+  @override
+  String get settingsFaq22Answer =>
+      'Premium schaltet frei: unbegrenzte KI (Coach, Monatsübersichten, Belege lesen und Beschreib es) ohne Werbung, Cloud-Sync, PDF-Berichte und Premium-Designs, und es hebt die Limits für Konten, Kategorien, Budgets, Ziele und Zahlungsmethoden auf. Außerdem bekommst du bevorzugten Support.';
+
+  @override
+  String get settingsFaq23Question =>
+      'Welche Limits gibt es in der kostenlosen Version?';
+
+  @override
+  String get settingsFaq23Answer =>
+      'Kostenlos kannst du bis zu 3 Konten, 10 eigene Kategorien, 3 aktive Budgets, 2 aktive Ziele/Darlehen und 5 Zahlungsmethoden anlegen. Mit Premium fallen all diese Limits weg.';
+
+  @override
+  String get settingsFaq24Question => 'Was kann der KI-Assistent?';
+
+  @override
+  String get settingsFaq24Answer =>
+      'Der Finanzcoach beantwortet Fragen zu deinem eigenen Geld: wohin es gegangen ist, ob du bei Budgets und Zielen auf Kurs bist, welche Rechnungen anstehen und wie du weniger ausgibst oder mehr sparst. Er sieht eine Zusammenfassung deiner Zahlen (Summen, Kategorien, Budgets, Ziele, Rechnungen und letzte Buchungen), damit seine Antworten mit deinen echten Zahlen arbeiten, und schlägt nach jeder Antwort Folgefragen vor. Er gibt allgemeine Tipps, keine professionelle Finanzberatung. Deine Unterhaltungen werden gespeichert, damit du dort weitermachen kannst, wo du aufgehört hast, und du kannst sie jederzeit löschen.';
+
+  @override
+  String get settingsFaq25Question => 'Wie funktionieren KI-Einblicke?';
+
+  @override
+  String get settingsFaq25Answer =>
+      'Die Monatsübersicht (Statistik > Ausgabenanalyse) vergleicht diesen Monat mit dem letzten: was du eingenommen und ausgegeben hast und wie sich jede Kategorie verändert hat. Tippe auf Zusammenfassung schreiben, und die KI hebt hervor, was auffällt, und schlägt dir eine Sache zum Ausprobieren vor. Die Zahlen sind für alle kostenlos; der KI-Text verbraucht eine KI-Anfrage.';
+
+  @override
+  String get settingsFaq26Question =>
+      'Was ist die intelligente Kategorisierung?';
+
+  @override
+  String get settingsFaq26Answer =>
+      'Wenn du eine Buchung von Hand einordnest, merkt sich die App, zu welcher Kategorie dieser Titel gehört, und wählt sie beim nächsten Mal für dich aus (unter Benennungsregeln kannst du das ansehen und bearbeiten). Für etwas Neues tippst du auf dem Hinzufügen-Bildschirm auf die Glitzer-Schaltfläche und nutzt Beschreib es: Schreib etwa „Mittagessen 250 gestern von bKash“, und die KI füllt Betrag, Datum, Kategorie und Konto aus, damit du alles prüfen kannst.';
+
+  @override
+  String get settingsFaq27Question => 'Wie funktioniert der KI-Beleg-Scan?';
+
+  @override
+  String get settingsFaq27Answer =>
+      'Mach ein Foto von einem Beleg oder wähle eines aus. Dein Handy liest den Text direkt auf dem Gerät und schlägt Händler und Summe vor. Tippe auf Mit KI lesen, und die KI ermittelt die echte Summe, das Datum, jeden Posten und die passende Kategorie, selbst bei einem unordentlichen Beleg; dabei wird nur der Text gesendet, nie das Foto. Vor dem Speichern kannst du alles prüfen und bearbeiten. Das Lesen mit KI verbraucht eine KI-Anfrage.';
+
+  @override
+  String get settingsFaq28Question =>
+      'Wie viele KI-Anfragen bekomme ich, und wofür ist die Werbung?';
+
+  @override
+  String get settingsFaq28Answer =>
+      'Alle bekommen 10 kostenlose KI-Anfragen pro Monat, die am 1. wieder aufgefüllt werden. Wenn du mehr möchtest, kannst du dir freiwillig eine kurze Werbung ansehen und bekommst dafür eine weitere Anfrage, bis zu 10 zusätzliche pro Monat. Mit Werbung kannst du auch ein Premium-Design 24 Stunden lang testen oder einen PDF-Export freischalten. Werbung läuft nur, nachdem du auf eine Schaltfläche getippt und bestätigt hast; es gibt keine Bannerwerbung und nichts erscheint von selbst. Premium-Mitglieder bekommen unbegrenzte KI und alles andere ganz ohne Werbung.';
+
+  @override
+  String get settingsFaq29Question => 'Wie verwalte ich meinen Premium-Kauf?';
+
+  @override
+  String get settingsFaq29Answer =>
+      'Premium-Käufe werden über Google Play verwaltet. Öffne die Abo-Einstellungen in Google Play, um deinen Plan anzusehen oder zu verwalten. Premium gibt es monatlich, jährlich oder als einmaligen Kauf auf Lebenszeit.';
+
+  @override
+  String get settingsFaqSectionPrivacySecurity => 'Datenschutz & Sicherheit';
+
+  @override
+  String get settingsFaq30Question =>
+      'Wie richte ich die biometrische Sperre ein?';
+
+  @override
+  String get settingsFaq30Answer =>
+      'Geh zu Einstellungen > Datenschutz & Sicherheit und schalte die biometrische Sperre ein. Danach brauchst du deinen Fingerabdruck oder dein Gesicht, um die App zu öffnen. Du kannst auch eine automatische Sperre einstellen, damit sich die App nach einer Weile ohne Nutzung sperrt.';
+
+  @override
+  String get settingsFaq31Question => 'Sind meine Finanzdaten sicher?';
+
+  @override
+  String get settingsFaq31Answer =>
+      'Ja. Alle deine Daten werden lokal auf deinem Gerät gespeichert. Wenn du Cloud-Sync nutzt, werden deine Daten bei der Übertragung verschlüsselt. Wir geben deine Finanzdaten nie an Dritte weiter. Unsere Datenschutzerklärung findest du unter Einstellungen > Über.';
+
+  @override
+  String get txnLoadPaymentMethodsFailed =>
+      'Zahlungsmethoden konnten nicht geladen werden';
+
+  @override
+  String get txnAddPaymentMethodFailed =>
+      'Zahlungsmethode konnte nicht hinzugefügt werden';
+
+  @override
+  String get txnPaymentMethodNotFound => 'Zahlungsmethode nicht gefunden';
+
+  @override
+  String get txnUpdatePaymentMethodFailed =>
+      'Zahlungsmethode konnte nicht aktualisiert werden';
+
+  @override
+  String get txnDeletePaymentMethodFailed =>
+      'Zahlungsmethode konnte nicht gelöscht werden';
+
+  @override
+  String txnLoadFailed(String error) {
+    return 'Buchungen konnten nicht geladen werden: $error';
+  }
+
+  @override
+  String get txnAddFailed => 'Buchung konnte nicht hinzugefügt werden';
+
+  @override
+  String txnAddFailedWithError(String error) {
+    return 'Buchung konnte nicht hinzugefügt werden: $error';
+  }
+
+  @override
+  String get txnNotFound => 'Buchung nicht gefunden';
+
+  @override
+  String get txnUpdateFailed => 'Buchung konnte nicht aktualisiert werden';
+
+  @override
+  String txnNotATransfer(String id) {
+    return 'Buchung $id ist keine Umbuchung';
+  }
+
+  @override
+  String txnUpdateTransferFailed(String error) {
+    return 'Umbuchung konnte nicht aktualisiert werden: $error';
+  }
+
+  @override
+  String get txnDeleteFailed => 'Buchung konnte nicht gelöscht werden';
+
+  @override
+  String txnLoadTransfersFailed(String error) {
+    return 'Umbuchungen konnten nicht geladen werden: $error';
+  }
+
+  @override
+  String txnCreateTransferFailed(String error) {
+    return 'Umbuchung konnte nicht erstellt werden: $error';
+  }
+
+  @override
+  String txnDeleteTransferFailed(String error) {
+    return 'Umbuchung konnte nicht gelöscht werden: $error';
+  }
+
+  @override
+  String txnLoadDataFailed(String error) {
+    return 'Daten konnten nicht geladen werden: $error';
+  }
+
+  @override
+  String txnMarkPaidFailed(String error) {
+    return 'Konnte nicht als bezahlt markiert werden: $error';
+  }
+
+  @override
+  String txnMarkUnpaidFailed(String error) {
+    return 'Konnte nicht als unbezahlt markiert werden: $error';
+  }
+
+  @override
+  String txnSkipFailed(String error) {
+    return 'Buchung konnte nicht übersprungen werden: $error';
+  }
+
+  @override
+  String creditReceivedTitle(String title) {
+    return 'Erhalten: $title';
+  }
+
+  @override
+  String creditPaidTitle(String title) {
+    return 'Bezahlt: $title';
+  }
+
+  @override
+  String creditReversedTitle(String title) {
+    return 'Storniert: $title';
+  }
+
+  @override
+  String creditMarkSettledFailed(String error) {
+    return 'Konnte nicht als beglichen markiert werden: $error';
+  }
+
+  @override
+  String get creditPaymentMustBePositive =>
+      'Der Zahlungsbetrag muss größer als null sein';
+
+  @override
+  String creditRecordPaymentFailed(String error) {
+    return 'Zahlung konnte nicht erfasst werden: $error';
+  }
+
+  @override
+  String creditMarkPendingFailed(String error) {
+    return 'Konnte nicht als offen markiert werden: $error';
+  }
+
+  @override
+  String creditRemaining(String amount) {
+    return 'Offen: $amount';
+  }
+
+  @override
+  String creditPaymentRecorded(String amount) {
+    return 'Zahlung von $amount erfasst';
+  }
+
+  @override
+  String creditMarkedCollected(String title) {
+    return 'Als von „$title“ erhalten markiert';
+  }
+
+  @override
+  String get importFieldDescription => 'Beschreibung';
+
+  @override
+  String get importFieldDirection => 'Art (Gutschrift/Lastschrift)';
+
+  @override
+  String get importMissingDate => 'eine Datumsspalte';
+
+  @override
+  String get importMissingAmount => 'eine Betragsspalte';
+
+  @override
+  String importColumnN(int index) {
+    return 'Spalte $index';
+  }
+
+  @override
+  String get importNoDate => 'Kein Datum';
+
+  @override
+  String importDateMismatch(String date, String format) {
+    return 'Das Datum „$date“ passt nicht zu $format';
+  }
+
+  @override
+  String get importAnyKnownFormat => 'einem bekannten Format';
+
+  @override
+  String get importNoAmount => 'Kein Betrag';
+
+  @override
+  String get importIntro =>
+      'Exportiere eine CSV aus deiner Bank und öffne sie hier. Die Spalten werden für dich erkannt, und nichts wird hinzugefügt, bevor du genau gesehen hast, was es sein wird.';
+
+  @override
+  String get importSavedBanks => 'GESPEICHERTE BANKEN';
+
+  @override
+  String get importChooseStatement => 'Kontoauszug wählen';
+
+  @override
+  String get importNoRows => 'Diese Datei enthält keine Zeilen.';
+
+  @override
+  String importUsingSavedMapping(String name) {
+    return 'Deine gespeicherte Zuordnung für $name wird verwendet.';
+  }
+
+  @override
+  String importCouldNotRead(String error) {
+    return 'Diese Datei konnte nicht gelesen werden: $error';
+  }
+
+  @override
+  String importForgetTitle(String name) {
+    return '$name vergessen?';
+  }
+
+  @override
+  String get importForgetBody =>
+      'Beim nächsten Mal wirst du erneut nach der Spaltenzuordnung gefragt.';
+
+  @override
+  String get importColumnsHeader => 'SPALTEN';
+
+  @override
+  String get importHowToRead => 'SO WERDEN DIE WERTE GELESEN';
+
+  @override
+  String get importWhereItGoes => 'WOHIN ES GEHT';
+
+  @override
+  String get importWhatWillBeAdded => 'WAS HINZUGEFÜGT WIRD';
+
+  @override
+  String importRowsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Zeilen',
+      one: '1 Zeile',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importColumnsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Spalten',
+      one: '1 Spalte',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSeparatedBy(String separator) {
+    return 'getrennt durch $separator';
+  }
+
+  @override
+  String importMappedAs(String name) {
+    return 'zugeordnet als $name';
+  }
+
+  @override
+  String get importDelimCommas => 'Kommas';
+
+  @override
+  String get importDelimSemicolons => 'Semikolons';
+
+  @override
+  String get importDelimTabs => 'Tabulatoren';
+
+  @override
+  String get importDelimPipes => 'senkrechte Striche';
+
+  @override
+  String get importRequired => 'Erforderlich';
+
+  @override
+  String get importNotImported => 'Nicht importiert';
+
+  @override
+  String get importEmptySample => 'leer';
+
+  @override
+  String get importPickDateColumnFirst => 'Wähle zuerst eine Datumsspalte.';
+
+  @override
+  String importDateDoesNotFit(String sample) {
+    return '„$sample“ passt nicht zu diesem Format.';
+  }
+
+  @override
+  String importDateReadsAs(String sample, String date) {
+    return '„$sample“ wird als $date gelesen';
+  }
+
+  @override
+  String get importDecimalAuto => 'Aus der Datei ermittelt';
+
+  @override
+  String get importDecimalFullStop => 'Ein Punkt, wie in 1,234.56';
+
+  @override
+  String get importDecimalComma => 'Ein Komma, wie in 1.234,56';
+
+  @override
+  String get importDuplicatesHint =>
+      'Abgleich nach Tag, Betrag und Beschreibung, damit ein überlappender Auszug nichts doppelt importiert';
+
+  @override
+  String importStillNeeds(String item) {
+    return 'Es fehlt noch $item.';
+  }
+
+  @override
+  String importStillNeedsBoth(String first, String second) {
+    return 'Es fehlen noch $first und $second.';
+  }
+
+  @override
+  String get importNothingReadable =>
+      'Mit diesen Einstellungen lässt sich nichts aus dieser Datei lesen. Prüfe das Datumsformat und welche Spalte den Betrag enthält.';
+
+  @override
+  String importTransactionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Buchungen',
+      one: '1 Buchung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importAmountIn(String amount) {
+    return '$amount rein';
+  }
+
+  @override
+  String importAmountOut(String amount) {
+    return '$amount raus';
+  }
+
+  @override
+  String importAndMore(int count) {
+    return 'und $count weitere';
+  }
+
+  @override
+  String importLinesSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Zeilen werden übersprungen',
+      one: '1 Zeile wird übersprungen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLinesSkippedSentence(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Zeilen werden übersprungen.',
+      one: '1 Zeile wird übersprungen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importLineProblem(int line, String problem) {
+    return 'Zeile $line: $problem';
+  }
+
+  @override
+  String get importAddAccountFirst => 'Füge zuerst ein Konto hinzu';
+
+  @override
+  String importImportCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Buchungen importieren',
+      one: '1 Buchung importieren',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Buchungen importieren?',
+      one: '1 Buchung importieren?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importConfirmBody =>
+      'Sie werden deinen Einträgen hinzugefügt und bei der nächsten Synchronisierung hochgeladen.';
+
+  @override
+  String get importConfirmDuplicates =>
+      'Was schon mit gleichem Tag, Betrag und gleicher Beschreibung vorhanden ist, bleibt unberührt.';
+
+  @override
+  String importFailed(String error) {
+    return 'Der Import ist fehlgeschlagen: $error';
+  }
+
+  @override
+  String importImportedTitle(int count) {
+    return '$count importiert';
+  }
+
+  @override
+  String importSkippedDuplicates(int count) {
+    return '$count waren schon vorhanden und blieben unberührt.';
+  }
+
+  @override
+  String importUnreadableLines(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Zeilen konnten nicht gelesen werden.',
+      one: '1 Zeile konnte nicht gelesen werden.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importNewCategories(String names) {
+    return 'Neue Kategorien: $names.';
+  }
+
+  @override
+  String importUnmatchedAccounts(String names) {
+    return 'Zu diesen Kontonamen gab es hier nichts Passendes, daher gingen ihre Zeilen auf das gewählte Konto: $names.';
+  }
+
+  @override
+  String get importRememberBody =>
+      'Die nächste Datei mit denselben Spalten wird ohne Nachfrage so zugeordnet.';
+
+  @override
+  String get importNoHeaderCannotSave =>
+      'Eine Datei ohne Spaltentitel kann nicht wiedererkannt werden, es gibt also nichts zum Abgleichen.';
+
+  @override
+  String get importTemplateSaved =>
+      'Gespeichert. Dateien mit diesen Spalten nutzen das ab jetzt.';
+
+  @override
+  String get txnTransferSameWallet =>
+      'Quell- und Zielkonto müssen verschieden sein';
+
+  @override
+  String get txnTransferAmountPositive =>
+      'Der Umbuchungsbetrag muss größer als null sein';
+
+  @override
+  String get txnTransferFeeNegative =>
+      'Die Umbuchungsgebühr darf nicht negativ sein';
+
+  @override
+  String txnSourceWalletNotFound(String id) {
+    return 'Quellkonto nicht gefunden: $id';
+  }
+
+  @override
+  String txnDestinationWalletNotFound(String id) {
+    return 'Zielkonto nicht gefunden: $id';
+  }
+
+  @override
+  String txnTransferTitle(String from, String to) {
+    return 'Umbuchung: $from → $to';
+  }
+
+  @override
+  String txnTransferWalletsMissing(String source, String destination) {
+    return 'Für eine Umbuchung müssen beide Konten existieren (Quelle: $source, Ziel: $destination).';
+  }
+
+  @override
+  String txnTransferSameCurrencyReceived(
+    String source,
+    String destination,
+    String currency,
+  ) {
+    return 'Eine Umbuchung in einer Währung bewegt einen Betrag: $source und $destination sind beide in $currency, daher kann der erhaltene Betrag nicht abweichen.';
+  }
+
+  @override
+  String txnTransferNoRate(String from, String to, String destination) {
+    return 'Zwischen $from und $to ist kein Kurs bekannt. Gib also ein, was tatsächlich auf $destination angekommen ist.';
+  }
+
+  @override
+  String txnTransferReceivedPositive(String destination) {
+    return 'Der erhaltene Betrag muss größer als null sein. Gib ein, was tatsächlich auf $destination angekommen ist.';
+  }
+
+  @override
+  String txnFeeTitle(String title) {
+    return 'Gebühr: $title';
+  }
+
+  @override
+  String txnNotFoundWithId(String id) {
+    return 'Buchung nicht gefunden: $id';
+  }
+
+  @override
+  String get txnNotATransferNoPair =>
+      'Die Buchung ist keine Umbuchung (keine Gegenbuchung)';
+
+  @override
+  String txnPairedNotFound(String id) {
+    return 'Gegenbuchung $id nicht gefunden; eine halbe Umbuchung wird nicht bearbeitet.';
+  }
+
+  @override
+  String walletNoSuchAccount(String id) {
+    return 'Kein solches Konto: $id';
+  }
+
+  @override
+  String get walletCorrectionTitle => 'Saldokorrektur';
+
+  @override
+  String walletCorrectionNote(String name) {
+    return '$name an den tatsächlichen Saldo angepasst.';
+  }
+
+  @override
+  String get walletMergeIntoItself =>
+      'Ein Konto kann nicht mit sich selbst zusammengeführt werden.';
+
+  @override
+  String get walletMergeBothMustExist =>
+      'Zum Zusammenführen müssen beide Konten existieren.';
+
+  @override
+  String walletMergeNoRate(String from, String to) {
+    return 'Zwischen $from und $to ist kein Kurs bekannt, daher können diese Konten noch nicht zusammengeführt werden.';
+  }
+
+  @override
+  String get walletMergeAdjustmentTitle => 'Zusammenführungsausgleich';
+
+  @override
+  String walletMergeAdjustmentNote(String name) {
+    return 'Der Kurs einer Umbuchung zwischen diesen Konten weicht vom Kurs ab, zu dem $name zusammengeführt wurde. Dies erfasst die Differenz, damit die Summe gleich bleibt.';
+  }
+
+  @override
+  String get splitErrNoTotal => 'Gib den Rechnungsbetrag ein.';
+
+  @override
+  String get splitErrNoPeople => 'Füge jemanden hinzu, mit dem du teilst.';
+
+  @override
+  String splitErrPayerNotOnBill(String name) {
+    return '$name ist nicht an der Rechnung beteiligt.';
+  }
+
+  @override
+  String get splitErrNothingToRecord =>
+      'Jemand anderes hat bezahlt und du hattest nichts davon, also gibt es nichts zu erfassen.';
+
+  @override
+  String get splitErrGiveOwnShare => 'Gib deinen eigenen Anteil an.';
+
+  @override
+  String splitErrGiveShare(String name) {
+    return 'Gib den Anteil von $name an.';
+  }
+
+  @override
+  String get splitErrNegativeShare => 'Ein Anteil darf nicht negativ sein.';
+
+  @override
+  String splitErrSharesSum(String sum, String total) {
+    return 'Die Anteile ergeben $sum, nicht $total.';
+  }
+
+  @override
+  String splitErrPercentSum(String sum) {
+    return 'Die Prozente ergeben $sum %, nicht 100 %.';
+  }
+
+  @override
+  String get splitErrNameTooLong => 'Namen dürfen höchstens 100 Zeichen haben.';
+
+  @override
+  String splitErrDuplicateName(String name) {
+    return '$name steht zweimal auf der Rechnung.';
+  }
+
+  @override
+  String get splitErrTitleTooLong =>
+      'Der Titel darf höchstens 200 Zeichen haben.';
+
+  @override
+  String get splitErrChooseAccount => 'Wähle das Konto, von dem bezahlt wurde.';
+
+  @override
+  String get splitErrOrdinaryAccount => 'Wähle ein normales Konto.';
+
+  @override
+  String get splitErrYourShareNothing =>
+      'Dein Anteil ist null, also schuldest du nichts.';
+
+  @override
+  String get splitErrEveryShareNothing => 'Alle Anteile sind null.';
+
+  @override
+  String get recurringDaily => 'Täglich';
+
+  @override
+  String recurringEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Alle $count Tage',
+      one: 'Jeden Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Alle $count Wochen',
+      one: 'Jede Woche',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Alle $count Monate',
+      one: 'Jeden Monat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Alle $count Jahre',
+      one: 'Jedes Jahr',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringEveryOther(int count, String unit) {
+    return 'Alle $count $unit';
+  }
+
+  @override
+  String get recurringUntitled => 'Wiederkehrende Buchung';
+
+  @override
+  String recurringInDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'In $count Tagen',
+      one: 'In 1 Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringNextWeek => 'Nächste Woche';
+
+  @override
+  String recurringInWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'In $count Wochen',
+      one: 'In 1 Woche',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnPmKindCard => 'Karte';
+
+  @override
+  String get txnPmKindDigitalWallet => 'Digitale Geldbörse';
+
+  @override
+  String get txnPmEmptyHint =>
+      'Füge die Karten und Konten hinzu, mit denen du bezahlst, dann kannst du bei einer Buchung eine auswählen.';
+
+  @override
+  String get txnPmDeleteBody =>
+      'Bereits damit erfasste Buchungen bleiben erhalten. Sie nennen nur keine Zahlungsmethode mehr.';
+
+  @override
+  String get txnPmNew => 'Neue Zahlungsmethode';
+
+  @override
+  String get txnPmEdit => 'Zahlungsmethode bearbeiten';
+
+  @override
+  String get txnRecentlyDeletedFooter =>
+      'Gelöschte Buchungen werden dreißig Tage aufbewahrt und dann endgültig entfernt.';
+
+  @override
+  String get txnUnknownCategory => 'Unbekannt';
+
+  @override
+  String txnRuleSubtitle(String match, String category) {
+    return '$match → $category';
+  }
+
+  @override
+  String get txnRuleExactly => 'Genau das';
+
+  @override
+  String get txnRuleContaining => 'Alles, was das enthält';
+
+  @override
+  String get txnRulesFooter =>
+      'Eine Regel greift überall im Titel, außer du machst sie exakt. Die App legt jedes Mal eine an, wenn du etwas von Hand einordnest.';
+
+  @override
+  String get txnRulesEmptyHint =>
+      'Zeig der App einmal, wohin etwas gehört, und sie ordnet es ab dann so ein.';
+
+  @override
+  String get txnRuleNew => 'Neue Regel';
+
+  @override
+  String get txnRuleEdit => 'Regel bearbeiten';
+
+  @override
+  String get txnRuleExactHint => 'Nur Titel, die genau so lauten';
+
+  @override
+  String get txnRuleContainingHint => 'Jeder Titel, der es enthält';
+
+  @override
+  String get txnKindTransfer => 'Umbuchung zwischen Konten';
+
+  @override
+  String get txnKindRecurring => 'Aus einem wiederkehrenden Eintrag';
+
+  @override
+  String get txnMoneyIn => 'Geld rein';
+
+  @override
+  String get txnMoneyOut => 'Geld raus';
+
+  @override
+  String get txnNotYetPaid => 'Noch nicht bezahlt';
+
+  @override
+  String get txnLentOut => 'Verliehen';
+
+  @override
+  String get txnSettledInFull => 'Vollständig beglichen.';
+
+  @override
+  String txnLoanProgress(String paid, String owed) {
+    return '$paid zurück, $owed noch offen.';
+  }
+
+  @override
+  String get txnUncategorised => 'Ohne Kategorie';
+
+  @override
+  String get txnUnknownAccount => 'Unbekannt';
+
+  @override
+  String get txnTransferCannotCopy =>
+      'Eine Umbuchung kann nicht einzeln kopiert werden.';
+
+  @override
+  String get txnCopied => 'Kopiert.';
+
+  @override
+  String get txnDeleteOneBody =>
+      'Der Kontostand wird neu berechnet. Ist dies eine Seite einer Umbuchung, geht die andere mit.';
+
+  @override
+  String txnUpcomingTab(int count) {
+    return 'Anstehend ($count)';
+  }
+
+  @override
+  String txnOverdueTab(int count) {
+    return 'Überfällig ($count)';
+  }
+
+  @override
+  String get txnNoOverdue => 'Keine überfälligen Buchungen';
+
+  @override
+  String get txnNoUpcoming => 'Keine anstehenden Buchungen';
+
+  @override
+  String get txnNoOverdueBody =>
+      'Alle deine Zahlungen sind auf dem aktuellen Stand!';
+
+  @override
+  String get txnNoUpcomingBody => 'Du hast keine offenen Zahlungen geplant';
+
+  @override
+  String get txnTotalOverdue => 'Überfällig gesamt';
+
+  @override
+  String get txnTotalUpcoming => 'Anstehend gesamt';
+
+  @override
+  String txnItemsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Einträge',
+      one: '1 Eintrag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnDaysOverdue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Tage überfällig',
+      one: '1 Tag überfällig',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String txnMarkedPaid(String title) {
+    return '„$title“ als bezahlt markiert';
+  }
+
+  @override
+  String txnSkippedTitle(String title) {
+    return '„$title“ übersprungen';
+  }
+
+  @override
+  String txnDateHeaderToday(String date) {
+    return 'Heute, $date';
+  }
+
+  @override
+  String txnDateHeaderYesterday(String date) {
+    return 'Gestern, $date';
+  }
+
+  @override
+  String txnDateHeaderTomorrow(String date) {
+    return 'Morgen, $date';
+  }
+
+  @override
+  String txnDeleteError(String error) {
+    return 'Fehler beim Löschen der Buchung: $error';
+  }
+
+  @override
+  String txnFilterTitle(String title) {
+    return '$title filtern';
+  }
+
+  @override
+  String get txnMonthlyIncome => 'Monatliche Einnahmen';
+
+  @override
+  String get txnMonthlyExpenses => 'Monatliche Ausgaben';
+
+  @override
+  String txnStatTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Buchungen',
+      one: 'Buchung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txnAvgPerTransaction => 'Ø pro Buchung';
+
+  @override
+  String get txnNoPlannedIncome => 'Keine geplanten Einnahmen';
+
+  @override
+  String get txnNoPlannedExpenses => 'Keine geplanten Ausgaben';
+
+  @override
+  String txnAddFutureIncome(String month) {
+    return 'Füge künftige Einnahmen für $month hinzu';
+  }
+
+  @override
+  String txnAddFutureExpenses(String month) {
+    return 'Füge künftige Ausgaben für $month hinzu';
+  }
+
+  @override
+  String get txnNoIncomeYet => 'Diesen Monat noch keine Einnahmen';
+
+  @override
+  String get txnNoExpensesYet => 'Diesen Monat noch keine Ausgaben';
+
+  @override
+  String get txnStartTrackingIncome => 'Erfasse diesen Monat deine Einnahmen';
+
+  @override
+  String get txnStartTrackingExpenses => 'Erfasse diesen Monat deine Ausgaben';
+
+  @override
+  String txnNoIncomeIn(String month) {
+    return 'Keine Einnahmen im $month';
+  }
+
+  @override
+  String txnNoExpensesIn(String month) {
+    return 'Keine Ausgaben im $month';
+  }
+
+  @override
+  String txnNoRecordsFor(String month) {
+    return 'Keine Einträge für $month';
+  }
+
+  @override
+  String get txnOtherCategory => 'Sonstiges';
+
+  @override
+  String get txnSearchIncome => 'Einnahmen suchen';
+
+  @override
+  String get txnSearchExpenses => 'Ausgaben suchen';
+
+  @override
+  String txnErrorWith(String error) {
+    return 'Fehler: $error';
+  }
+
+  @override
+  String get txnTapToEditAmount => 'Tippen, um den Betrag zu ändern';
+
+  @override
+  String get txnTapToEnterAmount => 'Tippen, um einen Betrag einzugeben';
+
+  @override
+  String get txnSpecialDefault => 'Standard';
+
+  @override
+  String get txnSpecialRepetitive => 'Wiederkehrend';
+
+  @override
+  String get txnRepeatSettings => 'Wiederholung';
+
+  @override
+  String get txnSubscriptionSettings => 'Abo-Einstellungen';
+
+  @override
+  String txnEndsOn(String date) {
+    return 'Endet: $date';
+  }
+
+  @override
+  String get txnNoEndDate => 'Kein Enddatum';
+
+  @override
+  String get txnEditTransaction => 'Buchung bearbeiten';
+
+  @override
+  String get txnNewTransaction => 'Neue Buchung';
+
+  @override
+  String get txnFromAccount => 'Vom Konto';
+
+  @override
+  String get txnToAccount => 'Auf das Konto';
+
+  @override
+  String get txnAmountReceived => 'Erhaltener Betrag';
+
+  @override
+  String txnAmountReceivedHint(String account) {
+    return 'Diese Konten rechnen in verschiedenen Währungen. Gib ein, was tatsächlich auf $account angekommen ist, oder lass es leer, um den Kurs der App zu nutzen.';
+  }
+
+  @override
+  String txnInCurrency(String currency) {
+    return 'In $currency';
+  }
+
+  @override
+  String get txnTransferTitleHint => 'z. B. Aufs Sparkonto (optional)';
+
+  @override
+  String get txnTitleHint => 'Wofür war das?';
+
+  @override
+  String get txnUpdate => 'Aktualisieren';
+
+  @override
+  String get txnSelectCategory => 'Kategorie wählen';
+
+  @override
+  String get txnSearchTransactions => 'Buchungen suchen';
+
+  @override
+  String get txnSpecialRegular => 'Normal';
+
+  @override
+  String get txnSpecialLend => 'Verleihen';
+
+  @override
+  String get txnSpecialBorrow => 'Leihen';
+
+  @override
+  String get txnSpecialRegularDesc => 'Normale Buchung';
+
+  @override
+  String get txnSpecialUpcomingDesc => 'Künftige Zahlung zum Verfolgen';
+
+  @override
+  String get txnSpecialSubscriptionDesc =>
+      'Wiederkehrende Zahlung für einen Dienst';
+
+  @override
+  String get txnSpecialRepetitiveDesc => 'Wiederkehrende Buchung';
+
+  @override
+  String get txnSpecialLendDesc =>
+      'Geld, das du verliehen hast (man schuldet es dir)';
+
+  @override
+  String get txnSpecialBorrowDesc =>
+      'Geld, das du geliehen hast (du schuldest es)';
+
+  @override
+  String txnFilterBoundsInverted(String min, String max) {
+    return 'Die Untergrenze liegt über der Obergrenze, daher passt nichts. $min bis $max.';
+  }
+
+  @override
+  String get walletMyWallet => 'Mein Konto';
+
+  @override
+  String walletCreateFailed(String error) {
+    return 'Konto konnte nicht erstellt werden: $error';
+  }
+
+  @override
+  String get walletTypeBankAccount => 'Bankkonto';
+
+  @override
+  String get walletTypeCreditCard => 'Kreditkarte';
+
+  @override
+  String get walletTypeSubscription => 'Abo';
+
+  @override
+  String get walletTypeDeposit => 'Festgeld';
+
+  @override
+  String get walletTypeInvestment => 'Anlage';
+
+  @override
+  String get walletTypeAsset => 'Vermögenswert';
+
+  @override
+  String get walletEnterAccountName => 'Bitte gib einen Kontonamen ein';
+
+  @override
+  String get walletCreditLimitRequired => 'Kreditlimit ist erforderlich';
+
+  @override
+  String get walletEnterValidCreditLimit =>
+      'Bitte gib ein gültiges Kreditlimit ein';
+
+  @override
+  String get walletEnterValidCreditLimitAboveZero =>
+      'Bitte gib ein gültiges Kreditlimit über 0 ein';
+
+  @override
+  String get walletEditWallet => 'Konto bearbeiten';
+
+  @override
+  String get walletAddNewWallet => 'Neues Konto hinzufügen';
+
+  @override
+  String get walletEnterWalletNameError => 'Bitte gib einen Kontonamen ein';
+
+  @override
+  String get walletEnterValidNumber => 'Bitte gib eine gültige Zahl ein';
+
+  @override
+  String get walletShowCents => 'Cent anzeigen (z. B. \$1,234.56)';
+
+  @override
+  String get walletWholeNumbersOnly => 'Nur ganze Zahlen (z. B. \$1,235)';
+
+  @override
+  String get walletCreateWallet => 'Konto erstellen';
+
+  @override
+  String get walletClosedPill =>
+      'Geschlossen. Der Verlauf bleibt, aber es wird weder angeboten noch gezählt.';
+
+  @override
+  String get walletExcludedPill =>
+      'Nicht in der Gesamtsumme aller Konten enthalten.';
+
+  @override
+  String get walletReopen => 'Wieder öffnen';
+
+  @override
+  String get walletCloseAccount => 'Konto schließen';
+
+  @override
+  String get walletReopenSubtitle => 'Wieder anbieten und mitzählen';
+
+  @override
+  String get walletCloseAccountSubtitle =>
+      'Verlauf behalten, nicht mehr zählen';
+
+  @override
+  String get walletIncludeInTotal => 'In die Summe aufnehmen';
+
+  @override
+  String get walletLeaveOutOfTotal => 'Aus der Summe ausnehmen';
+
+  @override
+  String get walletAlreadyTheBalance => 'Das ist bereits der Saldo.';
+
+  @override
+  String get walletCorrectionRecorded =>
+      'Die Differenz wurde als Korrektur erfasst.';
+
+  @override
+  String walletMergeConfirmBody(String name) {
+    return 'Alles, was auf $name gebucht ist, wird übertragen, und $name wird geschlossen. Nichts wird gelöscht.';
+  }
+
+  @override
+  String walletMergeConfirmBodyConverted(String name, String from, String to) {
+    return 'Beträge werden beim Übertragen von $from in $to umgerechnet. Nichts wird gelöscht, und $name wird geschlossen statt entfernt.';
+  }
+
+  @override
+  String walletCardInCredit(String amount, String available) {
+    return '$amount Guthaben · $available verfügbar';
+  }
+
+  @override
+  String walletCardOwed(String amount, String available) {
+    return '$amount offen · $available noch verfügbar';
+  }
+
+  @override
+  String walletCorrectBalanceBody(String name) {
+    return 'Gib ein, was $name wirklich enthält. Die Differenz wird als Buchung erfasst, damit das Konto zu seinem Verlauf passt.';
+  }
+
+  @override
+  String get apiUpdateRequired =>
+      'Aktualisiere The Accountant, um weiter zu synchronisieren. Bis dahin bleibt alles auf diesem Handy.';
+
+  @override
+  String get apiAccountExistsLink =>
+      'Mit dieser E-Mail gibt es bereits ein Konto. Bitte verknüpfe deine Konten.';
+
+  @override
+  String get apiServerTrouble =>
+      'Unser Server hat gerade Probleme. Auf diesem Handy ist alles sicher; versuch es in ein paar Minuten erneut.';
+
+  @override
+  String apiRequestFailedHttp(String status) {
+    return 'Anfrage fehlgeschlagen (HTTP $status).';
+  }
+
+  @override
+  String get apiServerTimeout =>
+      'Unser Server hat zu lange gebraucht. Prüfe deine Verbindung oder versuch es in ein paar Minuten erneut.';
+
+  @override
+  String get apiCannotReachServer =>
+      'Unser Server ist nicht erreichbar. Prüfe deine Verbindung; wenn du online bist, versuch es in ein paar Minuten erneut.';
+
+  @override
+  String get apiSomethingWentWrong =>
+      'Bei der Verbindung mit unserem Server ist etwas schiefgelaufen. Bitte versuch es erneut.';
+
+  @override
+  String get syncAlreadyInProgress => 'Synchronisierung läuft bereits';
+
+  @override
+  String get syncRequiresPremium => 'Cloud-Sync erfordert ein Premium-Abo';
+
+  @override
+  String get syncNoInternet => 'Keine Internetverbindung';
+
+  @override
+  String get syncNotAuthenticated => 'Nicht angemeldet';
+
+  @override
+  String get syncCouldNotFetchCloud =>
+      'Deine Cloud-Daten konnten nicht geladen werden. Die lokalen Daten sind unverändert.';
+
+  @override
+  String get syncAccountUnknown =>
+      'Das angemeldete Konto konnte nicht ermittelt werden; Synchronisierung abgebrochen.';
+
+  @override
+  String get syncStoreOtherAccount =>
+      'Die Daten auf diesem Gerät gehören zu einem anderen Konto. Melde dich mit diesem Konto an oder lösche die lokalen Daten, bevor du synchronisierst.';
+
+  @override
+  String syncRecordsNotSaved(String record) {
+    return 'Einige Cloud-Einträge konnten auf diesem Gerät nicht gespeichert werden: $record. Beim nächsten Sync wird es erneut versucht.';
+  }
+
+  @override
+  String syncRecordsNotSavedMore(String record, int count) {
+    return 'Einige Cloud-Einträge konnten auf diesem Gerät nicht gespeichert werden: $record (und $count weitere). Beim nächsten Sync wird es erneut versucht.';
+  }
+
+  @override
+  String notifCardStatementReady(String name) {
+    return 'Abrechnung für $name ist fertig';
+  }
+
+  @override
+  String notifCardStatementPaid(String amount) {
+    return 'Es waren $amount, bereits bezahlt. Nichts mehr fällig.';
+  }
+
+  @override
+  String notifCardDueBy(String amount, String date) {
+    return '$amount ist bis $date fällig.';
+  }
+
+  @override
+  String notifCardPaidSoFar(String paid, String owed) {
+    return '$paid von $owed sind bereits bezahlt.';
+  }
+
+  @override
+  String notifCardDueTomorrow(String name) {
+    return 'Abrechnung für $name ist morgen fällig';
+  }
+
+  @override
+  String notifCardDueInDays(String name, int days) {
+    return 'Abrechnung für $name ist in $days Tagen fällig';
+  }
+
+  @override
+  String notifPayBy(String amount, String date) {
+    return 'Zahle $amount bis $date.';
+  }
+
+  @override
+  String notifCardDueToday(String name) {
+    return 'Abrechnung für $name ist heute fällig';
+  }
+
+  @override
+  String notifCardStillUnpaid(String amount, String paidSoFar) {
+    return '$amount sind noch offen.$paidSoFar Wenn du heute zahlst, vermeidest du eine Verzugsgebühr.';
+  }
+
+  @override
+  String get notifWhenToday => 'heute';
+
+  @override
+  String get notifWhenTomorrow => 'morgen';
+
+  @override
+  String notifWhenInDays(int days) {
+    return 'in $days Tagen';
+  }
+
+  @override
+  String notifPlanPaysOut(String name, String when) {
+    return '$name wird $when ausgezahlt';
+  }
+
+  @override
+  String notifPlanPayoutBody(String amount, String account, String date) {
+    return '$amount gehen am $date auf $account ein.';
+  }
+
+  @override
+  String notifPlanMatures(String name, String when) {
+    return '$name wird $when fällig';
+  }
+
+  @override
+  String notifPlanMaturityBody(String amount, String account, String date) {
+    return '$amount fließen am $date zurück auf $account.';
+  }
+
+  @override
+  String notifPlanInstallmentDue(
+    String name,
+    String kind,
+    int number,
+    int total,
+    String when,
+  ) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'dps': 'Einzahlung',
+      'insurance': 'Prämie',
+      'sip': 'SIP-Rate',
+      'other': 'Rate',
+    });
+    return '$name: $_temp0 $number von $total $when fällig';
+  }
+
+  @override
+  String notifInvestBy(String amount, String date) {
+    return 'Investiere $amount bis $date.';
+  }
+
+  @override
+  String notifWillBeInvested(String amount, String account, String date) {
+    return '$amount werden am $date von $account investiert.';
+  }
+
+  @override
+  String notifWillBeRecorded(String amount, String account, String date) {
+    return '$amount werden am $date von $account erfasst.';
+  }
+
+  @override
+  String get notifYourAccount => 'dein Konto';
+
+  @override
+  String get notifPlansUpdatedTitle => 'Raten und Sparpläne aktualisiert';
+
+  @override
+  String notifPlansUpdatedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Planeinträge an ihrem Tag erfasst.',
+      one: '1 Planeintrag an seinem Tag erfasst.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifRecurringRecordedTitle => 'Wiederkehrende Buchungen erfasst';
+
+  @override
+  String notifRecurringRecordedBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wiederkehrende Buchungen erfasst.',
+      one: '1 wiederkehrende Buchung erfasst.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifPaymentsToConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Zahlungen zu bestätigen',
+      one: '1 Zahlung zu bestätigen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifPaymentsToConfirmBody =>
+      'Bestätige unter „Anstehend“, was abgebucht wurde, oder überspringe es.';
+
+  @override
+  String notifPaymentsToConfirmBodyNames(String names) {
+    return '$names – bestätige unter „Anstehend“, was abgebucht wurde, oder überspringe es.';
+  }
+
+  @override
+  String get notifUpcomingFallbackTitle => 'Anstehende Buchung';
+
+  @override
+  String notifUpcomingTitle(String title) {
+    return 'Anstehend: $title';
+  }
+
+  @override
+  String notifUpcomingIncomeBody(String amount) {
+    return 'Einnahme von $amount ist bald fällig.';
+  }
+
+  @override
+  String notifUpcomingExpenseBody(String amount) {
+    return 'Ausgabe von $amount ist bald fällig.';
+  }
+
+  @override
+  String get notifCreditFallback => 'Forderung';
+
+  @override
+  String get notifDebtFallback => 'Schuld';
+
+  @override
+  String notifOverdueCreditTitle(String title) {
+    return 'Überfällige Forderung: $title';
+  }
+
+  @override
+  String notifOverdueDebtTitle(String title) {
+    return 'Überfällige Schuld: $title';
+  }
+
+  @override
+  String notifOutstandingBody(String amount) {
+    return '$amount sind noch offen. Tippe zum Ansehen.';
+  }
+
+  @override
+  String get notifRecurringFallbackTitle => 'Wiederkehrende Buchung';
+
+  @override
+  String notifUpcomingRecurringTitle(String title) {
+    return 'Anstehend (wiederkehrend): $title';
+  }
+
+  @override
+  String notifDueOnBody(String amount, String date) {
+    return '$amount fällig am $date.';
+  }
+
+  @override
+  String notifCreditDueTitle(String title) {
+    return 'Forderung fällig: $title';
+  }
+
+  @override
+  String notifDebtDueTitle(String title) {
+    return 'Schuld fällig: $title';
+  }
+
+  @override
+  String notifSubscriptionDueTitle(String title) {
+    return 'Abo fällig: $title';
+  }
+
+  @override
+  String notifBillDueTitle(String title) {
+    return 'Rechnung fällig: $title';
+  }
+
+  @override
+  String notifDueSoonTitle(String title) {
+    return 'Bald fällig: $title';
+  }
+
+  @override
+  String get notifRepetitiveBillFallback => 'Wiederkehrende Rechnung';
+
+  @override
+  String notifDueSoonBody(String amount) {
+    return '$amount sind bald fällig. Tippe zum Ansehen.';
+  }
+
+  @override
+  String get notifChannelRecurring => 'Wiederkehrende Buchungen';
+
+  @override
+  String get notifChannelRecurringDesc =>
+      'Benachrichtigungen zu automatisch erstellten wiederkehrenden Buchungen';
+
+  @override
+  String get notifChannelUpcoming => 'Anstehende Erinnerungen';
+
+  @override
+  String get notifChannelUpcomingDesc => 'Erinnerungen an anstehende Buchungen';
+
+  @override
+  String get notifChannelLoan => 'Kredit-Erinnerungen';
+
+  @override
+  String get notifChannelLoanDesc =>
+      'Erinnerungen an überfällige Forderungen und Schulden';
+
+  @override
+  String get notifChannelDueDate => 'Fälligkeits-Erinnerungen';
+
+  @override
+  String get notifChannelDueDateDesc =>
+      'Einmalige Erinnerungen an bestimmte Fälligkeitstermine';
+
+  @override
+  String get notifChannelBillsDesc =>
+      'Fällige Kreditkartenabrechnungen und Planraten';
+
+  @override
+  String get notifOffset1Hour => '1 Stunde vorher';
+
+  @override
+  String get notifOffset1Day => '1 Tag vorher';
+
+  @override
+  String get notifOffset3Days => '3 Tage vorher';
+
+  @override
+  String get notifOffset1Week => '1 Woche vorher';
+
+  @override
+  String notifOffsetMinutes(int minutes) {
+    return '$minutes Minuten vorher';
+  }
+
+  @override
+  String get notifChannelGeneral => 'Allgemein';
+
+  @override
+  String get notifChannelGeneralDesc => 'Konto- und App-Benachrichtigungen';
+
+  @override
+  String get notifChannelReminders => 'Tägliche Erinnerungen';
+
+  @override
+  String get notifChannelRemindersDesc =>
+      'Ein Anstoß, die Ausgaben des Tages einzutragen';
+
+  @override
+  String get notifChannelBillsStatementsDesc =>
+      'Kreditkartenabrechnungen und Fälligkeiten';
+
+  @override
+  String get notifChannelBudgets => 'Budgetwarnungen';
+
+  @override
+  String get notifChannelBudgetsDesc =>
+      'Wenn ein Budget fast oder ganz aufgebraucht ist';
+
+  @override
+  String notifOverBudgetTitle(String name) {
+    return 'Budget überschritten: $name';
+  }
+
+  @override
+  String notifBudgetAlertTitle(String name) {
+    return 'Budgetwarnung: $name';
+  }
+
+  @override
+  String notifOverBudgetBody(String percent, String name) {
+    return 'Du hast $percent% deines Budgets $name für diesen Zeitraum ausgegeben.';
+  }
+
+  @override
+  String notifBudgetAlertBody(String percent, String name) {
+    return 'Du hast $percent% deines Budgets $name verbraucht.';
+  }
+
+  @override
+  String get notifPremiumEndingTitle => 'Premium endet bald';
+
+  @override
+  String get notifPremiumEndsTomorrow =>
+      'Dein Premium endet morgen. Verlängere, um deine Premium-Funktionen zu behalten.';
+
+  @override
+  String notifPremiumEndsInDays(int days) {
+    return 'Dein Premium endet in $days Tagen. Verlängere, um deine Premium-Funktionen zu behalten.';
+  }
+
+  @override
+  String get notifLargeIncomeTitle => 'Hohe Einnahme';
+
+  @override
+  String get notifLargeExpenseTitle => 'Hohe Ausgabe';
+
+  @override
+  String notifLargeIncomeBodyTitled(String amount, String title) {
+    return 'Einnahme von $amount erfasst: $title';
+  }
+
+  @override
+  String notifLargeIncomeBody(String amount) {
+    return 'Einnahme von $amount erfasst';
+  }
+
+  @override
+  String notifLargeExpenseBodyTitled(String amount, String title) {
+    return 'Ausgabe von $amount erfasst: $title';
+  }
+
+  @override
+  String notifLargeExpenseBody(String amount) {
+    return 'Ausgabe von $amount erfasst';
+  }
+
+  @override
+  String get notifChannelDailyRemindersDesc =>
+      'Tägliche Erinnerungen an deine Ausgaben';
+
+  @override
+  String get notifDailyReminderTitle => 'Tägliche Ausgaben-Erinnerung';
+
+  @override
+  String get notifDailyReminderBody =>
+      'Vergiss nicht, deine heutigen Ausgaben einzutragen! Behalte deine Ausgaben im Blick.';
+
+  @override
+  String get notifTestTitle => 'Testbenachrichtigung';
+
+  @override
+  String get notifTestBody =>
+      'Wenn du das siehst, funktionieren Benachrichtigungen!';
+
+  @override
+  String get notifActionSnooze1Day => '1 T. später';
+
+  @override
+  String get notifActionSnooze1Week => '1 W. später';
+
+  @override
+  String get notifGroupThisWeek => 'Diese Woche';
+
+  @override
+  String get notifGroupThisMonth => 'Diesen Monat';
+
+  @override
+  String notifDateAtTime(String date, String time) {
+    return '$date um $time';
+  }
+
+  @override
+  String notifMinutesAgo(int count) {
+    return 'vor $count Min.';
+  }
+
+  @override
+  String notifHoursAgo(int count) {
+    return 'vor $count Std.';
+  }
+
+  @override
+  String notifDaysAgo(int count) {
+    return 'vor $count T.';
+  }
+
+  @override
+  String get notifPrimerSheetBody =>
+      'Schalte Benachrichtigungen ein, und wir sagen dir Bescheid, wenn es darauf ankommt.';
+
+  @override
+  String get notifPrimerBudgetsBody =>
+      'Wisse Bescheid, bevor du ein Budget überziehst.';
+
+  @override
+  String get notifPrimerBillsTitle => 'Erinnerungen an Rechnungen & Abos';
+
+  @override
+  String get notifPrimerBillsBody =>
+      'Verpasse nie eine wiederkehrende Zahlung.';
+
+  @override
+  String get notifPrimerLargeTitle => 'Hohe Buchungen';
+
+  @override
+  String get notifPrimerLargeBody =>
+      'Lass dich über ungewöhnliche Aktivitäten informieren.';
+
+  @override
+  String get notifLoadFailed =>
+      'Benachrichtigungen konnten nicht geladen werden';
+
+  @override
+  String get startupReasonSomethingWrong =>
+      'Beim Starten ist etwas schiefgelaufen. Deine Daten sind auf diesem Gerät sicher.';
+
+  @override
+  String get startupReasonCouldNotOpenLocal =>
+      'Die lokalen Daten für dieses Konto konnten nicht geöffnet werden.';
+
+  @override
+  String get startupReasonSetupFailed =>
+      'Wir konnten dieses Konto auf diesem Gerät nicht fertig einrichten. Es wurde nichts gelöscht.';
+
+  @override
+  String get startupReasonOffline =>
+      'Wir konnten dein Konto nicht erreichen, und dieses Gerät hat seine Daten noch nicht. Wenn du The Accountant schon genutzt hast, verbinde dich mit dem Internet, und wir holen deine Daten zurück. Neu hier? Du kannst jetzt auf diesem Gerät anfangen.';
+
+  @override
+  String get startupReasonNeedsSubscription =>
+      'Dieses Konto hat Daten in der Cloud. Zum Wiederherstellen braucht es ein aktives Abo. Es wurde nichts gelöscht.';
+
+  @override
+  String get startupReasonConfirmingSubscription =>
+      'Dieses Konto hat Daten in der Cloud. Wir prüfen noch dein Abo, damit sie wiederhergestellt werden können.';
+
+  @override
+  String startupReasonRestoreFailed(String error) {
+    return 'Wiederherstellung fehlgeschlagen: $error';
+  }
+
+  @override
+  String get startupReasonNotRestoredYet =>
+      'Dieses Konto hat Daten in der Cloud, aber sie konnten noch nicht wiederhergestellt werden.';
+
+  @override
+  String get commonBiometricReason =>
+      'Bestätige deine Identität, um The Accountant zu entsperren';
+
+  @override
+  String get commonLoadCurrenciesFailed =>
+      'Währungen konnten nicht geladen werden';
+
+  @override
+  String get commonLoadRatesFailed =>
+      'Wechselkurse konnten nicht geladen werden';
+
+  @override
+  String get commonRefreshRatesFailed =>
+      'Wechselkurse konnten nicht aktualisiert werden';
+
+  @override
+  String get commonAllCategories => 'Alle Kategorien';
+
+  @override
+  String commonCategoryCount(int count) {
+    return '$count Kategorien';
+  }
+
+  @override
+  String get commonTierFree => 'Kostenlos';
+
+  @override
+  String get commonTierMonthly => 'Premium monatlich';
+
+  @override
+  String get commonTierYearly => 'Premium jährlich';
+
+  @override
+  String get commonTierLifetime => 'Premium lebenslang';
+
+  @override
+  String get commonCategoryMergeSelf =>
+      'Eine Kategorie kann nicht mit sich selbst zusammengeführt werden.';
+
+  @override
+  String get commonCategoryMergeMissing =>
+      'Zum Zusammenführen müssen beide Kategorien existieren.';
+
+  @override
+  String get commonCategoryMergeSystem =>
+      'Die eigenen Kategorien der App können nicht zusammengeführt werden.';
+
+  @override
+  String get commonCategoryMergeKinds =>
+      'Einnahme- und Ausgabekategorien können nicht zusammengeführt werden.';
+
+  @override
+  String get commonCategoryOneLevel =>
+      'Diese Kategorie liegt in einer anderen, und Kategorien haben nur eine Ebene.';
+
+  @override
+  String get commonCategoryMoveSame => 'Wähle eine andere Kategorie als Ziel.';
+
+  @override
+  String get commonCategoryMoveMissing =>
+      'Zum Verschieben müssen beide Kategorien existieren.';
+
+  @override
+  String get commonCategoryMoveSystem =>
+      'Zwischen den eigenen Kategorien der App kann nichts verschoben werden.';
+
+  @override
+  String get commonCategoryMoveKinds =>
+      'Einnahmen und Ausgaben können ihre Kategorien nicht tauschen.';
+
+  @override
+  String get commonCategoryGone => 'Diese Kategorie gibt es nicht mehr.';
+
+  @override
+  String get commonCategoryParentSystem =>
+      'Die eigenen Kategorien der App können nicht verschoben werden.';
+
+  @override
+  String get commonCategoryParentSelf =>
+      'Eine Kategorie kann nicht in sich selbst liegen.';
+
+  @override
+  String get commonCategoryParentIntoSystem =>
+      'In den eigenen Kategorien der App kann nichts abgelegt werden.';
+
+  @override
+  String get commonCategoryParentKinds =>
+      'Eine Einnahme- und eine Ausgabekategorie können nicht ineinander liegen.';
+
+  @override
+  String get commonCategoryHasChildren =>
+      'Diese Kategorie hat eigene Unterkategorien und bleibt daher auf der obersten Ebene.';
+
+  @override
+  String get commonTapToChange => 'Zum Ändern tippen';
+
+  @override
+  String get commonSelectColor => 'Farbe wählen';
+
+  @override
+  String get commonShowPalette => 'Palette anzeigen';
+
+  @override
+  String get commonCustomColor => 'Eigene Farbe';
+
+  @override
+  String get commonSelectCurrency => 'Währung wählen';
+
+  @override
+  String get commonEnableCryptoHint =>
+      'Aktiviere „Kryptowährungen einbeziehen“, um nach Krypto-Token zu suchen.';
+
+  @override
+  String get commonSearchHint => 'Suchen...';
+
+  @override
+  String get aiLoadConversationsFailed =>
+      'Unterhaltungen konnten nicht geladen werden.';
+
+  @override
+  String get aiLoadHistoryFailed => 'Chatverlauf konnte nicht geladen werden.';
+
+  @override
+  String get aiPremiumRequired =>
+      'Für den KI-Assistenten ist ein Premium-Abo nötig';
+
+  @override
+  String get aiUnexpectedError =>
+      'Ein unerwarteter Fehler ist aufgetreten. Bitte versuch es erneut.';
+
+  @override
+  String get aiResponseFailed =>
+      'Keine Antwort von der KI erhalten. Bitte versuch es erneut.';
+
+  @override
+  String get aiServiceNotAnswering => 'Der KI-Dienst antwortet nicht.';
+
+  @override
+  String get aiReplyCutOff =>
+      'Die Antwort wurde abgeschnitten. Bitte versuch es erneut.';
+
+  @override
+  String get aiCouldNotReachServer =>
+      'Der Server ist nicht erreichbar. Prüfe deine Verbindung und versuch es erneut.';
+
+  @override
+  String get aiSomethingWentWrong => 'Etwas ist schiefgelaufen.';
+
+  @override
+  String get aiOpenConversationFailed =>
+      'Unterhaltung konnte nicht geöffnet werden.';
+
+  @override
+  String aiChangesSavedReplyLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Deine $count Änderungen wurden gespeichert, aber der Coach konnte seine Antwort nicht beenden. Prüfe sie in deinen Einträgen, bevor du erneut fragst.',
+      one:
+          'Deine Änderung wurde gespeichert, aber der Coach konnte seine Antwort nicht beenden. Prüfe sie in deinen Einträgen, bevor du erneut fragst.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiServiceNotAnsweringNow =>
+      'Der KI-Dienst antwortet gerade nicht. Bitte versuch es erneut.';
+
+  @override
+  String aiMinutesShort(int count) {
+    return '$count Min.';
+  }
+
+  @override
+  String aiHoursShort(int count) {
+    return '$count Std.';
+  }
+
+  @override
+  String aiDaysShort(int count) {
+    return '$count T.';
+  }
+
+  @override
+  String get aiOcrTextFailed => 'Text konnte nicht aus dem Bild gelesen werden';
+
+  @override
+  String get aiOcrReceiptFailed =>
+      'Belegdaten konnten nicht aus dem Bild gelesen werden';
+
+  @override
+  String get coachYes => 'ja';
+
+  @override
+  String get coachNo => 'nein';
+
+  @override
+  String get coachTradeBuy => 'Kauf';
+
+  @override
+  String get coachTradeSell => 'Verkauf';
+
+  @override
+  String get coachTradeDividend => 'Dividende';
+
+  @override
+  String get planAccountGone => 'Dieses Konto gibt es nicht mehr.';
+
+  @override
+  String get planPaidFromOrdinary =>
+      'Ein Plan wird von einem normalen Konto bezahlt, nicht von einer Einlage.';
+
+  @override
+  String get planSipChooseHolding =>
+      'Wähle den Fonds oder die Aktie, die der Sparplan kauft.';
+
+  @override
+  String get planSipPayFromOther =>
+      'Bezahle den Sparplan von einem anderen Konto.';
+
+  @override
+  String get planNeedNameError => 'Gib dem Plan einen Namen.';
+
+  @override
+  String get planInstallmentCountRange =>
+      'Die Anzahl der Raten muss zwischen 1 und 1200 liegen.';
+
+  @override
+  String get planIntervalMin => 'Der Abstand muss mindestens 1 sein.';
+
+  @override
+  String get planRateRange =>
+      'Der Zinssatz muss zwischen 0 und 100 Prozent liegen.';
+
+  @override
+  String get planTaxRange =>
+      'Die Steuer muss zwischen 0 und 100 Prozent liegen.';
+
+  @override
+  String get planProviderTooLong =>
+      'Firma und Nummer dürfen höchstens 100 Zeichen lang sein.';
+
+  @override
+  String get planNeedPremium => 'Gib den Beitrag ein.';
+
+  @override
+  String get planNeedInstallmentAmount => 'Gib den Betrag jeder Rate ein.';
+
+  @override
+  String get planNeedDeposited => 'Gib den eingezahlten Betrag ein.';
+
+  @override
+  String get planTermMonthsOrYears =>
+      'Die Laufzeit wird in Monaten oder Jahren angegeben.';
+
+  @override
+  String get planAmountNotNegative => 'Der Betrag darf nicht negativ sein.';
+
+  @override
+  String planMaturesOnCloseEarly(String name, String date) {
+    return '$name wird am $date fällig. Um das Geld vorher zu entnehmen, beende den Plan vorzeitig.';
+  }
+
+  @override
+  String get planNoLongerExists => 'Diesen Plan gibt es nicht mehr.';
+
+  @override
+  String get planReminderDaysRange =>
+      'Erinnerungen sind 0 (aus) bis 30 Tage vorher möglich.';
+
+  @override
+  String planStillHoldsMoney(String name, String account) {
+    return '$name enthält noch Geld. Beende den Plan zuerst, dann geht das Geld zurück auf $account.';
+  }
+
+  @override
+  String get planItsAccount => 'sein Konto';
+
+  @override
+  String planAlreadyEnded(String name) {
+    return '$name ist bereits beendet.';
+  }
+
+  @override
+  String get investNeedName => 'Gib der Geldanlage einen Namen.';
+
+  @override
+  String get investNameTooLong =>
+      'Der Name darf höchstens 100 Zeichen lang sein.';
+
+  @override
+  String get investSymbolTooLong =>
+      'Das Kürzel darf höchstens 20 Zeichen lang sein.';
+
+  @override
+  String get investPriceNotNegative => 'Ein Preis darf nicht negativ sein.';
+
+  @override
+  String investAlreadyTracked(String name) {
+    return '$name wird bereits erfasst.';
+  }
+
+  @override
+  String get investNeedPaid => 'Gib ein, was bezahlt wurde.';
+
+  @override
+  String get investUnitsBoughtPositive =>
+      'Die gekauften Anteile müssen mehr als null sein.';
+
+  @override
+  String get investPayFromOther => 'Bezahle es von einem anderen Konto.';
+
+  @override
+  String get investNeedSaleAmount =>
+      'Gib ein, was der Verkauf eingebracht hat.';
+
+  @override
+  String get investUnitsSoldPositive =>
+      'Die verkauften Anteile müssen mehr als null sein.';
+
+  @override
+  String get investSellIntoOther => 'Verkaufe auf ein anderes Konto.';
+
+  @override
+  String investOnlyUnitsHeld(String units, String name) {
+    return 'Von $name werden nur $units Anteile gehalten.';
+  }
+
+  @override
+  String get investNeedDividend => 'Gib die erhaltene Dividende ein.';
+
+  @override
+  String get investReceiveIntoOrdinary =>
+      'Lass es auf ein normales Konto gehen.';
+
+  @override
+  String get investPricePositive => 'Ein Preis muss mehr als null sein.';
+
+  @override
+  String get investUnitsPositive => 'Anteile müssen mehr als null sein.';
+
+  @override
+  String get investNotATrade =>
+      'Das ist kein Kauf oder Verkauf einer Geldanlage.';
+
+  @override
+  String investStillHoldsUnits(String name) {
+    return '$name hat noch Anteile. Verkaufe sie zuerst.';
+  }
+
+  @override
+  String get investNoLongerExists => 'Diese Geldanlage gibt es nicht mehr.';
+
+  @override
+  String get networthNeedAssetName => 'Gib dem Vermögenswert einen Namen.';
+
+  @override
+  String get networthValueNotNegative => 'Ein Wert darf nicht negativ sein.';
+
+  @override
+  String get networthNeedPaidFor => 'Gib ein, was dafür bezahlt wurde.';
+
+  @override
+  String get networthPayFromOrdinary => 'Bezahle es von einem normalen Konto.';
+
+  @override
+  String get networthNeedWorth => 'Gib ein, was es wert ist.';
+
+  @override
+  String get networthNeedSoldFor => 'Gib ein, wofür es verkauft wurde.';
+
+  @override
+  String get networthReceiveIntoOrdinary =>
+      'Lass das Geld auf ein normales Konto gehen.';
+
+  @override
+  String networthStillWorth(String name) {
+    return '$name ist noch etwas wert. Verkaufe es zuerst oder setze seinen Wert auf null.';
+  }
+
+  @override
+  String get networthAssetGone =>
+      'Dieser Vermögenswert wird nicht mehr erfasst.';
+
+  @override
+  String get zakatNeedAmountPaid => 'Gib den gezahlten Betrag ein.';
+
+  @override
+  String get zakatPayFromOrdinary => 'Bezahle sie von einem normalen Konto.';
+
+  @override
+  String get zakatReminderTitleToday => 'Deine Zakat ist heute fällig';
+
+  @override
+  String zakatReminderTitleIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Zakat in $count Tagen fällig',
+      one: 'Zakat in 1 Tag fällig',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get zakatReminderBodyToday =>
+      'Dein Zakat-Jahr endet heute. Tippe, um zu sehen, was fällig ist.';
+
+  @override
+  String zakatReminderBodyOn(String date) {
+    return 'Dein Zakat-Jahr endet am $date. Tippe, um zu sehen, was fällig ist.';
+  }
+
+  @override
+  String get budgetCheckFailed => 'Budgets konnten nicht geprüft werden';
+
+  @override
+  String get budgetLoadFailed => 'Budgets konnten nicht geladen werden';
+
+  @override
+  String get budgetAddFailed => 'Budget konnte nicht hinzugefügt werden';
+
+  @override
+  String get budgetNotFound => 'Budget nicht gefunden';
+
+  @override
+  String get budgetUpdateFailed => 'Budget konnte nicht aktualisiert werden';
+
+  @override
+  String get budgetDeleteFailed => 'Budget konnte nicht gelöscht werden';
+
+  @override
+  String get budgetEdit => 'Budget bearbeiten';
+
+  @override
+  String get budgetNeedName => 'Gib dem Budget einen Namen';
+
+  @override
+  String get budgetEnterAmount => 'Gib einen Betrag ein';
+
+  @override
+  String get budgetAmountMoreThanZero => 'Der Betrag muss mehr als null sein';
+
+  @override
+  String get budgetTrackingEarnings => 'Einnahmen verfolgen';
+
+  @override
+  String get budgetTrackingSpending => 'Ausgaben verfolgen';
+
+  @override
+  String get budgetRepeats => 'Wiederholung';
+
+  @override
+  String get budgetTooBig => 'Zu groß';
+
+  @override
+  String get budgetStarts => 'Beginnt';
+
+  @override
+  String get budgetEnds => 'Endet';
+
+  @override
+  String get budgetStopsRepeating => 'Wiederholung endet';
+
+  @override
+  String get budgetNever => 'Nie';
+
+  @override
+  String get budgetCategoriesAll => 'Kategorien: alle';
+
+  @override
+  String budgetCategoriesSelected(int count) {
+    return 'Kategorien: $count ausgewählt';
+  }
+
+  @override
+  String get budgetNoIncomeCategories => 'Noch keine Einnahmekategorien.';
+
+  @override
+  String get budgetNoExpenseCategories => 'Noch keine Ausgabenkategorien.';
+
+  @override
+  String get budgetCategoriesHint =>
+      'Leer lassen, um alle Kategorien zu beobachten. Alles, was in einer gewählten Kategorie abgelegt ist, zählt ebenfalls dazu.';
+
+  @override
+  String get budgetAccountsAll => 'Konten: alle';
+
+  @override
+  String budgetAccountsSelected(int count) {
+    return 'Konten: $count ausgewählt';
+  }
+
+  @override
+  String get budgetRolloverHint =>
+      'Nicht Ausgegebenes wird dem nächsten Zeitraum hinzugefügt. Ein Überziehen wird nicht als Schuld übertragen.';
+
+  @override
+  String get budgetPeriodDaily => 'Täglich';
+
+  @override
+  String get budgetPeriodFortnightly => 'Zweiwöchentlich';
+
+  @override
+  String get budgetPeriodOneOff => 'Einmalig';
+
+  @override
+  String get budgetUnitDays => 'Tage';
+
+  @override
+  String get budgetUnitWeeks => 'Wochen';
+
+  @override
+  String get budgetUnitFortnights => 'zwei Wochen';
+
+  @override
+  String get budgetUnitMonths => 'Monate';
+
+  @override
+  String get budgetUnitYears => 'Jahre';
+
+  @override
+  String get budgetOneOffNeedsEnd =>
+      'Ein einmaliges Budget braucht ein Enddatum.';
+
+  @override
+  String get budgetEndAfterStart =>
+      'Das Enddatum muss nach dem Startdatum liegen.';
+
+  @override
+  String get budgetSaveFailed => 'Das Budget konnte nicht gespeichert werden.';
+
+  @override
+  String get budgetThisPeriod => 'Dieser Zeitraum';
+
+  @override
+  String budgetPeriodsAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Vor $count Zeiträumen',
+      one: 'Vor 1 Zeitraum',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetDateRange(String start, String end) {
+    return '$start bis $end';
+  }
+
+  @override
+  String budgetOfLimit(String limit) {
+    return 'von $limit';
+  }
+
+  @override
+  String budgetOfLimitCarried(String limit, String carried) {
+    return 'von $limit, davon $carried übertragen';
+  }
+
+  @override
+  String get budgetUncategorised => 'Ohne Kategorie';
+
+  @override
+  String budgetOverTheLimit(String amount) {
+    return '$amount über dem Limit.';
+  }
+
+  @override
+  String budgetLeftPerDay(String left, String daily) {
+    return '$left übrig, etwa $daily pro Tag.';
+  }
+
+  @override
+  String budgetLeftPlain(String left) {
+    return '$left übrig.';
+  }
+
+  @override
+  String budgetAveraging(String amount) {
+    return 'Im Schnitt $amount pro Zeitraum.';
+  }
+
+  @override
+  String budgetHeadingOver(String amount) {
+    return 'Auf dem Weg zu $amount drüber';
+  }
+
+  @override
+  String budgetForecastScheduled(String scheduled) {
+    return 'Bei diesem Tempo, mitgezählt $scheduled, die vor Ende des Zeitraums schon geplant sind.';
+  }
+
+  @override
+  String get budgetForecastPlain =>
+      'Bei diesem Tempo, bis zum Ende des Zeitraums.';
+
+  @override
+  String get budgetCapsExplain =>
+      'Ein Budget sagt, ob der Zeitraum überzogen ist. Ein Limit sagt, wo: Ein Essensbudget, das insgesamt im Plan ist, kann trotzdem größtenteils Lieferessen sein.';
+
+  @override
+  String get budgetPercentOfBudget => 'Prozent des Budgets';
+
+  @override
+  String get budgetArchivedTitle => 'Archivierte Budgets';
+
+  @override
+  String get budgetShowActive => 'Aktive anzeigen';
+
+  @override
+  String get budgetShowArchived => 'Archivierte anzeigen';
+
+  @override
+  String get budgetUnpin => 'Lösen';
+
+  @override
+  String get budgetPinToTop => 'Oben anheften';
+
+  @override
+  String get budgetStartCounting => 'Wieder mitzählen';
+
+  @override
+  String get budgetStopCounting => 'Verlauf behalten, nicht mehr mitzählen';
+
+  @override
+  String get budgetDeleteBody =>
+      'Das Budget verschwindet, deine Buchungen bleiben. Nichts, was du erfasst hast, wird entfernt.';
+
+  @override
+  String get budgetNothingArchived => 'Nichts archiviert';
+
+  @override
+  String get budgetNoneYet => 'Noch keine Budgets';
+
+  @override
+  String get budgetArchivedEmptyHint =>
+      'Archivierte Budgets werden hier aufbewahrt.';
+
+  @override
+  String get budgetEmptyHint =>
+      'Leg ein Limit für eine Kategorie fest und sieh, wie der Monat läuft.';
+
+  @override
+  String dashLoadFailed(String error) {
+    return 'Finanzdaten konnten nicht geladen werden: $error';
+  }
+
+  @override
+  String get categoryUnknown => 'Unbekannt';
+
+  @override
+  String dashCardAvailable(String amount) {
+    return 'Verfügbar: $amount';
+  }
+
+  @override
+  String dashCardInCreditAvailable(String amount) {
+    return 'Im Guthaben · Verfügbar: $amount';
+  }
+
+  @override
+  String get dashTypeBank => 'Bank';
+
+  @override
+  String get dashTypeCredit => 'Kredit';
+
+  @override
+  String get dashTypeSubs => 'Abos';
+
+  @override
+  String get dashTypeDeposit => 'Einlage';
+
+  @override
+  String get dashTypeInvest => 'Anlage';
+
+  @override
+  String get dashTypeAsset => 'Vermögen';
+
+  @override
+  String get dashAddAccountTile => 'Konto\nhinzufügen';
+
+  @override
+  String get categoryLoadFailed => 'Kategorien konnten nicht geladen werden';
+
+  @override
+  String get categoryAddFailed => 'Kategorie konnte nicht hinzugefügt werden';
+
+  @override
+  String get categoryNotFound => 'Kategorie nicht gefunden';
+
+  @override
+  String get categoryUpdateFailed =>
+      'Kategorie konnte nicht aktualisiert werden';
+
+  @override
+  String get categoryCannotDeleteSystem =>
+      'Die eigenen Kategorien der App können nicht gelöscht werden';
+
+  @override
+  String get categoryCannotDeleteWithTransactions =>
+      'Eine Kategorie mit Buchungen kann nicht gelöscht werden; verschiebe oder lösche sie zuerst';
+
+  @override
+  String get categoryDeleteFailed => 'Kategorie konnte nicht gelöscht werden';
+
+  @override
+  String categorySaveFailed(String error) {
+    return 'Kategorie konnte nicht gespeichert werden: $error';
+  }
+
+  @override
+  String get categoryEditTitle => 'Kategorie bearbeiten';
+
+  @override
+  String get categoryNewTitle => 'Neue Kategorie';
+
+  @override
+  String get categoryPartOf => 'Gehört zu';
+
+  @override
+  String get categoryNamePlaceholder => 'Kategoriename';
+
+  @override
+  String get categoryUpdate => 'Kategorie aktualisieren';
+
+  @override
+  String get categoryCreate => 'Kategorie erstellen';
+
+  @override
+  String reportLoadFailed(String error) {
+    return 'Berichte konnten nicht geladen werden: $error';
+  }
+
+  @override
+  String get goalEdit => 'Ziel bearbeiten';
+
+  @override
+  String get goalNeedName => 'Gib dem Ziel einen Namen';
+
+  @override
+  String get goalTargetMoreThanZero => 'Der Zielbetrag muss mehr als null sein';
+
+  @override
+  String get goalNoDeadline => 'Keine Frist';
+
+  @override
+  String get goalTargetDateAfterStart =>
+      'Das Zieldatum muss nach dem Startdatum liegen.';
+
+  @override
+  String get goalSaveFailed => 'Das Ziel konnte nicht gespeichert werden.';
+
+  @override
+  String get goalArchivedTitle => 'Archivierte Ziele';
+
+  @override
+  String get goalHideFromHome => 'Auf Startseite ausblenden';
+
+  @override
+  String get goalShowOnHome => 'Auf Startseite zeigen';
+
+  @override
+  String get goalReached => 'Erreicht';
+
+  @override
+  String goalToGo(String amount) {
+    return 'Noch $amount';
+  }
+
+  @override
+  String get goalNoneYet => 'Noch keine Ziele';
+
+  @override
+  String get goalArchivedEmptyHint =>
+      'Archivierte Ziele werden hier aufbewahrt.';
+
+  @override
+  String get goalEmptyHint =>
+      'Benenne, wofür du sparst, und verknüpfe dann die Buchungen, die dazu beitragen.';
+
+  @override
+  String goalSavedOfTarget(String saved, String target) {
+    return '$saved von $target';
+  }
+
+  @override
+  String goalOfTarget(String target) {
+    return 'von $target';
+  }
+
+  @override
+  String get goalReachedNicelyDone => 'Erreicht. Gut gemacht.';
+
+  @override
+  String goalStillToGo(String amount) {
+    return 'Noch $amount bis zum Ziel.';
+  }
+
+  @override
+  String goalDailyToArrive(String amount) {
+    return '$amount pro Tag, um rechtzeitig anzukommen.';
+  }
+
+  @override
+  String get goalNothingLinked =>
+      'Noch nichts verknüpft. Wähle dieses Ziel bei einer Buchung, dann erscheint sie hier.';
+
+  @override
+  String get goalDeleteBody =>
+      'Das Ziel verschwindet, deine Buchungen bleiben. Sie zählen nur nicht mehr dazu.';
+
+  @override
+  String goalPaymentsOf(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Zahlungen von $amount',
+      one: '1 Zahlung von $amount',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalFinishingAround(String date) {
+    return 'Fertig etwa am $date.';
+  }
+
+  @override
+  String goalNotFound(String id) {
+    return 'Ziel nicht gefunden: $id';
+  }
+
+  @override
+  String get goalPaidOff => 'Abbezahlt!';
+
+  @override
+  String get goalCompleted => 'Geschafft!';
+
+  @override
+  String goalPercentComplete(String percent) {
+    return '$percent % erreicht';
+  }
+
+  @override
+  String goalWeeksLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Noch $count Wochen',
+      one: 'Noch 1 Woche',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalMonthsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Noch $count Monate',
+      one: 'Noch 1 Monat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalYearsLeft(String years) {
+    return 'Noch $years Jahre';
+  }
+
+  @override
+  String get subRecurringBill => 'Wiederkehrende Rechnung';
+
+  @override
+  String subEveryDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Alle $count Tage',
+      one: 'Jeden Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Alle $count Wochen',
+      one: 'Jede Woche',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Alle $count Monate',
+      one: 'Jeden Monat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryYears(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Alle $count Jahre',
+      one: 'Jedes Jahr',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEveryOther(int count, String unit) {
+    return 'Alle $count $unit';
+  }
+
+  @override
+  String subLoadFailed(String error) {
+    return 'Abos konnten nicht geladen werden: $error';
+  }
+
+  @override
+  String subPauseFailed(String error) {
+    return 'Abo konnte nicht pausiert werden: $error';
+  }
+
+  @override
+  String subResumeFailed(String error) {
+    return 'Abo konnte nicht fortgesetzt werden: $error';
+  }
+
+  @override
+  String subUpdateFailed(String error) {
+    return 'Abo konnte nicht aktualisiert werden: $error';
+  }
+
+  @override
+  String subCancelFailed(String error) {
+    return 'Abo konnte nicht gekündigt werden: $error';
+  }
+
+  @override
+  String subActiveCount(int count) {
+    return 'Aktiv ($count)';
+  }
+
+  @override
+  String subPausedCount(int count) {
+    return 'Pausiert ($count)';
+  }
+
+  @override
+  String get subEmptyTitle => 'Keine Abos oder Rechnungen';
+
+  @override
+  String get subEmptyBody =>
+      'Füge Abo- oder wiederkehrende Rechnungsbuchungen hinzu, um sie hier zu verfolgen';
+
+  @override
+  String get subRecurringCost => 'Wiederkehrende Kosten';
+
+  @override
+  String subPerYear(String amount) {
+    return '$amount / Jahr';
+  }
+
+  @override
+  String get subActive => 'Aktiv';
+
+  @override
+  String subNext(String date) {
+    return 'Nächste $date';
+  }
+
+  @override
+  String get subResume => 'Fortsetzen';
+
+  @override
+  String get subPause => 'Pausieren';
+
+  @override
+  String get subCancelBillTitle => 'Wiederkehrende Rechnung beenden';
+
+  @override
+  String get subCancelSubTitle => 'Abo kündigen';
+
+  @override
+  String subCancelConfirm(String name) {
+    return 'Möchtest du \"$name\" wirklich beenden? Damit enden alle künftigen wiederkehrenden Zahlungen.';
+  }
+
+  @override
+  String subCancelled(String name) {
+    return '\"$name\" beendet';
+  }
+
+  @override
+  String subSaveError(String error) {
+    return 'Fehler: $error';
+  }
+
+  @override
+  String get subEditBill => 'Wiederkehrende Rechnung bearbeiten';
+
+  @override
+  String get subEditSub => 'Abo bearbeiten';
+
+  @override
+  String subUnitDay(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tage',
+      one: 'Tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Wochen',
+      one: 'Woche',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitMonth(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Monate',
+      one: 'Monat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subUnitYear(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Jahre',
+      one: 'Jahr',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String subEndsOn(String date) {
+    return 'Endet: $date';
+  }
+
+  @override
+  String get subNoEndDate => 'Kein Enddatum';
 }

@@ -58,7 +58,9 @@ class ColorPicker extends StatelessWidget {
                 AppSpacing.gapHMd,
                 Expanded(
                   child: Text(
-                    selectedColor != null ? 'Tap to change' : 'Select color',
+                    selectedColor != null
+                        ? L10n.of(context).commonTapToChange
+                        : L10n.of(context).commonSelectColor,
                     style: AppTypography.bodyLarge.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -158,7 +160,9 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                   icon: Icon(_showCustomInput ? Icons.palette : Icons.edit),
                   onPressed: () =>
                       setState(() => _showCustomInput = !_showCustomInput),
-                  tooltip: _showCustomInput ? 'Show palette' : 'Custom color',
+                  tooltip: _showCustomInput
+                      ? L10n.of(context).commonShowPalette
+                      : L10n.of(context).commonCustomColor,
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),

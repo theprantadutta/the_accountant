@@ -37,12 +37,12 @@ class _LockScreenState extends State<LockScreen> {
         widget.onUnlocked();
       } else {
         setState(() {
-          _errorMessage = 'Authentication failed. Please try again.';
+          _errorMessage = L10n.of(context).settingsLockAuthFailed;
         });
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'An error occurred. Please try again.';
+        _errorMessage = L10n.of(context).settingsLockError;
       });
     } finally {
       if (mounted) {
@@ -113,8 +113,8 @@ class _LockScreenState extends State<LockScreen> {
                       width: 240,
                       child: SunriseButton(
                         label: _isAuthenticating
-                            ? 'Authenticating...'
-                            : 'Unlock',
+                            ? L10n.of(context).settingsLockAuthenticating
+                            : L10n.of(context).moreUnlock,
                         icon: Symbols.fingerprint_rounded,
                         loading: _isAuthenticating,
                         onPressed: _isAuthenticating ? null : _authenticate,

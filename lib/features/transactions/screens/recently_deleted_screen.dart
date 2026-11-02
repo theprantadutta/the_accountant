@@ -75,8 +75,7 @@ class _RecentlyDeletedScreenState extends ConsumerState<RecentlyDeletedScreen> {
                     return Padding(
                       padding: AppSpacing.paddingLg,
                       child: Text(
-                        'Deleted transactions are kept for thirty days, then '
-                        'removed for good.',
+                        L10n.of(context).txnRecentlyDeletedFooter,
                         style: AppTypography.bodySmall.copyWith(
                           color: AppColors.textMuted,
                         ),

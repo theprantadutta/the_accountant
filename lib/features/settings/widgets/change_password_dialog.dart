@@ -71,10 +71,12 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.hasPassword ? 'Change Password' : 'Set Password';
+    final title = widget.hasPassword
+        ? L10n.of(context).settingsChangePassword
+        : L10n.of(context).settingsSetPassword;
     final subtitle = widget.hasPassword
-        ? 'Enter your current password and choose a new one'
-        : 'Add a password to your account for additional security';
+        ? L10n.of(context).settingsChangePasswordSubtitle
+        : L10n.of(context).settingsSetPasswordSubtitle;
 
     return AlertDialog(
       title: Text(
@@ -141,7 +143,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                       setState(() => _obscureCurrent = !_obscureCurrent),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your current password';
+                      return L10n.of(context).settingsEnterCurrentPassword;
                     }
                     return null;
                   },
@@ -157,10 +159,10 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                 onToggle: () => setState(() => _obscureNew = !_obscureNew),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a new password';
+                    return L10n.of(context).settingsEnterNewPassword;
                   }
                   if (value.length < 8) {
-                    return 'Password must be at least 8 characters';
+                    return L10n.of(context).settingsPasswordMinLength;
                   }
                   return null;
                 },
@@ -176,10 +178,10 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                     setState(() => _obscureConfirm = !_obscureConfirm),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please confirm your password';
+                    return L10n.of(context).settingsConfirmYourPassword;
                   }
                   if (value != _newPasswordController.text) {
-                    return 'Passwords do not match';
+                    return L10n.of(context).settingsPasswordsDoNotMatch;
                   }
                   return null;
                 },
@@ -208,7 +210,11 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                     color: AppColors.primaryAccent,
                   ),
                 )
-              : Text(widget.hasPassword ? 'Change Password' : 'Set Password'),
+              : Text(
+                  widget.hasPassword
+                      ? L10n.of(context).settingsChangePassword
+                      : L10n.of(context).settingsSetPassword,
+                ),
         ),
       ],
     );

@@ -88,7 +88,7 @@ class _CurrencyPickerState extends ConsumerState<CurrencyPicker> {
                       Text(
                         widget.selectedCurrency?.toUpperCase() ??
                             widget.hint ??
-                            'Select currency',
+                            L10n.of(context).commonSelectCurrency,
                         style: widget.selectedCurrency != null
                             ? AppTypography.bodyLarge
                             : AppTypography.bodyLarge.copyWith(
@@ -448,7 +448,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
             if (!_includeCrypto) ...[
               const SizedBox(height: 6),
               Text(
-                "Enable 'Include crypto currencies' to search crypto tokens.",
+                L10n.of(context).commonEnableCryptoHint,
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textMuted,
                 ),
@@ -482,7 +482,7 @@ class CurrencyDropdown extends ConsumerWidget {
 
     return DropdownButtonFormField<String>(
       initialValue: selectedCurrency,
-      hint: Text(hint ?? 'Select currency'),
+      hint: Text(hint ?? L10n.of(context).commonSelectCurrency),
       decoration: InputDecoration(
         filled: true,
         fillColor: AppColors.glassWhite,

@@ -97,10 +97,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
   }
 
   String _getStrengthText() {
-    if (_passwordStrength < 0.3) return 'Weak';
-    if (_passwordStrength < 0.6) return 'Fair';
-    if (_passwordStrength < 0.8) return 'Good';
-    return 'Strong';
+    if (_passwordStrength < 0.3) return L10n.of(context).authStrengthWeak;
+    if (_passwordStrength < 0.6) return L10n.of(context).authStrengthFair;
+    if (_passwordStrength < 0.8) return L10n.of(context).authStrengthGood;
+    return L10n.of(context).authStrengthStrong;
   }
 
   void _signUp() {
@@ -253,17 +253,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           NeoTextField(
             controller: _nameController,
             label: L10n.of(context).authFullName,
-            hint: 'Enter your name',
+            hint: L10n.of(context).authEnterYourNameHint,
             prefixIcon: Icons.person_outline,
             keyboardType: TextInputType.name,
             textInputAction: TextInputAction.next,
             textCapitalization: TextCapitalization.words,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your full name';
+                return L10n.of(context).authEnterFullName;
               }
               if (value.length < 2) {
-                return 'Name must be at least 2 characters';
+                return L10n.of(context).authNameMin2;
               }
               return null;
             },
@@ -275,16 +275,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           NeoTextField(
             controller: _emailController,
             label: L10n.of(context).authEmailAddress,
-            hint: 'Enter your email',
+            hint: L10n.of(context).authEnterYourEmailHint,
             prefixIcon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your email';
+                return L10n.of(context).authEnterYourEmail;
               }
               if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                return 'Please enter a valid email';
+                return L10n.of(context).authEnterValidEmail;
               }
               return null;
             },
@@ -296,19 +296,19 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           NeoTextField(
             controller: _passwordController,
             label: L10n.of(context).authPassword,
-            hint: 'Create a password',
+            hint: L10n.of(context).authCreatePasswordHint,
             prefixIcon: Icons.lock_outline,
             obscureText: true,
             textInputAction: TextInputAction.next,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your password';
+                return L10n.of(context).authEnterYourPassword;
               }
               if (value.length < 6) {
-                return 'Password must be at least 6 characters';
+                return L10n.of(context).authPasswordMin6;
               }
               if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
-                return 'Must contain uppercase, lowercase, and number';
+                return L10n.of(context).authPasswordComplexity;
               }
               return null;
             },
@@ -326,17 +326,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           NeoTextField(
             controller: _confirmPasswordController,
             label: L10n.of(context).settingsConfirmPassword,
-            hint: 'Re-enter your password',
+            hint: L10n.of(context).authReenterPasswordHint,
             prefixIcon: Icons.lock_outline,
             obscureText: true,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _signUp(),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please confirm your password';
+                return L10n.of(context).settingsConfirmYourPassword;
               }
               if (value != _passwordController.text) {
-                return 'Passwords do not match';
+                return L10n.of(context).settingsPasswordsDoNotMatch;
               }
               return null;
             },
@@ -430,31 +430,49 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen>
           Expanded(
             child: Text.rich(
               TextSpan(
-                text: 'I agree to the ',
                 style: AppTypography.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
-                children: [
-                  TextSpan(
-                    text: 'Terms of Service',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.primaryAccent,
-                    ),
-                  ),
-                  const TextSpan(text: ' and '),
-                  TextSpan(
-                    text: 'Privacy Policy',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.primaryAccent,
-                    ),
-                  ),
-                ],
+                children: _termsSpans(),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  /// "I agree to the Terms of Service and Privacy Policy", with the two
+  /// document names highlighted wherever the language puts them.
+  List<InlineSpan> _termsSpans() {
+    final l10n = L10n.of(context);
+    const termsMark = '\u0001';
+    const privacyMark = '\u0002';
+    final linkStyle = AppTypography.bodySmall.copyWith(
+      color: AppColors.primaryAccent,
+    );
+    final spans = <InlineSpan>[];
+    final buffer = StringBuffer();
+    for (final ch in l10n.authAgreeToTerms(termsMark, privacyMark).split('')) {
+      if (ch == termsMark || ch == privacyMark) {
+        if (buffer.isNotEmpty) {
+          spans.add(TextSpan(text: buffer.toString()));
+          buffer.clear();
+        }
+        spans.add(
+          TextSpan(
+            text: ch == termsMark
+                ? l10n.settingsTermsOfService
+                : l10n.settingsPrivacyPolicy,
+            style: linkStyle,
+          ),
+        );
+      } else {
+        buffer.write(ch);
+      }
+    }
+    if (buffer.isNotEmpty) spans.add(TextSpan(text: buffer.toString()));
+    return spans;
   }
 
   Widget _buildSignInLink() {

@@ -31,7 +31,7 @@ class AboutScreen extends StatelessWidget {
               padding: EdgeInsets.all(AppSpacing.md),
               children: [
                 // App logo and name
-                _buildAppHeader(),
+                _buildAppHeader(context),
                 SizedBox(height: AppSpacing.xl),
 
                 // Version info
@@ -134,7 +134,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppHeader() {
+  Widget _buildAppHeader(BuildContext context) {
     return Column(
       children: [
         // App icon
@@ -169,7 +169,7 @@ class AboutScreen extends StatelessWidget {
         ),
         SizedBox(height: AppSpacing.xs),
         Text(
-          'Your Personal Finance Companion',
+          L10n.of(context).settingsAboutTagline,
           style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
         ),
       ],
@@ -343,14 +343,14 @@ class AboutScreen extends StatelessWidget {
 
               // Version
               Text(
-                'Version: $version',
+                L10n.of(context).settingsAboutVersion(version),
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
               SizedBox(height: AppSpacing.md),
 
               // Description
               Text(
-                'A personal finance app with a focus\non privacy and beautiful UI/UX.',
+                L10n.of(context).settingsAboutDescription,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),

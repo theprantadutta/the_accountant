@@ -5,6 +5,7 @@ import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/premium/exceptions/premium_limit_exception.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 
 /// ViewModel class for displaying categories in UI
 /// Uses isIncome boolean instead of deprecated type string
@@ -159,7 +160,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       if (!silent) {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: 'Failed to load categories',
+          errorMessage: appL10n.categoryLoadFailed,
         );
       }
     }
@@ -203,7 +204,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
         isLoading: false,
         errorMessage: e is PremiumLimitException
             ? e.message
-            : 'Failed to add category',
+            : appL10n.categoryAddFailed,
       );
       rethrow; // Rethrow to let UI handle PremiumLimitException
     }
@@ -227,7 +228,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     try {
       final existing = await _db.findCategoryById(id);
       if (existing == null) {
-        throw Exception('Category not found');
+        throw Exception(appL10n.categoryNotFound);
       }
 
       // Determine isIncome: prefer explicit isIncome, then type, then existing
@@ -267,7 +268,7 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Failed to update category',
+        errorMessage: appL10n.categoryUpdateFailed,
       );
     }
   }
@@ -310,14 +311,11 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
       // gone. They are moved, or deleted, first; the screen offers both.
       final category = state.categories.firstWhere((c) => c.id == id);
       if (category.isSystem) {
-        throw Exception('Cannot delete the app\'s own categories');
+        throw _DeleteRefused(appL10n.categoryCannotDeleteSystem);
       }
       final held = (await _db.liveTransactionCountsByCategory())[id] ?? 0;
       if (held > 0) {
-        throw Exception(
-          'Cannot delete a category with transactions; move or delete them '
-          'first',
-        );
+        throw _DeleteRefused(appL10n.categoryCannotDeleteWithTransactions);
       }
 
       await _db.softDeleteCategory(id);
@@ -327,9 +325,11 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString().contains('Cannot delete')
-            ? e.toString()
-            : 'Failed to delete category',
+        // A refusal is worth showing as it is; it says what to do instead.
+        // Told apart by its type, not its wording, which is translated.
+        errorMessage: e is _DeleteRefused
+            ? e.message
+            : appL10n.categoryDeleteFailed,
       );
     }
   }
@@ -352,6 +352,18 @@ class CategoryNotifier extends StateNotifier<CategoryState> {
 /// Marks "leave the parent as it is" in [CategoryNotifier.updateCategory],
 /// where null means "no parent".
 const Object _keepParent = Object();
+
+/// A delete [CategoryNotifier.deleteCategory] turns down on purpose (the
+/// app's own category, or one still holding transactions), as opposed to one
+/// that failed. Its [message] is shown as it is.
+class _DeleteRefused implements Exception {
+  const _DeleteRefused(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
 
 final categoryProvider = StateNotifierProvider<CategoryNotifier, CategoryState>(
   (ref) {

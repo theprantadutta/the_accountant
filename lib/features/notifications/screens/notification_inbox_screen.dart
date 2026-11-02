@@ -219,16 +219,17 @@ class _NotificationInboxScreenState
     final yesterday = today.subtract(const Duration(days: 1));
     final notificationDate = DateTime(date.year, date.month, date.day);
 
+    final l10n = L10n.of(context);
     if (notificationDate == today) {
-      return 'Today';
+      return l10n.dateToday;
     } else if (notificationDate == yesterday) {
-      return 'Yesterday';
+      return l10n.dateYesterday;
     } else if (now.difference(date).inDays < 7) {
-      return 'This Week';
+      return l10n.notifGroupThisWeek;
     } else if (now.difference(date).inDays < 30) {
-      return 'This Month';
+      return l10n.notifGroupThisMonth;
     } else {
-      return 'Earlier';
+      return l10n.budgetEarlier;
     }
   }
 
@@ -325,11 +326,12 @@ class _NotificationInboxScreenState
       dateTime.day,
     );
 
+    final l10n = L10n.of(context);
     String dateStr;
     if (notificationDate == today) {
-      dateStr = 'Today';
+      dateStr = l10n.dateToday;
     } else if (notificationDate == yesterday) {
-      dateStr = 'Yesterday';
+      dateStr = l10n.dateYesterday;
     } else {
       dateStr = '${dateTime.day}/${dateTime.month}/${dateTime.year}';
     }
@@ -339,6 +341,6 @@ class _NotificationInboxScreenState
     final period = hour >= 12 ? 'PM' : 'AM';
     final hour12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
 
-    return '$dateStr at $hour12:$minute $period';
+    return l10n.notifDateAtTime(dateStr, '$hour12:$minute $period');
   }
 }

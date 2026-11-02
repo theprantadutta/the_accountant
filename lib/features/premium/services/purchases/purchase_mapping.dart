@@ -1,3 +1,4 @@
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 
 /// Pure translation between OpenIAP's types and this app's backend contract.
@@ -193,13 +194,12 @@ String? describeIsoPeriod(String period) {
   if (match == null) return null;
 
   final count = int.parse(match.group(1)!);
-  final unit = switch (match.group(2)!) {
-    'D' => 'day',
-    'W' => 'week',
-    'M' => 'month',
-    _ => 'year',
+  return switch (match.group(2)!) {
+    'D' => appL10n.premiumPeriodDays(count),
+    'W' => appL10n.premiumPeriodWeeks(count),
+    'M' => appL10n.premiumPeriodMonths(count),
+    _ => appL10n.premiumPeriodYears(count),
   };
-  return count == 1 ? '1 $unit' : '$count ${unit}s';
 }
 
 /// Whether [userId] may be handed to Apple as an `appAccountToken`.

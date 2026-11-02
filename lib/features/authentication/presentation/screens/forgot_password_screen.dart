@@ -171,13 +171,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             ? Icons.lock_reset_rounded
                             : Icons.mark_email_read_rounded,
                         title: _step == 0
-                            ? 'Forgot Password'
-                            : 'Check Your Email',
+                            ? L10n.of(context).authForgotPasswordTitle
+                            : L10n.of(context).authCheckYourEmail,
                         subtitle: _step == 0
-                            ? 'Enter your email and we\'ll send you a code to reset '
-                                  'your password.'
-                            : 'We sent a 6-digit code to ${_emailController.text.trim()}. '
-                                  'Enter it below with your new password.',
+                            ? L10n.of(context).authForgotPasswordSubtitle
+                            : L10n.of(context).authCodeSentSubtitle(
+                                _emailController.text.trim(),
+                              ),
                         showWordmark: false,
                       ),
 
@@ -216,17 +216,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             NeoTextField(
               controller: _emailController,
               label: L10n.of(context).authEmailAddress,
-              hint: 'Enter your email',
+              hint: L10n.of(context).authEnterYourEmailHint,
               prefixIcon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _requestCode(),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
+                  return L10n.of(context).authEnterYourEmail;
                 }
                 if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                  return 'Please enter a valid email';
+                  return L10n.of(context).authEnterValidEmail;
                 }
                 return null;
               },
@@ -257,7 +257,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             NeoTextField(
               controller: _codeController,
               label: L10n.of(context).authResetCode,
-              hint: '6-digit code',
+              hint: L10n.of(context).authSixDigitCodeHint,
               prefixIcon: Icons.pin_outlined,
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.next,
@@ -267,10 +267,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ],
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter the code';
+                  return L10n.of(context).authEnterTheCode;
                 }
                 if (value.length != 6) {
-                  return 'The code is 6 digits';
+                  return L10n.of(context).authCodeIsSixDigits;
                 }
                 return null;
               },
@@ -279,16 +279,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             NeoTextField(
               controller: _passwordController,
               label: L10n.of(context).settingsNewPassword,
-              hint: 'Create a new password',
+              hint: L10n.of(context).authCreateNewPasswordHint,
               prefixIcon: Icons.lock_outline,
               obscureText: true,
               textInputAction: TextInputAction.next,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter a new password';
+                  return L10n.of(context).settingsEnterNewPassword;
                 }
                 if (value.length < 8) {
-                  return 'Password must be at least 8 characters';
+                  return L10n.of(context).settingsPasswordMinLength;
                 }
                 return null;
               },
@@ -297,17 +297,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             NeoTextField(
               controller: _confirmController,
               label: L10n.of(context).settingsConfirmPassword,
-              hint: 'Re-enter your new password',
+              hint: L10n.of(context).authReenterNewPasswordHint,
               prefixIcon: Icons.lock_outline,
               obscureText: true,
               textInputAction: TextInputAction.done,
               onSubmitted: (_) => _resetPassword(),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please confirm your password';
+                  return L10n.of(context).settingsConfirmYourPassword;
                 }
                 if (value != _passwordController.text) {
-                  return 'Passwords do not match';
+                  return L10n.of(context).settingsPasswordsDoNotMatch;
                 }
                 return null;
               },

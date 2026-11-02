@@ -159,7 +159,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
 
   Widget _buildProfileHeader(AuthState authState) {
     final photoUrl = authState.photoUrl;
-    final displayName = authState.displayName ?? 'User';
+    final displayName =
+        authState.displayName ?? L10n.of(context).authDefaultUserName;
     final email = authState.userEmail ?? '';
     final memberSince = authState.createdAt;
 
@@ -265,7 +266,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Member since ${DateFormat('MMMM yyyy').format(memberSince)}',
+                    L10n.of(context).authMemberSince(
+                      DateFormat('MMMM yyyy').format(memberSince),
+                    ),
                     style: TextStyle(
                       color: AppColors.textPrimary.withValues(alpha: 0.7),
                       fontSize: 14,
@@ -286,19 +289,19 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
   }) {
     final stats = [
       {
-        'title': 'Transactions',
+        'title': L10n.of(context).navTransactions,
         'value': '$transactionCount',
         'icon': Icons.swap_horiz,
         'color': const Color(0xFF667eea),
       },
       {
-        'title': 'Categories',
+        'title': L10n.of(context).settingsCategories,
         'value': '$categoryCount',
         'icon': Icons.category,
         'color': const Color(0xFF11998e),
       },
       {
-        'title': 'Budgets',
+        'title': L10n.of(context).settingsBudgets,
         'value': '$budgetCount',
         'icon': Icons.account_balance_wallet,
         'color': const Color(0xFFFF6B6B),
@@ -432,7 +435,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
         validator: enabled
             ? (value) {
                 if (value == null || value.isEmpty) {
-                  return 'This field is required';
+                  return L10n.of(context).authFieldRequired;
                 }
                 return null;
               }
@@ -803,7 +806,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                                                     const SizedBox(width: 8),
                                                     Expanded(
                                                       child: Text(
-                                                        'Failed to sign out: ${e.toString()}',
+                                                        L10n.of(
+                                                          context,
+                                                        ).authSignOutFailed(
+                                                          e.toString(),
+                                                        ),
                                                         style: TextStyle(
                                                           color: AppColors
                                                               .textPrimary,
@@ -1003,7 +1010,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Failed to pick image: ${e.toString()}',
+                    L10n.of(context).authPickImageFailed(e.toString()),
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
                 ),
@@ -1087,7 +1094,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Failed to update profile: ${e.toString()}',
+                    L10n.of(context).authUpdateProfileFailed(e.toString()),
                     style: TextStyle(color: AppColors.textPrimary),
                   ),
                 ),
