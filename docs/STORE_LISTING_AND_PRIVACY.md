@@ -122,6 +122,28 @@ when the next iOS version is created (the **+** next to "iOS App"):
    - Compare the iOS screenshots against them.
 7. Leave the actual "Submit for Review" to the user.
 
+### ⚠️ Still to do on iOS: advertise encryption (added 2 Nov 2026)
+
+Google Play got this on 2 Nov 2026; iOS has none of it yet.
+
+- **Screenshots:** Play got a new page 03 "Your data, *encrypted*" with the subline
+  "Locked on your phone, in backups and in sync. Add a passphrase and not even
+  we can open it." It shows the real Passphrase protection screen (Sunrise
+  Light). Add the same page to *App Store Screenshots* (iPhone, 1206×2622) and
+  *App Store iPad Screenshots* (2064×2752) in the Claude Design project
+  "The Accountant app redesign"
+  (https://claude.ai/design/p/80d98355-75ba-46ad-adda-688129c5ac03).
+  Capture iPhone/iPad shots of the passphrase screen from the iOS build: don't
+  reuse the Android status bar.
+- **Description:** paste the current `en.json` → `full` (it already has the
+  "Private by design" encryption paragraph).
+- **Subtitle / promotional text:** mention encryption. Play's short description
+  is now "Track spending, budgets, loans & savings, with AI, voice entry and
+  encryption" (`short` in each JSON).
+- **Wording rule:** never claim "only you can open it" without the passphrase
+  condition. Without a passphrase our server holds the key.
+- **App Privacy:** re-check it matches the 5.0 encryption (see section above).
+
 ## 5. When to redo this
 
 Update the listing **and** both privacy forms whenever:
