@@ -98,6 +98,11 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
   /// Completed by [decideAction] when the user answers a confirmation card.
   Completer<bool>? _decision;
 
+  /// Changes the user confirmed and the coach made during the current
+  /// question. If the conversation then fails, they are already saved, and
+  /// asking again would make them twice.
+  int _appliedThisTurn = 0;
+
   AiChatNotifier(this._ref)
     : _aiChatService = AiChatService(),
       super(const AiChatState());
@@ -290,6 +295,7 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
     String? message = question;
     Map<String, String>? results;
     var counted = false;
+    _appliedThisTurn = 0;
 
     try {
       while (mounted) {
@@ -390,9 +396,12 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
       final confirmed = await decision.future;
       if (!mounted) break;
       state = state.copyWith(clearAction: true, toolStatus: call.name);
-      results[call.id] = confirmed
-          ? await plan.execute!()
-          : CoachToolRunner.cancelled();
+      if (confirmed) {
+        results[call.id] = await plan.execute!();
+        _appliedThisTurn++;
+      } else {
+        results[call.id] = CoachToolRunner.cancelled();
+      }
     }
     if (mounted) state = state.copyWith(clearToolStatus: true);
     return results;
@@ -439,11 +448,33 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
       return;
     }
 
+    if (_appliedThisTurn > 0) {
+      // The change the user confirmed is already in their records; only the
+      // coach's reply after it was lost. Not offered as a retry, which would
+      // ask the whole question again and make the change a second time.
+      final saved = ChatMessage.ai(
+        text: _appliedThisTurn == 1
+            ? 'Your change was saved, but the coach could not finish its '
+                  'reply. Check it in your records before asking again.'
+            : 'Your $_appliedThisTurn changes were saved, but the coach could '
+                  'not finish its reply. Check them in your records before '
+                  'asking again.',
+        id: replyId,
+      );
+      state = state.copyWith(
+        messages: [
+          for (final m in state.messages)
+            if (m.id == replyId) saved else m,
+        ],
+        isLoading: false,
+      );
+      return;
+    }
+
     final notice = ChatMessage.ai(
       text:
           ai?.message ??
-          'The AI service is not answering right now. Nothing was charged; '
-              'please try again.',
+          'The AI service is not answering right now. Please try again.',
       id: replyId,
       isAiFallback: true,
       aiErrorType: ai?.code ?? AiException.unavailable,
