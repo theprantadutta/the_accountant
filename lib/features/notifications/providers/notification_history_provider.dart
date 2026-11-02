@@ -104,6 +104,11 @@ class NotificationHistoryNotifier
 
     state = state.copyWith(isLoading: true, errorMessage: null);
     final local = await LocalNotificationLog.read();
+    // Show what this phone has at once; with our server slow or down the
+    // list used to stay a spinner until the request gave up.
+    if (state.notifications.isEmpty && local.isNotEmpty) {
+      state = state.copyWith(notifications: local);
+    }
 
     try {
       final server = await _serverPage(1);
