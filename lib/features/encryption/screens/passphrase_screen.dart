@@ -35,8 +35,12 @@ class PassphraseScreen extends ConsumerWidget {
             padding: EdgeInsets.all(32),
             child: Center(child: CircularProgressIndicator()),
           ),
+          // Offline the screen cannot know whether a passphrase is set, so it
+          // says plainly what to do rather than show a raw error.
           error: (e, _) => _ErrorCard(
-            message: '$e',
+            message: e is AccountDataKeyUnavailable && e.unreachable
+                ? l10n.ppNeedsConnection
+                : '$e',
             onRetry: () => ref.invalidate(keyStatusProvider),
           ),
           data: (s) => !s.protected

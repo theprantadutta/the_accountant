@@ -1629,5 +1629,7 @@
   "voiceFabHide": "Masquer",
   "voiceReady": "{count, plural, =0{RIEN DE PRÊT} =1{1 PRÊTE À ENREGISTRER} other{{count} PRÊTES À ENREGISTRER}}",
   "voiceSaveCount": "{count, plural, =0{Rien de sélectionné} =1{Enregistrer 1} other{Enregistrer {count}}}",
-  "voiceSaved": "{count, plural, =1{1 opération enregistrée} other{{count} opérations enregistrées}}"
+  "voiceSaved": "{count, plural, =1{1 opération enregistrée} other{{count} opérations enregistrées}}",
+  "ppNeedsConnection": "Les réglages de la phrase secrète nécessitent une connexion Internet. Connectez-vous à un réseau et rouvrez cet écran.",
+  "offlineToast": "Vous êtes hors ligne. Tout ce que vous ajoutez est enregistré sur ce téléphone et sera synchronisé à votre retour en ligne."
 }

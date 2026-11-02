@@ -5645,4 +5645,12 @@ class L10nFr extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ppNeedsConnection =>
+      'Les réglages de la phrase secrète nécessitent une connexion Internet. Connectez-vous à un réseau et rouvrez cet écran.';
+
+  @override
+  String get offlineToast =>
+      'Vous êtes hors ligne. Tout ce que vous ajoutez est enregistré sur ce téléphone et sera synchronisé à votre retour en ligne.';
 }

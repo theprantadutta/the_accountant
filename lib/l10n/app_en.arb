@@ -2797,7 +2797,9 @@
   "voiceUndone": "Put back as it was",
   "voiceNoSpeech": "I didn't catch that. Try again, or type it.",
   "voiceNeedsConnection": "Voice needs a connection. You can type instead.",
-  "@voiceNeedsConnection": {"description": "Speech recognition failed because the phone has no connection (on-device recognition is not available)."},
+  "@voiceNeedsConnection": {
+    "description": "Speech recognition failed because the phone has no connection (on-device recognition is not available)."
+  },
   "voiceMicOff": "Microphone access is off. Allow it in Settings, or type instead.",
   "voiceUnavailable": "Voice isn't available on this phone. You can type instead.",
   "voiceSomethingWrong": "Something went wrong. Try again.",
@@ -2851,7 +2853,9 @@
   "ppTurnOn": "Turn on protection",
   "ppWorking": "Locking your key. This takes a few seconds…",
   "ppMaybeSaved": "The connection dropped, so the server may already have saved this. Do it again until you see a recovery code, and keep that one.",
-  "@ppMaybeSaved": {"description": "After a network error while turning on the passphrase or making a new recovery code: the server may have applied it; repeat until a code is shown."},
+  "@ppMaybeSaved": {
+    "description": "After a network error while turning on the passphrase or making a new recovery code: the server may have applied it; repeat until a code is shown."
+  },
   "ppRecoveryTitle": "Your recovery code",
   "ppRecoveryBody": "This is the only other way into your data if you forget your passphrase. Write it down or keep it in a password manager — somewhere other than this phone.",
   "ppCopy": "Copy",
@@ -2914,5 +2918,13 @@
         "type": "int"
       }
     }
+  },
+  "ppNeedsConnection": "Passphrase settings need an internet connection. Connect to a network and open this again.",
+  "@ppNeedsConnection": {
+    "description": "Passphrase settings opened with no connection to the server."
+  },
+  "offlineToast": "You're offline. Everything you add is saved on this phone and syncs when you're back online.",
+  "@offlineToast": {
+    "description": "Shown once when the phone goes offline: the app keeps working and syncs later."
   }
 }

@@ -5593,4 +5593,12 @@ class L10nHi extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ppNeedsConnection =>
+      'पासफ़्रेज़ सेटिंग्स के लिए इंटरनेट कनेक्शन चाहिए। किसी नेटवर्क से जुड़ें और इसे फिर से खोलें।';
+
+  @override
+  String get offlineToast =>
+      'आप ऑफ़लाइन हैं। आप जो भी जोड़ेंगे वह इसी फ़ोन पर सेव रहेगा और ऑनलाइन आने पर सिंक हो जाएगा।';
 }

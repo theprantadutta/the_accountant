@@ -1629,5 +1629,7 @@
   "voiceFabHide": "Ificha",
   "voiceReady": "{count, plural, =0{HAKUNA KILICHO TAYARI} =1{1 TAYARI KUHIFADHIWA} other{{count} TAYARI KUHIFADHIWA}}",
   "voiceSaveCount": "{count, plural, =0{Hakuna kilichochaguliwa} =1{Hifadhi 1} other{Hifadhi {count}}}",
-  "voiceSaved": "{count, plural, =1{Muamala 1 umehifadhiwa} other{Miamala {count} imehifadhiwa}}"
+  "voiceSaved": "{count, plural, =1{Muamala 1 umehifadhiwa} other{Miamala {count} imehifadhiwa}}",
+  "ppNeedsConnection": "Mipangilio ya kaulisiri inahitaji muunganisho wa intaneti. Unganisha kwenye mtandao kisha ufungue tena.",
+  "offlineToast": "Uko nje ya mtandao. Kila unachoongeza kinahifadhiwa kwenye simu hii na kitasawazishwa utakaporudi mtandaoni."
 }

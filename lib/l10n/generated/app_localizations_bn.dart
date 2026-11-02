@@ -5541,4 +5541,12 @@ class L10nBn extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ppNeedsConnection =>
+      'পাসফ্রেজ সেটিংসের জন্য ইন্টারনেট সংযোগ লাগে। কোনো নেটওয়ার্কে যুক্ত হয়ে আবার খুলুন।';
+
+  @override
+  String get offlineToast =>
+      'আপনি অফলাইনে আছেন। যা যোগ করবেন সব এই ফোনে সেভ থাকবে, আবার অনলাইনে এলে সিঙ্ক হবে।';
 }

@@ -217,6 +217,7 @@ class AccountDataKey {
       throw const AccountDataKeyUnavailable(
         'Connect to the internet once so your data can be encrypted, then try '
         'again.',
+        unreachable: true,
       );
     }
   }
@@ -313,9 +314,12 @@ class KeyStatus {
 }
 
 class AccountDataKeyUnavailable implements Exception {
-  const AccountDataKeyUnavailable(this.message);
+  const AccountDataKeyUnavailable(this.message, {this.unreachable = false});
 
   final String message;
+
+  /// The server could not be reached: connecting is what fixes it.
+  final bool unreachable;
 
   @override
   String toString() => message;

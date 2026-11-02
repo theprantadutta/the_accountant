@@ -5626,4 +5626,12 @@ class L10nDe extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ppNeedsConnection =>
+      'Für die Passphrase-Einstellungen brauchst du eine Internetverbindung. Verbinde dich mit einem Netzwerk und öffne sie erneut.';
+
+  @override
+  String get offlineToast =>
+      'Du bist offline. Alles, was du hinzufügst, wird auf diesem Handy gespeichert und synchronisiert, sobald du wieder online bist.';
 }

@@ -5592,4 +5592,12 @@ class L10nEn extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ppNeedsConnection =>
+      'Passphrase settings need an internet connection. Connect to a network and open this again.';
+
+  @override
+  String get offlineToast =>
+      'You\'re offline. Everything you add is saved on this phone and syncs when you\'re back online.';
 }

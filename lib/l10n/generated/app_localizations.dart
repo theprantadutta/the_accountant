@@ -9907,6 +9907,18 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Saved 1 transaction} other{Saved {count} transactions}}'**
   String voiceSaved(int count);
+
+  /// Passphrase settings opened with no connection to the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase settings need an internet connection. Connect to a network and open this again.'**
+  String get ppNeedsConnection;
+
+  /// Shown once when the phone goes offline: the app keeps working and syncs later.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Everything you add is saved on this phone and syncs when you\'re back online.'**
+  String get offlineToast;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

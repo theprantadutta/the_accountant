@@ -5620,4 +5620,12 @@ class L10nSw extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ppNeedsConnection =>
+      'Mipangilio ya kaulisiri inahitaji muunganisho wa intaneti. Unganisha kwenye mtandao kisha ufungue tena.';
+
+  @override
+  String get offlineToast =>
+      'Uko nje ya mtandao. Kila unachoongeza kinahifadhiwa kwenye simu hii na kitasawazishwa utakaporudi mtandaoni.';
 }

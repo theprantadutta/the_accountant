@@ -5625,4 +5625,12 @@ class L10nMs extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ppNeedsConnection =>
+      'Tetapan frasa laluan memerlukan sambungan internet. Sambung ke rangkaian dan buka semula.';
+
+  @override
+  String get offlineToast =>
+      'Anda di luar talian. Semua yang anda tambah disimpan dalam telefon ini dan disegerakkan apabila anda kembali dalam talian.';
 }

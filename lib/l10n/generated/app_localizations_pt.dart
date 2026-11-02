@@ -5623,4 +5623,12 @@ class L10nPt extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ppNeedsConnection =>
+      'As definições da frase-passe precisam de ligação à Internet. Ligue-se a uma rede e abra isto novamente.';
+
+  @override
+  String get offlineToast =>
+      'Está offline. Tudo o que adicionar fica guardado neste telemóvel e é sincronizado quando voltar a estar online.';
 }

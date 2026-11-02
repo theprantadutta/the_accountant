@@ -5480,4 +5480,12 @@ class L10nAm extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get ppNeedsConnection =>
+      'የይለፍ ሐረግ ቅንብሮች የበይነመረብ ግንኙነት ያስፈልጋቸዋል። ከአውታረ መረብ ጋር ተገናኝተው ይህንን እንደገና ይክፈቱ።';
+
+  @override
+  String get offlineToast =>
+      'ከመስመር ውጭ ነዎት። የሚያክሉት ሁሉ በዚህ ስልክ ላይ ይቀመጣል፣ ተመልሰው መስመር ላይ ሲሆኑም ይመሳሰላል።';
 }
