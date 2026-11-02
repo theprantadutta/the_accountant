@@ -204,8 +204,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       await _backendAuth.register(email, password);
 
-      // Update profile with name
-      await _backendAuth.updateProfile(displayName: name);
+      // The account exists from here on. Setting the name is best effort: if
+      // the server drops now, reporting the sign-up as failed sent people
+      // back to try again, into "email already registered". The name can be
+      // set later from the profile.
+      try {
+        await _backendAuth.updateProfile(displayName: name);
+      } catch (e) {
+        debugPrint('[Auth] Signed up, but the name was not saved yet: $e');
+      }
 
       // Store basic info
       await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
