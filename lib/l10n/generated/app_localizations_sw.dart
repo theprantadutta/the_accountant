@@ -5272,6 +5272,10 @@ class L10nSw extends L10n {
   String get voiceNoSpeech => 'Sikusikia vizuri. Jaribu tena, au andika.';
 
   @override
+  String get voiceNeedsConnection =>
+      'Sauti inahitaji muunganisho. Unaweza kuandika badala yake.';
+
+  @override
   String get voiceMicOff =>
       'Ufikiaji wa maikrofoni umezimwa. Uruhusu kwenye Mipangilio, au andika badala yake.';
 

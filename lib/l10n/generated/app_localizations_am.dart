@@ -5147,6 +5147,9 @@ class L10nAm extends L10n {
   String get voiceNoSpeech => 'አልሰማሁትም። እንደገና ይሞክሩ፣ ወይም ይጻፉት።';
 
   @override
+  String get voiceNeedsConnection => 'ድምፅ ግንኙነት ያስፈልገዋል። በምትኩ መተየብ ይችላሉ።';
+
+  @override
   String get voiceMicOff => 'የማይክሮፎን ፈቃድ ጠፍቷል። በቅንብሮች ውስጥ ይፍቀዱት፣ ወይም ይጻፉ።';
 
   @override

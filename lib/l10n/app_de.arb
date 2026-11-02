@@ -1534,6 +1534,7 @@
   "voiceUndo": "Rückgängig",
   "voiceUndone": "Wiederhergestellt",
   "voiceNoSpeech": "Das habe ich nicht verstanden. Versuch es noch einmal oder tippe es.",
+  "voiceNeedsConnection": "Sprache braucht eine Verbindung. Du kannst stattdessen tippen.",
   "voiceMicOff": "Mikrofonzugriff ist aus. Erlaube ihn in den Einstellungen oder tippe stattdessen.",
   "voiceUnavailable": "Spracheingabe ist auf diesem Handy nicht verfügbar. Du kannst stattdessen tippen.",
   "voiceSomethingWrong": "Etwas ist schiefgelaufen. Versuch es erneut.",

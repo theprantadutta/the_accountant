@@ -5279,6 +5279,10 @@ class L10nPt extends L10n {
   String get voiceNoSpeech => 'Não percebi. Tente de novo ou escreva.';
 
   @override
+  String get voiceNeedsConnection =>
+      'A voz precisa de ligação. Pode escrever em vez disso.';
+
+  @override
   String get voiceMicOff =>
       'O acesso ao microfone está desligado. Permita-o nas Definições ou escreva.';
 

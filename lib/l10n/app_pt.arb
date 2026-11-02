@@ -1534,6 +1534,7 @@
   "voiceUndo": "Desfazer",
   "voiceUndone": "Reposto como estava",
   "voiceNoSpeech": "Não percebi. Tente de novo ou escreva.",
+  "voiceNeedsConnection": "A voz precisa de ligação. Pode escrever em vez disso.",
   "voiceMicOff": "O acesso ao microfone está desligado. Permita-o nas Definições ou escreva.",
   "voiceUnavailable": "A voz não está disponível neste telemóvel. Pode escrever.",
   "voiceSomethingWrong": "Algo correu mal. Tente de novo.",

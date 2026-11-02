@@ -1534,6 +1534,7 @@
   "voiceUndo": "Buat asal",
   "voiceUndone": "Kembalikan seperti asal",
   "voiceNoSpeech": "Saya tidak dapat menangkapnya. Cuba lagi, atau taipkan.",
+  "voiceNeedsConnection": "Suara memerlukan sambungan. Anda boleh menaip sebaliknya.",
   "voiceMicOff": "Akses mikrofon dimatikan. Benarkan dalam Tetapan, atau taip sahaja.",
   "voiceUnavailable": "Suara tidak tersedia pada telefon ini. Anda boleh menaip sebagai ganti.",
   "voiceSomethingWrong": "Ada sesuatu yang tidak kena. Cuba lagi.",

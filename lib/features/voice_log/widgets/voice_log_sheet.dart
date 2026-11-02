@@ -175,10 +175,14 @@ class _VoiceLogSheetState extends ConsumerState<_VoiceLogSheet> {
       _finishListening();
       return;
     }
+    // Without on-device recognition Android sends speech to Google; offline
+    // that fails as a network error, which is not "I didn't catch that".
+    final offline =
+        error.errorMsg.contains('network') || error.errorMsg.contains('server');
     setState(() {
       _phase = _Phase.idle;
       _level = 0;
-      _error = l10n.voiceNoSpeech;
+      _error = offline ? l10n.voiceNeedsConnection : l10n.voiceNoSpeech;
     });
   }
 

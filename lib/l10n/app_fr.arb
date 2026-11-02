@@ -1534,6 +1534,7 @@
   "voiceUndo": "Annuler",
   "voiceUndone": "Rétabli comme avant",
   "voiceNoSpeech": "Je n'ai pas compris. Réessayez, ou écrivez-le.",
+  "voiceNeedsConnection": "La voix a besoin d'une connexion. Vous pouvez taper à la place.",
   "voiceMicOff": "L'accès au micro est désactivé. Autorisez-le dans les Réglages, ou écrivez plutôt.",
   "voiceUnavailable": "La voix n'est pas disponible sur ce téléphone. Vous pouvez écrire à la place.",
   "voiceSomethingWrong": "Une erreur s'est produite. Réessayez.",

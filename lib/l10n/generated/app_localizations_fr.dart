@@ -5298,6 +5298,10 @@ class L10nFr extends L10n {
   String get voiceNoSpeech => 'Je n\'ai pas compris. Réessayez, ou écrivez-le.';
 
   @override
+  String get voiceNeedsConnection =>
+      'La voix a besoin d\'une connexion. Vous pouvez taper à la place.';
+
+  @override
   String get voiceMicOff =>
       'L\'accès au micro est désactivé. Autorisez-le dans les Réglages, ou écrivez plutôt.';
 

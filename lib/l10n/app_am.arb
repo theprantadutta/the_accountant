@@ -1534,6 +1534,7 @@
   "voiceUndo": "ቀልብስ",
   "voiceUndone": "እንደነበረ ተመልሷል",
   "voiceNoSpeech": "አልሰማሁትም። እንደገና ይሞክሩ፣ ወይም ይጻፉት።",
+  "voiceNeedsConnection": "ድምፅ ግንኙነት ያስፈልገዋል። በምትኩ መተየብ ይችላሉ።",
   "voiceMicOff": "የማይክሮፎን ፈቃድ ጠፍቷል። በቅንብሮች ውስጥ ይፍቀዱት፣ ወይም ይጻፉ።",
   "voiceUnavailable": "በዚህ ስልክ ላይ ድምፅ አይገኝም። መጻፍ ይችላሉ።",
   "voiceSomethingWrong": "የሆነ ችግር ተፈጥሯል። እንደገና ይሞክሩ።",

@@ -5248,6 +5248,10 @@ class L10nHi extends L10n {
       'मैं समझ नहीं पाया। फिर से कोशिश करें, या लिख दें।';
 
   @override
+  String get voiceNeedsConnection =>
+      'वॉइस के लिए कनेक्शन चाहिए। आप टाइप भी कर सकते हैं।';
+
+  @override
   String get voiceMicOff =>
       'माइक्रोफ़ोन की अनुमति बंद है। सेटिंग्स में अनुमति दें, या लिख दें।';
 

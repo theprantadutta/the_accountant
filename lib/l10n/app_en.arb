@@ -2796,6 +2796,8 @@
   "voiceUndo": "Undo",
   "voiceUndone": "Put back as it was",
   "voiceNoSpeech": "I didn't catch that. Try again, or type it.",
+  "voiceNeedsConnection": "Voice needs a connection. You can type instead.",
+  "@voiceNeedsConnection": {"description": "Speech recognition failed because the phone has no connection (on-device recognition is not available)."},
   "voiceMicOff": "Microphone access is off. Allow it in Settings, or type instead.",
   "voiceUnavailable": "Voice isn't available on this phone. You can type instead.",
   "voiceSomethingWrong": "Something went wrong. Try again.",

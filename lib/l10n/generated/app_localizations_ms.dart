@@ -5277,6 +5277,10 @@ class L10nMs extends L10n {
       'Saya tidak dapat menangkapnya. Cuba lagi, atau taipkan.';
 
   @override
+  String get voiceNeedsConnection =>
+      'Suara memerlukan sambungan. Anda boleh menaip sebaliknya.';
+
+  @override
   String get voiceMicOff =>
       'Akses mikrofon dimatikan. Benarkan dalam Tetapan, atau taip sahaja.';
 

@@ -1534,6 +1534,7 @@
   "voiceUndo": "Tendua",
   "voiceUndone": "Imerudishwa kama ilivyokuwa",
   "voiceNoSpeech": "Sikusikia vizuri. Jaribu tena, au andika.",
+  "voiceNeedsConnection": "Sauti inahitaji muunganisho. Unaweza kuandika badala yake.",
   "voiceMicOff": "Ufikiaji wa maikrofoni umezimwa. Uruhusu kwenye Mipangilio, au andika badala yake.",
   "voiceUnavailable": "Sauti haipatikani kwenye simu hii. Unaweza kuandika badala yake.",
   "voiceSomethingWrong": "Kuna hitilafu. Jaribu tena.",

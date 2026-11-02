@@ -5279,6 +5279,10 @@ class L10nDe extends L10n {
       'Das habe ich nicht verstanden. Versuch es noch einmal oder tippe es.';
 
   @override
+  String get voiceNeedsConnection =>
+      'Sprache braucht eine Verbindung. Du kannst stattdessen tippen.';
+
+  @override
   String get voiceMicOff =>
       'Mikrofonzugriff ist aus. Erlaube ihn in den Einstellungen oder tippe stattdessen.';
 

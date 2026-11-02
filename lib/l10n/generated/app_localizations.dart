@@ -9332,6 +9332,12 @@ abstract class L10n {
   /// **'I didn\'t catch that. Try again, or type it.'**
   String get voiceNoSpeech;
 
+  /// Speech recognition failed because the phone has no connection (on-device recognition is not available).
+  ///
+  /// In en, this message translates to:
+  /// **'Voice needs a connection. You can type instead.'**
+  String get voiceNeedsConnection;
+
   /// No description provided for @voiceMicOff.
   ///
   /// In en, this message translates to:

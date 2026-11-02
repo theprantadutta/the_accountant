@@ -5253,6 +5253,10 @@ class L10nFa extends L10n {
   String get voiceNoSpeech => 'متوجه نشدم. دوباره امتحان کنید یا تایپ کنید.';
 
   @override
+  String get voiceNeedsConnection =>
+      'صدا به اتصال اینترنت نیاز دارد. می‌توانید به‌جایش تایپ کنید.';
+
+  @override
   String get voiceMicOff =>
       'دسترسی به میکروفون خاموش است. در تنظیمات اجازه دهید یا تایپ کنید.';
 

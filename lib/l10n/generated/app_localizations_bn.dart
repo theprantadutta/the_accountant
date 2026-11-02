@@ -5204,6 +5204,10 @@ class L10nBn extends L10n {
   String get voiceNoSpeech => 'শুনতে পাইনি। আবার বলুন, অথবা লিখে দিন।';
 
   @override
+  String get voiceNeedsConnection =>
+      'ভয়েসের জন্য ইন্টারনেট সংযোগ লাগে। চাইলে টাইপ করতে পারেন।';
+
+  @override
   String get voiceMicOff =>
       'মাইক্রোফোনের অনুমতি বন্ধ। সেটিংসে চালু করুন, অথবা লিখে দিন।';
 

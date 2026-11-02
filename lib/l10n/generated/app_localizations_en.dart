@@ -5250,6 +5250,10 @@ class L10nEn extends L10n {
   String get voiceNoSpeech => 'I didn\'t catch that. Try again, or type it.';
 
   @override
+  String get voiceNeedsConnection =>
+      'Voice needs a connection. You can type instead.';
+
+  @override
   String get voiceMicOff =>
       'Microphone access is off. Allow it in Settings, or type instead.';
 
