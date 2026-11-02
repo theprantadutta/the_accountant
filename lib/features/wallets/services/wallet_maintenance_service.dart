@@ -130,13 +130,20 @@ class WalletMaintenanceService {
     // and the merged total is the one the user was shown.
     double rate = 1;
     if (crossesCurrency) {
-      rate = await _currency.convert(1, source.currency, destination.currency);
-      if (rate <= 0) {
+      // Never the 1:1 fallback: a merge rewrites every amount for good, and
+      // offline before rates were fetched that fallback would have turned
+      // dollars into taka one for one.
+      final known = await _currency.getKnownRate(
+        source.currency,
+        destination.currency,
+      );
+      if (known == null || known <= 0) {
         throw ArgumentError(
           'No rate is known between ${source.currency} and '
           '${destination.currency}, so these accounts cannot be merged yet.',
         );
       }
+      rate = known;
     }
 
     var moved = 0;

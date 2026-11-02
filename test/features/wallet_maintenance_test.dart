@@ -527,5 +527,25 @@ void main() {
         throwsArgumentError,
       );
     });
+
+    test('with no known rate, a cross-currency merge is refused', () async {
+      // Offline before rates were ever fetched: no custom rate and no feed.
+      // The lookup used to answer 1.0, and the merge restated dollars as
+      // taka one for one, for good.
+      final from = await seedWallet(
+        db,
+        name: 'Dollars',
+        currency: 'USD',
+        openingBalance: 10000,
+      );
+      // XTS is the ISO code reserved for testing: no feed has a rate for it.
+      final to = await seedWallet(db, name: 'Test money', currency: 'XTS');
+
+      await expectLater(
+        service.mergeInto(sourceId: from, destinationId: to),
+        throwsArgumentError,
+      );
+      expect((await db.findWalletById(from))!.isArchived, isFalse);
+    });
   });
 }

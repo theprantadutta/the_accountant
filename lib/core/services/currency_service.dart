@@ -102,8 +102,17 @@ class CurrencyService {
   }
 
   /// Get conversion rate between two currencies
-  /// Checks custom rate first, then uses API rate via USD as base
-  Future<double> getRate(String from, String to) async {
+  /// Checks custom rate first, then uses API rate via USD as base.
+  ///
+  /// Falls back to 1.0 when no rate is known, which is fine for showing a
+  /// rough total but wrong for anything that rewrites amounts: use
+  /// [getKnownRate] there.
+  Future<double> getRate(String from, String to) async =>
+      await getKnownRate(from, to) ?? 1.0;
+
+  /// The rate between two currencies, or null when none is known (offline
+  /// before rates were ever fetched, or a currency the feed lacks).
+  Future<double?> getKnownRate(String from, String to) async {
     final fromUpper = from.toUpperCase();
     final toUpper = to.toUpperCase();
 
@@ -124,8 +133,8 @@ class CurrencyService {
     final rates = await fetchApiRates();
 
     if (rates.isEmpty) {
-      debugPrint('[CurrencyService] No rates available, returning 1.0');
-      return 1.0;
+      debugPrint('[CurrencyService] No rates available');
+      return null;
     }
 
     // Calculate rate through USD
@@ -135,7 +144,7 @@ class CurrencyService {
 
     if (fromRate == null || toRate == null) {
       debugPrint('[CurrencyService] Rate not found for $fromUpper or $toUpper');
-      return 1.0;
+      return null;
     }
 
     // Convert: (1/fromRate) * toRate
