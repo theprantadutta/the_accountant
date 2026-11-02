@@ -514,43 +514,38 @@ class _AddPersonSheetState extends State<_AddPersonSheet> {
         .toList();
     return SunriseBottomSheet(
       title: l10n.splitAddPerson,
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SunriseTextField(
-              key: const Key('split_person_name'),
-              controller: _name,
-              label: l10n.splitPersonName,
-              autofocus: true,
-              maxLength: 100,
-              textCapitalization: TextCapitalization.words,
-              textInputAction: TextInputAction.done,
-              onSubmitted: (v) => Navigator.pop(context, v),
-            ),
-            if (matches.isNotEmpty) ...[
-              SectionLabel(l10n.splitKnownPeople),
-              for (final m in matches)
-                SheetAction(
-                  icon: Symbols.person_rounded,
-                  label: m,
-                  onTap: () => Navigator.pop(context, m),
-                ),
-            ],
-            const SizedBox(height: 12),
-            SunriseButton(
-              key: const Key('split_person_add'),
-              label: l10n.actionAdd,
-              onPressed: _name.text.trim().isEmpty
-                  ? null
-                  : () => Navigator.pop(context, _name.text),
-            ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SunriseTextField(
+            key: const Key('split_person_name'),
+            controller: _name,
+            label: l10n.splitPersonName,
+            autofocus: true,
+            maxLength: 100,
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (v) => Navigator.pop(context, v),
+          ),
+          if (matches.isNotEmpty) ...[
+            SectionLabel(l10n.splitKnownPeople),
+            for (final m in matches)
+              SheetAction(
+                icon: Symbols.person_rounded,
+                label: m,
+                onTap: () => Navigator.pop(context, m),
+              ),
           ],
-        ),
+          const SizedBox(height: 12),
+          SunriseButton(
+            key: const Key('split_person_add'),
+            label: l10n.actionAdd,
+            onPressed: _name.text.trim().isEmpty
+                ? null
+                : () => Navigator.pop(context, _name.text),
+          ),
+        ],
       ),
     );
   }
@@ -598,32 +593,25 @@ class _PercentSheetState extends State<_PercentSheet> {
     final l10n = L10n.of(context);
     return SunriseBottomSheet(
       title: widget.name ?? l10n.splitYou,
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SunriseTextField(
-              key: const Key('split_percent'),
-              controller: _value,
-              label: l10n.splitPercentLabel,
-              autofocus: true,
-              suffix: const Text('%'),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-              ],
-              onSubmitted: (_) => _done(),
-            ),
-            const SizedBox(height: 12),
-            SunriseButton(label: l10n.actionSave, onPressed: _done),
-          ],
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SunriseTextField(
+            key: const Key('split_percent'),
+            controller: _value,
+            label: l10n.splitPercentLabel,
+            autofocus: true,
+            suffix: const Text('%'),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+            ],
+            onSubmitted: (_) => _done(),
+          ),
+          const SizedBox(height: 12),
+          SunriseButton(label: l10n.actionSave, onPressed: _done),
+        ],
       ),
     );
   }

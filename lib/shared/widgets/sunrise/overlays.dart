@@ -37,7 +37,19 @@ class SunriseBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.sunrise;
     final media = MediaQuery.of(context);
+    // With the keyboard up there is little room left, and a long title and
+    // explanation pinned above the fields could leave none for the fields
+    // themselves. They scroll with the content then.
+    final keyboardUp = media.viewInsets.bottom > 0;
+    final header = _header(c);
     Widget content = Padding(padding: padding, child: child);
+    if (scrollable && keyboardUp) {
+      content = Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [header, content],
+      );
+    }
     content = Flexible(
       child: scrollable ? SingleChildScrollView(child: content) : content,
     );
@@ -66,34 +78,7 @@ class SunriseBottomSheet extends StatelessWidget {
                 ),
               ),
             ),
-            if (title != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title!,
-                      style: SunriseType.section.copyWith(
-                        color: c.ink,
-                        fontSize: 20,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle!,
-                        style: SunriseType.body.copyWith(
-                          color: c.muted,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              )
-            else
-              const SizedBox(height: 14),
+            if (!(scrollable && keyboardUp)) header,
             content,
             if (actions != null && actions!.isNotEmpty)
               Padding(
@@ -113,6 +98,31 @@ class SunriseBottomSheet extends StatelessWidget {
       ),
     );
   }
+
+  Widget _header(SunriseColors c) => title != null
+      ? Padding(
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title!,
+                style: SunriseType.section.copyWith(color: c.ink, fontSize: 20),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  subtitle!,
+                  style: SunriseType.body.copyWith(
+                    color: c.muted,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        )
+      : const SizedBox(height: 14);
 }
 
 /// Open a Sunrise sheet. Returns what the sheet pops with.

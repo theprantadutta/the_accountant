@@ -350,62 +350,61 @@ class _UnlockSheetState extends State<_UnlockSheet> {
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
     final c = context.sunrise;
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: SunriseBottomSheet(
-        title: widget.title,
-        subtitle: widget.subtitle,
-        actions: [
-          SunriseButton(
-            key: const Key('pp_unlock_submit'),
-            label: l10n.ppUnlock,
-            height: 54,
-            loading: _busy,
-            onPressed: _busy ? null : _submit,
-          ),
-          SunriseButton.secondary(
-            key: const Key('pp_unlock_switch'),
-            label: _recovery ? l10n.ppUsePassphrase : l10n.ppUseRecovery,
-            onPressed: _busy
-                ? null
-                : () => setState(() {
-                    _recovery = !_recovery;
-                    _error = null;
-                    _controller.clear();
-                  }),
-          ),
-        ],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SunriseTextField(
-              key: const Key('pp_unlock_field'),
-              controller: _controller,
-              label: _recovery ? l10n.ppRecoveryLabel : l10n.ppPassphraseLabel,
-              obscureText: !_recovery,
-              autofocus: true,
-              textCapitalization: _recovery
-                  ? TextCapitalization.characters
-                  : TextCapitalization.none,
-              onSubmitted: (_) => _busy ? null : _submit(),
-            ),
-            if (_busy) ...[
-              const SizedBox(height: 10),
-              Text(
-                l10n.ppWorking,
-                style: SunriseType.caption.copyWith(color: c.muted),
-              ),
-            ],
-            if (_error != null) ...[
-              const SizedBox(height: 10),
-              Text(
-                _error!,
-                key: const Key('pp_unlock_error'),
-                style: SunriseType.caption.copyWith(color: c.negative),
-              ),
-            ],
-          ],
+    // SunriseBottomSheet already makes room for the keyboard; doing it
+    // here too hid the fields behind it.
+    return SunriseBottomSheet(
+      title: widget.title,
+      subtitle: widget.subtitle,
+      actions: [
+        SunriseButton(
+          key: const Key('pp_unlock_submit'),
+          label: l10n.ppUnlock,
+          height: 54,
+          loading: _busy,
+          onPressed: _busy ? null : _submit,
         ),
+        SunriseButton.secondary(
+          key: const Key('pp_unlock_switch'),
+          label: _recovery ? l10n.ppUsePassphrase : l10n.ppUseRecovery,
+          onPressed: _busy
+              ? null
+              : () => setState(() {
+                  _recovery = !_recovery;
+                  _error = null;
+                  _controller.clear();
+                }),
+        ),
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SunriseTextField(
+            key: const Key('pp_unlock_field'),
+            controller: _controller,
+            label: _recovery ? l10n.ppRecoveryLabel : l10n.ppPassphraseLabel,
+            obscureText: !_recovery,
+            autofocus: true,
+            textCapitalization: _recovery
+                ? TextCapitalization.characters
+                : TextCapitalization.none,
+            onSubmitted: (_) => _busy ? null : _submit(),
+          ),
+          if (_busy) ...[
+            const SizedBox(height: 10),
+            Text(
+              l10n.ppWorking,
+              style: SunriseType.caption.copyWith(color: c.muted),
+            ),
+          ],
+          if (_error != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              _error!,
+              key: const Key('pp_unlock_error'),
+              style: SunriseType.caption.copyWith(color: c.negative),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -462,68 +461,67 @@ class _NewPassphraseSheetState extends State<_NewPassphraseSheet> {
     final l10n = L10n.of(context);
     final c = context.sunrise;
     final canSubmit = !widget.requireConsent || _agreed;
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: SunriseBottomSheet(
-        title: l10n.ppSetTitle,
-        subtitle: l10n.ppSetHint,
-        actions: [
-          SunriseButton(
-            key: const Key('pp_new_submit'),
-            label: widget.requireConsent ? l10n.ppTurnOn : l10n.ppChange,
-            height: 54,
-            onPressed: canSubmit ? _submit : null,
+    // SunriseBottomSheet already makes room for the keyboard; doing it
+    // here too hid the fields behind it.
+    return SunriseBottomSheet(
+      title: l10n.ppSetTitle,
+      subtitle: l10n.ppSetHint,
+      actions: [
+        SunriseButton(
+          key: const Key('pp_new_submit'),
+          label: widget.requireConsent ? l10n.ppTurnOn : l10n.ppChange,
+          height: 54,
+          onPressed: canSubmit ? _submit : null,
+        ),
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SunriseTextField(
+            key: const Key('pp_new_first'),
+            controller: _first,
+            label: l10n.ppPassphraseLabel,
+            obscureText: true,
+            autofocus: true,
+            textInputAction: TextInputAction.next,
           ),
-        ],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SunriseTextField(
-              key: const Key('pp_new_first'),
-              controller: _first,
-              label: l10n.ppPassphraseLabel,
-              obscureText: true,
-              autofocus: true,
-              textInputAction: TextInputAction.next,
-            ),
-            const SizedBox(height: 10),
-            SunriseTextField(
-              key: const Key('pp_new_second'),
-              controller: _second,
-              label: l10n.ppConfirmLabel,
-              obscureText: true,
-              onSubmitted: (_) => canSubmit ? _submit() : null,
-            ),
-            if (widget.requireConsent) ...[
-              const SizedBox(height: 12),
-              Material(
-                type: MaterialType.transparency,
-                child: CheckboxListTile(
-                  key: const Key('pp_consent'),
-                  value: _agreed,
-                  onChanged: (v) => setState(() => _agreed = v ?? false),
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  title: Text(
-                    l10n.ppUnderstand,
-                    style: SunriseType.caption.copyWith(
-                      color: c.ink,
-                      height: 1.4,
-                    ),
+          const SizedBox(height: 10),
+          SunriseTextField(
+            key: const Key('pp_new_second'),
+            controller: _second,
+            label: l10n.ppConfirmLabel,
+            obscureText: true,
+            onSubmitted: (_) => canSubmit ? _submit() : null,
+          ),
+          if (widget.requireConsent) ...[
+            const SizedBox(height: 12),
+            Material(
+              type: MaterialType.transparency,
+              child: CheckboxListTile(
+                key: const Key('pp_consent'),
+                value: _agreed,
+                onChanged: (v) => setState(() => _agreed = v ?? false),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(
+                  l10n.ppUnderstand,
+                  style: SunriseType.caption.copyWith(
+                    color: c.ink,
+                    height: 1.4,
                   ),
                 ),
               ),
-            ],
-            if (_error != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                _error!,
-                key: const Key('pp_new_error'),
-                style: SunriseType.caption.copyWith(color: c.negative),
-              ),
-            ],
+            ),
           ],
-        ),
+          if (_error != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _error!,
+              key: const Key('pp_new_error'),
+              style: SunriseType.caption.copyWith(color: c.negative),
+            ),
+          ],
+        ],
       ),
     );
   }
