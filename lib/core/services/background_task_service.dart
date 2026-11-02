@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -563,8 +565,15 @@ class BackgroundTaskService {
 
     // A backup the user asked to happen every week only happens if something
     // asks. This never prompts — a lapsed Drive permission records why it
-    // skipped and waits to be pressed by hand — so it is safe to run on the way
-    // in, before anything is on screen.
+    // skipped and waits to be pressed by hand.
+    //
+    // Not awaited: it dumps, seals and uploads the whole database, and on a
+    // slow line (or with our server unreachable for the key) the app used to
+    // sit on the splash screen until it finished.
+    unawaited(_runScheduledDriveBackup(db));
+  }
+
+  static Future<void> _runScheduledDriveBackup(AppDatabase db) async {
     try {
       final drive = DriveBackupService(
         database: db,
