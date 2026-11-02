@@ -1,7 +1,6 @@
-import 'package:material_symbols_icons/symbols.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
+import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -398,7 +397,11 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       final spent = await ref.read(aiApiProvider).usePdfExport();
       await quota.refresh();
       return spent;
-    } catch (_) {
+    } catch (e) {
+      // Used to fail silently: the export just never started.
+      if (mounted) {
+        showSunriseSnack(context, '$e', tone: SnackTone.error);
+      }
       return false;
     }
   }
