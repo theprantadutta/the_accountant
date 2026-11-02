@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_accountant/core/providers/connectivity_provider.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';
 import 'package:the_accountant/features/forecast/screens/cash_flow_forecast_screen.dart';
@@ -60,6 +61,9 @@ class _MainNavigationContainerState
     extends ConsumerState<MainNavigationContainer>
     with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
+
+  /// Whether the offline toast has been shown in this run of the app.
+  static bool _toldOffline = false;
 
   // Walkthrough targets.
   final GlobalKey _balanceKey = GlobalKey();
@@ -406,6 +410,19 @@ class _MainNavigationContainerState
     // The saved answer is read after the first frame; ask once it is known.
     ref.listen<VoiceFabState>(voiceFabProvider, (previous, next) {
       if (!(previous?.loaded ?? false) && next.loaded) _maybeAskAboutVoiceFab();
+    });
+    // Going offline is said once, in a toast, and then never again this run
+    // of the app: no banner, no repeats. Everything keeps working offline;
+    // the toast only says so.
+    ref.listen<bool>(isOnlineProvider, (previous, next) {
+      if (next || _toldOffline) return;
+      _toldOffline = true;
+      showSunriseSnack(
+        context,
+        L10n.of(context).offlineToast,
+        tone: SnackTone.info,
+        duration: const Duration(seconds: 5),
+      );
     });
     // Background syncs run silently. The one thing worth interrupting for is a
     // sync that failed, and [SyncNotifier] raises that once per run of
