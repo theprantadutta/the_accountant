@@ -70,6 +70,11 @@ void main() async {
 
   runApp(
     ProviderScope(
+      // Riverpod 3 retries a failed provider up to ten times with backoff, and
+      // shows "loading" all the while. With our server down that meant about
+      // 45 seconds of spinner before a screen could say anything. Screens here
+      // show the error and offer their own retry instead.
+      retry: (retryCount, error) => null,
       overrides: [
         localStoreManagerProvider.overrideWithValue(storeManager),
         // `databaseProvider` follows the active store file, so switching
