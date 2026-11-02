@@ -22,10 +22,12 @@ class AiQuotaNotifier extends StateNotifier<AiQuota> {
 
   bool get _isPremium => _ref.read(premiumProvider).isPremium;
 
-  Future<void> refresh() async {
+  /// Fetches the allowance. False when our server could not be reached, in
+  /// which case the last known allowance is kept.
+  Future<bool> refresh() async {
     if (_isPremium) {
       state = AiQuota.premium;
-      return;
+      return true;
     }
     try {
       state = await _ref.read(aiApiProvider).quota();
@@ -34,8 +36,10 @@ class AiQuotaNotifier extends StateNotifier<AiQuota> {
       if (trial != null && state.themeTrialActive) {
         await _ref.read(themeProvider.notifier).startTrial(trial);
       }
+      return true;
     } catch (_) {
       // Keep the last known allowance; the server still enforces the real one.
+      return false;
     }
   }
 

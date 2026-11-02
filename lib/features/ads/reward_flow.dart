@@ -19,8 +19,22 @@ Future<bool> earnWithAd(
   RewardKind kind,
 ) async {
   final l10n = L10n.of(context);
-  final quota = ref.read(aiQuotaProvider);
   final userId = ref.read(authProvider).userId;
+
+  // Our server pays the reward. When it cannot be reached the ad would still
+  // play (AdMob is somewhere else) and the user would watch it for nothing,
+  // so check first and say there is no ad right now.
+  final reachable = await _withLoading(
+    context,
+    l10n.adLoading,
+    ref.read(aiQuotaProvider.notifier).refresh(),
+  );
+  if (!context.mounted) return false;
+  if (!reachable) {
+    showSunriseSnack(context, l10n.adUnavailable, tone: SnackTone.info);
+    return false;
+  }
+  final quota = ref.read(aiQuotaProvider);
 
   final canEarn = kind == RewardKind.aiCall
       ? quota.canEarnAiCall
