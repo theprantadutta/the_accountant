@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:the_accountant/app/app.dart';
 import 'package:the_accountant/core/utils/env_service.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -20,6 +21,9 @@ import 'package:the_accountant/core/services/background_task_service.dart';
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
+    // No app was built in this isolate: read the language from settings so
+    // notifications written here are in the user's language.
+    await AppL10n.loadSaved();
     switch (taskName) {
       case BackgroundTaskConstants.periodicTaskName:
       case Workmanager.iOSBackgroundTask:

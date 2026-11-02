@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/reminder_scheduler_service.dart';
 import 'package:the_accountant/core/services/local_store_manager.dart';
@@ -13,6 +14,7 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 /// Runs in a background isolate — must be a top-level or static function.
 @pragma('vm:entry-point')
 void onBackgroundNotificationAction(NotificationResponse response) async {
+  await AppL10n.loadSaved();
   try {
     final payload = response.payload;
     if (payload == null || payload.isEmpty) return;

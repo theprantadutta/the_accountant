@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:the_accountant/core/providers/deep_link_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/providers/locale_provider.dart';
@@ -186,15 +187,19 @@ class _MyAppState extends ConsumerState<MyApp> {
       // (ColorOS in system dark mode among them) left those white icons on
       // a light app. Declared here once, for every route; a screen with its
       // own look (the splash, the add form's hero) still overrides it.
-      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
-        value:
-            Theme.of(context).appBarTheme.systemOverlayStyle ??
-            SystemUiOverlayStyle.dark,
-        child: AppBackground(
-          key: _backgroundKey,
-          child: child ?? const SizedBox.shrink(),
-        ),
-      ),
+      builder: (context, child) {
+        // Services and exceptions with no widget tree speak this language.
+        AppL10n.update(Localizations.localeOf(context));
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value:
+              Theme.of(context).appBarTheme.systemOverlayStyle ??
+              SystemUiOverlayStyle.dark,
+          child: AppBackground(
+            key: _backgroundKey,
+            child: child ?? const SizedBox.shrink(),
+          ),
+        );
+      },
       home: const AuthWrapper(),
       routes: {
         '/post-signup-onboarding': (context) =>
