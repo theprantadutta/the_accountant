@@ -107,6 +107,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
             ),
           ],
         ),
+        const SizedBox(height: SunriseSpace.section),
         SettingsGroup(
           label: l10n.ppTitle,
           children: [
@@ -131,6 +132,7 @@ class _PrivacySecurityScreenState extends ConsumerState<PrivacySecurityScreen> {
             ),
           ],
         ),
+        const SizedBox(height: SunriseSpace.section),
         SettingsGroup(
           label: l10n.settingsSecurity,
           children: [
