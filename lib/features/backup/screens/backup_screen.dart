@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:the_accountant/features/encryption/screens/passphrase_screen.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
@@ -16,6 +17,7 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/backup/domain/backup_document.dart';
 import 'package:the_accountant/features/backup/domain/backup_schedule.dart';
 import 'package:the_accountant/features/backup/providers/backup_provider.dart';
+import 'package:the_accountant/features/backup/services/backup_codec.dart';
 import 'package:the_accountant/features/backup/services/backup_service.dart';
 import 'package:the_accountant/features/backup/services/drive_backup_service.dart';
 import 'package:the_accountant/features/backup/services/drive_client.dart';
@@ -168,6 +170,38 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     return destination != null;
   }
 
+  /// Reads a backup file, asking for its passphrase or recovery code when
+  /// the account key cannot open it (offline on a new phone, or a backup
+  /// from another protected account). Null when the user gave up.
+  Future<BackupDocument?> _open(String source) async {
+    final codec = ref.read(backupCodecProvider);
+    try {
+      return await codec.decode(source);
+    } on BackupNeedsSecret {
+      if (!mounted) return null;
+      BackupDocument? opened;
+      final l10n = L10n.of(context);
+      await showSecretSheet(
+        context,
+        title: l10n.backupLockedTitle,
+        subtitle: l10n.backupLockedBody,
+        attempt: (secret, isRecoveryCode) async {
+          try {
+            opened = await codec.decodeWithSecret(
+              source,
+              secret,
+              isRecoveryCode: isRecoveryCode,
+            );
+            return true;
+          } on BackupWrongSecret {
+            return false;
+          }
+        },
+      );
+      return opened;
+    }
+  }
+
   Future<void> _restoreFromFile() async {
     final picked = await FilePicker.pickFile(
       type: FileType.custom,
@@ -182,9 +216,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     final bytes = await picked.readAsBytes();
     if (!mounted) return;
 
-    final BackupDocument document;
+    final BackupDocument? document;
     try {
-      document = await ref.read(backupCodecProvider).decode(utf8.decode(bytes));
+      document = await _open(utf8.decode(bytes));
     } on BackupFormatException catch (e) {
       _say(e.message, bad: true);
       return;
@@ -192,11 +226,13 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       _say('That file could not be read: $e', bad: true);
       return;
     }
+    if (document == null) return;
+    final opened = document;
 
     if (!mounted) return;
     await _confirmAndRestore(
       document.metadata,
-      () => ref.read(backupServiceProvider).restore(document),
+      () => ref.read(backupServiceProvider).restore(opened),
     );
   }
 
@@ -567,18 +603,20 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       if (mounted) setState(() => _busy = false);
     }
 
-    final BackupDocument document;
+    final BackupDocument? document;
     try {
-      document = await ref.read(backupCodecProvider).decode(source);
+      document = await _open(source);
     } on BackupFormatException catch (e) {
       _say(e.message, bad: true);
       return;
     }
+    if (document == null) return;
+    final opened = document;
 
     if (!mounted) return;
     await _confirmAndRestore(
       document.metadata,
-      () => ref.read(backupServiceProvider).restore(document),
+      () => ref.read(backupServiceProvider).restore(opened),
     );
   }
 

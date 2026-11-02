@@ -5633,4 +5633,11 @@ class L10nMs extends L10n {
   @override
   String get offlineToast =>
       'Anda di luar talian. Semua yang anda tambah disimpan dalam telefon ini dan disegerakkan apabila anda kembali dalam talian.';
+
+  @override
+  String get backupLockedTitle => 'Buka kunci sandaran ini';
+
+  @override
+  String get backupLockedBody =>
+      'Sandaran ini dilindungi dengan frasa laluan. Masukkannya, atau kod pemulihan anda, untuk membukanya. Ini berfungsi tanpa sambungan internet.';
 }

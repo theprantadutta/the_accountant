@@ -5631,4 +5631,11 @@ class L10nPt extends L10n {
   @override
   String get offlineToast =>
       'Está offline. Tudo o que adicionar fica guardado neste telemóvel e é sincronizado quando voltar a estar online.';
+
+  @override
+  String get backupLockedTitle => 'Desbloquear esta cópia de segurança';
+
+  @override
+  String get backupLockedBody =>
+      'Esta cópia de segurança está protegida com uma frase-passe. Introduza-a, ou o seu código de recuperação, para a abrir. Funciona sem ligação à Internet.';
 }

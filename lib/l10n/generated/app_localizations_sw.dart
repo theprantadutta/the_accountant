@@ -5628,4 +5628,11 @@ class L10nSw extends L10n {
   @override
   String get offlineToast =>
       'Uko nje ya mtandao. Kila unachoongeza kinahifadhiwa kwenye simu hii na kitasawazishwa utakaporudi mtandaoni.';
+
+  @override
+  String get backupLockedTitle => 'Fungua nakala hii rudufu';
+
+  @override
+  String get backupLockedBody =>
+      'Nakala hii rudufu imelindwa kwa kaulisiri. Iweke, au msimbo wako wa kurejesha, ili kuifungua. Hii inafanya kazi bila muunganisho wa intaneti.';
 }

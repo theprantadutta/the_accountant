@@ -5488,4 +5488,11 @@ class L10nAm extends L10n {
   @override
   String get offlineToast =>
       'ከመስመር ውጭ ነዎት። የሚያክሉት ሁሉ በዚህ ስልክ ላይ ይቀመጣል፣ ተመልሰው መስመር ላይ ሲሆኑም ይመሳሰላል።';
+
+  @override
+  String get backupLockedTitle => 'ይህን ምትኬ ይክፈቱ';
+
+  @override
+  String get backupLockedBody =>
+      'ይህ ምትኬ በይለፍ ሐረግ የተጠበቀ ነው። ለመክፈት እሱን ወይም የመልሶ ማግኛ ኮድዎን ያስገቡ። ይህ ያለ በይነመረብ ግንኙነት ይሰራል።';
 }

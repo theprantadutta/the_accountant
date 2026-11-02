@@ -5634,4 +5634,11 @@ class L10nDe extends L10n {
   @override
   String get offlineToast =>
       'Du bist offline. Alles, was du hinzufügst, wird auf diesem Handy gespeichert und synchronisiert, sobald du wieder online bist.';
+
+  @override
+  String get backupLockedTitle => 'Dieses Backup entsperren';
+
+  @override
+  String get backupLockedBody =>
+      'Dieses Backup ist mit einer Passphrase geschützt. Gib sie oder deinen Wiederherstellungscode ein, um es zu öffnen. Das funktioniert auch ohne Internetverbindung.';
 }

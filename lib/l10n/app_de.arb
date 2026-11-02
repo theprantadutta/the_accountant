@@ -1631,5 +1631,7 @@
   "voiceSaveCount": "{count, plural, =0{Nichts ausgewählt} =1{1 speichern} other{{count} speichern}}",
   "voiceSaved": "{count, plural, =1{1 Buchung gespeichert} other{{count} Buchungen gespeichert}}",
   "ppNeedsConnection": "Für die Passphrase-Einstellungen brauchst du eine Internetverbindung. Verbinde dich mit einem Netzwerk und öffne sie erneut.",
-  "offlineToast": "Du bist offline. Alles, was du hinzufügst, wird auf diesem Handy gespeichert und synchronisiert, sobald du wieder online bist."
+  "offlineToast": "Du bist offline. Alles, was du hinzufügst, wird auf diesem Handy gespeichert und synchronisiert, sobald du wieder online bist.",
+  "backupLockedTitle": "Dieses Backup entsperren",
+  "backupLockedBody": "Dieses Backup ist mit einer Passphrase geschützt. Gib sie oder deinen Wiederherstellungscode ein, um es zu öffnen. Das funktioniert auch ohne Internetverbindung."
 }

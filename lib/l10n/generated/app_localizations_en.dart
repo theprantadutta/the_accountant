@@ -5600,4 +5600,11 @@ class L10nEn extends L10n {
   @override
   String get offlineToast =>
       'You\'re offline. Everything you add is saved on this phone and syncs when you\'re back online.';
+
+  @override
+  String get backupLockedTitle => 'Unlock this backup';
+
+  @override
+  String get backupLockedBody =>
+      'This backup is protected with a passphrase. Enter it, or your recovery code, to open it. This works without an internet connection.';
 }

@@ -1631,5 +1631,7 @@
   "voiceSaveCount": "{count, plural, =0{Hakuna kilichochaguliwa} =1{Hifadhi 1} other{Hifadhi {count}}}",
   "voiceSaved": "{count, plural, =1{Muamala 1 umehifadhiwa} other{Miamala {count} imehifadhiwa}}",
   "ppNeedsConnection": "Mipangilio ya kaulisiri inahitaji muunganisho wa intaneti. Unganisha kwenye mtandao kisha ufungue tena.",
-  "offlineToast": "Uko nje ya mtandao. Kila unachoongeza kinahifadhiwa kwenye simu hii na kitasawazishwa utakaporudi mtandaoni."
+  "offlineToast": "Uko nje ya mtandao. Kila unachoongeza kinahifadhiwa kwenye simu hii na kitasawazishwa utakaporudi mtandaoni.",
+  "backupLockedTitle": "Fungua nakala hii rudufu",
+  "backupLockedBody": "Nakala hii rudufu imelindwa kwa kaulisiri. Iweke, au msimbo wako wa kurejesha, ili kuifungua. Hii inafanya kazi bila muunganisho wa intaneti."
 }

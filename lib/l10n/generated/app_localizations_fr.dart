@@ -5653,4 +5653,11 @@ class L10nFr extends L10n {
   @override
   String get offlineToast =>
       'Vous êtes hors ligne. Tout ce que vous ajoutez est enregistré sur ce téléphone et sera synchronisé à votre retour en ligne.';
+
+  @override
+  String get backupLockedTitle => 'Déverrouiller cette sauvegarde';
+
+  @override
+  String get backupLockedBody =>
+      'Cette sauvegarde est protégée par une phrase secrète. Saisissez-la, ou votre code de récupération, pour l\'ouvrir. Cela fonctionne sans connexion Internet.';
 }

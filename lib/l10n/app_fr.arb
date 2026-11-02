@@ -1631,5 +1631,7 @@
   "voiceSaveCount": "{count, plural, =0{Rien de sélectionné} =1{Enregistrer 1} other{Enregistrer {count}}}",
   "voiceSaved": "{count, plural, =1{1 opération enregistrée} other{{count} opérations enregistrées}}",
   "ppNeedsConnection": "Les réglages de la phrase secrète nécessitent une connexion Internet. Connectez-vous à un réseau et rouvrez cet écran.",
-  "offlineToast": "Vous êtes hors ligne. Tout ce que vous ajoutez est enregistré sur ce téléphone et sera synchronisé à votre retour en ligne."
+  "offlineToast": "Vous êtes hors ligne. Tout ce que vous ajoutez est enregistré sur ce téléphone et sera synchronisé à votre retour en ligne.",
+  "backupLockedTitle": "Déverrouiller cette sauvegarde",
+  "backupLockedBody": "Cette sauvegarde est protégée par une phrase secrète. Saisissez-la, ou votre code de récupération, pour l'ouvrir. Cela fonctionne sans connexion Internet."
 }

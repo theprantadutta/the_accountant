@@ -9919,6 +9919,18 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'You\'re offline. Everything you add is saved on this phone and syncs when you\'re back online.'**
   String get offlineToast;
+
+  /// Title of the sheet asking for the passphrase to open a protected backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock this backup'**
+  String get backupLockedTitle;
+
+  /// Explains that a protected backup opens with its passphrase or recovery code, without needing the server.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is protected with a passphrase. Enter it, or your recovery code, to open it. This works without an internet connection.'**
+  String get backupLockedBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

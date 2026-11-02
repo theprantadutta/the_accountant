@@ -1631,5 +1631,7 @@
   "voiceSaveCount": "{count, plural, =0{Nada selecionado} =1{Guardar 1} other{Guardar {count}}}",
   "voiceSaved": "{count, plural, =1{1 transação guardada} other{{count} transações guardadas}}",
   "ppNeedsConnection": "As definições da frase-passe precisam de ligação à Internet. Ligue-se a uma rede e abra isto novamente.",
-  "offlineToast": "Está offline. Tudo o que adicionar fica guardado neste telemóvel e é sincronizado quando voltar a estar online."
+  "offlineToast": "Está offline. Tudo o que adicionar fica guardado neste telemóvel e é sincronizado quando voltar a estar online.",
+  "backupLockedTitle": "Desbloquear esta cópia de segurança",
+  "backupLockedBody": "Esta cópia de segurança está protegida com uma frase-passe. Introduza-a, ou o seu código de recuperação, para a abrir. Funciona sem ligação à Internet."
 }

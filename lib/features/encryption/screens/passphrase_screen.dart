@@ -259,20 +259,51 @@ class _LockedHere extends ConsumerWidget {
 /// Ask for the passphrase (or the recovery code) and unlock this phone.
 /// True once unlocked.
 Future<bool> showUnlockSheet(BuildContext context, WidgetRef ref) async {
-  final unlocked = await showSunriseSheet<bool>(
-    context: context,
-    builder: (_) => _UnlockSheet(keys: ref.read(accountDataKeyProvider)),
+  final keys = ref.read(accountDataKeyProvider);
+  final l10n = L10n.of(context);
+  final unlocked = await showSecretSheet(
+    context,
+    title: l10n.ppLockedTitle,
+    subtitle: l10n.ppLockedBody,
+    attempt: (secret, isRecoveryCode) => isRecoveryCode
+        ? keys.unlockWithRecoveryCode(secret)
+        : keys.unlockWithPassphrase(secret),
   );
-  if (unlocked == true && context.mounted) {
+  if (unlocked && context.mounted) {
     _toast(context, L10n.of(context).ppUnlocked);
   }
-  return unlocked == true;
+  return unlocked;
+}
+
+/// Asks for the passphrase, or the recovery code, until [attempt] accepts
+/// one or the user gives up. True when it was accepted.
+///
+/// Used to unlock this device, and to open a backup that carries its own
+/// locked key.
+Future<bool> showSecretSheet(
+  BuildContext context, {
+  required String title,
+  required String subtitle,
+  required Future<bool> Function(String secret, bool isRecoveryCode) attempt,
+}) async {
+  final accepted = await showSunriseSheet<bool>(
+    context: context,
+    builder: (_) =>
+        _UnlockSheet(title: title, subtitle: subtitle, attempt: attempt),
+  );
+  return accepted == true;
 }
 
 class _UnlockSheet extends StatefulWidget {
-  const _UnlockSheet({required this.keys});
+  const _UnlockSheet({
+    required this.title,
+    required this.subtitle,
+    required this.attempt,
+  });
 
-  final AccountDataKey keys;
+  final String title;
+  final String subtitle;
+  final Future<bool> Function(String secret, bool isRecoveryCode) attempt;
 
   @override
   State<_UnlockSheet> createState() => _UnlockSheetState();
@@ -297,9 +328,7 @@ class _UnlockSheetState extends State<_UnlockSheet> {
       _error = null;
     });
     try {
-      final ok = _recovery
-          ? await widget.keys.unlockWithRecoveryCode(_controller.text)
-          : await widget.keys.unlockWithPassphrase(_controller.text);
+      final ok = await widget.attempt(_controller.text, _recovery);
       if (!mounted) return;
       if (ok) {
         Navigator.of(context).pop(true);
@@ -324,8 +353,8 @@ class _UnlockSheetState extends State<_UnlockSheet> {
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: SunriseBottomSheet(
-        title: l10n.ppLockedTitle,
-        subtitle: l10n.ppLockedBody,
+        title: widget.title,
+        subtitle: widget.subtitle,
         actions: [
           SunriseButton(
             key: const Key('pp_unlock_submit'),

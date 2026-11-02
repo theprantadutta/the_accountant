@@ -5601,4 +5601,11 @@ class L10nHi extends L10n {
   @override
   String get offlineToast =>
       'आप ऑफ़लाइन हैं। आप जो भी जोड़ेंगे वह इसी फ़ोन पर सेव रहेगा और ऑनलाइन आने पर सिंक हो जाएगा।';
+
+  @override
+  String get backupLockedTitle => 'यह बैकअप अनलॉक करें';
+
+  @override
+  String get backupLockedBody =>
+      'यह बैकअप एक पासफ़्रेज़ से सुरक्षित है। इसे खोलने के लिए वह या अपना रिकवरी कोड डालें। यह इंटरनेट कनेक्शन के बिना भी काम करता है।';
 }

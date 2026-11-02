@@ -2926,5 +2926,13 @@
   "offlineToast": "You're offline. Everything you add is saved on this phone and syncs when you're back online.",
   "@offlineToast": {
     "description": "Shown once when the phone goes offline: the app keeps working and syncs later."
+  },
+  "backupLockedTitle": "Unlock this backup",
+  "@backupLockedTitle": {
+    "description": "Title of the sheet asking for the passphrase to open a protected backup."
+  },
+  "backupLockedBody": "This backup is protected with a passphrase. Enter it, or your recovery code, to open it. This works without an internet connection.",
+  "@backupLockedBody": {
+    "description": "Explains that a protected backup opens with its passphrase or recovery code, without needing the server."
   }
 }
