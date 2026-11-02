@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
@@ -53,6 +57,16 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   Future<void> checkOnboardingStatus() async {
     state = state.copyWith(isLoading: true, error: null);
 
+    // Onboarding finished while the server was unreachable: that answer is
+    // known here, and must not be overwritten by the server's older "not
+    // done yet" before it has been told.
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getString(_pendingKey) != null) {
+      state = state.copyWith(isLoading: false, needsOnboarding: false);
+      unawaited(_flushPending());
+      return;
+    }
+
     // Try cache first for instant response
     try {
       final cachedInfo = await _apiService.getCachedUserInfo();
@@ -91,12 +105,12 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     } catch (e) {
       debugPrint('[OnboardingProvider] Error checking onboarding status: $e');
 
-      // No cache and no network - assume onboarding not needed (for existing users)
-      state = state.copyWith(
-        isLoading: false,
-        needsOnboarding: false,
-        error: 'Failed to check onboarding status',
-      );
+      // No cache and no network. Whether onboarding is offered is not decided
+      // here any more: the startup flow only allows it for an account the
+      // server confirmed empty, or once the user chose to start on this device
+      // with the account unreachable. In that second case the welcome steps
+      // are what they need, not an empty app.
+      state = state.copyWith(isLoading: false, needsOnboarding: true);
     }
   }
 
@@ -120,6 +134,44 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       debugPrint(
         '[OnboardingProvider] Background refresh failed (keeping cached state): $e',
       );
+    }
+  }
+
+  /// Profile changes onboarding made that the server has not received.
+  static const String _pendingKey = 'onboarding_pending_profile_v1';
+
+  /// Sends [data] to the profile, or keeps it to send later.
+  Future<void> _tellServer(Map<String, dynamic> data) async {
+    try {
+      await _apiService.put('/auth/me', data: data);
+    } catch (e) {
+      debugPrint(
+        '[OnboardingProvider] Saved for later, server unreachable: $e',
+      );
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_pendingKey);
+      final pending = raw == null
+          ? <String, dynamic>{}
+          : Map<String, dynamic>.from(jsonDecode(raw) as Map);
+      pending.addAll(data);
+      await prefs.setString(_pendingKey, jsonEncode(pending));
+    }
+  }
+
+  /// Sends what onboarding saved for later. True when nothing is left.
+  Future<bool> _flushPending() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_pendingKey);
+    if (raw == null) return true;
+    try {
+      await _apiService.put(
+        '/auth/me',
+        data: jsonDecode(raw) as Map<String, dynamic>,
+      );
+      await prefs.remove(_pendingKey);
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 
@@ -149,16 +201,11 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     state = state.copyWith(isCompleting: true, error: null);
 
     try {
-      // 1. Update user's default currency and mark onboarding as complete
-      await _apiService.put(
-        '/auth/me',
-        data: {
-          'default_currency': defaultCurrency,
-          'onboarding_completed': true,
-        },
-      );
-
-      // 2. Create default wallet locally
+      // The wallet is made on the device first. Telling the server came first
+      // before, so with the server unreachable the user was stuck on this
+      // screen, unable to create anything at all.
+      //
+      // Create default wallet locally
       final now = DateTime.now();
       // A UUID, not a timestamp. `SyncChange.EntityId` is a `Guid` server-side,
       // so a millisecond string cannot bind at all — and because a push is one
@@ -190,6 +237,13 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
         ),
       );
 
+      // Then the server: the default currency and that onboarding is done.
+      // Sent later if it cannot be reached now.
+      await _tellServer({
+        'default_currency': defaultCurrency,
+        'onboarding_completed': true,
+      });
+
       state = state.copyWith(isCompleting: false, needsOnboarding: false);
     } catch (e) {
       debugPrint('[OnboardingProvider] Error completing onboarding: $e');
@@ -205,7 +259,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     state = state.copyWith(isCompleting: true, error: null);
 
     try {
-      await _apiService.put('/auth/me', data: {'onboarding_completed': true});
+      await _tellServer({'onboarding_completed': true});
 
       state = state.copyWith(isCompleting: false, needsOnboarding: false);
     } catch (e) {
