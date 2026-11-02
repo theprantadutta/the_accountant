@@ -72,7 +72,14 @@ class SyncFailureNoticeNotifier extends Notifier<int> {
   @override
   int build() => 0;
 
-  void raise() => state++;
+  /// Set when the failure has something specific to say, such as that the
+  /// server will not sync with this version until the app is updated.
+  String? message;
+
+  void raise({String? message}) {
+    this.message = message;
+    state++;
+  }
 }
 
 /// Decides which automatic sync failures are worth a word to the user.
@@ -311,7 +318,13 @@ class SyncNotifier extends Notifier<SyncOperationState> {
       // it works. A failure is mentioned once per run of them; see
       // [SyncFailureStreak].
       if (_failureStreak.record(result)) {
-        ref.read(syncFailureNoticeProvider.notifier).raise();
+        ref
+            .read(syncFailureNoticeProvider.notifier)
+            .raise(
+              message: result.error == ApiException.updateRequiredMessage
+                  ? result.error
+                  : null,
+            );
       }
 
       // Only a sync that actually ran starts the clock (syncAll sets it). One

@@ -413,10 +413,11 @@ class _MainNavigationContainerState
     // screen.
     ref.listen<int>(syncFailureNoticeProvider, (previous, next) {
       if (next > (previous ?? 0)) {
+        final specific = ref.read(syncFailureNoticeProvider.notifier).message;
         showSunriseSnack(
           context,
-          L10n.of(context).syncBackgroundFailed,
-          duration: const Duration(seconds: 4),
+          specific ?? L10n.of(context).syncBackgroundFailed,
+          duration: Duration(seconds: specific == null ? 4 : 8),
         );
       }
     });

@@ -47,6 +47,12 @@ class ApiException implements Exception {
   /// The server refuses this app version (HTTP 426): it must be updated.
   bool get isUpdateRequired => statusCode == 426;
 
+  /// What a 426 says. Public so a sync failure carrying it can be told apart
+  /// from an ordinary one and shown as it is.
+  static const String updateRequiredMessage =
+      'Update The Accountant to keep syncing. Everything stays on this phone '
+      'until you do.';
+
   @override
   String toString() => message;
 }
@@ -846,8 +852,7 @@ class ApiService {
       // send. Said plainly, whatever the body holds.
       if (status == 426) {
         return ApiException(
-          'Update The Accountant to keep syncing. Everything stays on this '
-          'phone until you do.',
+          ApiException.updateRequiredMessage,
           statusCode: status,
         );
       }
