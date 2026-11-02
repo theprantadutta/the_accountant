@@ -392,35 +392,50 @@ Future<T?> _pickOne<T>({
 }) {
   return showModalBottomSheet<T>(
     context: context,
+    // Eleven languages do not fit a default sheet on a short or wide screen;
+    // the last few were cut off and could not be chosen. The list scrolls.
+    isScrollControlled: true,
     builder: (context) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(AppSpacing.lg),
-            child: Text(
-              title,
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * .85,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(AppSpacing.lg),
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
-          for (final option in options)
-            ListTile(
-              title: Text(
-                option.label,
-                style: TextStyle(color: AppColors.textPrimary),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final option in options)
+                    ListTile(
+                      title: Text(
+                        option.label,
+                        style: TextStyle(color: AppColors.textPrimary),
+                      ),
+                      trailing: option.value == current
+                          ? Icon(Icons.check, color: AppColors.primaryAccent)
+                          : null,
+                      onTap: () => Navigator.pop(context, option.value),
+                    ),
+                ],
               ),
-              trailing: option.value == current
-                  ? Icon(Icons.check, color: AppColors.primaryAccent)
-                  : null,
-              onTap: () => Navigator.pop(context, option.value),
             ),
-          SizedBox(height: AppSpacing.md),
-        ],
+            SizedBox(height: AppSpacing.md),
+          ],
+        ),
       ),
     ),
   );
