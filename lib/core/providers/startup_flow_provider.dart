@@ -103,10 +103,14 @@ class StartupFlowState {
   /// Deliberately the only place that question is answered, and deliberately
   /// narrow: nothing but a confirmed-empty account, or the user's own warned
   /// decision to start offline, opens that door.
+  ///
+  /// [StartupPhase.offline] used to open it too. But that phase is only
+  /// reached when this device holds no wallets and the server could not be
+  /// asked, so it means "we do not know what this account holds" — exactly
+  /// when a first wallet must not be offered, because it would land alongside
+  /// whatever the cloud already has.
   bool get mayOfferFirstWallet =>
-      phase == StartupPhase.confirmedEmpty ||
-      phase == StartupPhase.offline ||
-      startedOfflineByChoice;
+      phase == StartupPhase.confirmedEmpty || startedOfflineByChoice;
 
   bool get isSettled =>
       phase == StartupPhase.restored ||
@@ -130,8 +134,13 @@ class StartupFlowState {
   /// unconfirmed subscription, a lapsed one. Rendering a loading screen for any
   /// of them leaves the user staring at a spinner forever, which is exactly the
   /// failure this replaced.
+  ///
+  /// [StartupPhase.offline] is one of them: with no data on this device and
+  /// the account unreachable, the honest options are to wait for the server
+  /// (the flow keeps checking) or to start fresh here, having been warned.
   bool get needsUserAttention =>
       phase == StartupPhase.unavailable ||
+      phase == StartupPhase.offline ||
       phase == StartupPhase.checkingEntitlement ||
       phase == StartupPhase.entitlementRequired;
 
@@ -204,6 +213,16 @@ class StartupFlowController extends Notifier<StartupFlowState> {
   StreamSubscription<bool>? _connectivitySub;
   bool _running = false;
 
+  /// Keeps asking the server while the account is unresolved.
+  ///
+  /// Connectivity events alone are not enough: when our server is down but
+  /// the phone is online, nothing changes on the phone's side, and the user
+  /// would sit on the recovery screen until they pressed retry.
+  Timer? _recheckTimer;
+
+  /// How often [_recheckTimer] asks. Overridable for tests.
+  static Duration recheckInterval = const Duration(seconds: 20);
+
   /// A trigger that arrived while a pass was already in flight.
   ///
   /// Entitlements and connectivity land at arbitrary moments, very often
@@ -248,6 +267,7 @@ class StartupFlowController extends Notifier<StartupFlowState> {
 
     ref.onDispose(() {
       _connectivitySub?.cancel();
+      _recheckTimer?.cancel();
     });
 
     return const StartupFlowState();
@@ -339,6 +359,32 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     );
     if (state.isFinal && !target.isFinal) return;
     state = target;
+    _scheduleRecheck();
+  }
+
+  /// Starts or stops the background re-check to match the current phase.
+  void _scheduleRecheck() {
+    final waiting =
+        state.phase == StartupPhase.offline ||
+        state.phase == StartupPhase.unavailable ||
+        state.phase == StartupPhase.checkingEntitlement;
+    if (!waiting || state.isFinal) {
+      _recheckTimer?.cancel();
+      _recheckTimer = null;
+      return;
+    }
+    _recheckTimer ??= Timer.periodic(recheckInterval, (_) => _recheck());
+  }
+
+  /// Asks the server quietly; only re-runs the flow once it answers, so the
+  /// recovery screen does not flash a loading screen every few seconds.
+  Future<void> _recheck() async {
+    if (_running || state.isFinal) return;
+    if (ref.read(authenticatedUserIdProvider) == null) return;
+    final account = await ref.read(accountBootstrapServiceProvider).fetch();
+    if (account == null || _running || state.isFinal) return;
+    debugPrint('[StartupFlow] server answered; re-evaluating');
+    unawaited(evaluate());
   }
 
   Future<void> _evaluate() async {
@@ -403,11 +449,16 @@ class StartupFlowController extends Notifier<StartupFlowState> {
     _enterPhase(StartupPhase.checkingAccount);
     final account = await ref.read(accountBootstrapServiceProvider).fetch();
     if (account == null) {
+      // No data here and no answer from the server. Not a new account, and not
+      // a reason to offer one: the recovery screen keeps checking, and lets the
+      // user start fresh on this device only once they have been warned.
       _enterPhase(
         StartupPhase.offline,
         reason:
-            'We could not reach your account, so this device is working on '
-            'its own for now. Anything recorded here syncs when it can.',
+            "We couldn't reach your account, and this device doesn't have its "
+            "data yet. If you've used The Accountant before, connect to the "
+            "internet and we'll bring your data back. New here? You can start "
+            'on this device now.',
       );
       return;
     }

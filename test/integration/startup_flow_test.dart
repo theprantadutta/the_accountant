@@ -409,23 +409,23 @@ void main() {
     );
   });
 
-  test('working offline needs no permission from the user', () async {
-    // This used to require an explicit tap before the app would let anyone in
-    // without a server. Offline is not an exceptional mode to be opted into —
-    // the records live on the device, and a phone with no signal is an ordinary
-    // way to use this.
-    bootstrap.next = null;
-    container = buildContainer();
-    await container.read(startupFlowProvider.notifier).evaluate();
+  test(
+    'an unknown account on an empty device is not offered a first wallet',
+    () async {
+      // No data on this device and the server unreachable: the account may well
+      // have years of history in the cloud. Offering "create your first wallet"
+      // here is what put new wallets alongside real ones. The user is asked
+      // instead, and can still start fresh once warned.
+      bootstrap.next = null;
+      container = buildContainer();
+      await container.read(startupFlowProvider.notifier).evaluate();
 
-    final flow = container.read(startupFlowProvider);
-    expect(flow.mayOfferFirstWallet, isTrue);
-    expect(
-      flow.startedOfflineByChoice,
-      isFalse,
-      reason: 'nobody had to choose it, so nothing should say they did',
-    );
-  });
+      final flow = container.read(startupFlowProvider);
+      expect(flow.mayOfferFirstWallet, isFalse);
+      expect(flow.needsUserAttention, isTrue);
+      expect(flow.startedOfflineByChoice, isFalse);
+    },
+  );
 
   test('choosing to start offline still works', () async {
     // The explicit path is still there for the states that do stop and ask.
@@ -858,33 +858,57 @@ void main() {
   });
 
   group('offline is a normal way to use the app', () {
-    test('an unreachable account does not hold the app hostage', () async {
-      // Everything here is recorded on the device first; the network carries it
-      // to other devices, it is not what makes the app work. Someone with no
-      // signal owns their records as much as anyone else, and a server being
-      // down — or a laptop running the dev backend being shut — must not lock
-      // them out.
-      bootstrap = _ScriptedBootstrap(null); // the fetch fails
+    test(
+      'an unreachable account with no local data asks, not assumes',
+      () async {
+        // Local records settle startup before the server is ever asked (see
+        // below), so nobody with data on the phone is held up. This is the one
+        // case left: nothing here, nothing known. The user gets the recovery
+        // screen, which keeps checking, and may start fresh only once warned.
+        bootstrap = _ScriptedBootstrap(null); // the fetch fails
+        container = buildContainer();
+
+        await container.read(startupFlowProvider.notifier).evaluate();
+        final state = container.read(startupFlowProvider);
+
+        expect(state.phase, StartupPhase.offline);
+        expect(state.needsUserAttention, isTrue);
+        expect(
+          state.mayOfferFirstWallet,
+          isFalse,
+          reason: 'a first wallet now could sit alongside the cloud data',
+        );
+
+        container.read(startupFlowProvider.notifier).startOfflineAnyway();
+        expect(container.read(startupFlowProvider).mayOfferFirstWallet, isTrue);
+      },
+    );
+
+    test('it keeps checking, so a server that comes back needs no tap', () async {
+      // With our server down and the phone online, no connectivity event ever
+      // arrives; only pressing retry used to notice the server was back.
+      final interval = StartupFlowController.recheckInterval;
+      StartupFlowController.recheckInterval = const Duration(milliseconds: 50);
+      addTearDown(() => StartupFlowController.recheckInterval = interval);
+
+      bootstrap = _ScriptedBootstrap(null);
       container = buildContainer();
-
       await container.read(startupFlowProvider.notifier).evaluate();
-      final state = container.read(startupFlowProvider);
+      expect(container.read(startupFlowProvider).phase, StartupPhase.offline);
 
-      expect(state.phase, StartupPhase.offline);
-      expect(
-        state.needsUserAttention,
-        isFalse,
-        reason: 'there is nothing for the user to decide here',
+      bootstrap.next = const AccountBootstrap(
+        onboardingCompleted: false,
+        hasFinancialData: false,
+        liveWalletCount: 0,
       );
+      for (var i = 0; i < 40; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 25));
+        if (container.read(startupFlowProvider).isFinal) break;
+      }
+
       expect(
-        state.isSettled,
-        isTrue,
-        reason: 'the app can be shown; it is not still deciding',
-      );
-      expect(
-        state.mayOfferFirstWallet,
-        isTrue,
-        reason: 'a first wallet is how someone starts using it offline',
+        container.read(startupFlowProvider).phase,
+        StartupPhase.confirmedEmpty,
       );
     });
 
