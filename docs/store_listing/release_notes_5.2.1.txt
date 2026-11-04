@@ -1,0 +1,80 @@
+<en-US>
+• Your money data is now encrypted: on your phone, in your backups, and before it syncs
+• New: an optional passphrase so only you can open your synced data and backups
+• Add a transaction by voice, straight from the Today screen
+• Hide your balances and totals with privacy mode
+• Now in ten languages, including Bangla, Hindi, German, French and Portuguese
+• Card bill and plan reminders come from your phone, plus many fixes
+</en-US>
+<bn-BD>
+• আপনার টাকার তথ্য এখন এনক্রিপ্টেড: ফোনে, ব্যাকআপে এবং সিঙ্ক হওয়ার আগে
+• নতুন: ঐচ্ছিক পাসফ্রেজ, যাতে সিঙ্ক করা ডেটা ও ব্যাকআপ শুধু আপনিই খুলতে পারেন
+• Today স্ক্রিন থেকে সরাসরি কণ্ঠে লেনদেন যোগ করুন
+• প্রাইভেসি মোডে ব্যালেন্স ও মোট অঙ্ক লুকিয়ে রাখুন
+• এখন দশটি ভাষায়, হিন্দি, জার্মান, ফরাসি ও পর্তুগিজসহ
+• কার্ডের বিল ও প্ল্যানের রিমাইন্ডার এখন আপনার ফোন থেকে আসে, সঙ্গে অনেক সংশোধন
+</bn-BD>
+<hi-IN>
+• आपका वित्तीय डेटा अब एन्क्रिप्टेड है: फ़ोन पर, बैकअप में और सिंक होने से पहले
+• नया: वैकल्पिक पासफ़्रेज़, ताकि सिंक किया गया डेटा और बैकअप सिर्फ़ आप खोल सकें
+• Today स्क्रीन से सीधे बोलकर लेन-देन जोड़ें
+• प्राइवेसी मोड से अपने बैलेंस और कुल रकम छिपाएँ
+• अब दस भाषाओं में, जिनमें बांग्ला, जर्मन, फ़्रेंच और पुर्तगाली शामिल हैं
+• कार्ड बिल और प्लान के रिमाइंडर अब आपके फ़ोन से आते हैं, साथ ही कई सुधार
+</hi-IN>
+<de-DE>
+• Deine Finanzdaten sind jetzt verschlüsselt: auf dem Handy, in Backups und vor der Synchronisierung
+• Neu: optionale Passphrase, damit nur du synchronisierte Daten und Backups öffnen kannst
+• Buchungen per Sprache erfassen, direkt vom Heute-Bildschirm
+• Guthaben und Summen mit dem Privatmodus ausblenden
+• Jetzt in zehn Sprachen, darunter Bengalisch, Hindi, Französisch und Portugiesisch
+• Erinnerungen an Kartenrechnungen und Planraten kommen vom Handy, dazu viele Korrekturen
+</de-DE>
+<fr-FR>
+• Vos données sont désormais chiffrées : sur le téléphone, dans les sauvegardes et avant la synchronisation
+• Nouveau : une phrase secrète facultative, pour que vous seul puissiez les ouvrir
+• Ajoutez une opération à la voix, directement depuis l'écran Aujourd'hui
+• Masquez vos soldes et totaux avec le mode confidentialité
+• Disponible en dix langues, dont le bengali, l'hindi, l'allemand et le portugais
+• Les rappels de factures et d'échéances viennent du téléphone, et de nombreuses corrections
+</fr-FR>
+<pt-PT>
+• Os seus dados financeiros estão agora encriptados: no telemóvel, nas cópias de segurança e antes de sincronizar
+• Novo: frase-passe opcional para que só você abra os dados sincronizados e as cópias de segurança
+• Adicione uma transação por voz, diretamente no ecrã Hoje
+• Oculte os seus saldos e totais com o modo de privacidade
+• Agora em dez idiomas, incluindo bengali, hindi, alemão e francês
+• Os lembretes de faturas do cartão e prestações vêm do telemóvel, além de muitas correções
+</pt-PT>
+<ms>
+• Data kewangan anda kini disulitkan: dalam telefon, dalam sandaran dan sebelum disegerakkan
+• Baharu: frasa laluan pilihan supaya hanya anda boleh membuka data segerak dan sandaran
+• Tambah transaksi dengan suara, terus dari skrin Hari Ini
+• Sembunyikan baki dan jumlah anda dengan mod privasi
+• Kini dalam sepuluh bahasa, termasuk Bengali, Hindi, Jerman, Perancis dan Portugis
+• Peringatan bil kad dan ansuran pelan datang dari telefon anda, serta banyak pembaikan
+</ms>
+<fa-IR>
+• داده‌های مالی شما اکنون رمزگذاری می‌شوند: روی گوشی، در پشتیبان‌ها و پیش از همگام‌سازی
+• جدید: عبارت عبور اختیاری تا فقط خودتان بتوانید داده‌های همگام‌شده و پشتیبان‌ها را باز کنید
+• افزودن تراکنش با صدا، مستقیم از صفحه امروز
+• پنهان کردن موجودی و جمع‌ها با حالت حریم خصوصی
+• اکنون به ده زبان، از جمله بنگالی، هندی، آلمانی، فرانسوی و پرتغالی
+• یادآوری صورت‌حساب کارت و اقساط از گوشی شما می‌آید، به‌همراه اصلاحات بسیار
+</fa-IR>
+<sw>
+• Data yako ya fedha sasa imesimbwa fiche: kwenye simu, kwenye nakala rudufu na kabla ya kusawazishwa
+• Mpya: kaulisiri ya hiari ili wewe tu uweze kufungua data iliyosawazishwa na nakala rudufu
+• Ongeza muamala kwa sauti, moja kwa moja kutoka skrini ya Leo
+• Ficha salio na jumla zako kwa hali ya faragha
+• Sasa kwa lugha kumi, ikiwemo Kibengali, Kihindi, Kijerumani, Kifaransa na Kireno
+• Vikumbusho vya bili za kadi na awamu hutoka kwenye simu yako, pamoja na marekebisho mengi
+</sw>
+<am>
+• የገንዘብ ውሂብዎ አሁን ተመስጥሯል፦ በስልክዎ፣ በምትኬዎች እና ከመመሳሰሉ በፊት
+• አዲስ፦ የተመሳሰለ ውሂብና ምትኬዎችን እርስዎ ብቻ እንዲከፍቱ አማራጭ የይለፍ ሐረግ
+• ከዛሬ ማያ ገጽ በቀጥታ በድምፅ ግብይት ያክሉ
+• በግላዊነት ሁነታ ሒሳብዎንና ድምርዎን ይደብቁ
+• አሁን በአስር ቋንቋዎች፣ ባንግላ፣ ሂንዲ፣ ጀርመንኛ፣ ፈረንሳይኛ እና ፖርቱጋልኛን ጨምሮ
+• የካርድ ሂሳብና የዕቅድ አስታዋሾች ከስልክዎ ይመጣሉ፣ ከብዙ ማስተካከያዎች ጋር
+</am>

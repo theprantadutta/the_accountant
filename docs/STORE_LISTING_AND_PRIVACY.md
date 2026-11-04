@@ -4,7 +4,7 @@ Instructions for a future Claude Code session (usually on the Mac, where the
 iOS release is built). Read this before touching Google Play Console or
 App Store Connect.
 
-Last full update: **29 Oct 2026** (Android 4.4.0 build 35, iOS live version 4.2.0).
+Last full update: **4 Nov 2026** (iOS 5.2.1 build 43 prepared; iOS live version was 4.2.0).
 
 ---
 
@@ -103,28 +103,49 @@ you click *Publish* on each data type; no app version is needed. As of
 - **Tracking:** "No" for every type. The app has no App Tracking Transparency prompt (no `NSUserTrackingUsageDescription`), so the advertising ID (IDFA) isn't used.
   - If ATT is ever added, Device ID (and probably Advertising Data) must switch to "used for tracking".
 
-### ⚠️ Still to do on iOS: the description
+### ✅ Done on iOS for 5.2.1 (4 Nov 2026)
 
-The live iOS version (4.2.0) still has the **old** description. Apple only lets
-you edit the description, keywords and screenshots on a **new version**. So
-when the next iOS version is created (the **+** next to "iOS App"):
+Description, keywords, subtitle, promotional text and six extra localizations
+were all set on the 5.2.1 version. For the next version, the same steps are:
 
 1. Paste `docs/store_listing/en.json` → `full` into *Description*.
 2. **Subtitle:** max 30 characters. Write one, e.g. "Budgets, loans & AI insights" (28). Don't reuse `short`; it's too long.
 3. **Promotional text:** max 170 characters, editable any time, even without a new version. Use a one-line pitch.
 4. **Keywords:** max 100 characters, comma-separated, no spaces. Don't repeat words already in the name.
-5. **Localizations:** add each language Apple supports.
-   - Hindi, German, French, Portuguese (Portugal) and Malay are available.
-   - Check whether Bangla, Persian, Swahili and Amharic are offered (they weren't, last we knew), and skip any that aren't.
-   - Paste the matching JSON (`title` → Name, `full` → Description).
+5. **Localizations:** Apple offers **7 of our 10**: English, **Bangla**
+   (it *is* offered now — the old note here was wrong), Hindi, German, French,
+   Portuguese (Portugal) and Malay. **Persian, Swahili and Amharic are not
+   offered** — skip them.
+   - Per locale: `title` → Name and `short` → Subtitle (both on **App
+     Information**, max 30 each), `full` → Description and the release note →
+     What's New (both on the **version** page). `short` also works as the
+     promotional text.
+   - **Pick the language from the menu by clicking the exact element, and check
+     the selector shows the language before typing.** Choosing by screen
+     position once landed on *Hebrew* instead of Hindi and created a stray
+     Hebrew localization (see the warning below).
+   - Fastest way to move 3,000-character text in without typos: `pbcopy` the
+     field from the JSON, focus the textarea, then cmd+A, cmd+V.
 6. **Screenshots:** check they show the current Sunrise design.
    - Google Play's screenshots (orange, Sunrise) are current.
    - Compare the iOS screenshots against them.
-7. Leave the actual "Submit for Review" to the user.
+7. "Submit for Review": leave it to the user **unless they ask for it in that
+   session** — they have asked for it directly on several releases.
 
-### ⚠️ Still to do on iOS: advertise encryption (added 2 Nov 2026)
+### ⚠️ A stray **Hebrew** localization exists
 
-Google Play got this on 2 Nov 2026; iOS has none of it yet.
+Created by accident on 4 Nov 2026 (a language menu click landed one row off).
+Its text was overwritten with the **English** listing, so Hebrew-locale users
+see exactly what they would have seen without it — harmless, but it should not
+be there. App Store Connect's web UI has **no delete-localization control**;
+remove it with the App Store Connect API:
+`DELETE /v1/appStoreVersionLocalizations/{id}` (and the matching
+`appInfoLocalizations` entry).
+
+### ⚠️ Still to do on iOS: the encryption screenshot
+
+Description, subtitle and promotional text now mention encryption (done for
+5.2.1). Only the screenshot page is still missing on iOS.
 
 - **Screenshots:** Play got a new page 03 "Your data, *encrypted*" with the subline
   "Locked on your phone, in backups and in sync. Add a passphrase and not even
@@ -135,11 +156,8 @@ Google Play got this on 2 Nov 2026; iOS has none of it yet.
   (https://claude.ai/design/p/80d98355-75ba-46ad-adda-688129c5ac03).
   Capture iPhone/iPad shots of the passphrase screen from the iOS build: don't
   reuse the Android status bar.
-- **Description:** paste the current `en.json` → `full` (it already has the
-  "Private by design" encryption paragraph).
-- **Subtitle / promotional text:** mention encryption. Play's short description
-  is now "Track spending, budgets, loans & savings, with AI, voice entry and
-  encryption" (`short` in each JSON).
+- ~~Description, subtitle and promotional text~~ — done for 5.2.1. The English
+  subtitle is now "Budgets, loans & encryption" (27).
 - **Wording rule:** never claim "only you can open it" without the passphrase
   condition. Without a passphrase our server holds the key.
 - **App Privacy:** re-check it matches the 5.0 encryption (see section above).
