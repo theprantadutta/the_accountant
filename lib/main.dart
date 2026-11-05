@@ -14,6 +14,7 @@ import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/services/local_store_manager.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
+import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/background_task_service.dart';
@@ -42,12 +43,16 @@ void main() async {
   // Keep the native splash up through start-up instead of flashing an empty
   // frame; AuthWrapper lets go once its first screen has drawn.
   FlutterNativeSplash.preserve(widgetsBinding: binding);
-  await EnvService.init();
-  // Explicit options make init work identically on every platform (Android,
-  // iOS, web, Windows) instead of relying on native config files being present.
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  ); // Required: GoogleSignInService accesses FirebaseAuth.instance at provider creation
+  // None of these needs another, so none waits for another.
+  final prefsLoading = SharedPreferences.getInstance();
+  await Future.wait([
+    EnvService.init(),
+    // Explicit options make init work identically on every platform (Android,
+    // iOS, web, Windows) instead of relying on native config files being
+    // present. Required: GoogleSignInService accesses FirebaseAuth.instance at
+    // provider creation.
+    Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
+  ]);
 
   // Crashlytics runs in release/profile only. In debug we leave Flutter's
   // default error handlers in place so crashes surface in the console instead
@@ -60,7 +65,7 @@ void main() async {
       return true;
     };
   }
-  final prefs = await SharedPreferences.getInstance();
+  final prefs = await prefsLoading;
 
   // The local database is scoped to the account that owns it. Resolve which
   // store file the persisted session should open BEFORE building the app, so
@@ -86,6 +91,7 @@ void main() async {
               .databaseForFile(ref.watch(activeStoreFileProvider)),
         ),
         sharedPreferencesProvider.overrideWithValue(prefs),
+        themeProvider.overrideWith((ref) => ThemeNotifier(prefs: prefs)),
       ],
       child: const MyApp(),
     ),
