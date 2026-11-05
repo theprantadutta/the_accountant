@@ -6,6 +6,7 @@ import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';
 import 'package:the_accountant/core/services/account_bootstrap_service.dart';
 import 'package:the_accountant/core/services/connectivity_service.dart';
+import 'package:the_accountant/core/services/sync/sync_models.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
 import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
@@ -482,8 +483,9 @@ class StartupFlowController extends Notifier<StartupFlowState> {
 
     // 6. Restore.
     _enterPhase(StartupPhase.restoring);
+    final SyncResult restore;
     try {
-      await ref.read(syncNotifierProvider.notifier).syncAll();
+      restore = await _restore();
     } catch (e) {
       _enterPhase(
         StartupPhase.unavailable,
@@ -498,6 +500,13 @@ class StartupFlowController extends Notifier<StartupFlowState> {
       return;
     }
 
+    // The connection went between the server's answer and the restore. That
+    // is the offline case, and the flow keeps checking from there.
+    if (restore.notRunReason == SyncNotRunReason.offline) {
+      _enterPhase(StartupPhase.offline, reason: appL10n.startupReasonOffline);
+      return;
+    }
+
     // The server said there was data and the restore brought none down. That is
     // a contradiction, not an empty account — do not offer to start over.
     _enterPhase(
@@ -505,6 +514,30 @@ class StartupFlowController extends Notifier<StartupFlowState> {
       reason: appL10n.startupReasonNotRestoredYet,
     );
   }
+
+  /// Brings the account's data down, however long something else holds sync.
+  ///
+  /// Reaching here means the entitlement is confirmed, so the sync is told so:
+  /// this device's own Premium flag comes from a separate request that often
+  /// lands a moment after the server's answer. A refusal on that flag, or on a
+  /// sync already running, is not a failed restore. Both used to read as one,
+  /// and a returning subscriber saw "We couldn't finish loading your account"
+  /// for the second before the retry put the dashboard over it.
+  Future<SyncResult> _restore() async {
+    final sync = ref.read(syncNotifierProvider.notifier);
+    for (var attempt = 0; ; attempt++) {
+      final result = await sync.syncAll(entitlementConfirmed: true);
+      if (result.notRunReason != SyncNotRunReason.busy ||
+          attempt >= _restoreBusyAttempts) {
+        return result;
+      }
+      await Future<void>.delayed(_restoreBusyPoll);
+    }
+  }
+
+  /// How long a running sync is waited for: a minute, in half seconds.
+  static const int _restoreBusyAttempts = 120;
+  static const Duration _restoreBusyPoll = Duration(milliseconds: 500);
 
   /// Combines what the device knows with what the backend says.
   ///

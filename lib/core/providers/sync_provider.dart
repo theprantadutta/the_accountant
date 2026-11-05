@@ -177,12 +177,16 @@ class SyncNotifier extends Notifier<SyncOperationState> {
   }
 
   /// Trigger a full sync
-  Future<SyncResult> syncAll() async {
+  ///
+  /// [entitlementConfirmed]: see [SyncService.syncAll].
+  Future<SyncResult> syncAll({bool entitlementConfirmed = false}) async {
     final syncService = ref.read(syncServiceProvider);
     final database = ref.read(databaseProvider);
 
     final pendingBefore = await database.pendingRowFingerprints();
-    final result = await syncService.syncAll();
+    final result = await syncService.syncAll(
+      entitlementConfirmed: entitlementConfirmed,
+    );
 
     // Any complete sync starts the auto-sync cooldown, not just automatic
     // ones. The startup restore calls this directly, and leaving the clock

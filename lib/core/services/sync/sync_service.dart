@@ -121,7 +121,13 @@ class SyncService {
 
   /// Full sync operation - pushes local changes, pulls remote changes
   /// Requires Premium subscription
-  Future<SyncResult> syncAll() async {
+  ///
+  /// [entitlementConfirmed] is for a caller holding the server's own word that
+  /// this account is premium. This device's flag comes from a separate request
+  /// and can trail that answer, and refusing on it would turn a returning
+  /// subscriber's first restore into a failure. The server still enforces
+  /// Premium on every sync request, so this skips a local shortcut, not a check.
+  Future<SyncResult> syncAll({bool entitlementConfirmed = false}) async {
     // Synchronous guard set BEFORE any await, so overlapping triggers (app-resume,
     // connectivity-restored, the periodic timer) cannot start two syncs concurrently and
     // double-push the same pending set.
@@ -133,7 +139,7 @@ class SyncService {
     }
     _syncInProgress = true;
     try {
-      return await _runSync();
+      return await _runSync(entitlementConfirmed: entitlementConfirmed);
     } finally {
       _syncInProgress = false;
     }
@@ -272,9 +278,9 @@ class SyncService {
     }
   }
 
-  Future<SyncResult> _runSync() async {
+  Future<SyncResult> _runSync({bool entitlementConfirmed = false}) async {
     // Check premium status - sync is a premium feature
-    if (_ref != null) {
+    if (_ref != null && !entitlementConfirmed) {
       final premiumState = _ref.read(premiumProvider);
       if (!premiumState.isPremium) {
         _setState(SyncOperationState.error);

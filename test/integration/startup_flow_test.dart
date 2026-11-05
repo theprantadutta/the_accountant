@@ -79,15 +79,22 @@ class _PreparableDatabase extends AppDatabase {
 /// stand up. The behaviour under test is what the controller does with the
 /// result, not how the notifier watches the network.
 class _TestSyncNotifier extends SyncNotifier {
-  _TestSyncNotifier(this._service);
+  _TestSyncNotifier(this._service, this._gate);
 
   final SyncService _service;
+
+  /// Stands in for the checks the real service makes before it reaches the
+  /// server. The service here is built without a `Ref`, so its own premium
+  /// check never runs, which is how a restore refused by that check went
+  /// unnoticed by every test in this file.
+  final SyncResult? Function(bool entitlementConfirmed) _gate;
 
   @override
   SyncOperationState build() => SyncOperationState.idle;
 
   @override
-  Future<SyncResult> syncAll() => _service.syncAll();
+  Future<SyncResult> syncAll({bool entitlementConfirmed = false}) async =>
+      _gate(entitlementConfirmed) ?? await _service.syncAll();
 }
 
 /// The startup decision, from signed-in to something the UI can act on.
@@ -115,6 +122,9 @@ void main() {
   late FakeSyncServer server;
   late _ScriptedBootstrap bootstrap;
   late ProviderContainer container;
+
+  /// What a sync answers before it reaches the server; null lets it through.
+  late SyncResult? Function(bool entitlementConfirmed) syncGate;
 
   /// The entitlement, mutable *inside* the container.
   ///
@@ -156,6 +166,7 @@ void main() {
               database: db,
               transport: FakeSyncTransport(server: server, userId: userId),
             ),
+            (confirmed) => syncGate(confirmed),
           ),
         ),
       ],
@@ -172,6 +183,7 @@ void main() {
     await db.claimLocalStore(userId: userId);
     server = FakeSyncServer();
     bootstrap = _ScriptedBootstrap(null);
+    syncGate = (_) => null;
   });
 
   tearDown(() async => db.close());
@@ -366,6 +378,89 @@ void main() {
     await container.read(startupFlowProvider.notifier).evaluate();
 
     expect(container.read(startupFlowProvider).phase, StartupPhase.restored);
+  });
+
+  group('a restore that has not run yet is not a failed restore', () {
+    // A returning subscriber signing in on a new phone. The server has just
+    // said the account is premium, but this device's own Premium flag arrives
+    // from a separate request, usually a moment later. The restore was refused
+    // on that flag, no wallets had come down, and the user was told loading
+    // had failed, until the flag landed and the dashboard replaced the error.
+    const premiumWithData = AccountBootstrap(
+      onboardingCompleted: true,
+      hasFinancialData: true,
+      liveWalletCount: 1,
+      isPremium: true,
+    );
+
+    /// Every phase the flow passes through, in order.
+    List<StartupPhase> recordPhases() {
+      final seen = <StartupPhase>[];
+      container.listen(
+        startupFlowProvider,
+        (_, next) => seen.add(next.phase),
+        fireImmediately: true,
+      );
+      return seen;
+    }
+
+    test(
+      'the server confirming premium does not wait for the local flag',
+      () async {
+        await seedCloudWallet();
+        bootstrap.next = premiumWithData;
+        syncGate = (confirmed) => confirmed
+            ? null
+            : SyncResult.notRun(SyncNotRunReason.notPremium, 'needs premium');
+        container = buildContainer();
+        final phases = recordPhases();
+
+        await container.read(startupFlowProvider.notifier).evaluate();
+
+        expect(
+          container.read(startupFlowProvider).phase,
+          StartupPhase.restored,
+        );
+        expect(phases, isNot(contains(StartupPhase.unavailable)));
+      },
+    );
+
+    test(
+      'a sync already running is waited for, not reported as failure',
+      () async {
+        await seedCloudWallet();
+        bootstrap.next = premiumWithData;
+        var attempts = 0;
+        syncGate = (_) => ++attempts < 3
+            ? SyncResult.notRun(SyncNotRunReason.busy, 'already syncing')
+            : null;
+        container = buildContainer();
+        final phases = recordPhases();
+
+        await container.read(startupFlowProvider.notifier).evaluate();
+
+        expect(attempts, 3);
+        expect(
+          container.read(startupFlowProvider).phase,
+          StartupPhase.restored,
+        );
+        expect(phases, isNot(contains(StartupPhase.unavailable)));
+      },
+    );
+
+    test('losing the network mid-way is offline, not a failed load', () async {
+      await seedCloudWallet();
+      bootstrap.next = premiumWithData;
+      syncGate = (_) =>
+          SyncResult.notRun(SyncNotRunReason.offline, 'no internet');
+      container = buildContainer();
+
+      await container.read(startupFlowProvider.notifier).evaluate();
+
+      final flow = container.read(startupFlowProvider);
+      expect(flow.phase, StartupPhase.offline);
+      expect(flow.mayOfferFirstWallet, isFalse);
+    });
   });
 
   // ------------------------------------------------------------- scenario 5
@@ -884,33 +979,38 @@ void main() {
       },
     );
 
-    test('it keeps checking, so a server that comes back needs no tap', () async {
-      // With our server down and the phone online, no connectivity event ever
-      // arrives; only pressing retry used to notice the server was back.
-      final interval = StartupFlowController.recheckInterval;
-      StartupFlowController.recheckInterval = const Duration(milliseconds: 50);
-      addTearDown(() => StartupFlowController.recheckInterval = interval);
+    test(
+      'it keeps checking, so a server that comes back needs no tap',
+      () async {
+        // With our server down and the phone online, no connectivity event ever
+        // arrives; only pressing retry used to notice the server was back.
+        final interval = StartupFlowController.recheckInterval;
+        StartupFlowController.recheckInterval = const Duration(
+          milliseconds: 50,
+        );
+        addTearDown(() => StartupFlowController.recheckInterval = interval);
 
-      bootstrap = _ScriptedBootstrap(null);
-      container = buildContainer();
-      await container.read(startupFlowProvider.notifier).evaluate();
-      expect(container.read(startupFlowProvider).phase, StartupPhase.offline);
+        bootstrap = _ScriptedBootstrap(null);
+        container = buildContainer();
+        await container.read(startupFlowProvider.notifier).evaluate();
+        expect(container.read(startupFlowProvider).phase, StartupPhase.offline);
 
-      bootstrap.next = const AccountBootstrap(
-        onboardingCompleted: false,
-        hasFinancialData: false,
-        liveWalletCount: 0,
-      );
-      for (var i = 0; i < 40; i++) {
-        await Future<void>.delayed(const Duration(milliseconds: 25));
-        if (container.read(startupFlowProvider).isFinal) break;
-      }
+        bootstrap.next = const AccountBootstrap(
+          onboardingCompleted: false,
+          hasFinancialData: false,
+          liveWalletCount: 0,
+        );
+        for (var i = 0; i < 40; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 25));
+          if (container.read(startupFlowProvider).isFinal) break;
+        }
 
-      expect(
-        container.read(startupFlowProvider).phase,
-        StartupPhase.confirmedEmpty,
-      );
-    });
+        expect(
+          container.read(startupFlowProvider).phase,
+          StartupPhase.confirmedEmpty,
+        );
+      },
+    );
 
     test('being offline is not mistaken for a settled answer', () async {
       // The account question was deferred, not answered. A later check that
