@@ -462,13 +462,16 @@ class ApiService {
       return null;
     }
 
-    final email = await _storage.read(key: 'cached_user_email');
-    final displayName = await _storage.read(key: 'cached_display_name');
-    final photoUrl = await _storage.read(key: 'cached_photo_url');
-    final isPremiumStr = await _storage.read(key: 'cached_is_premium');
-    final subscriptionTier = await _storage.read(
-      key: 'cached_subscription_tier',
-    );
+    // Sign-in restoration waits on this at every launch, so the reads overlap.
+    final fields = await Future.wait([
+      _storage.read(key: 'cached_user_email'),
+      _storage.read(key: 'cached_display_name'),
+      _storage.read(key: 'cached_photo_url'),
+      _storage.read(key: 'cached_is_premium'),
+      _storage.read(key: 'cached_subscription_tier'),
+    ]);
+    final [email, displayName, photoUrl, isPremiumStr, subscriptionTier] =
+        fields;
     final onboardingCompletedStr = await _storage.read(
       key: 'cached_onboarding_completed',
     );

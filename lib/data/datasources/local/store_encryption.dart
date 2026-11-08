@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -118,6 +119,17 @@ enum StorePreparation {
   /// account can start clean and sync back down.
   setAside,
 }
+
+/// [prepareStoreFile], off the calling isolate.
+///
+/// Proving a store opens means running its key derivation, which takes long
+/// enough to stall every frame when done on the UI isolate, and this runs during
+/// launch. A store being converted takes far longer.
+Future<StorePreparation> prepareStoreFileInBackground(
+  String path,
+  String keyHex, {
+  bool mayRepair = true,
+}) => Isolate.run(() => prepareStoreFile(path, keyHex, mayRepair: mayRepair));
 
 /// Make sure the store at [path] is encrypted with [keyHex] before it is opened.
 ///

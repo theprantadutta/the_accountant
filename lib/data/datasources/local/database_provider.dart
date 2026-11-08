@@ -39,7 +39,7 @@ AppDatabase constructDbForFile(
     LazyDatabase(() async {
       final path = await resolveStorePath(fileName);
       final key = await readOrCreateStoreKey();
-      prepareStoreFile(path, key, mayRepair: !background);
+      await prepareStoreFileInBackground(path, key, mayRepair: !background);
       return NativeDatabase.createInBackground(
         File(path),
         logStatements: logStatements,

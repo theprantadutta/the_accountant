@@ -38,6 +38,7 @@ import 'package:the_accountant/features/settings/providers/settings_provider.dar
 import 'package:the_accountant/features/settings/screens/lock_screen.dart';
 import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/providers/startup_flow_provider.dart';
+import 'package:the_accountant/features/dashboard/providers/financial_data_provider.dart';
 import 'package:the_accountant/features/startup/screens/startup_recovery_screen.dart';
 
 /// White on the intro's light sunrise ground.
@@ -70,17 +71,38 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
   DateTime? _storeWaitSince;
   Timer? _storeWaitTimer;
 
+  /// How long an unresolved startup keeps the loading screen before saying so.
+  ///
+  /// Most of what lands on the recovery screen is answered moments later: a
+  /// plan restored from the store arriving just after the server said "free",
+  /// a reconnect. Flashing a problem at someone for the second it takes to
+  /// resolve only frightens them.
+  static const _recoveryHold = Duration(seconds: 2);
+  Timer? _recoveryTimer;
+  bool _recoveryDue = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     // Sync premium status when auth state has premium info
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // The first real frame has drawn (usually the intro, which matches the
-      // native splash pixel for pixel), so the native splash can go.
-      FlutterNativeSplash.remove();
+      _releaseNativeSplash();
       _syncPremiumStatus();
     });
+  }
+
+  /// Lets the native splash go once the intro can match it pixel for pixel.
+  ///
+  /// The first frame is built before the glyph has been decoded. Released then,
+  /// the splash fades out over bare orange and the glyph blinks.
+  Future<void> _releaseNativeSplash() async {
+    await precacheImage(
+      AssetImage(_IntroLook.light.glyph),
+      context,
+      onError: (_, _) {},
+    );
+    FlutterNativeSplash.remove();
   }
 
   /// Sync premium status from auth state to premium provider
@@ -97,9 +119,27 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
 
   @override
   void dispose() {
+    _recoveryTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _storeWaitTimer?.cancel();
     super.dispose();
+  }
+
+  /// Whether the recovery screen may show yet, starting the wait if not.
+  bool _recoveryMayShow() {
+    _recoveryTimer ??= Timer(_recoveryHold, () {
+      if (mounted) setState(() => _recoveryDue = true);
+    });
+    return _recoveryDue;
+  }
+
+  /// Forgets the wait. Once the screen has been shown, a retry that fails again
+  /// goes straight back to it, unless the question has since been answered.
+  void _clearRecovery({required bool answered}) {
+    if (_recoveryDue && !answered) return;
+    _recoveryTimer?.cancel();
+    _recoveryTimer = null;
+    _recoveryDue = false;
   }
 
   @override
@@ -292,9 +332,10 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
 
     final gate = _gate(authState, onboardingState);
 
-    // The intro hands over with a short crossfade and a slight settle, so the
-    // splash glow melts into the first real screen instead of cutting to it.
-    // Keyed by screen type: consecutive loading states keep one intro alive.
+    // Loading and the app share one stage, so the dashboard can be built behind
+    // the intro; see [_LaunchStage]. Everything else hands over with a short
+    // crossfade and a slight settle. Keyed by screen type.
+    final staged = gate is AuthLoadingScreen || gate is MainNavigationContainer;
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 420),
       switchInCurve: Curves.easeOutCubic,
@@ -306,7 +347,12 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
           child: child,
         ),
       ),
-      child: KeyedSubtree(key: ValueKey(gate.runtimeType), child: gate),
+      child: staged
+          ? _LaunchStage(
+              key: const ValueKey(_LaunchStage),
+              content: gate is MainNavigationContainer ? gate : null,
+            )
+          : KeyedSubtree(key: ValueKey(gate.runtimeType), child: gate),
     );
   }
 
@@ -376,8 +422,11 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       // may render as a loading screen: that is how a returning user ended up
       // watching a spinner that would never resolve.
       if (flow.needsUserAttention && !flow.startedOfflineByChoice) {
-        return const StartupRecoveryScreen();
+        return _recoveryMayShow()
+            ? const StartupRecoveryScreen()
+            : const AuthLoadingScreen();
       }
+      _clearRecovery(answered: flow.isFinal || flow.startedOfflineByChoice);
 
       // Still working out what this account holds.
       if (!flow.isSettled && !flow.startedOfflineByChoice) {
@@ -413,6 +462,8 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       return const MainNavigationContainer();
     }
 
+    _clearRecovery(answered: true);
+
     // Reset checks when user logs out
     if (_hasCheckedOnboarding || _hasRunStartupChecks || _hasStartedFlow) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -444,6 +495,99 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     }
 
     return const SignInScreen();
+  }
+}
+
+/// The intro, and the app coming up underneath it.
+///
+/// Swapping one for the other meant building the whole dashboard in the middle
+/// of the transition. The intro froze while that ran, and the crossfade then
+/// revealed skeletons, a blank, and finally the numbers. So the app is mounted
+/// *behind* the intro, which lifts as a plain fade once the first numbers are
+/// in: the only thing ever revealed is the finished screen.
+class _LaunchStage extends ConsumerStatefulWidget {
+  const _LaunchStage({super.key, this.content});
+
+  /// The app, once it is safe to show; null while still loading.
+  final Widget? content;
+
+  @override
+  ConsumerState<_LaunchStage> createState() => _LaunchStageState();
+}
+
+class _LaunchStageState extends ConsumerState<_LaunchStage>
+    with SingleTickerProviderStateMixin {
+  /// The longest the finished app waits on its first numbers. A slow read is
+  /// better shown as the dashboard's own skeleton than as more splash.
+  static const _longestHold = Duration(milliseconds: 1500);
+
+  /// Reached with the app already there (back from the lock screen, say), there
+  /// is nothing to cover.
+  late final AnimationController _curtain = AnimationController(
+    duration: const Duration(milliseconds: 320),
+    value: widget.content == null ? 1 : 0,
+    vsync: this,
+  )..addStatusListener((_) => setState(() {}));
+
+  late final Animation<double> _fade = CurvedAnimation(
+    parent: _curtain,
+    curve: Curves.easeOut,
+  );
+
+  Timer? _holdTimer;
+  bool _lifting = false;
+
+  @override
+  void didUpdateWidget(_LaunchStage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.content == null) {
+      _holdTimer?.cancel();
+      _lifting = false;
+      _curtain.value = 1;
+    } else if (oldWidget.content == null) {
+      _holdTimer = Timer(_longestHold, _lift);
+    }
+  }
+
+  /// Lifts after the frame in progress, so what it reveals has been laid out.
+  void _lift() {
+    if (_lifting || !mounted || _curtain.isDismissed) return;
+    _lifting = true;
+    _holdTimer?.cancel();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _lifting) _curtain.reverse();
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
+  }
+
+  @override
+  void dispose() {
+    _holdTimer?.cancel();
+    _curtain.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final content = widget.content;
+    if (content != null &&
+        !ref.watch(financialDataProvider.select((d) => d.isLoading))) {
+      _lift();
+    }
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ?content,
+        if (!_curtain.isDismissed)
+          IgnorePointer(
+            ignoring: content != null,
+            child: FadeTransition(
+              opacity: _fade,
+              child: const AuthLoadingScreen(),
+            ),
+          ),
+      ],
+    );
   }
 }
 
@@ -548,7 +692,9 @@ class _IntroLook {
 ///
 /// The first frame is the native splash, pixel for pixel: the flat orange
 /// ground with the glyph at the centre (Android 12 cannot draw more than that),
-/// so the hand-off is invisible. Then it comes alive in the app's own theme,
+/// so the hand-off is invisible. It holds exactly that for [_calm]: an ordinary
+/// launch is done by then and never starts anything it would have to cut off.
+/// A longer wait, like a restore, then comes alive in the app's own theme,
 /// light or dark: the wash and a slow turning sunburst fade in behind the
 /// glyph, four little money icons orbit it, coins drift up the screen, the
 /// wordmark rises, a playful status line steps along a progress bar, and a
@@ -566,17 +712,23 @@ class AuthLoadingScreen extends StatefulWidget {
 
 class _AuthLoadingScreenState extends State<AuthLoadingScreen>
     with TickerProviderStateMixin {
+  /// How long the intro stays still before it starts. The wash and the app's
+  /// own glyph decode during this too, behind their zero opacity, so they fade
+  /// in rather than popping up part-way through.
+  static const _calm = Duration(milliseconds: 700);
+  Timer? _calmTimer;
+
   /// The one-off entrance (0.9s).
   late final AnimationController _intro = AnimationController(
     duration: const Duration(milliseconds: 900),
     vsync: this,
-  )..forward();
+  );
 
   /// The ambient loop: rays, orbit, coins, status steps.
   late final AnimationController _loop = AnimationController(
     duration: const Duration(seconds: 8),
     vsync: this,
-  )..repeat();
+  );
 
   late final Animation<double> _bg = CurvedAnimation(
     parent: _intro,
@@ -608,7 +760,17 @@ class _AuthLoadingScreenState extends State<AuthLoadingScreen>
   }();
 
   @override
+  void initState() {
+    super.initState();
+    _calmTimer = Timer(_calm, () {
+      _intro.forward();
+      _loop.repeat();
+    });
+  }
+
+  @override
   void dispose() {
+    _calmTimer?.cancel();
     _intro.dispose();
     _loop.dispose();
     super.dispose();

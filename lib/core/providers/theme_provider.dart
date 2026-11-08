@@ -87,11 +87,19 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
 
   /// Follows the phone out of the box: Sunrise was designed light and dark as
   /// equals, and "Match system" is the first thing on the Appearance screen.
-  ThemeNotifier()
+  ///
+  /// [prefs], when the caller already has them, puts the saved choice in place
+  /// for the very first frame. Restoring it a moment later meant a light app on
+  /// a dark phone started dark and animated across, seen as the splash flashing
+  /// dark on every launch.
+  ThemeNotifier({SharedPreferences? prefs})
     : super(
-        const ThemeState(
-          mode: ThemeMode.system,
-          accent: SunriseAccent.sunrise,
+        ThemeState(
+          mode:
+              _modeFromStorage(prefs?.getString(_modeKey)) ?? ThemeMode.system,
+          accent:
+              SunriseAccent.fromStorage(prefs?.getString(_accentKey)) ??
+              SunriseAccent.sunrise,
           premiumUnlocked: false,
         ),
       ) {
