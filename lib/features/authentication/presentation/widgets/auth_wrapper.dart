@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter/services.dart';
@@ -57,6 +58,18 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
   bool _isLocked = false;
   DateTime? _pausedAt;
 
+  /// How long the account store may take to be bound before the wait is
+  /// treated as a failure rather than a delay.
+  ///
+  /// The coordinator swaps local files and asks nothing of the network, so
+  /// this settles in a frame or two in practice. Nothing retries it, though,
+  /// so when it does not settle the gate below used to return a loading
+  /// screen on every rebuild for ever - the same never-resolving spinner the
+  /// startup flow was rewritten to abolish.
+  static const Duration _storeBindLimit = Duration(seconds: 15);
+  DateTime? _storeWaitSince;
+  Timer? _storeWaitTimer;
+
   @override
   void initState() {
     super.initState();
@@ -85,6 +98,7 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _storeWaitTimer?.cancel();
     super.dispose();
   }
 
@@ -317,7 +331,25 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
       // account's.
       final storeOwner = ref.watch(activeStoreOwnerProvider);
       if (storeOwner != authState.userId) {
+        final waitingSince = _storeWaitSince;
+        if (waitingSince == null) {
+          // Nothing here rebuilds on its own, so the deadline has to wake us.
+          _storeWaitSince = DateTime.now();
+          _storeWaitTimer?.cancel();
+          _storeWaitTimer = Timer(_storeBindLimit, () {
+            if (mounted) setState(() {});
+          });
+        } else if (DateTime.now().difference(waitingSince) >= _storeBindLimit) {
+          // Give the user something they can act on, never a spinner that
+          // will not resolve.
+          return const StartupRecoveryScreen();
+        }
         return const AuthLoadingScreen();
+      }
+      if (_storeWaitSince != null) {
+        _storeWaitSince = null;
+        _storeWaitTimer?.cancel();
+        _storeWaitTimer = null;
       }
 
       // The startup flow decides whether this account has data to restore. It

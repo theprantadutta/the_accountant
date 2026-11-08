@@ -123,6 +123,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final GoogleSignInService _googleSignIn = GoogleSignInService();
   final AppleSignInService _appleSignIn = AppleSignInService();
 
+  /// Caps on the parts of signing in that are not ours to bound.
+  ///
+  /// Dio already bounds every call to our own backend (connect 10s, receive
+  /// 15s), but Google's and Apple's sheets have no such bound. When one
+  /// stalls the await never completes, so `isLoading` stays true and
+  /// `AuthWrapper` keeps returning `AuthLoadingScreen` - which matches the
+  /// native splash pixel for pixel. The result is a splash that never
+  /// resolves and never explains itself, and no `catch` can help, because a
+  /// hang throws nothing.
+  ///
+  /// The interactive sheet gets a generous cap: a real person types a
+  /// password and waits on a one-time code, and cutting that short would be
+  /// worse than the hang. The token exchange behind it talks to nobody but
+  /// Google, so it gets a short one.
+  static const Duration _interactiveSignInCap = Duration(minutes: 3);
+  static const Duration _tokenExchangeCap = Duration(seconds: 20);
+  static const Duration _signOutCap = Duration(seconds: 5);
+
   AuthNotifier() : super(const AuthState(isLoading: true)) {
     _initializeAuth();
   }
@@ -242,7 +260,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       // Step 1: Google Sign-In + Firebase
       debugPrint('[AuthProvider] Starting Google Sign-In...');
-      final userCredential = await _googleSignIn.signInWithGoogle();
+      final userCredential = await _googleSignIn.signInWithGoogle().timeout(
+        _interactiveSignInCap,
+      );
 
       if (userCredential == null || userCredential.user == null) {
         state = state.copyWith(
@@ -257,7 +277,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       // Step 2: Get Firebase ID token
-      final firebaseToken = await _googleSignIn.getFirebaseIdToken();
+      final firebaseToken = await _googleSignIn.getFirebaseIdToken().timeout(
+        _tokenExchangeCap,
+      );
 
       if (firebaseToken == null) {
         state = state.copyWith(
@@ -333,7 +355,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       // Step 1: Sign in with Apple + Firebase
       debugPrint('[AuthProvider] Starting Sign in with Apple...');
-      final userCredential = await _appleSignIn.signInWithApple();
+      final userCredential = await _appleSignIn.signInWithApple().timeout(
+        _interactiveSignInCap,
+      );
 
       if (userCredential == null || userCredential.user == null) {
         // Null means the user cancelled the Apple sheet — not an error.
@@ -346,7 +370,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       // Step 2: Get Firebase ID token (provider-agnostic).
-      final firebaseToken = await _googleSignIn.getFirebaseIdToken();
+      final firebaseToken = await _googleSignIn.getFirebaseIdToken().timeout(
+        _tokenExchangeCap,
+      );
 
       if (firebaseToken == null) {
         state = state.copyWith(
@@ -466,8 +492,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> signOut() async {
     try {
       AnalyticsService().logLogout();
-      await _backendAuth.logout();
-      await _googleSignIn.signOut();
+      // Neither remote step may hold up signing out. The backend call is
+      // bounded by Dio; Google's was not, and a stalled or failing one left
+      // the user signed in, holding an error and no way forward.
+      try {
+        await _backendAuth.logout();
+      } catch (e) {
+        debugPrint(
+          'AuthNotifier: backend logout failed, signing out anyway: $e',
+        );
+      }
+      try {
+        await _googleSignIn.signOut().timeout(_signOutCap);
+      } catch (e) {
+        debugPrint(
+          'AuthNotifier: Google sign-out failed, signing out anyway: $e',
+        );
+      }
+      // This device signs out either way.
       await SecureTokenStorage.clearAllTokens();
       // The cached entitlement is the signed-out account's; the next one to
       // sign in must not borrow it while the server is asked.
