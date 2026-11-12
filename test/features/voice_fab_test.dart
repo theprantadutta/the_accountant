@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,7 +64,10 @@ void main() {
         container: container,
         child: MaterialApp(
           theme: AppTheme.themeFor(SunriseColors.light),
-          localizationsDelegates: L10n.localizationsDelegates,
+          localizationsDelegates: const [
+            L10n.delegate,
+            ...GlobalMaterialLocalizations.delegates,
+          ],
           supportedLocales: L10n.supportedLocales,
           home: Consumer(
             builder: (context, ref, _) => Scaffold(

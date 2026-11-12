@@ -10,6 +10,10 @@
 analyzer:
   exclude:
     - build/**
+    # gen-l10n still writes the deprecated flutter_localizations delegates
+    # into this file on Flutter 3.50. Nothing uses its list; the app registers
+    # material_ui's delegates instead.
+    - lib/l10n/generated/**
     - android/**
     - ios/**
     - web/**

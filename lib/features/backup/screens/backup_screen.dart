@@ -2,7 +2,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/features/encryption/screens/passphrase_screen.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise_page.dart';
 import 'package:the_accountant/core/providers/sync_provider.dart';

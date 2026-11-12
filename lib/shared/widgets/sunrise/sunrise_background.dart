@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/core/themes/sunrise/sunrise_colors.dart';
 
 /// The warm wash at the top of every screen.

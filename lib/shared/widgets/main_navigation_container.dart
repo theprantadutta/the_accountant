@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/core/providers/connectivity_provider.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/features/authentication/presentation/widgets/auth_wrapper.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
@@ -10,7 +10,10 @@ void main() {
     const MaterialApp(
       locale: Locale('en'),
       supportedLocales: L10n.supportedLocales,
-      localizationsDelegates: L10n.localizationsDelegates,
+      localizationsDelegates: [
+        L10n.delegate,
+        ...GlobalMaterialLocalizations.delegates,
+      ],
       home: AuthLoadingScreen(),
     ),
   );

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/features/networth/services/asset_service.dart';
 import 'package:the_accountant/features/networth/services/net_worth_service.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';

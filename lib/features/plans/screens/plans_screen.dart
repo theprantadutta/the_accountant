@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/data/models/plan.dart';
 import 'package:the_accountant/features/plans/domain/plan_terms.dart';

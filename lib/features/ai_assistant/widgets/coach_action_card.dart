@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:the_accountant/core/utils/currency_formatter.dart';
 import 'package:the_accountant/features/ai_assistant/services/coach_tool_runner.dart';

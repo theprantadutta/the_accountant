@@ -1,6 +1,6 @@
 import 'dart:ui' show ImageFilter, TileMode;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/core/providers/privacy_provider.dart';

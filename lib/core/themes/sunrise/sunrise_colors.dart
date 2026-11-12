@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/core/themes/sunrise/sunrise_accent.dart';
 
 /// Every Sunrise colour token, resolved for one brightness and one accent.

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Animation constants and utilities for The Accountant app
 /// Consistent timing and curves across the app

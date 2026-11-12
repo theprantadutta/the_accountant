@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:the_accountant/l10n/app_l10n.dart';
 import 'package:the_accountant/core/providers/deep_link_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/providers/locale_provider.dart';
-import 'package:material_ui/material_ui.dart' as material_ui;
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
@@ -159,17 +157,11 @@ class _MyAppState extends ConsumerState<MyApp> {
       localeListResolutionCallback: AppLanguages.resolve,
       localizationsDelegates: const [
         L10n.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        // material_ui declares its OWN MaterialLocalizations — a different Dart
-        // type from the one in package:flutter/material.dart — and
-        // flutter_localizations cannot satisfy it. This app is still written
-        // against package:flutter/material.dart, but shimmer 4 pulls material_ui
-        // in transitively, so anything of its that asks for localizations throws
-        // at runtime without these. Both sets coexist; material_ui ships the
-        // same 80 locales, so this costs no coverage.
-        ...material_ui.GlobalMaterialLocalizations.delegates,
+        // material_ui's Material, Cupertino and Widgets localizations. The
+        // app is on package:material_ui since Flutter 3.50; flutter_localizations'
+        // delegates provide the old Material types, and importing both makes
+        // every name ambiguous.
+        ...GlobalMaterialLocalizations.delegates,
       ],
       theme: lightTheme,
       darkTheme: darkTheme,
@@ -196,7 +188,13 @@ class _MyAppState extends ConsumerState<MyApp> {
               SystemUiOverlayStyle.dark,
           child: AppBackground(
             key: _backgroundKey,
-            child: child ?? const SizedBox.shrink(),
+            // Packages still on package:flutter/material.dart read the old
+            // Theme and MaterialLocalizations types, which the app no longer
+            // provides. The bridge maps ours onto them until they migrate.
+            // ignore: deprecated_member_use
+            child: MaterialUiCompatibilityBridge(
+              child: child ?? const SizedBox.shrink(),
+            ),
           ),
         );
       },

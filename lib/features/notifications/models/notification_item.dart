@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
 
 /// One notification in the inbox: sent by the server, or shown by this phone.

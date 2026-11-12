@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise_background.dart';
 
 /// The backdrop behind every route: the short Sunrise wash on the base colour.

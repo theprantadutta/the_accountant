@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart';
+// The deprecated Material, only to prove unmigrated packages still work.
+// ignore: deprecated_member_use
+import 'package:flutter/material.dart' as legacy show MaterialLocalizations;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:the_accountant/core/providers/locale_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 
@@ -13,8 +14,8 @@ import 'package:the_accountant/l10n/generated/app_localizations.dart';
 /// Nothing here was scaffolded before: no localisation packages, no resource
 /// files, no delegates, and every string written straight into the widget that
 /// showed it. These tests hold the scaffolding, and the one trap in it — that
-/// this project already has two different `MaterialLocalizations` types in
-/// scope and needs delegates for both.
+/// two different `MaterialLocalizations` types exist, material_ui's and the
+/// deprecated one unmigrated packages still read.
 
 /// Build a tree the way the app does, and hand back a context inside it.
 Widget _app({Locale? locale, required Widget child}) => MaterialApp(
@@ -23,10 +24,7 @@ Widget _app({Locale? locale, required Widget child}) => MaterialApp(
   localeListResolutionCallback: AppLanguages.resolve,
   localizationsDelegates: const [
     L10n.delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    ...material_ui.GlobalMaterialLocalizations.delegates,
+    ...GlobalMaterialLocalizations.delegates,
   ],
   home: child,
 );
@@ -93,63 +91,24 @@ void main() {
     });
   });
 
-  group('both sets of Material localizations resolve', () {
-    // This project has two different MaterialLocalizations types in scope: the
-    // one in package:flutter/material.dart, which the app is written against,
-    // and the one material_ui declares, which arrives transitively through
-    // shimmer 4. flutter_localizations cannot satisfy the second, so anything
-    // from a migrated package that asks for localizations throws at runtime
-    // unless material_ui's own delegates are registered too. The symptom turns
-    // up far from the cause — a crash on long-pressing text, say — so it is
-    // worth pinning here.
-    testWidgets("Flutter's", (tester) async {
-      late MaterialLocalizations found;
-      await tester.pumpWidget(
-        _app(
-          locale: const Locale('en'),
-          child: Builder(
-            builder: (context) {
-              found = MaterialLocalizations.of(context);
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      );
-
-      expect(found.okButtonLabel, isNotEmpty);
-    });
-
-    testWidgets("material_ui's", (tester) async {
-      late material_ui.MaterialLocalizations found;
-      await tester.pumpWidget(
-        _app(
-          locale: const Locale('en'),
-          child: Builder(
-            builder: (context) {
-              found = material_ui.MaterialLocalizations.of(context);
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      );
-
-      expect(found.okButtonLabel, isNotEmpty);
-    });
-
-    // A language the app offers but Flutter or material_ui cannot draw its
-    // own dialogs and pickers in fails only when one of them opens.
+  group('Material localizations resolve', () {
+    // Since Flutter 3.50 the app is written against package:material_ui, whose
+    // MaterialLocalizations is a different type from the deprecated one in
+    // package:flutter/material.dart. A language the app offers but
+    // material_ui cannot draw its dialogs and pickers in fails only when one
+    // of them opens, so every language is checked here.
     for (final locale in L10n.supportedLocales) {
-      testWidgets('both, and ours, in ${locale.languageCode}', (tester) async {
-        late MaterialLocalizations flutters;
-        late material_ui.MaterialLocalizations materialUis;
+      testWidgets('material_ui and ours in ${locale.languageCode}', (
+        tester,
+      ) async {
+        late MaterialLocalizations material;
         late L10n ours;
         await tester.pumpWidget(
           _app(
             locale: locale,
             child: Builder(
               builder: (context) {
-                flutters = MaterialLocalizations.of(context);
-                materialUis = material_ui.MaterialLocalizations.of(context);
+                material = MaterialLocalizations.of(context);
                 ours = L10n.of(context);
                 return const SizedBox.shrink();
               },
@@ -157,14 +116,36 @@ void main() {
           ),
         );
 
-        expect(flutters.okButtonLabel, isNotEmpty);
-        expect(materialUis.okButtonLabel, isNotEmpty);
+        expect(material.okButtonLabel, isNotEmpty);
         expect(ours.localeName, locale.languageCode);
         if (locale.languageCode != 'en') {
           expect(ours.navToday, isNot('Today'));
         }
       });
     }
+
+    // Packages that have not migrated yet still ask for the old type. The app
+    // wraps every route in MaterialUiCompatibilityBridge for them; without it
+    // they throw "No MaterialLocalizations found" far from the cause.
+    testWidgets('the old type, through the bridge', (tester) async {
+      late legacy.MaterialLocalizations found;
+      await tester.pumpWidget(
+        _app(
+          locale: const Locale('en'),
+          // ignore: deprecated_member_use
+          child: MaterialUiCompatibilityBridge(
+            child: Builder(
+              builder: (context) {
+                found = legacy.MaterialLocalizations.of(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(found.okButtonLabel, isNotEmpty);
+    });
   });
 
   group('every language ships every string', () {

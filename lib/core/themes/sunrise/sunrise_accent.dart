@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The colour a theme is "about": its gradient, its accent and the wash at the
 /// top of every screen.

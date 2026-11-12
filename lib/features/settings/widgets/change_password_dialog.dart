@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/core/services/backend_auth_service.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';

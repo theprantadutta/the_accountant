@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Spacing and sizing system for The Accountant app
 /// Base unit: 4px (following 4-point grid)

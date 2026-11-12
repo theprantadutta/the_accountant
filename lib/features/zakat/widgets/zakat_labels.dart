@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/features/zakat/domain/zakat_settings.dart';
 import 'package:the_accountant/features/zakat/services/zakat_service.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';

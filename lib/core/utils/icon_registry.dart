@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Icon registry for mapping icon names to IconData.
 /// This allows storing icon references as strings in the database

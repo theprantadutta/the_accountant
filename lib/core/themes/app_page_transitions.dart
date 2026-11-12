@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/core/themes/app_animations.dart';
 
 /// Route animations for every theme in the app, default and premium alike, so
