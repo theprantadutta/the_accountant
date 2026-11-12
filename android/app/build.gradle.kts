@@ -51,6 +51,20 @@ android {
         versionName = flutter.versionName
     }
 
+    // Flutter 3.50 hands its assets to AGP's own asset merger, whose default
+    // ignore list skips every dotfile (".*"). That silently left `.env` out
+    // of the APK and the app died at start-up loading it. Same list as AGP's
+    // default, minus the dotfile rule.
+    androidResources {
+        ignoreAssetsPatterns.clear()
+        ignoreAssetsPatterns.addAll(
+            listOf(
+                "!.svn", "!.git", "!.ds_store", "!*.scc", "<dir>_*",
+                "!CVS", "!thumbs.db", "!picasa.ini", "!*~",
+            )
+        )
+    }
+
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String
