@@ -164,6 +164,11 @@ class _MainNavigationContainerState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(notificationHistoryProvider.notifier).loadUnreadCount();
+      // The opening tab, which no tap reports: without it a session began
+      // on the loading screen and never reached the dashboard in Analytics.
+      AnalyticsService().logScreenView(
+        screenName: _screenTitles[_currentIndex],
+      );
 
       // No arbitrary delay: the service waits for the widgets it points at to
       // exist.

@@ -82,7 +82,11 @@ class AnalyticsService {
   Future<void> logScreenView({required String screenName}) async {
     if (kDebugMode) return;
     try {
-      await _analytics?.logScreenView(screenName: screenName);
+      // The class too: left out, Android fills in its one activity.
+      await _analytics?.logScreenView(
+        screenName: screenName,
+        screenClass: screenName,
+      );
     } catch (_) {}
   }
 
