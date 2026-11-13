@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:the_accountant/core/services/analytics_service.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -250,6 +251,7 @@ class IAPNotifier extends StateNotifier<IAPState> with WidgetsBindingObserver {
   /// Restore purchases
   Future<void> restorePurchases() async {
     state = state.copyWith(isLoading: true, error: null);
+    AnalyticsService().logPremiumRestore();
     await _service?.restorePurchases();
     await _loadState();
   }

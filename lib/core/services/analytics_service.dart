@@ -1,6 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 
 /// Analytics wrapper that degrades to a no-op when Firebase is unavailable.
 ///
@@ -38,15 +37,22 @@ class AnalyticsService {
     return _cachedAnalytics;
   }
 
-  /// Navigator observer for screen tracking.
-  ///
-  /// Falls back to a plain [NavigatorObserver] when Firebase is unavailable, so
-  /// `MaterialApp(navigatorObservers: [...])` is always safe to build.
-  late final NavigatorObserver observer = () {
-    final analytics = _analytics;
-    if (analytics == null) return NavigatorObserver();
-    return FirebaseAnalyticsObserver(analytics: analytics);
-  }();
+  /// Ties later events to an account, by its opaque id (never an email), or
+  /// to nobody when [id] is null.
+  Future<void> setUser(String? id) async {
+    if (kDebugMode) return;
+    try {
+      await _analytics?.setUserId(id: id);
+    } catch (_) {}
+  }
+
+  /// A trait to split reports by, such as being Premium or the app language.
+  Future<void> setUserProperty(String name, String? value) async {
+    if (kDebugMode) return;
+    try {
+      await _analytics?.setUserProperty(name: name, value: value);
+    } catch (_) {}
+  }
 
   Future<void> _logEvent(String name, {Map<String, Object>? parameters}) async {
     if (kDebugMode) return;
@@ -72,7 +78,7 @@ class AnalyticsService {
 
   Future<void> logLogout() => _logEvent('logout');
 
-  // Screen views (manual, for bottom nav tabs)
+  // Screen views: tabs report themselves, routes come from ScreenTracker.
   Future<void> logScreenView({required String screenName}) async {
     if (kDebugMode) return;
     try {
@@ -151,4 +157,30 @@ class AnalyticsService {
 
   // Theme
   Future<void> logThemeChange() => _logEvent('theme_change');
+
+  // Getting started
+  Future<void> logOnboardingComplete() => _logEvent('onboarding_complete');
+  Future<void> logTutorialComplete() => _logEvent('tutorial_complete');
+
+  // Ways of adding a transaction other than typing it in
+  Future<void> logReceiptScanned({required bool found}) =>
+      _logEvent('receipt_scanned', parameters: {'found': found ? 1 : 0});
+  Future<void> logVoiceLogUsed() => _logEvent('voice_log_used');
+  Future<void> logQuickAddUsed() => _logEvent('ai_quick_add_used');
+
+  // Goals
+  Future<void> logObjectiveCreate() => _logEvent('objective_create');
+
+  // Rewarded ads, by what the reward unlocks
+  Future<void> logAdRewardEarned({required String reward}) =>
+      _logEvent('ad_reward_earned', parameters: {'reward': reward});
+
+  // Data leaving or coming back
+  Future<void> logDataExport({required String format}) =>
+      _logEvent('data_export', parameters: {'format': format});
+  Future<void> logBackupRestored() => _logEvent('backup_restored');
+
+  // Settings worth knowing about
+  Future<void> logLanguageChange({required String language}) =>
+      _logEvent('language_change', parameters: {'language': language});
 }

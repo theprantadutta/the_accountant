@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:the_accountant/core/services/analytics_service.dart';
 
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,6 +88,9 @@ class LocaleNotifier extends StateNotifier<Locale?> {
 
   Future<void> setLocale(Locale? locale) async {
     state = locale;
+    AnalyticsService().logLanguageChange(
+      language: locale?.languageCode ?? 'system',
+    );
     try {
       final prefs = await SharedPreferences.getInstance();
       if (locale == null) {

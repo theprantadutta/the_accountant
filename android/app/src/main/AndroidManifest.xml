@@ -37,6 +37,12 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="general" />
+        <!-- The whole app is one Android activity, so the automatic screen
+             views all said "MainActivity". ScreenTracker reports the real
+             Flutter screens instead. -->
+        <meta-data
+            android:name="google_analytics_automatic_screen_reporting_enabled"
+            android:value="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

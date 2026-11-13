@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
@@ -248,6 +249,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       ),
     );
     if (result == null || !mounted) return;
+    AnalyticsService().logReceiptScanned(found: result.amount > 0);
     _applyDraft(
       title: result.title,
       amount: result.amount > 0 ? result.amount : null,
@@ -262,6 +264,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     HapticFeedback.lightImpact();
     final draft = await showQuickAddSheet(context);
     if (draft == null || !mounted) return;
+    AnalyticsService().logQuickAddUsed();
     // Closing the sheet hands focus back to the title field it was opened
     // from; leave the filled-in form unfocused instead, so no cursor or
     // keyboard sits over it. A frame later, once that hand-back has run.

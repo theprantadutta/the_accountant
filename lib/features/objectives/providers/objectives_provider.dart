@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 
 import 'package:the_accountant/data/datasources/local/database_provider.dart';
 import 'package:the_accountant/features/objectives/services/objectives_service.dart';
@@ -74,6 +75,7 @@ class ObjectivesNotifier extends _$ObjectivesNotifier {
 
     final service = ref.read(objectivesServiceProvider);
 
+    AnalyticsService().logObjectiveCreate();
     final id = await service.createObjective(
       name: name,
       targetAmount: targetAmount,

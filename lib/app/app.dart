@@ -9,6 +9,9 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/providers/account_store_provider.dart';
 import 'package:the_accountant/core/services/analytics_service.dart';
+import 'package:the_accountant/core/services/diagnostics.dart';
+import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
+import 'package:the_accountant/features/premium/providers/premium_provider.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
 import 'package:the_accountant/core/domain/regional_preferences.dart';
 import 'package:the_accountant/core/themes/app_colors.dart';
@@ -43,9 +46,16 @@ class _MyAppState extends ConsumerState<MyApp> {
   // running animation) across MyApp rebuilds — it never re-initialises.
   final GlobalKey _backgroundKey = GlobalKey();
 
+  /// One for the app's life, so a rebuild does not lose the current screen.
+  final _screenTracker = ScreenTracker();
+
+  /// The language last reported, so a rebuild does not report it again.
+  String? _reportedLanguage;
+
   @override
   void initState() {
     super.initState();
+    _followIdentity();
     // Check for Play Store updates after the first frame is rendered.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkForAppUpdate();
@@ -56,6 +66,27 @@ class _MyAppState extends ConsumerState<MyApp> {
       // rejected, or replaced by a different one. `AccountStoreCoordinator`
       // starts it from the auth state instead, once the owner is known.
     });
+  }
+
+  /// Keeps Analytics and Crashlytics on the signed-in account and its Premium
+  /// state, so a report can be traced to an account (by its opaque id, never
+  /// an email) and split by plan.
+  void _followIdentity() {
+    ref.listenManual<String?>(
+      authProvider.select((s) => s.isAuthenticated ? s.userId : null),
+      (_, id) {
+        AnalyticsService().setUser(id);
+        Diagnostics.setUser(id);
+      },
+      fireImmediately: true,
+    );
+    ref.listenManual<bool>(premiumProvider.select((s) => s.isPremium), (
+      _,
+      premium,
+    ) {
+      AnalyticsService().setUserProperty('premium', premium ? 'yes' : 'no');
+      Diagnostics.key('premium', premium);
+    }, fireImmediately: true);
   }
 
   /// Route tapped notifications through the deep link service.
@@ -168,7 +199,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       themeMode: themeState.themeMode,
       themeAnimationDuration: SunriseMotion.theme,
       themeAnimationCurve: Curves.easeOut,
-      navigatorObservers: [AnalyticsService().observer],
+      navigatorObservers: [_screenTracker],
       // The short Sunrise wash behind every route. Scaffolds are transparent,
       // so screens that have not painted their own wash still sit on Sunrise;
       // tab roots paint the tall wash over it.
@@ -181,7 +212,13 @@ class _MyAppState extends ConsumerState<MyApp> {
       // own look (the splash, the add form's hero) still overrides it.
       builder: (context, child) {
         // Services and exceptions with no widget tree speak this language.
-        AppL10n.update(Localizations.localeOf(context));
+        final locale = Localizations.localeOf(context);
+        AppL10n.update(locale);
+        if (locale.languageCode != _reportedLanguage) {
+          _reportedLanguage = locale.languageCode;
+          AnalyticsService().setUserProperty('app_language', _reportedLanguage);
+          Diagnostics.key('language', locale.languageCode);
+        }
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value:
               Theme.of(context).appBarTheme.systemOverlayStyle ??

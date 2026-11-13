@@ -1,4 +1,5 @@
 import 'package:the_accountant/l10n/app_l10n.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'dart:io';
 import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
@@ -613,6 +614,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       } else {
         await _exportToPdf(transactions);
       }
+      AnalyticsService().logDataExport(format: _selectedFormat);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

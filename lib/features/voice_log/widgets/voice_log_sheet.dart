@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:the_accountant/core/services/analytics_service.dart';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -290,6 +291,7 @@ class _VoiceLogSheetState extends ConsumerState<_VoiceLogSheet> {
     HapticFeedback.mediumImpact();
     setState(() => _phase = _Phase.saving);
     final result = await ref.read(voiceLogServiceProvider).save(_drafts);
+    AnalyticsService().logVoiceLogUsed();
     if (!mounted) return;
     HapticFeedback.heavyImpact();
     setState(() => _phase = _Phase.done);

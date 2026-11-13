@@ -16,6 +16,7 @@ import 'package:the_accountant/core/services/local_store_manager.dart';
 import 'package:the_accountant/core/providers/default_wallet_provider.dart';
 import 'package:the_accountant/core/providers/theme_provider.dart';
 import 'package:the_accountant/core/services/notification_service.dart';
+import 'package:the_accountant/core/services/diagnostics.dart';
 import 'package:the_accountant/core/constants/background_task_constants.dart';
 import 'package:the_accountant/core/services/background_task_service.dart';
 
@@ -40,6 +41,8 @@ void callbackDispatcher() {
 void main() async {
   // Minimum required before runApp()
   final binding = WidgetsFlutterBinding.ensureInitialized();
+  // Before any service makes its logger: errors they log reach Crashlytics.
+  Diagnostics.installLogging();
   // Keep the native splash up through start-up instead of flashing an empty
   // frame; AuthWrapper lets go once its first screen has drawn.
   FlutterNativeSplash.preserve(widgetsBinding: binding);

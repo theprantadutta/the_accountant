@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:the_accountant/features/ads/rewarded_ads.dart';
 import 'package:the_accountant/features/authentication/providers/auth_provider.dart';
@@ -93,6 +94,7 @@ Future<bool> earnWithAd(
     return false;
   }
 
+  AnalyticsService().logAdRewardEarned(reward: kind.name);
   // Picks up a theme trial the reward started.
   await quotaNotifier.refresh();
   if (!context.mounted) return true;

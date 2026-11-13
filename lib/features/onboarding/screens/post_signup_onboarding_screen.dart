@@ -1,4 +1,5 @@
 import 'package:the_accountant/l10n/app_l10n.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -100,6 +101,7 @@ class _PostSignupOnboardingScreenState
     // A card is asked for what is owed, which is a negative balance.
     final balance = _walletType == WalletType.creditCard ? -entered : entered;
 
+    AnalyticsService().logOnboardingComplete();
     await ref
         .read(onboardingProvider.notifier)
         .completeOnboarding(

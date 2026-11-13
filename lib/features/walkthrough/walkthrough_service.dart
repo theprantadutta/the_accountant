@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -129,6 +130,7 @@ class WalkthroughService {
         // tap, this is the library giving up on a target it could not find, and
         // treating that as "seen" is what made the failure permanent.
         if (userAdvanced) {
+          AnalyticsService().logTutorialComplete();
           ref.read(walkthroughProvider.notifier).markWalkthroughSeen();
         }
       },

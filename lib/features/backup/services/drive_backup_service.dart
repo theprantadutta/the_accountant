@@ -1,4 +1,5 @@
 import 'package:the_accountant/l10n/app_l10n.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
 import 'package:the_accountant/features/backup/domain/backup_document.dart';
@@ -157,7 +158,9 @@ class DriveBackupService {
   /// half-placing it would be worse than refusing.
   Future<RestoreSummary> restoreFrom(String fileId) async {
     final source = await _client.download(fileId);
-    return _backups.restore(await _codec.decode(source));
+    final summary = await _backups.restore(await _codec.decode(source));
+    AnalyticsService().logBackupRestored();
+    return summary;
   }
 
   /// Run the scheduled backup if one is owed.
