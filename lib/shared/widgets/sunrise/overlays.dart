@@ -42,12 +42,19 @@ class SunriseBottomSheet extends StatelessWidget {
     // themselves. They scroll with the content then.
     final keyboardUp = media.viewInsets.bottom > 0;
     final header = _header(c);
-    Widget content = Padding(padding: padding, child: child);
-    if (scrollable && keyboardUp) {
+    // The child must keep its place in the tree as the keyboard comes and
+    // goes. Swapping its parent rebuilt it from scratch: a form in a sheet
+    // lost whatever had been picked, and a picker opened from it was left
+    // holding a dead context, which crashed on its next build.
+    Widget content = KeyedSubtree(
+      key: const ValueKey('sunrise-sheet-content'),
+      child: Padding(padding: padding, child: child),
+    );
+    if (scrollable) {
       content = Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [header, content],
+        children: [if (keyboardUp) header, content],
       );
     }
     content = Flexible(

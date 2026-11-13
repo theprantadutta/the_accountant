@@ -230,12 +230,12 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
     showSunriseSheet<void>(
       context: context,
       builder: (sheet) => SunriseBottomSheet(
-        title: L10n.of(context).walletSelectIcon,
+        title: L10n.of(sheet).walletSelectIcon,
         child: _IconGrid(
           selectedIcon: _selectedIcon,
           color: color,
           onSelected: (icon) {
-            setState(() => _selectedIcon = icon);
+            if (mounted) setState(() => _selectedIcon = icon);
             Navigator.pop(sheet);
           },
         ),
@@ -247,11 +247,11 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
     showSunriseSheet<void>(
       context: context,
       builder: (sheet) => SunriseBottomSheet(
-        title: L10n.of(context).walletColor,
+        title: L10n.of(sheet).walletColor,
         child: _ColorGrid(
           selectedColor: _selectedColor,
           onSelected: (color) {
-            setState(() => _selectedColor = color);
+            if (mounted) setState(() => _selectedColor = color);
             Navigator.pop(sheet);
           },
         ),
@@ -297,7 +297,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       subtitle: l10n.cardStatementDayHint,
       current: _billingCycleDay,
     );
-    if (day != null) setState(() => _billingCycleDay = day);
+    if (day != null && mounted) setState(() => _billingCycleDay = day);
   }
 
   Future<void> _pickDueDay(BuildContext context) async {
@@ -308,7 +308,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
       subtitle: l10n.cardDueDayHint,
       current: _paymentDueDay,
     );
-    if (day != null) setState(() => _paymentDueDay = day);
+    if (day != null && mounted) setState(() => _paymentDueDay = day);
   }
 
   Future<void> _pickReminder(BuildContext context) async {
@@ -335,7 +335,7 @@ class _AddWalletFormState extends ConsumerState<AddWalletForm> {
         ),
       ),
     );
-    if (days != null) setState(() => _dueReminderDays = days);
+    if (days != null && mounted) setState(() => _dueReminderDays = days);
   }
 
   void _submit() {
