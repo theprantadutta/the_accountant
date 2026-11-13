@@ -1,4 +1,5 @@
-import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
+import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart'
+    hide PurchaseFlowStatus;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:the_accountant/features/premium/services/purchases/purchase_mapping.dart';
 
@@ -24,6 +25,7 @@ void main() {
     isAcknowledgedAndroid: acknowledged,
     quantity: 1,
     store: IapStore.Google,
+    storeId: 'play',
     transactionDate: 1757000000000,
   );
 
@@ -36,6 +38,7 @@ void main() {
     isAutoRenewing: true,
     quantity: 1,
     store: IapStore.Apple,
+    storeId: 'apple',
     transactionDate: 1757000000000,
   );
 

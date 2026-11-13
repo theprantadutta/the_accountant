@@ -172,8 +172,6 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       fileName: name,
       bytes: Uint8List.fromList(utf8.encode(contents)),
       mimeType: 'application/json',
-      type: FileType.custom,
-      allowedExtensions: const ['json'],
       dialogTitle: _l10n.backupSaveDialogTitle,
     );
     return destination != null;

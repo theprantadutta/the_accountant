@@ -554,6 +554,9 @@ class NotificationService {
   );
 
   Future<String?> getToken() async {
+    // The server sends to FCM tokens; the Installation ID that register()
+    // gives needs server support first.
+    // ignore: deprecated_member_use
     return await _firebaseMessaging.getToken();
   }
 

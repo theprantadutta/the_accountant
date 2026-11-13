@@ -2,7 +2,10 @@ import 'package:the_accountant/l10n/app_l10n.dart';
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
+// The plugin has its own PurchaseFlowStatus since 11; the app keeps its own,
+// which is what the screens are written against.
+import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart'
+    hide PurchaseFlowStatus;
 import 'package:logger/logger.dart';
 
 import 'package:the_accountant/core/services/api_service.dart';
@@ -329,9 +332,10 @@ class IAPService {
 
     _restoring = true;
     try {
-      // On Android this is a no-op and nothing is re-emitted on the stream;
-      // the purchases come back from `getAvailablePurchases` below. On iOS it
-      // is `AppStore.sync`, which is what makes a fresh device see them at all.
+      // Asks the store to sync (on iOS this is what makes a fresh device see
+      // its purchases at all). Purchases may also come back on the stream;
+      // each is verified with the server and finished once either way. The
+      // reconcile below reads whatever the store now holds.
       await _iap.restorePurchases();
       await reconcileStoreState();
       _logger.i('Restore purchases completed');

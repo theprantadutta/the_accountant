@@ -17173,7 +17173,16 @@ class $$UsersTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$UsersTable, User>(table),
+                  BaseReferences<_$AppDatabase, $UsersTable, User>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -17804,7 +17813,7 @@ class $$CategoriesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$CategoriesTable, Category>(table),
                   $$CategoriesTableReferences(db, table, e),
                 ),
               )
@@ -17826,10 +17835,11 @@ class $$CategoriesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (transactionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Category,
                           $CategoriesTable,
-                          Transaction
+                          Transaction,
+                          $TransactionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$CategoriesTableReferences
@@ -17840,17 +17850,16 @@ class $$CategoriesTableTableManager
                                 table,
                                 p0,
                               ).transactionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.categoryId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'category_id',
                           typedResults: items,
                         ),
                       if (plansRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Category,
                           $CategoriesTable,
-                          Plan
+                          Plan,
+                          $PlansTable
                         >(
                           currentTable: table,
                           referencedTable: $$CategoriesTableReferences
@@ -17861,17 +17870,16 @@ class $$CategoriesTableTableManager
                                 table,
                                 p0,
                               ).plansRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.categoryId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'category_id',
                           typedResults: items,
                         ),
                       if (associatedTitlesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Category,
                           $CategoriesTable,
-                          AssociatedTitle
+                          AssociatedTitle,
+                          $AssociatedTitlesTable
                         >(
                           currentTable: table,
                           referencedTable: $$CategoriesTableReferences
@@ -17882,10 +17890,8 @@ class $$CategoriesTableTableManager
                                 table,
                                 p0,
                               ).associatedTitlesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.categoryId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'category_id',
                           typedResults: items,
                         ),
                     ];
@@ -18719,7 +18725,7 @@ class $$WalletsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$WalletsTable, Wallet>(table),
                   $$WalletsTableReferences(db, table, e),
                 ),
               )
@@ -18743,10 +18749,11 @@ class $$WalletsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (transactionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Wallet,
                           $WalletsTable,
-                          Transaction
+                          Transaction,
+                          $TransactionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$WalletsTableReferences
@@ -18757,17 +18764,16 @@ class $$WalletsTableTableManager
                                 table,
                                 p0,
                               ).transactionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.walletId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'wallet_id',
                           typedResults: items,
                         ),
                       if (objectivesRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Wallet,
                           $WalletsTable,
-                          Objective
+                          Objective,
+                          $ObjectivesTable
                         >(
                           currentTable: table,
                           referencedTable: $$WalletsTableReferences
@@ -18778,30 +18784,32 @@ class $$WalletsTableTableManager
                                 table,
                                 p0,
                               ).objectivesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.walletId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'wallet_id',
                           typedResults: items,
                         ),
                       if (plansRefs)
-                        await $_getPrefetchedData<Wallet, $WalletsTable, Plan>(
+                        await $_getPrefetchedDataByColumns<
+                          Wallet,
+                          $WalletsTable,
+                          Plan,
+                          $PlansTable
+                        >(
                           currentTable: table,
                           referencedTable: $$WalletsTableReferences
                               ._plansRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$WalletsTableReferences(db, table, p0).plansRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.walletId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'wallet_id',
                           typedResults: items,
                         ),
                       if (investmentsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Wallet,
                           $WalletsTable,
-                          Investment
+                          Investment,
+                          $InvestmentsTable
                         >(
                           currentTable: table,
                           referencedTable: $$WalletsTableReferences
@@ -18812,10 +18820,8 @@ class $$WalletsTableTableManager
                                 table,
                                 p0,
                               ).investmentsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.walletId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'wallet_id',
                           typedResults: items,
                         ),
                     ];
@@ -19238,7 +19244,7 @@ class $$PaymentMethodsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$PaymentMethodsTable, PaymentMethod>(table),
                   $$PaymentMethodsTableReferences(db, table, e),
                 ),
               )
@@ -19251,10 +19257,11 @@ class $$PaymentMethodsTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (transactionsRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       PaymentMethod,
                       $PaymentMethodsTable,
-                      Transaction
+                      Transaction,
+                      $TransactionsTable
                     >(
                       currentTable: table,
                       referencedTable: $$PaymentMethodsTableReferences
@@ -19265,10 +19272,8 @@ class $$PaymentMethodsTableTableManager
                             table,
                             p0,
                           ).transactionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.paymentMethodId == item.id,
-                          ),
+                      currentColumn: 'id',
+                      referencedColumn: 'payment_method_id',
                       typedResults: items,
                     ),
                 ];
@@ -19748,7 +19753,7 @@ class $$RecurringConfigsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$RecurringConfigsTable, RecurringConfig>(table),
                   $$RecurringConfigsTableReferences(db, table, e),
                 ),
               )
@@ -19761,10 +19766,11 @@ class $$RecurringConfigsTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (transactionsRefs)
-                    await $_getPrefetchedData<
+                    await $_getPrefetchedDataByColumns<
                       RecurringConfig,
                       $RecurringConfigsTable,
-                      Transaction
+                      Transaction,
+                      $TransactionsTable
                     >(
                       currentTable: table,
                       referencedTable: $$RecurringConfigsTableReferences
@@ -19775,10 +19781,8 @@ class $$RecurringConfigsTableTableManager
                             table,
                             p0,
                           ).transactionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.recurringConfigId == item.id,
-                          ),
+                      currentColumn: 'id',
+                      referencedColumn: 'recurring_config_id',
                       typedResults: items,
                     ),
                 ];
@@ -21008,7 +21012,7 @@ class $$TransactionsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$TransactionsTable, Transaction>(table),
                   $$TransactionsTableReferences(db, table, e),
                 ),
               )
@@ -21108,10 +21112,11 @@ class $$TransactionsTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (objectiveTransactionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Transaction,
                           $TransactionsTable,
-                          ObjectiveTransaction
+                          ObjectiveTransaction,
+                          $ObjectiveTransactionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$TransactionsTableReferences
@@ -21122,10 +21127,8 @@ class $$TransactionsTableTableManager
                                 table,
                                 p0,
                               ).objectiveTransactionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.transactionId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'transaction_id',
                           typedResults: items,
                         ),
                     ];
@@ -21603,7 +21606,16 @@ class $$BudgetsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$BudgetsTable, Budget>(table),
+                  BaseReferences<_$AppDatabase, $BudgetsTable, Budget>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -21911,7 +21923,18 @@ class $$CategoryBudgetLimitsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$CategoryBudgetLimitsTable, CategoryBudgetLimit>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CategoryBudgetLimitsTable,
+                    CategoryBudgetLimit
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -22278,7 +22301,16 @@ class $$SettingsTableTableManager
                 autoLockTimeoutMinutes: autoLockTimeoutMinutes,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$SettingsTable, Setting>(table),
+                  BaseReferences<_$AppDatabase, $SettingsTable, Setting>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -22536,7 +22568,16 @@ class $$UserProfilesTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$UserProfilesTable, UserProfile>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $UserProfilesTable,
+                    UserProfile
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -23108,7 +23149,7 @@ class $$ObjectivesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$ObjectivesTable, Objective>(table),
                   $$ObjectivesTableReferences(db, table, e),
                 ),
               )
@@ -23156,10 +23197,11 @@ class $$ObjectivesTableTableManager
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (objectiveTransactionsRefs)
-                        await $_getPrefetchedData<
+                        await $_getPrefetchedDataByColumns<
                           Objective,
                           $ObjectivesTable,
-                          ObjectiveTransaction
+                          ObjectiveTransaction,
+                          $ObjectiveTransactionsTable
                         >(
                           currentTable: table,
                           referencedTable: $$ObjectivesTableReferences
@@ -23170,10 +23212,8 @@ class $$ObjectivesTableTableManager
                                 table,
                                 p0,
                               ).objectiveTransactionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.objectiveId == item.id,
-                              ),
+                          currentColumn: 'id',
+                          referencedColumn: 'objective_id',
                           typedResults: items,
                         ),
                     ];
@@ -23979,8 +24019,10 @@ class $$PlansTableTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) =>
-                    (e.readTable(table), $$PlansTableReferences(db, table, e)),
+                (e) => (
+                  e.readTable<$PlansTable, Plan>(table),
+                  $$PlansTableReferences(db, table, e),
+                ),
               )
               .toList(),
           prefetchHooksCallback: ({walletId = false, categoryId = false}) {
@@ -24463,7 +24505,7 @@ class $$InvestmentsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$InvestmentsTable, Investment>(table),
                   $$InvestmentsTableReferences(db, table, e),
                 ),
               )
@@ -24855,7 +24897,10 @@ class $$ObjectiveTransactionsTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<
+                    $ObjectiveTransactionsTable,
+                    ObjectiveTransaction
+                  >(table),
                   $$ObjectiveTransactionsTableReferences(db, table, e),
                 ),
               )
@@ -25277,7 +25322,7 @@ class $$AssociatedTitlesTableTableManager
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable(table),
+                  e.readTable<$AssociatedTitlesTable, AssociatedTitle>(table),
                   $$AssociatedTitlesTableReferences(db, table, e),
                 ),
               )
@@ -25540,7 +25585,16 @@ class $$SyncStatesTableTableManager
                 updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$SyncStatesTable, SyncState>(table),
+                  BaseReferences<_$AppDatabase, $SyncStatesTable, SyncState>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -25863,7 +25917,16 @@ class $$ExchangeRatesTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$ExchangeRatesTable, ExchangeRate>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ExchangeRatesTable,
+                    ExchangeRate
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -26067,7 +26130,16 @@ class $$LocalStoreMetasTableTableManager
                 updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$LocalStoreMetasTable, LocalStoreMeta>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $LocalStoreMetasTable,
+                    LocalStoreMeta
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -26376,7 +26448,19 @@ class $$CategoryReconciliationsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<
+                    $CategoryReconciliationsTable,
+                    CategoryReconciliation
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CategoryReconciliationsTable,
+                    CategoryReconciliation
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -26635,7 +26719,16 @@ class $$LocalIdRepairsTableTableManager
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$LocalIdRepairsTable, LocalIdRepair>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $LocalIdRepairsTable,
+                    LocalIdRepair
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -26942,7 +27035,16 @@ class $$ImportTemplatesTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$ImportTemplatesTable, ImportTemplate>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ImportTemplatesTable,
+                    ImportTemplate
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),
@@ -27110,7 +27212,16 @@ class $$LocalRowVersionsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable<$LocalRowVersionsTable, LocalRowVersion>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $LocalRowVersionsTable,
+                    LocalRowVersion
+                  >(db, table, e),
+                ),
+              )
               .toList(),
           prefetchHooksCallback: null,
         ),

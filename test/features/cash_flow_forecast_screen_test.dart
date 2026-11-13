@@ -118,7 +118,7 @@ void main() {
     expect(find.text(r'+$2,000.00'), findsNWidgets(2));
   });
 
-    testWidgets('the home warning can be put away for that date', (tester) async {
+  testWidgets('the home warning can be put away for that date', (tester) async {
     late WidgetRef widgetRef;
     await tester.pumpWidget(
       ProviderScope(

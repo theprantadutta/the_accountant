@@ -85,6 +85,9 @@ class FcmRegistrationService {
   Future<bool> registerToken() async {
     try {
       // Get FCM token
+      // The server sends to FCM tokens; the Installation ID that register()
+      // gives needs server support first.
+      // ignore: deprecated_member_use
       final fcmToken = await _firebaseMessaging.getToken();
       if (fcmToken == null) {
         _logger.w('FCM token is null, cannot register device');
@@ -143,6 +146,7 @@ class FcmRegistrationService {
 
   /// Set up a listener for FCM token refresh.
   void setupTokenRefreshListener() {
+    // ignore: deprecated_member_use -- see registerToken.
     _firebaseMessaging.onTokenRefresh.listen((newToken) async {
       _logger.i('FCM token refreshed, re-registering device...');
 
@@ -158,6 +162,7 @@ class FcmRegistrationService {
   /// Check if the current FCM token is registered.
   Future<bool> isTokenRegistered() async {
     final storedToken = await _storage.read(key: 'registered_fcm_token');
+    // ignore: deprecated_member_use -- see registerToken.
     final currentToken = await _firebaseMessaging.getToken();
     return storedToken != null && storedToken == currentToken;
   }
