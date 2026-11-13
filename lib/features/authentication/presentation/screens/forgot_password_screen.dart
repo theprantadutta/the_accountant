@@ -56,7 +56,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _requestCode() async {
-    if (!_requestFormKey.currentState!.validate()) return;
+    // Null while the other step is on screen, which a second tap during the
+    // switch can reach.
+    if (_requestFormKey.currentState?.validate() != true) return;
 
     setState(() {
       _isLoading = true;
@@ -81,7 +83,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Future<void> _resetPassword() async {
-    if (!_resetFormKey.currentState!.validate()) return;
+    if (_resetFormKey.currentState?.validate() != true) return;
 
     setState(() {
       _isLoading = true;

@@ -25,6 +25,9 @@ class AiQuotaNotifier extends StateNotifier<AiQuota> {
   /// Fetches the allowance. False when our server could not be reached, in
   /// which case the last known allowance is kept.
   Future<bool> refresh() async {
+    // A caller may hold this notifier past its life: it is rebuilt whenever
+    // Premium changes.
+    if (!mounted) return false;
     if (_isPremium) {
       state = AiQuota.premium;
       return true;

@@ -54,6 +54,9 @@ class _QuickAddSheetState extends ConsumerState<_QuickAddSheet> {
       _busy = true;
       _error = null;
     });
+    // Held now: the sheet can be dismissed while the request is out, and
+    // `ref` may not be used once it has gone.
+    final quota = ref.read(aiQuotaProvider.notifier);
     try {
       final categories = ref
           .read(categoryProvider)
@@ -78,7 +81,7 @@ class _QuickAddSheetState extends ConsumerState<_QuickAddSheet> {
       if (mounted) setState(() => _error = e.message);
     } finally {
       if (mounted) setState(() => _busy = false);
-      ref.read(aiQuotaProvider.notifier).refresh();
+      quota.refresh();
     }
   }
 
