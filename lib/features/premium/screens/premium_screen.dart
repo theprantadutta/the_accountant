@@ -320,7 +320,8 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       }
       return banner(Symbols.warning_rounded, l10n.paywallIapUnavailable);
     }
-    if (iapState.isLoading && iapState.products.isEmpty) {
+    if ((iapState.isLoading || iapState.loadingProducts) &&
+        iapState.products.isEmpty) {
       return banner(
         Symbols.hourglass_top_rounded,
         l10n.paywallLoadingPlans,

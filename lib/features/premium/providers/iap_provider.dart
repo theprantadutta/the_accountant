@@ -43,6 +43,10 @@ class IAPState {
   /// "you are free", because the store has already taken the money.
   final bool provisionalPremium;
 
+  /// True until the store has answered what is for sale. The paywall shows
+  /// "loading plans" while this holds, rather than saying they failed.
+  final bool loadingProducts;
+
   const IAPState({
     this.isLoading = false,
     this.isPremium = false,
@@ -55,6 +59,7 @@ class IAPState {
     this.isInGracePeriod = false,
     this.backendConfirmed = false,
     this.provisionalPremium = false,
+    this.loadingProducts = true,
   });
 
   IAPState copyWith({
@@ -69,6 +74,7 @@ class IAPState {
     bool? isInGracePeriod,
     bool? backendConfirmed,
     bool? provisionalPremium,
+    bool? loadingProducts,
   }) {
     return IAPState(
       isLoading: isLoading ?? this.isLoading,
@@ -82,6 +88,7 @@ class IAPState {
       isInGracePeriod: isInGracePeriod ?? this.isInGracePeriod,
       backendConfirmed: backendConfirmed ?? this.backendConfirmed,
       provisionalPremium: provisionalPremium ?? this.provisionalPremium,
+      loadingProducts: loadingProducts ?? this.loadingProducts,
     );
   }
 }
@@ -264,10 +271,13 @@ class IAPNotifier extends StateNotifier<IAPState> with WidgetsBindingObserver {
 
   /// Load products
   Future<void> loadProducts() async {
+    state = state.copyWith(loadingProducts: true);
     await _service?.loadProducts();
+    if (!mounted) return;
     final productDetails = _service?.products ?? [];
     state = state.copyWith(
       products: productDetails.map((p) => PremiumProduct(p)).toList(),
+      loadingProducts: false,
     );
   }
 }
