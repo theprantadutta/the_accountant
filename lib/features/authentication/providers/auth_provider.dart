@@ -6,6 +6,7 @@ import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/core/services/api_service.dart';
 import 'package:the_accountant/core/services/apple_sign_in_service.dart';
 import 'package:the_accountant/core/services/backend_auth_service.dart';
+import 'package:the_accountant/core/services/diagnostics.dart';
 import 'package:the_accountant/core/services/google_sign_in_service.dart';
 import 'package:the_accountant/core/services/secure_token_storage.dart';
 
@@ -184,6 +185,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
   }
 
+  void _reportSignedIn(String method, {required bool isNewUser}) {
+    if (isNewUser) {
+      AnalyticsService().logSignUp(method: method);
+    } else {
+      AnalyticsService().logLogin(method: method);
+    }
+  }
+
+  void _reportLoginFailure(String method, Object error) {
+    final String reason;
+    if (Diagnostics.isConnectivity(error) ||
+        (error is ApiException && error.isNetworkError)) {
+      reason = 'network';
+    } else if (error is ApiException) {
+      reason = 'server';
+    } else {
+      reason = 'error';
+    }
+    AnalyticsService().logLoginFailed(method: method, reason: reason);
+  }
+
   Future<void> signInWithEmailAndPassword(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -204,6 +226,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
     } catch (e) {
+      _reportLoginFailure('email', e);
       state = state.copyWith(
         isAuthenticated: false,
         error: _describeAuthFailure(e, appL10n.authSignInError),
@@ -246,6 +269,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
     } catch (e) {
+      _reportLoginFailure('email_signup', e);
       state = state.copyWith(
         isAuthenticated: false,
         error: _describeAuthFailure(e, appL10n.authSignUpError),
@@ -265,12 +289,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       if (userCredential == null || userCredential.user == null) {
+        AnalyticsService().logLoginFailed(
+          method: 'google',
+          reason: 'cancelled',
+        );
         state = state.copyWith(
           isLoading: false,
           error: appL10n.authGoogleCancelled,
         );
         return;
       }
+      final isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
 
       debugPrint(
         '[AuthProvider] Google Sign-In successful, getting Firebase ID token...',
@@ -282,6 +311,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       if (firebaseToken == null) {
+        AnalyticsService().logLoginFailed(method: 'google', reason: 'token');
         state = state.copyWith(
           isLoading: false,
           error: appL10n.authFirebaseTokenFailed,
@@ -301,7 +331,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
         await SecureTokenStorage.storeUserEmail(_backendAuth.userEmail ?? '');
 
-        AnalyticsService().logLogin(method: 'google');
+        _reportSignedIn('google', isNewUser: isNewUser);
 
         state = state.copyWith(
           isAuthenticated: true,
@@ -334,6 +364,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       } else if (e.code == 'user-disabled') {
         errorMessage = appL10n.authUserDisabled;
       }
+      AnalyticsService().logLoginFailed(
+        method: 'google',
+        reason: 'firebase_${e.code}',
+      );
 
       state = state.copyWith(
         isAuthenticated: false,
@@ -341,6 +375,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
     } catch (e) {
+      _reportLoginFailure('google', e);
       state = state.copyWith(
         isAuthenticated: false,
         error: _describeAuthFailure(e, appL10n.authGoogleSignInError),
@@ -361,9 +396,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       if (userCredential == null || userCredential.user == null) {
         // Null means the user cancelled the Apple sheet — not an error.
+        AnalyticsService().logLoginFailed(method: 'apple', reason: 'cancelled');
         state = state.copyWith(isLoading: false);
         return;
       }
+      final isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
 
       debugPrint(
         '[AuthProvider] Apple Sign-In successful, getting Firebase ID token...',
@@ -375,6 +412,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       if (firebaseToken == null) {
+        AnalyticsService().logLoginFailed(method: 'apple', reason: 'token');
         state = state.copyWith(
           isLoading: false,
           error: appL10n.authFirebaseTokenFailed,
@@ -395,7 +433,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         await SecureTokenStorage.storeUserId(_backendAuth.userId ?? '');
         await SecureTokenStorage.storeUserEmail(_backendAuth.userEmail ?? '');
 
-        AnalyticsService().logLogin(method: 'apple');
+        _reportSignedIn('apple', isNewUser: isNewUser);
 
         state = state.copyWith(
           isAuthenticated: true,
@@ -428,6 +466,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       } else if (e.code == 'user-disabled') {
         errorMessage = appL10n.authUserDisabled;
       }
+      AnalyticsService().logLoginFailed(
+        method: 'apple',
+        reason: 'firebase_${e.code}',
+      );
 
       state = state.copyWith(
         isAuthenticated: false,
@@ -435,6 +477,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
       );
     } catch (e) {
+      _reportLoginFailure('apple', e);
       state = state.copyWith(
         isAuthenticated: false,
         error: _describeAuthFailure(e, appL10n.authAppleSignInError),

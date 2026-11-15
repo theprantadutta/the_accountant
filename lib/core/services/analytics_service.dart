@@ -78,6 +78,18 @@ class AnalyticsService {
 
   Future<void> logLogout() => _logEvent('logout');
 
+  /// A sign-in that did not get through, and why: `cancelled`, `network`,
+  /// `token`, `server`, `firebase_<code>`. Most people who open the app never
+  /// sign in, and without this there was no telling whether they chose not
+  /// to or could not.
+  Future<void> logLoginFailed({
+    required String method,
+    required String reason,
+  }) => _logEvent(
+    'login_failed',
+    parameters: {'method': method, 'reason': reason},
+  );
+
   // Screen views: tabs report themselves, routes come from ScreenTracker.
   Future<void> logScreenView({required String screenName}) async {
     if (kDebugMode) return;
