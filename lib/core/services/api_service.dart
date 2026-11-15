@@ -595,31 +595,58 @@ class ApiService {
     }
   }
 
-  /// Logout.
+  /// Signs this device out, then tells the server in the background.
   ///
-  /// Sends this device's refresh token so the server revokes only this session.
-  /// Pass [allDevices] to sign out everywhere.
+  /// The tokens are cleared first and the server is told afterwards, so
+  /// signing out never waits on the network. It used to: the request queued
+  /// behind any token refresh in flight and then waited on the server, about
+  /// eleven seconds with nothing on screen when the server was unreachable,
+  /// long enough that people tapped Sign out again.
+  ///
+  /// The revoke carries the tokens read before they were cleared, on its own
+  /// client, so it cannot wait on a refresh or touch a session started after
+  /// it. It sends the refresh token so the server revokes only this session;
+  /// pass [allDevices] to sign out everywhere.
   Future<void> logout({bool allDevices = false}) async {
+    final accessToken = await SecureTokenStorage.getAccessToken();
+    final refreshToken = await SecureTokenStorage.getRefreshToken();
+    await deleteToken();
+    await SecureTokenStorage.clearAllTokens();
+    if (accessToken == null) return;
+    unawaited(
+      _revokeSession(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        allDevices: allDevices,
+      ),
+    );
+  }
+
+  Future<void> _revokeSession({
+    required String accessToken,
+    required String? refreshToken,
+    required bool allDevices,
+  }) async {
     try {
-      final refreshToken = await SecureTokenStorage.getRefreshToken();
-      // Short: the device signs out either way, and nobody should stare at
-      // the profile screen for half a minute because our server is down.
-      await _dio.post(
+      await Dio(
+        BaseOptions(
+          baseUrl: baseUrl + apiV1,
+          connectTimeout: const Duration(seconds: 10),
+          sendTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      ).post(
         '/auth/logout',
         data: {'refresh_token': ?refreshToken, 'all_devices': allDevices},
-        options: Options(
-          connectTimeout: const Duration(seconds: 5),
-          sendTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 5),
-        ),
       );
     } catch (e) {
-      _logger.e('Logout error: $e');
-    } finally {
-      // Local teardown happens regardless: if the server call failed the user
-      // still expects to be signed out on this device.
-      await deleteToken();
-      await SecureTokenStorage.clearAllTokens();
+      // The device is signed out already; an unrevoked session on the server
+      // expires on its own.
+      _logger.w('Logout revoke did not reach the server: $e');
     }
   }
 

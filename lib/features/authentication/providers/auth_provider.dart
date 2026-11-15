@@ -535,21 +535,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> signOut() async {
     try {
       AnalyticsService().logLogout();
-      // Neither remote step may hold up signing out. The backend call is
-      // bounded by Dio; Google's was not, and a stalled or failing one left
-      // the user signed in, holding an error and no way forward.
+      // Local first: the backend call clears this device's tokens and tells
+      // the server in the background, so nothing here waits on the network
+      // before the sign-in screen shows.
       try {
         await _backendAuth.logout();
       } catch (e) {
         debugPrint(
           'AuthNotifier: backend logout failed, signing out anyway: $e',
-        );
-      }
-      try {
-        await _googleSignIn.signOut().timeout(_signOutCap);
-      } catch (e) {
-        debugPrint(
-          'AuthNotifier: Google sign-out failed, signing out anyway: $e',
         );
       }
       // This device signs out either way.
@@ -559,6 +552,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await SecureTokenStorage.clearPremiumEntitlement();
 
       state = const AuthState(isAuthenticated: false, isLoading: false);
+
+      // Google's sign-out took three seconds on a test phone; it finishes
+      // behind the sign-in screen rather than in front of it.
+      try {
+        await _googleSignIn.signOut().timeout(_signOutCap);
+      } catch (e) {
+        debugPrint(
+          'AuthNotifier: Google sign-out failed, signing out anyway: $e',
+        );
+      }
     } catch (e) {
       state = state.copyWith(error: appL10n.authSignOutError);
     }

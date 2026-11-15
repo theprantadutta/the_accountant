@@ -856,7 +856,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   }
 
+  /// Set while signing out, so a second tap cannot start a second one.
+  bool _signingOut = false;
+
   Future<void> _signOut() async {
+    if (_signingOut) return;
     final l10n = L10n.of(context);
     final confirmed = await showSunriseConfirm(
       context: context,
@@ -866,7 +870,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       destructive: true,
       icon: Symbols.logout_rounded,
     );
-    if (!confirmed) return;
+    if (!confirmed || _signingOut) return;
+    _signingOut = true;
     try {
       await ref.read(authProvider.notifier).signOut();
       // Navigation to sign-in is handled by the auth state listener.
@@ -878,6 +883,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           tone: SnackTone.error,
         );
       }
+    } finally {
+      _signingOut = false;
     }
   }
 
