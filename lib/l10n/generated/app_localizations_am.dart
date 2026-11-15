@@ -3118,6 +3118,9 @@ class L10nAm extends L10n {
   String get addMoreOptions => 'ተጨማሪ አማራጮች';
 
   @override
+  String get addMoreOptionsHint => 'መድገም፣ ብድር፣ ሂሳብ መከፋፈል፣ የክፍያ መንገድ፣ በጀት፣ ግብ';
+
+  @override
   String get addScanReceipt => 'ደረሰኝ ቃኝ';
 
   @override

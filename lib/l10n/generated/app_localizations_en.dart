@@ -3186,6 +3186,10 @@ class L10nEn extends L10n {
   String get addMoreOptions => 'More options';
 
   @override
+  String get addMoreOptionsHint =>
+      'Repeat, loan, split, payment method, budget, goal';
+
+  @override
   String get addScanReceipt => 'Scan receipt';
 
   @override

@@ -135,6 +135,17 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   TransactionSpecialType _specialType = TransactionSpecialType.none;
   String? _selectedBudgetId;
   String? _selectedObjectiveId;
+
+  /// Whether "More options" is open. It starts closed, so the form is just
+  /// the amount, the category and the details, unless the transaction already
+  /// uses one of the options: then it opens, so nothing set is out of sight.
+  late bool _showMore = _hasExtras;
+
+  bool get _hasExtras =>
+      _specialType != TransactionSpecialType.none ||
+      _selectedPaymentMethodId != null ||
+      _selectedBudgetId != null ||
+      _selectedObjectiveId != null;
   String? _selectedPaymentMethodId;
 
   // Subscription config
@@ -1050,29 +1061,45 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           ),
           if (!_isTransfer) ...[
             const SizedBox(height: SunriseSpace.gap),
-            _buildRepeatMonthlyRow(),
-            const SizedBox(height: SunriseSpace.section),
-            SectionLabel(l10n.addMoreOptions),
-            _buildSpecialTypeChips(),
-            if (_specialType == TransactionSpecialType.subscription ||
-                _specialType == TransactionSpecialType.repetitive)
-              _buildSubscriptionConfigSection(),
-            const SizedBox(height: 12),
-            LoanTypeChips(
-              selectedType: _specialType,
-              onTypeChanged: (type) => setState(() => _specialType = type),
-              accentColor: c.accent,
+            _buildMoreOptionsToggle(),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: !_showMore
+                  ? const SizedBox(width: double.infinity)
+                  : Column(
+                      key: const Key('add_more_options_body'),
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: SunriseSpace.gap),
+                        _buildRepeatMonthlyRow(),
+                        const SizedBox(height: 16),
+                        _buildSpecialTypeChips(),
+                        if (_specialType ==
+                                TransactionSpecialType.subscription ||
+                            _specialType == TransactionSpecialType.repetitive)
+                          _buildSubscriptionConfigSection(),
+                        const SizedBox(height: 12),
+                        LoanTypeChips(
+                          selectedType: _specialType,
+                          onTypeChanged: (type) =>
+                              setState(() => _specialType = type),
+                          accentColor: c.accent,
+                        ),
+                        if (!_isEditing &&
+                            !_isIncome &&
+                            _specialType == TransactionSpecialType.none) ...[
+                          const SizedBox(height: 12),
+                          _buildSplitRow(),
+                        ],
+                        // Optional links (hidden when the user has none)
+                        _buildPaymentMethodSelector(),
+                        _buildBudgetSelector(),
+                        _buildObjectiveSelector(),
+                      ],
+                    ),
             ),
-            if (!_isEditing &&
-                !_isIncome &&
-                _specialType == TransactionSpecialType.none) ...[
-              const SizedBox(height: 12),
-              _buildSplitRow(),
-            ],
-            // Optional links (hidden when the user has none)
-            _buildPaymentMethodSelector(),
-            _buildBudgetSelector(),
-            _buildObjectiveSelector(),
           ],
         ],
       ),
@@ -1362,6 +1389,73 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         );
       },
     );
+  }
+
+  /// The one row "More options" folds into. Closed, it says what is set
+  /// ("Upcoming · Visa •••• 4242"), or else what is in there.
+  Widget _buildMoreOptionsToggle() {
+    final c = context.sunrise;
+    final l10n = L10n.of(context);
+    final summary = _moreOptionsSummary();
+    return SunriseCard(
+      key: const Key('add_more_options'),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: SettingsRow(
+        icon: Symbols.tune_rounded,
+        iconBackground: Colors.transparent,
+        iconColor: c.accent,
+        title: l10n.addMoreOptions,
+        subtitle: summary.isEmpty ? l10n.addMoreOptionsHint : summary,
+        trailing: SettingsTrailing.none,
+        onTap: () => setState(() => _showMore = !_showMore),
+        trailingWidget: AnimatedRotation(
+          turns: _showMore ? 0.5 : 0,
+          duration: const Duration(milliseconds: 220),
+          child: Icon(Symbols.expand_more_rounded, color: c.muted),
+        ),
+      ),
+    );
+  }
+
+  String _moreOptionsSummary() {
+    final l10n = L10n.of(context);
+    final parts = <String>[];
+    final repeatMonthly =
+        _specialType == TransactionSpecialType.repetitive &&
+        _subscriptionFrequency == 'monthly' &&
+        _subscriptionPeriodLength == 1;
+    switch (_specialType) {
+      case TransactionSpecialType.none:
+        break;
+      case TransactionSpecialType.upcoming:
+        parts.add(l10n.forecastKindUpcoming);
+      case TransactionSpecialType.subscription:
+        parts.add(l10n.forecastKindSubscription);
+      case TransactionSpecialType.repetitive:
+        parts.add(
+          repeatMonthly ? l10n.addRepeatMonthly : l10n.txnSpecialRepetitive,
+        );
+      case TransactionSpecialType.credit:
+        parts.add(l10n.txLentMoney);
+      case TransactionSpecialType.debt:
+        parts.add(l10n.txBorrowedMoney);
+    }
+    final methods = ref.watch(paymentMethodProvider).paymentMethods;
+    final method = methods
+        .where((m) => m.id == _selectedPaymentMethodId)
+        .firstOrNull;
+    if (method != null) parts.add(method.name);
+    final budget = ref
+        .watch(budgetProvider)
+        .budgets
+        .where((b) => b.id == _selectedBudgetId)
+        .firstOrNull;
+    if (budget != null) parts.add(budget.name);
+    final objective = (ref.watch(activeObjectivesProvider).asData?.value ?? [])
+        .where((o) => o.objective.id == _selectedObjectiveId)
+        .firstOrNull;
+    if (objective != null) parts.add(objective.name);
+    return parts.join(' · ');
   }
 
   /// "Repeat monthly": a shortcut onto the existing repetitive type.

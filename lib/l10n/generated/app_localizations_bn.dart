@@ -3156,6 +3156,10 @@ class L10nBn extends L10n {
   String get addMoreOptions => 'আরও অপশন';
 
   @override
+  String get addMoreOptionsHint =>
+      'পুনরাবৃত্তি, ধার, বিল ভাগ, পেমেন্ট পদ্ধতি, বাজেট, লক্ষ্য';
+
+  @override
   String get addScanReceipt => 'রসিদ স্ক্যান';
 
   @override

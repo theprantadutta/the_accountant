@@ -929,6 +929,7 @@
   "addNoteHint": "افزودن یادداشت",
   "addRepeatMonthly": "تکرار ماهانه",
   "addMoreOptions": "گزینه‌های بیشتر",
+  "addMoreOptionsHint": "تکرار، وام، تقسیم صورت‌حساب، روش پرداخت، بودجه، هدف",
   "addScanReceipt": "اسکن رسید",
   "addDelete": "حذف تراکنش",
   "addTypeExpense": "هزینه",

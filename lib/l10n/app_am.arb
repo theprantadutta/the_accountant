@@ -929,6 +929,7 @@
   "addNoteHint": "ማስታወሻ አክል",
   "addRepeatMonthly": "በየወሩ ድገም",
   "addMoreOptions": "ተጨማሪ አማራጮች",
+  "addMoreOptionsHint": "መድገም፣ ብድር፣ ሂሳብ መከፋፈል፣ የክፍያ መንገድ፣ በጀት፣ ግብ",
   "addScanReceipt": "ደረሰኝ ቃኝ",
   "addDelete": "ግብይት ሰርዝ",
   "addTypeExpense": "ወጪ",

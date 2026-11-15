@@ -3182,6 +3182,10 @@ class L10nHi extends L10n {
   String get addMoreOptions => 'और विकल्प';
 
   @override
+  String get addMoreOptionsHint =>
+      'दोहराना, उधार, बिल बाँटना, भुगतान का तरीका, बजट, लक्ष्य';
+
+  @override
   String get addScanReceipt => 'रसीद स्कैन करें';
 
   @override

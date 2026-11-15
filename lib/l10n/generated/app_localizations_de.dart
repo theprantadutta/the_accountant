@@ -3204,6 +3204,10 @@ class L10nDe extends L10n {
   String get addMoreOptions => 'Weitere Optionen';
 
   @override
+  String get addMoreOptionsHint =>
+      'Wiederholung, Darlehen, Teilen, Zahlungsart, Budget, Ziel';
+
+  @override
   String get addScanReceipt => 'Beleg scannen';
 
   @override

@@ -3185,6 +3185,10 @@ class L10nFa extends L10n {
   String get addMoreOptions => 'گزینه‌های بیشتر';
 
   @override
+  String get addMoreOptionsHint =>
+      'تکرار، وام، تقسیم صورت‌حساب، روش پرداخت، بودجه، هدف';
+
+  @override
   String get addScanReceipt => 'اسکن رسید';
 
   @override

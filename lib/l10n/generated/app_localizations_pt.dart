@@ -3205,6 +3205,10 @@ class L10nPt extends L10n {
   String get addMoreOptions => 'Mais opções';
 
   @override
+  String get addMoreOptionsHint =>
+      'Repetição, empréstimo, dividir, método de pagamento, orçamento, objetivo';
+
+  @override
   String get addScanReceipt => 'Digitalizar recibo';
 
   @override

@@ -929,6 +929,7 @@
   "addNoteHint": "Notiz hinzufügen",
   "addRepeatMonthly": "Monatlich wiederholen",
   "addMoreOptions": "Weitere Optionen",
+  "addMoreOptionsHint": "Wiederholung, Darlehen, Teilen, Zahlungsart, Budget, Ziel",
   "addScanReceipt": "Beleg scannen",
   "addDelete": "Buchung löschen",
   "addTypeExpense": "Ausgabe",

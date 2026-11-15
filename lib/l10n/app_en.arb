@@ -1614,6 +1614,7 @@
   "addNoteHint": "Add a note",
   "addRepeatMonthly": "Repeat monthly",
   "addMoreOptions": "More options",
+  "addMoreOptionsHint": "Repeat, loan, split, payment method, budget, goal",
   "addScanReceipt": "Scan receipt",
   "addDelete": "Delete transaction",
   "addTypeExpense": "Expense",

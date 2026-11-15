@@ -3200,6 +3200,10 @@ class L10nSw extends L10n {
   String get addMoreOptions => 'Chaguo zaidi';
 
   @override
+  String get addMoreOptionsHint =>
+      'Rudia, mkopo, gawanya bili, njia ya malipo, bajeti, lengo';
+
+  @override
   String get addScanReceipt => 'Changanua risiti';
 
   @override

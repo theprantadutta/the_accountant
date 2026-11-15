@@ -3213,6 +3213,10 @@ class L10nFr extends L10n {
   String get addMoreOptions => 'Plus d\'options';
 
   @override
+  String get addMoreOptionsHint =>
+      'Répétition, prêt, partage, moyen de paiement, budget, objectif';
+
+  @override
   String get addScanReceipt => 'Scanner un ticket';
 
   @override

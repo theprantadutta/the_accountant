@@ -929,6 +929,7 @@
   "addNoteHint": "একটি নোট যোগ করুন",
   "addRepeatMonthly": "প্রতি মাসে পুনরাবৃত্তি",
   "addMoreOptions": "আরও অপশন",
+  "addMoreOptionsHint": "পুনরাবৃত্তি, ধার, বিল ভাগ, পেমেন্ট পদ্ধতি, বাজেট, লক্ষ্য",
   "addScanReceipt": "রসিদ স্ক্যান",
   "addDelete": "লেনদেন মুছুন",
   "addTypeExpense": "খরচ",

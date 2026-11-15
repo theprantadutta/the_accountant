@@ -929,6 +929,7 @@
   "addNoteHint": "Ajouter une note",
   "addRepeatMonthly": "Répéter chaque mois",
   "addMoreOptions": "Plus d'options",
+  "addMoreOptionsHint": "Répétition, prêt, partage, moyen de paiement, budget, objectif",
   "addScanReceipt": "Scanner un ticket",
   "addDelete": "Supprimer l'opération",
   "addTypeExpense": "Dépense",

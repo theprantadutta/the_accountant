@@ -5691,6 +5691,12 @@ abstract class L10n {
   /// **'More options'**
   String get addMoreOptions;
 
+  /// No description provided for @addMoreOptionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat, loan, split, payment method, budget, goal'**
+  String get addMoreOptionsHint;
+
   /// No description provided for @addScanReceipt.
   ///
   /// In en, this message translates to:

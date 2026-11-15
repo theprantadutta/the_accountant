@@ -3201,6 +3201,10 @@ class L10nMs extends L10n {
   String get addMoreOptions => 'Lagi pilihan';
 
   @override
+  String get addMoreOptionsHint =>
+      'Ulang, pinjaman, bahagi bil, kaedah bayaran, bajet, matlamat';
+
+  @override
   String get addScanReceipt => 'Imbas resit';
 
   @override

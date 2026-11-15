@@ -929,6 +929,7 @@
   "addNoteHint": "Adicionar nota",
   "addRepeatMonthly": "Repetir mensalmente",
   "addMoreOptions": "Mais opções",
+  "addMoreOptionsHint": "Repetição, empréstimo, dividir, método de pagamento, orçamento, objetivo",
   "addScanReceipt": "Digitalizar recibo",
   "addDelete": "Eliminar transação",
   "addTypeExpense": "Despesa",

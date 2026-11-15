@@ -929,6 +929,7 @@
   "addNoteHint": "नोट जोड़ें",
   "addRepeatMonthly": "हर महीने दोहराएँ",
   "addMoreOptions": "और विकल्प",
+  "addMoreOptionsHint": "दोहराना, उधार, बिल बाँटना, भुगतान का तरीका, बजट, लक्ष्य",
   "addScanReceipt": "रसीद स्कैन करें",
   "addDelete": "लेन-देन हटाएँ",
   "addTypeExpense": "ख़र्च",
