@@ -33,7 +33,7 @@ class UpgradeLimitDialog extends StatelessWidget {
         limit: limit,
         onUpgrade: () {
           Navigator.pop(context, true);
-          Navigator.pushNamed(context, '/premium');
+          Navigator.pushNamed(context, '/premium', arguments: 'limit_dialog');
         },
       ),
     );
@@ -131,7 +131,11 @@ class UpgradeLimitDialog extends StatelessWidget {
                         onUpgrade ??
                         () {
                           Navigator.pop(context, true);
-                          Navigator.pushNamed(context, '/premium');
+                          Navigator.pushNamed(
+                            context,
+                            '/premium',
+                            arguments: 'limit_dialog',
+                          );
                         },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryAccent,

@@ -506,7 +506,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const PremiumScreen(),
+                        builder: (context) =>
+                            const PremiumScreen(source: 'profile'),
                       ),
                     );
                   },

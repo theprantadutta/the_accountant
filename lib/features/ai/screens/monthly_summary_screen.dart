@@ -325,7 +325,10 @@ class _ReviewCard extends ConsumerWidget {
             if (!quota.unlimited) ...[
               const SizedBox(height: 8),
               GestureDetector(
-                onTap: () => PaywallUtils.showPaywall(context),
+                onTap: () => PaywallUtils.showPaywall(
+                  context,
+                  source: 'monthly_summary',
+                ),
                 child: Text(
                   '${quota.hasCallsLeft ? l10n.aiQuotaLeft(quota.remaining ?? 0) : l10n.aiOutOfRequestsTitle} · ${l10n.aiQuotaPremiumUnlimited}',
                   style: SunriseType.caption.copyWith(color: c.muted),

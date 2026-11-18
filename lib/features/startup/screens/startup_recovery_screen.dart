@@ -119,7 +119,8 @@ class _StartupRecoveryScreenState extends ConsumerState<StartupRecoveryScreen> {
                               ? null
                               : () => Navigator.of(context).push(
                                   MaterialPageRoute<void>(
-                                    builder: (_) => const PremiumScreen(),
+                                    builder: (_) =>
+                                        const PremiumScreen(source: 'startup'),
                                   ),
                                 ),
                         ),

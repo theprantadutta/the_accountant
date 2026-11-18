@@ -187,7 +187,8 @@ class _AIAssistantScreenState extends ConsumerState<AIAssistantScreen>
               question: chat.pendingQuestion!,
               canWatchAd: quota.canEarnAiCall,
               onWatchAd: _offerMore,
-              onPremium: () => PaywallUtils.showPaywall(context),
+              onPremium: () =>
+                  PaywallUtils.showPaywall(context, source: 'ai_assistant'),
               onDismiss: () => ref.read(aiChatProvider.notifier).dropPending(),
             )
           else if (!quota.unlimited)
@@ -1132,7 +1133,8 @@ class _QuotaLine extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () => PaywallUtils.showPaywall(context),
+            onTap: () =>
+                PaywallUtils.showPaywall(context, source: 'ai_assistant'),
             child: Text(
               l10n.aiQuotaPremiumUnlimited,
               style: SunriseType.caption.copyWith(

@@ -138,15 +138,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   if (premiumState.isPremium)
                     _PremiumActiveCard(
                       tier: premiumState.tier.displayName,
-                      onTap: () => Navigator.pushNamed(context, '/premium'),
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        '/premium',
+                        arguments: 'settings',
+                      ),
                     )
                   else ...[
                     _GoPremiumBanner(
-                      onTap: () => Navigator.pushNamed(context, '/premium'),
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        '/premium',
+                        arguments: 'settings',
+                      ),
                     ),
                     const SizedBox(height: SunriseSpace.sectionTight),
                     _DeviceOnlyNotice(
-                      onTap: () => Navigator.pushNamed(context, '/premium'),
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        '/premium',
+                        arguments: 'settings',
+                      ),
                     ),
                   ],
                   const SizedBox(height: SunriseSpace.sectionTight),
@@ -719,7 +731,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // second line, so it goes underneath instead.
           value: premiumState.isPremium ? premiumState.tier.displayName : null,
           subtitle: premiumState.isPremium ? null : l10n.moreUpgradeToPremium,
-          onTap: () => Navigator.pushNamed(context, '/premium'),
+          onTap: () =>
+              Navigator.pushNamed(context, '/premium', arguments: 'settings'),
         ),
       ),
       _Entry(

@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Analytics wrapper that degrades to a no-op when Firebase is unavailable.
 ///
@@ -28,13 +32,54 @@ class AnalyticsService {
     _analyticsResolved = true;
     try {
       final analytics = FirebaseAnalytics.instance;
-      analytics.setAnalyticsCollectionEnabled(!kDebugMode);
+      // A release build turns collection on in [start], once it knows this
+      // is not a test device; switching it on here would undo that.
+      if (kDebugMode) analytics.setAnalyticsCollectionEnabled(false);
       _cachedAnalytics = analytics;
     } catch (_) {
       // No Firebase app configured (tests, or a failed init). Stay silent.
       _cachedAnalytics = null;
     }
     return _cachedAnalytics;
+  }
+
+  static const _device = MethodChannel('the_accountant/device');
+  static const _firstLaunchKey = 'analytics_first_launch_at';
+  static const _firstTransactionKey = 'analytics_first_transaction_logged';
+
+  /// Turns collection on, unless this is one of Google's test devices.
+  ///
+  /// Play's pre-launch robots run every new release on Firebase Test Lab.
+  /// One of them (an "IN2025") was 73 of the 131 users in Analytics over 28
+  /// days, each opening the app for 14 seconds, which made every rate in the
+  /// reports wrong. Android ships with collection off (see the manifest) so
+  /// nothing is sent before this check.
+  Future<void> start() async {
+    if (disabled || kDebugMode) return;
+    var testDevice = false;
+    if (Platform.isAndroid) {
+      try {
+        testDevice = await _device.invokeMethod<bool>('isTestLab') ?? false;
+      } catch (_) {}
+    }
+    try {
+      await _analytics?.setAnalyticsCollectionEnabled(!testDevice);
+    } catch (_) {}
+    if (testDevice) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!prefs.containsKey(_firstLaunchKey)) {
+        await prefs.setInt(
+          _firstLaunchKey,
+          DateTime.now().millisecondsSinceEpoch,
+        );
+        // Someone who used the app before this version has had their first
+        // transaction already; their next one is not it.
+        if (prefs.getBool('has_seen_intro') ?? false) {
+          await prefs.setBool(_firstTransactionKey, true);
+        }
+      }
+    } catch (_) {}
   }
 
   /// Ties later events to an account, by its opaque id (never an email), or
@@ -103,7 +148,33 @@ class AnalyticsService {
   }
 
   // Transaction events
-  Future<void> logTransactionCreate() => _logEvent('transaction_create');
+  Future<void> logTransactionCreate() async {
+    await _logEvent('transaction_create');
+    await _logFirstTransaction();
+  }
+
+  /// The first transaction on this install: the moment the app has done its
+  /// job once. Carries how long it took, which is the number onboarding is
+  /// judged by.
+  Future<void> _logFirstTransaction() async {
+    if (kDebugMode || disabled) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool(_firstTransactionKey) ?? false) return;
+      await prefs.setBool(_firstTransactionKey, true);
+      final since = prefs.getInt(_firstLaunchKey);
+      final hours = since == null
+          ? -1
+          : DateTime.now()
+                .difference(DateTime.fromMillisecondsSinceEpoch(since))
+                .inHours;
+      await _logEvent(
+        'first_transaction',
+        parameters: {'hours_since_install': hours},
+      );
+    } catch (_) {}
+  }
+
   Future<void> logTransactionUpdate() => _logEvent('transaction_update');
   Future<void> logTransactionDelete() => _logEvent('transaction_delete');
 

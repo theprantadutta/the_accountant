@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,6 +58,9 @@ void main() async {
     // provider creation.
     Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
   ]);
+
+  // Google's test devices are kept out of Analytics; see start().
+  unawaited(AnalyticsService().start());
 
   // Crashlytics runs in release/profile only. In debug we leave Flutter's
   // default error handlers in place so crashes surface in the console instead

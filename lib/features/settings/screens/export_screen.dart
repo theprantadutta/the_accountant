@@ -448,7 +448,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              Navigator.pushNamed(context, '/premium');
+              Navigator.pushNamed(context, '/premium', arguments: 'export');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.warning,
