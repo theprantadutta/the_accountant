@@ -3201,6 +3201,55 @@ class L10nMs extends L10n {
   String get addMoreOptions => 'Lagi pilihan';
 
   @override
+  String get addMoreOptionsHint =>
+      'Ulang, pinjaman, bahagi bil, kaedah bayaran, bajet, matlamat';
+
+  @override
+  String get addForeign => 'Mata wang lain';
+
+  @override
+  String get addForeignHint =>
+      'Wang diterima atau dibayar dalam dolar atau mata wang lain';
+
+  @override
+  String get addForeignIntro =>
+      'Jumlah di atas ialah apa yang sampai ke akaun ini. Masukkan nilainya dalam mata wang lain.';
+
+  @override
+  String get addForeignCurrency => 'Mata wang';
+
+  @override
+  String addForeignAmount(String currency) {
+    return 'Jumlah dalam $currency';
+  }
+
+  @override
+  String get addForeignFee => 'Yuran dikenakan berasingan';
+
+  @override
+  String get addForeignFeeHelp =>
+      'Biarkan kosong jika tiada, atau jika ia dipotong sebelum wang sampai.';
+
+  @override
+  String get addForeignFeeAccount => 'Yuran dicaj kepada';
+
+  @override
+  String get addForeignRemove => 'Buang';
+
+  @override
+  String get txnConversion => 'Penukaran';
+
+  @override
+  String txnRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String txnFeeLine(String amount) {
+    return 'yuran $amount';
+  }
+
+  @override
   String get addScanReceipt => 'Imbas resit';
 
   @override

@@ -4370,6 +4370,17 @@ class $TransactionsTable extends Transactions
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _counterCurrencyMeta = const VerificationMeta(
+    'counterCurrency',
+  );
+  @override
+  late final GeneratedColumn<String> counterCurrency = GeneratedColumn<String>(
+    'counter_currency',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _budgetIdMeta = const VerificationMeta(
     'budgetId',
   );
@@ -4577,6 +4588,7 @@ class $TransactionsTable extends Transactions
     occurrenceKey,
     fxRate,
     counterAmount,
+    counterCurrency,
     budgetId,
     objectiveId,
     isRecurring,
@@ -4769,6 +4781,15 @@ class $TransactionsTable extends Transactions
         counterAmount.isAcceptableOrUnknown(
           data['counter_amount']!,
           _counterAmountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('counter_currency')) {
+      context.handle(
+        _counterCurrencyMeta,
+        counterCurrency.isAcceptableOrUnknown(
+          data['counter_currency']!,
+          _counterCurrencyMeta,
         ),
       );
     }
@@ -4968,6 +4989,10 @@ class $TransactionsTable extends Transactions
         DriftSqlType.int,
         data['${effectivePrefix}counter_amount'],
       ),
+      counterCurrency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}counter_currency'],
+      ),
       budgetId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}budget_id'],
@@ -5123,6 +5148,15 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   /// Only set on a cross-currency transfer. Both legs of a same-currency
   /// transfer carry equal amounts, and this stays null there.
   final int? counterAmount;
+
+  /// The currency [counterAmount] is in, on an ordinary income or expense that
+  /// happened in another currency: $500 from AdMob that arrived as ৳60,500, or
+  /// a $10 subscription charged ৳1,250. Null on transfers, whose other currency
+  /// is simply the partner wallet's, and on everything else.
+  ///
+  /// Synced readable, like a wallet's currency: the server needs to know the
+  /// row is foreign to accept a fee linked to it. The amounts stay sealed.
+  final String? counterCurrency;
   final String? budgetId;
   final String? objectiveId;
   final bool isRecurring;
@@ -5161,6 +5195,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     this.occurrenceKey,
     this.fxRate,
     this.counterAmount,
+    this.counterCurrency,
     this.budgetId,
     this.objectiveId,
     required this.isRecurring,
@@ -5229,6 +5264,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     }
     if (!nullToAbsent || counterAmount != null) {
       map['counter_amount'] = Variable<int>(counterAmount);
+    }
+    if (!nullToAbsent || counterCurrency != null) {
+      map['counter_currency'] = Variable<String>(counterCurrency);
     }
     if (!nullToAbsent || budgetId != null) {
       map['budget_id'] = Variable<String>(budgetId);
@@ -5318,6 +5356,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       counterAmount: counterAmount == null && nullToAbsent
           ? const Value.absent()
           : Value(counterAmount),
+      counterCurrency: counterCurrency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(counterCurrency),
       budgetId: budgetId == null && nullToAbsent
           ? const Value.absent()
           : Value(budgetId),
@@ -5388,6 +5429,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       occurrenceKey: serializer.fromJson<String?>(json['occurrenceKey']),
       fxRate: serializer.fromJson<double?>(json['fxRate']),
       counterAmount: serializer.fromJson<int?>(json['counterAmount']),
+      counterCurrency: serializer.fromJson<String?>(json['counterCurrency']),
       budgetId: serializer.fromJson<String?>(json['budgetId']),
       objectiveId: serializer.fromJson<String?>(json['objectiveId']),
       isRecurring: serializer.fromJson<bool>(json['isRecurring']),
@@ -5435,6 +5477,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'occurrenceKey': serializer.toJson<String?>(occurrenceKey),
       'fxRate': serializer.toJson<double?>(fxRate),
       'counterAmount': serializer.toJson<int?>(counterAmount),
+      'counterCurrency': serializer.toJson<String?>(counterCurrency),
       'budgetId': serializer.toJson<String?>(budgetId),
       'objectiveId': serializer.toJson<String?>(objectiveId),
       'isRecurring': serializer.toJson<bool>(isRecurring),
@@ -5478,6 +5521,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     Value<String?> occurrenceKey = const Value.absent(),
     Value<double?> fxRate = const Value.absent(),
     Value<int?> counterAmount = const Value.absent(),
+    Value<String?> counterCurrency = const Value.absent(),
     Value<String?> budgetId = const Value.absent(),
     Value<String?> objectiveId = const Value.absent(),
     bool? isRecurring,
@@ -5534,6 +5578,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     counterAmount: counterAmount.present
         ? counterAmount.value
         : this.counterAmount,
+    counterCurrency: counterCurrency.present
+        ? counterCurrency.value
+        : this.counterCurrency,
     budgetId: budgetId.present ? budgetId.value : this.budgetId,
     objectiveId: objectiveId.present ? objectiveId.value : this.objectiveId,
     isRecurring: isRecurring ?? this.isRecurring,
@@ -5602,6 +5649,9 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       counterAmount: data.counterAmount.present
           ? data.counterAmount.value
           : this.counterAmount,
+      counterCurrency: data.counterCurrency.present
+          ? data.counterCurrency.value
+          : this.counterCurrency,
       budgetId: data.budgetId.present ? data.budgetId.value : this.budgetId,
       objectiveId: data.objectiveId.present
           ? data.objectiveId.value
@@ -5661,6 +5711,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('occurrenceKey: $occurrenceKey, ')
           ..write('fxRate: $fxRate, ')
           ..write('counterAmount: $counterAmount, ')
+          ..write('counterCurrency: $counterCurrency, ')
           ..write('budgetId: $budgetId, ')
           ..write('objectiveId: $objectiveId, ')
           ..write('isRecurring: $isRecurring, ')
@@ -5704,6 +5755,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     occurrenceKey,
     fxRate,
     counterAmount,
+    counterCurrency,
     budgetId,
     objectiveId,
     isRecurring,
@@ -5746,6 +5798,7 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.occurrenceKey == this.occurrenceKey &&
           other.fxRate == this.fxRate &&
           other.counterAmount == this.counterAmount &&
+          other.counterCurrency == this.counterCurrency &&
           other.budgetId == this.budgetId &&
           other.objectiveId == this.objectiveId &&
           other.isRecurring == this.isRecurring &&
@@ -5786,6 +5839,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<String?> occurrenceKey;
   final Value<double?> fxRate;
   final Value<int?> counterAmount;
+  final Value<String?> counterCurrency;
   final Value<String?> budgetId;
   final Value<String?> objectiveId;
   final Value<bool> isRecurring;
@@ -5825,6 +5879,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.occurrenceKey = const Value.absent(),
     this.fxRate = const Value.absent(),
     this.counterAmount = const Value.absent(),
+    this.counterCurrency = const Value.absent(),
     this.budgetId = const Value.absent(),
     this.objectiveId = const Value.absent(),
     this.isRecurring = const Value.absent(),
@@ -5865,6 +5920,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.occurrenceKey = const Value.absent(),
     this.fxRate = const Value.absent(),
     this.counterAmount = const Value.absent(),
+    this.counterCurrency = const Value.absent(),
     this.budgetId = const Value.absent(),
     this.objectiveId = const Value.absent(),
     this.isRecurring = const Value.absent(),
@@ -5908,6 +5964,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<String>? occurrenceKey,
     Expression<double>? fxRate,
     Expression<int>? counterAmount,
+    Expression<String>? counterCurrency,
     Expression<String>? budgetId,
     Expression<String>? objectiveId,
     Expression<bool>? isRecurring,
@@ -5951,6 +6008,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (occurrenceKey != null) 'occurrence_key': occurrenceKey,
       if (fxRate != null) 'fx_rate': fxRate,
       if (counterAmount != null) 'counter_amount': counterAmount,
+      if (counterCurrency != null) 'counter_currency': counterCurrency,
       if (budgetId != null) 'budget_id': budgetId,
       if (objectiveId != null) 'objective_id': objectiveId,
       if (isRecurring != null) 'is_recurring': isRecurring,
@@ -5993,6 +6051,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Value<String?>? occurrenceKey,
     Value<double?>? fxRate,
     Value<int?>? counterAmount,
+    Value<String?>? counterCurrency,
     Value<String?>? budgetId,
     Value<String?>? objectiveId,
     Value<bool>? isRecurring,
@@ -6033,6 +6092,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       occurrenceKey: occurrenceKey ?? this.occurrenceKey,
       fxRate: fxRate ?? this.fxRate,
       counterAmount: counterAmount ?? this.counterAmount,
+      counterCurrency: counterCurrency ?? this.counterCurrency,
       budgetId: budgetId ?? this.budgetId,
       objectiveId: objectiveId ?? this.objectiveId,
       isRecurring: isRecurring ?? this.isRecurring,
@@ -6127,6 +6187,9 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (counterAmount.present) {
       map['counter_amount'] = Variable<int>(counterAmount.value);
     }
+    if (counterCurrency.present) {
+      map['counter_currency'] = Variable<String>(counterCurrency.value);
+    }
     if (budgetId.present) {
       map['budget_id'] = Variable<String>(budgetId.value);
     }
@@ -6205,6 +6268,7 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('occurrenceKey: $occurrenceKey, ')
           ..write('fxRate: $fxRate, ')
           ..write('counterAmount: $counterAmount, ')
+          ..write('counterCurrency: $counterCurrency, ')
           ..write('budgetId: $budgetId, ')
           ..write('objectiveId: $objectiveId, ')
           ..write('isRecurring: $isRecurring, ')
@@ -19831,6 +19895,7 @@ typedef $$TransactionsTableCreateCompanionBuilder =
       Value<String?> occurrenceKey,
       Value<double?> fxRate,
       Value<int?> counterAmount,
+      Value<String?> counterCurrency,
       Value<String?> budgetId,
       Value<String?> objectiveId,
       Value<bool> isRecurring,
@@ -19872,6 +19937,7 @@ typedef $$TransactionsTableUpdateCompanionBuilder =
       Value<String?> occurrenceKey,
       Value<double?> fxRate,
       Value<int?> counterAmount,
+      Value<String?> counterCurrency,
       Value<String?> budgetId,
       Value<String?> objectiveId,
       Value<bool> isRecurring,
@@ -20086,6 +20152,11 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<int> get counterAmount => $composableBuilder(
     column: $table.counterAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get counterCurrency => $composableBuilder(
+    column: $table.counterCurrency,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -20387,6 +20458,11 @@ class $$TransactionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get counterCurrency => $composableBuilder(
+    column: $table.counterCurrency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get budgetId => $composableBuilder(
     column: $table.budgetId,
     builder: (column) => ColumnOrderings(column),
@@ -20634,6 +20710,11 @@ class $$TransactionsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get counterCurrency => $composableBuilder(
+    column: $table.counterCurrency,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get budgetId =>
       $composableBuilder(column: $table.budgetId, builder: (column) => column);
 
@@ -20871,6 +20952,7 @@ class $$TransactionsTableTableManager
                 Value<String?> occurrenceKey = const Value.absent(),
                 Value<double?> fxRate = const Value.absent(),
                 Value<int?> counterAmount = const Value.absent(),
+                Value<String?> counterCurrency = const Value.absent(),
                 Value<String?> budgetId = const Value.absent(),
                 Value<String?> objectiveId = const Value.absent(),
                 Value<bool> isRecurring = const Value.absent(),
@@ -20911,6 +20993,7 @@ class $$TransactionsTableTableManager
                 occurrenceKey: occurrenceKey,
                 fxRate: fxRate,
                 counterAmount: counterAmount,
+                counterCurrency: counterCurrency,
                 budgetId: budgetId,
                 objectiveId: objectiveId,
                 isRecurring: isRecurring,
@@ -20952,6 +21035,7 @@ class $$TransactionsTableTableManager
                 Value<String?> occurrenceKey = const Value.absent(),
                 Value<double?> fxRate = const Value.absent(),
                 Value<int?> counterAmount = const Value.absent(),
+                Value<String?> counterCurrency = const Value.absent(),
                 Value<String?> budgetId = const Value.absent(),
                 Value<String?> objectiveId = const Value.absent(),
                 Value<bool> isRecurring = const Value.absent(),
@@ -20992,6 +21076,7 @@ class $$TransactionsTableTableManager
                 occurrenceKey: occurrenceKey,
                 fxRate: fxRate,
                 counterAmount: counterAmount,
+                counterCurrency: counterCurrency,
                 budgetId: budgetId,
                 objectiveId: objectiveId,
                 isRecurring: isRecurring,

@@ -93,7 +93,6 @@ class Diagnostics {
   }
 
   /// Whether [error] is the network being unavailable rather than a fault.
-  @visibleForTesting
   static bool isConnectivity(Object? error) {
     if (error is SocketException ||
         error is TimeoutException ||

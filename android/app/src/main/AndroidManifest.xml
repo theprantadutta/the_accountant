@@ -43,6 +43,12 @@
         <meta-data
             android:name="google_analytics_automatic_screen_reporting_enabled"
             android:value="false" />
+        <!-- Off until the app has checked it is not on one of Google's test
+             devices (Play's pre-launch robots), which were more than half of
+             the "users" in Analytics. AnalyticsService.start turns it on. -->
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

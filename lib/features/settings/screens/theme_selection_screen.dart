@@ -39,7 +39,8 @@ class ThemeSelectionScreen extends ConsumerWidget {
           ? null
           : SunriseButton(
               label: l10n.themeUnlockAll,
-              onPressed: () => Navigator.pushNamed(context, '/premium'),
+              onPressed: () =>
+                  Navigator.pushNamed(context, '/premium', arguments: 'themes'),
             ),
       children: [
         Row(

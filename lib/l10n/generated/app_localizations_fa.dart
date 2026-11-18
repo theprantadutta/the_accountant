@@ -3185,6 +3185,55 @@ class L10nFa extends L10n {
   String get addMoreOptions => 'گزینه‌های بیشتر';
 
   @override
+  String get addMoreOptionsHint =>
+      'تکرار، وام، تقسیم صورت‌حساب، روش پرداخت، بودجه، هدف';
+
+  @override
+  String get addForeign => 'ارز دیگر';
+
+  @override
+  String get addForeignHint =>
+      'پول دریافت‌شده یا پرداخت‌شده به دلار یا ارزی دیگر';
+
+  @override
+  String get addForeignIntro =>
+      'مبلغ بالا همان است که به این حساب رسید. بنویسید به ارز دیگر چقدر بود.';
+
+  @override
+  String get addForeignCurrency => 'ارز';
+
+  @override
+  String addForeignAmount(String currency) {
+    return 'مبلغ به $currency';
+  }
+
+  @override
+  String get addForeignFee => 'کارمزد جداگانه';
+
+  @override
+  String get addForeignFeeHelp =>
+      'اگر کارمزدی نبود، یا پیش از رسیدن پول کسر شد، خالی بگذارید.';
+
+  @override
+  String get addForeignFeeAccount => 'کارمزد از حساب';
+
+  @override
+  String get addForeignRemove => 'حذف';
+
+  @override
+  String get txnConversion => 'تبدیل';
+
+  @override
+  String txnRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String txnFeeLine(String amount) {
+    return 'کارمزد $amount';
+  }
+
+  @override
   String get addScanReceipt => 'اسکن رسید';
 
   @override

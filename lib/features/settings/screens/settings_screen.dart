@@ -138,15 +138,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   if (premiumState.isPremium)
                     _PremiumActiveCard(
                       tier: premiumState.tier.displayName,
-                      onTap: () => Navigator.pushNamed(context, '/premium'),
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        '/premium',
+                        arguments: 'settings',
+                      ),
                     )
                   else ...[
                     _GoPremiumBanner(
-                      onTap: () => Navigator.pushNamed(context, '/premium'),
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        '/premium',
+                        arguments: 'settings',
+                      ),
                     ),
                     const SizedBox(height: SunriseSpace.sectionTight),
                     _DeviceOnlyNotice(
-                      onTap: () => Navigator.pushNamed(context, '/premium'),
+                      onTap: () => Navigator.pushNamed(
+                        context,
+                        '/premium',
+                        arguments: 'settings',
+                      ),
                     ),
                   ],
                   const SizedBox(height: SunriseSpace.sectionTight),
@@ -719,7 +731,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // second line, so it goes underneath instead.
           value: premiumState.isPremium ? premiumState.tier.displayName : null,
           subtitle: premiumState.isPremium ? null : l10n.moreUpgradeToPremium,
-          onTap: () => Navigator.pushNamed(context, '/premium'),
+          onTap: () =>
+              Navigator.pushNamed(context, '/premium', arguments: 'settings'),
         ),
       ),
       _Entry(
@@ -856,7 +869,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   }
 
+  /// Set while signing out, so a second tap cannot start a second one.
+  bool _signingOut = false;
+
   Future<void> _signOut() async {
+    if (_signingOut) return;
     final l10n = L10n.of(context);
     final confirmed = await showSunriseConfirm(
       context: context,
@@ -866,7 +883,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       destructive: true,
       icon: Symbols.logout_rounded,
     );
-    if (!confirmed) return;
+    if (!confirmed || _signingOut) return;
+    _signingOut = true;
     try {
       await ref.read(authProvider.notifier).signOut();
       // Navigation to sign-in is handled by the auth state listener.
@@ -878,6 +896,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           tone: SnackTone.error,
         );
       }
+    } finally {
+      _signingOut = false;
     }
   }
 

@@ -1,0 +1,10 @@
+{"segments": [
+  {"src": "rec2.mp4", "a": 2.0,   "b": 7.5,   "chip": "TODAY",        "color": "orange", "title": "Your money, at a glance", "sub": "Net worth, spending and every account on one warm screen."},
+  {"src": "rec2.mp4", "a": 22.0,  "b": 28.8,  "chip": "TRANSACTIONS", "color": "coral",  "title": "Every expense, sorted", "sub": "Search, filter and see each month's money in and out."},
+  {"src": "rec2.mp4", "a": 33.0,  "b": 39.5,  "chip": "STATS",        "color": "orange", "title": "See where it goes", "sub": "Spending by month, by category and day by day."},
+  {"src": "rec2.mp4", "a": 50.5,  "b": 54.5,  "chip": "BUDGETS",      "color": "amber",  "title": "Budgets that keep up", "sub": "What's left, and how many days to go."},
+  {"src": "rec2.mp4", "a": 62.0,  "b": 66.0,  "chip": "GOALS",        "color": "coral",  "title": "Save toward goals", "sub": "A new laptop, an emergency fund: watch each one fill up."},
+  {"src": "rec2.mp4", "a": 73.0,  "b": 80.5,  "chip": "FORECAST",     "color": "orange", "title": "Know what's coming", "sub": "A cash flow forecast warns you before you run short."},
+  {"src": "rec2.mp4", "a": 88.5,  "b": 92.5,  "chip": "NET WORTH",    "color": "amber",  "title": "Watch it grow", "sub": "Everything you own, less what you owe, month by month."},
+  {"src": "rec2.mp4", "a": 116.5, "b": 127.0, "chip": "AI COACH",     "color": "coral",  "title": "Ask your money coach", "sub": "Plain answers and next steps, built from your own spending."}
+]}

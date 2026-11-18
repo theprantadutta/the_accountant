@@ -5691,6 +5691,84 @@ abstract class L10n {
   /// **'More options'**
   String get addMoreOptions;
 
+  /// No description provided for @addMoreOptionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat, loan, split, payment method, budget, goal'**
+  String get addMoreOptionsHint;
+
+  /// No description provided for @addForeign.
+  ///
+  /// In en, this message translates to:
+  /// **'Another currency'**
+  String get addForeign;
+
+  /// No description provided for @addForeignHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Money received or paid in dollars or another currency'**
+  String get addForeignHint;
+
+  /// No description provided for @addForeignIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount above is what reached this account. Enter what it was in the other currency.'**
+  String get addForeignIntro;
+
+  /// No description provided for @addForeignCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get addForeignCurrency;
+
+  /// Label for the amount in the foreign currency; {currency} is an ISO code like USD.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount in {currency}'**
+  String addForeignAmount(String currency);
+
+  /// No description provided for @addForeignFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee charged separately'**
+  String get addForeignFee;
+
+  /// No description provided for @addForeignFeeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty if there was none, or if it was taken before the money arrived.'**
+  String get addForeignFeeHelp;
+
+  /// No description provided for @addForeignFeeAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee charged to'**
+  String get addForeignFeeAccount;
+
+  /// No description provided for @addForeignRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get addForeignRemove;
+
+  /// No description provided for @txnConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversion'**
+  String get txnConversion;
+
+  /// Exchange rate line, e.g. 1 USD = 121.00 BDT.
+  ///
+  /// In en, this message translates to:
+  /// **'1 {from} = {rate} {to}'**
+  String txnRateLine(String from, String rate, String to);
+
+  /// Fee shown after the rate; {amount} is formatted money.
+  ///
+  /// In en, this message translates to:
+  /// **'fee {amount}'**
+  String txnFeeLine(String amount);
+
   /// No description provided for @addScanReceipt.
   ///
   /// In en, this message translates to:

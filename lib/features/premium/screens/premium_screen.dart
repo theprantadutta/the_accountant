@@ -25,9 +25,15 @@ class PremiumScreen extends ConsumerStatefulWidget {
   /// Overrides the default tagline below the heading.
   final String? customDescription;
 
+  /// Where the paywall was opened from, for Analytics: a fixed tag such as
+  /// `settings` or `ai_assistant`. Through the `/premium` route it comes as
+  /// the route's argument.
+  final String? source;
+
   const PremiumScreen({
     super.key,
     this.triggerFeatureName,
+    this.source,
     this.customTitle,
     this.customDescription,
   });
@@ -47,11 +53,19 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   bool _emptyStateLogged = false;
   bool _unavailableLogged = false;
 
+  /// Where this paywall was opened from; see [PremiumScreen.source].
+  String? _source;
+
   @override
   void initState() {
     super.initState();
-    AnalyticsService().logPaywallShown(featureName: widget.triggerFeatureName);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final routeSource = ModalRoute.of(context)?.settings.arguments;
+      _source = widget.source ?? (routeSource is String ? routeSource : null);
+      AnalyticsService().logPaywallShown(
+        source: _source,
+        featureName: widget.triggerFeatureName,
+      );
       ref.read(iapNotifierProvider.notifier).loadProducts();
     });
   }
@@ -59,7 +73,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   @override
   void dispose() {
     if (!_purchaseCompleted) {
-      AnalyticsService().logPaywallDismissed();
+      AnalyticsService().logPaywallDismissed(source: _source);
     }
     super.dispose();
   }
@@ -320,7 +334,8 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
       }
       return banner(Symbols.warning_rounded, l10n.paywallIapUnavailable);
     }
-    if (iapState.isLoading && iapState.products.isEmpty) {
+    if ((iapState.isLoading || iapState.loadingProducts) &&
+        iapState.products.isEmpty) {
       return banner(
         Symbols.hourglass_top_rounded,
         l10n.paywallLoadingPlans,

@@ -45,6 +45,12 @@ class _TransactionDetailScreenState
   db.Transaction? _row;
   bool _loading = true;
 
+  /// The other leg, when this row is half of a transfer.
+  db.Transaction? _partner;
+
+  /// The fee charged for this entry (or for its transfer), if any.
+  db.Transaction? _fee;
+
   @override
   void initState() {
     super.initState();
@@ -52,14 +58,104 @@ class _TransactionDetailScreenState
   }
 
   Future<void> _load() async {
-    final row = await ref
-        .read(databaseProvider)
-        .findTransactionById(widget.transactionId);
+    final database = ref.read(databaseProvider);
+    final row = await database.findTransactionById(widget.transactionId);
+    db.Transaction? partner;
+    db.Transaction? fee;
+    if (row != null) {
+      final partnerId = row.pairedTransactionId;
+      if (partnerId != null) {
+        partner = await database.findTransactionById(partnerId);
+      }
+      // A transfer's fee hangs off its outgoing leg; anything else's off itself.
+      fee =
+          await database.findFeeForTransfer(row.id) ??
+          (partnerId == null
+              ? null
+              : await database.findFeeForTransfer(partnerId));
+    }
     if (!mounted) return;
+    _partner = partner;
+    _fee = fee;
     setState(() {
       _row = row;
       _loading = false;
     });
+  }
+
+  /// "$500.00 → ৳60,500.00" and "1 USD = 121.00 BDT · fee ৳150.00", for an
+  /// entry recorded in another currency or a transfer between currencies; null
+  /// for everything else.
+  (String, String)? _conversion(
+    db.Transaction row,
+    List<db.Wallet> wallets,
+    bool useDecimals,
+    String numberFormat,
+  ) {
+    String currencyOf(String walletId) =>
+        wallets.where((w) => w.id == walletId).firstOrNull?.currency ?? '';
+
+    final counter = row.counterAmount;
+    if (counter == null || counter <= 0 || row.amount <= 0) return null;
+    final own = currencyOf(row.walletId);
+
+    late final String fromCurrency, toCurrency;
+    late final int fromAmount, toAmount;
+    if (row.counterCurrency case final foreign?) {
+      // Money arriving was the foreign sum first; money leaving becomes it.
+      if (row.isIncome) {
+        (fromCurrency, fromAmount, toCurrency, toAmount) = (
+          foreign,
+          counter,
+          own,
+          row.amount,
+        );
+      } else {
+        (fromCurrency, fromAmount, toCurrency, toAmount) = (
+          own,
+          row.amount,
+          foreign,
+          counter,
+        );
+      }
+    } else if (TransactionPolicy.isTransfer(row) && _partner != null) {
+      final other = currencyOf(_partner!.walletId);
+      if (row.isIncome) {
+        (fromCurrency, fromAmount, toCurrency, toAmount) = (
+          other,
+          counter,
+          own,
+          row.amount,
+        );
+      } else {
+        (fromCurrency, fromAmount, toCurrency, toAmount) = (
+          own,
+          row.amount,
+          other,
+          counter,
+        );
+      }
+    } else {
+      return null;
+    }
+    if (fromCurrency.isEmpty || toCurrency.isEmpty) return null;
+
+    String money(int minor, String code) => minor.formatCurrency(
+      code,
+      useDecimals: useDecimals,
+      numberFormat: numberFormat,
+    );
+    final l10n = L10n.of(context);
+    final rate = (toAmount / fromAmount).toStringAsFixed(2);
+    var detail = l10n.txnRateLine(fromCurrency, rate, toCurrency);
+    if (_fee case final fee?) {
+      detail +=
+          ' · ${l10n.txnFeeLine(money(fee.amount, currencyOf(fee.walletId)))}';
+    }
+    return (
+      '${money(fromAmount, fromCurrency)} → ${money(toAmount, toCurrency)}',
+      detail,
+    );
   }
 
   @override
@@ -324,6 +420,19 @@ class _TransactionDetailScreenState
                   row.originalDueDate!,
                   dateFormat,
                 ),
+                trailing: SettingsTrailing.none,
+              ),
+            if (_conversion(row, wallets, useDecimals, numberFormat) case (
+              final value,
+              final detail,
+            ))
+              SettingsRow(
+                key: const Key('transaction_conversion'),
+                icon: Symbols.currency_exchange_rounded,
+                iconColor: c.accent,
+                title: l10n.txnConversion,
+                value: value,
+                subtitle: detail,
                 trailing: SettingsTrailing.none,
               ),
             if (budget != null)

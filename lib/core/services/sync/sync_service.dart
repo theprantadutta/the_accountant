@@ -1656,6 +1656,11 @@ class SyncService {
       // predates the fields sends neither, which means the same thing.
       fxRate: Value((data['FxRate'] as num?)?.toDouble()),
       counterAmount: Value((data['CounterAmount'] as num?)?.toInt()),
+      // Absent from a server that predates it; keep the local value then, or
+      // a pull would strip the currency off every foreign entry.
+      counterCurrency: data.containsKey('CounterCurrency')
+          ? Value(data['CounterCurrency'] as String?)
+          : const Value.absent(),
       syncStatus: const Value(SyncStatus.synced),
       updatedAt: Value(DateTime.now()),
     );
@@ -2575,6 +2580,7 @@ class SyncService {
     'ReceiptImageUrl': t.receiptImageUrl,
     'FxRate': t.fxRate,
     'CounterAmount': t.counterAmount,
+    'CounterCurrency': t.counterCurrency,
     'UpdatedAt': t.updatedAt.toUtc().toIso8601String(),
   };
 

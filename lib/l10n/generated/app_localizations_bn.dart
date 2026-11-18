@@ -3156,6 +3156,54 @@ class L10nBn extends L10n {
   String get addMoreOptions => 'আরও অপশন';
 
   @override
+  String get addMoreOptionsHint =>
+      'পুনরাবৃত্তি, ধার, বিল ভাগ, পেমেন্ট পদ্ধতি, বাজেট, লক্ষ্য';
+
+  @override
+  String get addForeign => 'আরেক মুদ্রায়';
+
+  @override
+  String get addForeignHint => 'ডলার বা অন্য মুদ্রায় পাওয়া বা দেওয়া টাকা';
+
+  @override
+  String get addForeignIntro =>
+      'উপরের অঙ্কটি এই অ্যাকাউন্টে যা এসেছে। অন্য মুদ্রায় সেটা কত ছিল লিখুন।';
+
+  @override
+  String get addForeignCurrency => 'মুদ্রা';
+
+  @override
+  String addForeignAmount(String currency) {
+    return '$currency-এ অঙ্ক';
+  }
+
+  @override
+  String get addForeignFee => 'আলাদা করে কাটা ফি';
+
+  @override
+  String get addForeignFeeHelp =>
+      'ফি না থাকলে, বা টাকা আসার আগেই কেটে নেওয়া হলে খালি রাখুন।';
+
+  @override
+  String get addForeignFeeAccount => 'ফি কাটা হয়েছে';
+
+  @override
+  String get addForeignRemove => 'সরান';
+
+  @override
+  String get txnConversion => 'রূপান্তর';
+
+  @override
+  String txnRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String txnFeeLine(String amount) {
+    return 'ফি $amount';
+  }
+
+  @override
   String get addScanReceipt => 'রসিদ স্ক্যান';
 
   @override

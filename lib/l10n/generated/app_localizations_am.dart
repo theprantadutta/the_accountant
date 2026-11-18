@@ -3118,6 +3118,52 @@ class L10nAm extends L10n {
   String get addMoreOptions => 'ተጨማሪ አማራጮች';
 
   @override
+  String get addMoreOptionsHint => 'መድገም፣ ብድር፣ ሂሳብ መከፋፈል፣ የክፍያ መንገድ፣ በጀት፣ ግብ';
+
+  @override
+  String get addForeign => 'ሌላ ገንዘብ';
+
+  @override
+  String get addForeignHint => 'በዶላር ወይም በሌላ ገንዘብ የተቀበሉት ወይም የከፈሉት';
+
+  @override
+  String get addForeignIntro =>
+      'ከላይ ያለው መጠን ወደዚህ ሒሳብ የገባው ነው። በሌላው ገንዘብ ምን ያህል እንደነበር ያስገቡ።';
+
+  @override
+  String get addForeignCurrency => 'ገንዘብ';
+
+  @override
+  String addForeignAmount(String currency) {
+    return 'መጠን በ$currency';
+  }
+
+  @override
+  String get addForeignFee => 'ለብቻ የተከፈለ ክፍያ';
+
+  @override
+  String get addForeignFeeHelp => 'ክፍያ ከሌለ ወይም ገንዘቡ ከመድረሱ በፊት ከተቀነሰ ባዶ ይተዉት።';
+
+  @override
+  String get addForeignFeeAccount => 'ክፍያው የተቆረጠበት';
+
+  @override
+  String get addForeignRemove => 'አስወግድ';
+
+  @override
+  String get txnConversion => 'ልውውጥ';
+
+  @override
+  String txnRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String txnFeeLine(String amount) {
+    return 'ክፍያ $amount';
+  }
+
+  @override
   String get addScanReceipt => 'ደረሰኝ ቃኝ';
 
   @override

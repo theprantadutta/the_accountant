@@ -14,12 +14,14 @@ class PaywallUtils {
     String? featureName,
     String? customTitle,
     String? customDescription,
+    String? source,
   }) {
     return Navigator.of(context).push<bool>(
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (_) => PremiumScreen(
           triggerFeatureName: featureName,
+          source: source,
           customTitle: customTitle,
           customDescription: customDescription,
         ),

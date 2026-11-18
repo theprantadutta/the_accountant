@@ -101,8 +101,13 @@ class IAPService {
 
   IAPService({required this._apiService});
 
+  /// The store connection and first product load, while they run.
+  Future<void>? _initializing;
+
   /// Open the store connection and load what is for sale.
-  Future<void> initialize() async {
+  Future<void> initialize() => _initializing ??= _initialize();
+
+  Future<void> _initialize() async {
     // Both listeners go on before the connection opens. A purchase completed
     // while the app was dead is replayed the moment the connection comes up,
     // and a listener attached afterwards would miss it.
@@ -132,8 +137,23 @@ class IAPService {
       return;
     }
 
-    await loadProducts();
+    await _fetchProducts();
     _logger.i('IAP service initialized');
+  }
+
+  /// Opens the store connection again after it failed, say because the phone
+  /// was offline at launch. Without this the paywall stayed unable to sell
+  /// until the app was restarted.
+  Future<bool> _reconnect() async {
+    try {
+      _isAvailable = await _iap.initConnection().timeout(
+        const Duration(seconds: 10),
+      );
+    } catch (e) {
+      _isAvailable = false;
+      _logger.w('IAP reconnect failed: $e');
+    }
+    return _isAvailable;
   }
 
   /// Ask the store about both kinds of product.
@@ -141,9 +161,18 @@ class IAPService {
   /// Two calls, not one: OpenIAP queries subscriptions and one-time items
   /// separately, and a single `All` query does not return the subscription
   /// offer details that an Android purchase needs.
+  ///
+  /// Waits for the store connection first. The paywall asks the moment it
+  /// opens, which is often before the connection opened at launch has come up,
+  /// and asking then used to return nothing at once: the paywall said its plans
+  /// could not be loaded to 12 of the 16 people who opened it in a month.
   Future<void> loadProducts() async {
-    if (!_isAvailable) return;
+    await initialize();
+    if (!_isAvailable && !await _reconnect()) return;
+    await _fetchProducts();
+  }
 
+  Future<void> _fetchProducts() async {
     try {
       final results = await Future.wait([
         _iap.fetchProducts<ProductSubscription>(

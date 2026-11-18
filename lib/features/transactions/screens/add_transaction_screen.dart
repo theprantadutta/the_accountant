@@ -26,7 +26,9 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
     hide Transaction;
 import 'package:the_accountant/features/transactions/providers/title_usage_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transfer_provider.dart';
+import 'package:the_accountant/features/transactions/services/foreign_amount_service.dart';
 import 'package:the_accountant/features/transactions/widgets/calculator_bottom_sheet.dart';
+import 'package:the_accountant/features/transactions/widgets/foreign_amount_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/compact_date_time_picker.dart';
 import 'package:the_accountant/features/transactions/widgets/horizontal_chip_selector.dart';
@@ -135,6 +137,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   TransactionSpecialType _specialType = TransactionSpecialType.none;
   String? _selectedBudgetId;
   String? _selectedObjectiveId;
+
+  /// Whether "More options" is open. It starts closed, so the form is just
+  /// the amount, the category and the details, unless the transaction already
+  /// uses one of the options: then it opens, so nothing set is out of sight.
+  late bool _showMore = _hasExtras;
+
+  /// What this entry was in another currency, if it happened in one.
+  ForeignAmount? _foreign;
+
+  /// Whether the entry being edited had one, so clearing it is saved too.
+  bool _hadForeign = false;
+
+  bool get _hasExtras =>
+      _foreign != null ||
+      _specialType != TransactionSpecialType.none ||
+      _selectedPaymentMethodId != null ||
+      _selectedBudgetId != null ||
+      _selectedObjectiveId != null;
   String? _selectedPaymentMethodId;
 
   // Subscription config
@@ -371,6 +391,15 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     _selectedBudgetId = t.budgetId;
     _selectedObjectiveId = t.objectiveId;
     _selectedPaymentMethodId = t.paymentMethodId;
+    if (!isTransferRow &&
+        t.counterCurrency != null &&
+        t.counterAmount != null) {
+      _hadForeign = true;
+      _foreign = ForeignAmount(
+        currency: t.counterCurrency!,
+        amount: t.counterAmount!,
+      );
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (isTransferRow) {
         // Resolve both sides of the pair so the wallet pickers show the real
@@ -391,6 +420,22 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         return;
       }
       _loadCategoryDetails();
+      if (_foreign case final foreign?) {
+        final fee = await ForeignAmountService(
+          ref.read(databaseProvider),
+        ).feeFor(t.id);
+        if (fee != null && mounted) {
+          setState(() {
+            _foreign = ForeignAmount(
+              currency: foreign.currency,
+              amount: foreign.amount,
+              fee: fee.amount,
+              feeWalletId: fee.walletId,
+            );
+            _showMore = true;
+          });
+        }
+      }
       // For subscription/repetitive, restore the recurring schedule from its config.
       if (_specialType == TransactionSpecialType.subscription ||
           _specialType == TransactionSpecialType.repetitive) {
@@ -718,6 +763,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
         // Create/update/remove the recurring config to match the new special type.
         await _reconcileRecurringConfig(widget.existingTransaction!.id);
+        if (_foreign != null || _hadForeign) {
+          await _saveForeign(widget.existingTransaction!.id);
+        }
       } else {
         final isPaid = !_specialType.startsUnpaid;
 
@@ -781,6 +829,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         // to this one row as it is a change of mind about the rule, and the
         // rules screen is where a rule is meant to be changed deliberately.
         await _learnTitleRule();
+        if (_foreign != null && newTransactionId != null) {
+          await _saveForeign(newTransactionId);
+        }
       }
 
       if (mounted) {
@@ -800,6 +851,66 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         setState(() => _isSaving = false);
       }
     }
+  }
+
+  /// Records the entry's foreign amount and fee, after the entry is saved.
+  Future<void> _saveForeign(String transactionId) async {
+    await ForeignAmountService(
+      ref.read(databaseProvider),
+    ).apply(transactionId, _foreign);
+    await ref.read(walletProvider.notifier).loadWallets();
+    await ref.read(transactionProvider.notifier).loadTransactions();
+  }
+
+  /// "Another currency": what this was in dollars, say, and what it cost.
+  Widget _buildForeignRow(List<Wallet> wallets) {
+    final c = context.sunrise;
+    final l10n = L10n.of(context);
+    final wallet = wallets.where((w) => w.id == _selectedWalletId).firstOrNull;
+    return SettingsGroup(
+      children: [
+        SettingsRow(
+          key: const Key('add_foreign_amount'),
+          icon: Symbols.currency_exchange_rounded,
+          iconColor: c.accent,
+          title: l10n.addForeign,
+          subtitle: _foreign == null ? l10n.addForeignHint : _foreignSummary(),
+          onTap: wallet == null
+              ? null
+              : () async {
+                  final choice = await showForeignAmountSheet(
+                    context,
+                    walletId: wallet.id,
+                    walletCurrency: wallet.currency,
+                    wallets: wallets,
+                    initial: _foreign,
+                  );
+                  if (choice != null && mounted) {
+                    setState(() => _foreign = choice.value);
+                  }
+                },
+        ),
+      ],
+    );
+  }
+
+  /// "$500 · fee ৳150", for the row and the More options summary.
+  String? _foreignSummary() {
+    final foreign = _foreign;
+    if (foreign == null) return null;
+    final amount =
+        '${CurrencyInfo.getSymbol(foreign.currency)}${_formatAmount(foreign.amount / 100)}';
+    if (foreign.fee <= 0) return amount;
+    final feeWallet = ref
+        .read(walletProvider)
+        .wallets
+        .where((w) => w.id == (foreign.feeWalletId ?? _selectedWalletId))
+        .firstOrNull;
+    final feeSymbol = CurrencyInfo.getSymbol(feeWallet?.currency ?? '');
+    final fee = L10n.of(
+      context,
+    ).txnFeeLine('$feeSymbol${_formatAmount(foreign.fee / 100)}');
+    return '$amount · $fee';
   }
 
   /// Reconcile the transaction's recurring config after an edit so it matches the
@@ -1050,29 +1161,47 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
           ),
           if (!_isTransfer) ...[
             const SizedBox(height: SunriseSpace.gap),
-            _buildRepeatMonthlyRow(),
-            const SizedBox(height: SunriseSpace.section),
-            SectionLabel(l10n.addMoreOptions),
-            _buildSpecialTypeChips(),
-            if (_specialType == TransactionSpecialType.subscription ||
-                _specialType == TransactionSpecialType.repetitive)
-              _buildSubscriptionConfigSection(),
-            const SizedBox(height: 12),
-            LoanTypeChips(
-              selectedType: _specialType,
-              onTypeChanged: (type) => setState(() => _specialType = type),
-              accentColor: c.accent,
+            _buildMoreOptionsToggle(),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: !_showMore
+                  ? const SizedBox(width: double.infinity)
+                  : Column(
+                      key: const Key('add_more_options_body'),
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: SunriseSpace.gap),
+                        _buildRepeatMonthlyRow(),
+                        const SizedBox(height: SunriseSpace.gap),
+                        _buildForeignRow(wallets),
+                        const SizedBox(height: 16),
+                        _buildSpecialTypeChips(),
+                        if (_specialType ==
+                                TransactionSpecialType.subscription ||
+                            _specialType == TransactionSpecialType.repetitive)
+                          _buildSubscriptionConfigSection(),
+                        const SizedBox(height: 12),
+                        LoanTypeChips(
+                          selectedType: _specialType,
+                          onTypeChanged: (type) =>
+                              setState(() => _specialType = type),
+                          accentColor: c.accent,
+                        ),
+                        if (!_isEditing &&
+                            !_isIncome &&
+                            _specialType == TransactionSpecialType.none) ...[
+                          const SizedBox(height: 12),
+                          _buildSplitRow(),
+                        ],
+                        // Optional links (hidden when the user has none)
+                        _buildPaymentMethodSelector(),
+                        _buildBudgetSelector(),
+                        _buildObjectiveSelector(),
+                      ],
+                    ),
             ),
-            if (!_isEditing &&
-                !_isIncome &&
-                _specialType == TransactionSpecialType.none) ...[
-              const SizedBox(height: 12),
-              _buildSplitRow(),
-            ],
-            // Optional links (hidden when the user has none)
-            _buildPaymentMethodSelector(),
-            _buildBudgetSelector(),
-            _buildObjectiveSelector(),
           ],
         ],
       ),
@@ -1362,6 +1491,73 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         );
       },
     );
+  }
+
+  /// The one row "More options" folds into. Closed, it says what is set
+  /// ("Upcoming · Visa •••• 4242"), or else what is in there.
+  Widget _buildMoreOptionsToggle() {
+    final c = context.sunrise;
+    final l10n = L10n.of(context);
+    final summary = _moreOptionsSummary();
+    return SunriseCard(
+      key: const Key('add_more_options'),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: SettingsRow(
+        icon: Symbols.tune_rounded,
+        iconBackground: Colors.transparent,
+        iconColor: c.accent,
+        title: l10n.addMoreOptions,
+        subtitle: summary.isEmpty ? l10n.addMoreOptionsHint : summary,
+        trailing: SettingsTrailing.none,
+        onTap: () => setState(() => _showMore = !_showMore),
+        trailingWidget: AnimatedRotation(
+          turns: _showMore ? 0.5 : 0,
+          duration: const Duration(milliseconds: 220),
+          child: Icon(Symbols.expand_more_rounded, color: c.muted),
+        ),
+      ),
+    );
+  }
+
+  String _moreOptionsSummary() {
+    final l10n = L10n.of(context);
+    final parts = <String>[?_foreignSummary()];
+    final repeatMonthly =
+        _specialType == TransactionSpecialType.repetitive &&
+        _subscriptionFrequency == 'monthly' &&
+        _subscriptionPeriodLength == 1;
+    switch (_specialType) {
+      case TransactionSpecialType.none:
+        break;
+      case TransactionSpecialType.upcoming:
+        parts.add(l10n.forecastKindUpcoming);
+      case TransactionSpecialType.subscription:
+        parts.add(l10n.forecastKindSubscription);
+      case TransactionSpecialType.repetitive:
+        parts.add(
+          repeatMonthly ? l10n.addRepeatMonthly : l10n.txnSpecialRepetitive,
+        );
+      case TransactionSpecialType.credit:
+        parts.add(l10n.txLentMoney);
+      case TransactionSpecialType.debt:
+        parts.add(l10n.txBorrowedMoney);
+    }
+    final methods = ref.watch(paymentMethodProvider).paymentMethods;
+    final method = methods
+        .where((m) => m.id == _selectedPaymentMethodId)
+        .firstOrNull;
+    if (method != null) parts.add(method.name);
+    final budget = ref
+        .watch(budgetProvider)
+        .budgets
+        .where((b) => b.id == _selectedBudgetId)
+        .firstOrNull;
+    if (budget != null) parts.add(budget.name);
+    final objective = (ref.watch(activeObjectivesProvider).asData?.value ?? [])
+        .where((o) => o.objective.id == _selectedObjectiveId)
+        .firstOrNull;
+    if (objective != null) parts.add(objective.name);
+    return parts.join(' · ');
   }
 
   /// "Repeat monthly": a shortcut onto the existing repetitive type.

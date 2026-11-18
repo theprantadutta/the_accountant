@@ -1002,7 +1002,14 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       // Soft-delete (sets deletedAt + pendingDelete) so the deletion is pushed to the
       // server on the next sync. A hard delete would never propagate and the row could
       // resurrect on a full pull.
+      // A foreign-currency entry's fee goes with it (see softDeleteTransaction),
+      // and may have been charged to another wallet.
+      final fee = await _db.findFeeForTransfer(id);
       await _db.softDeleteTransaction(id);
+      if (fee != null) {
+        await _walletBalanceService.updateWalletBalance(fee.walletId);
+        _removeOne(fee.id);
+      }
 
       // Recompute the wallet from its surviving transactions rather than
       // reversing a hand-rolled delta. The old code only reversed when

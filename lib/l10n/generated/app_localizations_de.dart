@@ -3204,6 +3204,55 @@ class L10nDe extends L10n {
   String get addMoreOptions => 'Weitere Optionen';
 
   @override
+  String get addMoreOptionsHint =>
+      'Wiederholung, Darlehen, Teilen, Zahlungsart, Budget, Ziel';
+
+  @override
+  String get addForeign => 'Andere Währung';
+
+  @override
+  String get addForeignHint =>
+      'Geld, das in Dollar oder einer anderen Währung kam oder ging';
+
+  @override
+  String get addForeignIntro =>
+      'Der Betrag oben ist das, was auf diesem Konto ankam. Gib ein, wie viel es in der anderen Währung war.';
+
+  @override
+  String get addForeignCurrency => 'Währung';
+
+  @override
+  String addForeignAmount(String currency) {
+    return 'Betrag in $currency';
+  }
+
+  @override
+  String get addForeignFee => 'Separat berechnete Gebühr';
+
+  @override
+  String get addForeignFeeHelp =>
+      'Leer lassen, wenn es keine gab oder sie schon vor dem Eingang abgezogen wurde.';
+
+  @override
+  String get addForeignFeeAccount => 'Gebühr belastet auf';
+
+  @override
+  String get addForeignRemove => 'Entfernen';
+
+  @override
+  String get txnConversion => 'Umrechnung';
+
+  @override
+  String txnRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String txnFeeLine(String amount) {
+    return 'Gebühr $amount';
+  }
+
+  @override
   String get addScanReceipt => 'Beleg scannen';
 
   @override

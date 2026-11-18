@@ -3205,6 +3205,55 @@ class L10nPt extends L10n {
   String get addMoreOptions => 'Mais opções';
 
   @override
+  String get addMoreOptionsHint =>
+      'Repetição, empréstimo, dividir, método de pagamento, orçamento, objetivo';
+
+  @override
+  String get addForeign => 'Outra moeda';
+
+  @override
+  String get addForeignHint =>
+      'Dinheiro recebido ou pago em dólares ou noutra moeda';
+
+  @override
+  String get addForeignIntro =>
+      'O valor acima é o que chegou a esta conta. Indique quanto era na outra moeda.';
+
+  @override
+  String get addForeignCurrency => 'Moeda';
+
+  @override
+  String addForeignAmount(String currency) {
+    return 'Valor em $currency';
+  }
+
+  @override
+  String get addForeignFee => 'Taxa cobrada à parte';
+
+  @override
+  String get addForeignFeeHelp =>
+      'Deixe vazio se não houve, ou se foi descontada antes de o dinheiro chegar.';
+
+  @override
+  String get addForeignFeeAccount => 'Taxa cobrada em';
+
+  @override
+  String get addForeignRemove => 'Remover';
+
+  @override
+  String get txnConversion => 'Conversão';
+
+  @override
+  String txnRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String txnFeeLine(String amount) {
+    return 'taxa $amount';
+  }
+
+  @override
   String get addScanReceipt => 'Digitalizar recibo';
 
   @override

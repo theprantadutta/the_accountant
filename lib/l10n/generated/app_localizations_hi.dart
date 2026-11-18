@@ -3182,6 +3182,54 @@ class L10nHi extends L10n {
   String get addMoreOptions => 'और विकल्प';
 
   @override
+  String get addMoreOptionsHint =>
+      'दोहराना, उधार, बिल बाँटना, भुगतान का तरीका, बजट, लक्ष्य';
+
+  @override
+  String get addForeign => 'दूसरी मुद्रा में';
+
+  @override
+  String get addForeignHint => 'डॉलर या दूसरी मुद्रा में मिला या दिया पैसा';
+
+  @override
+  String get addForeignIntro =>
+      'ऊपर की रकम वह है जो इस खाते में आई। दूसरी मुद्रा में यह कितनी थी, लिखें।';
+
+  @override
+  String get addForeignCurrency => 'मुद्रा';
+
+  @override
+  String addForeignAmount(String currency) {
+    return '$currency में रकम';
+  }
+
+  @override
+  String get addForeignFee => 'अलग से लिया गया शुल्क';
+
+  @override
+  String get addForeignFeeHelp =>
+      'अगर कोई शुल्क नहीं था, या पैसा आने से पहले ही कट गया, तो खाली छोड़ें।';
+
+  @override
+  String get addForeignFeeAccount => 'शुल्क किस खाते से';
+
+  @override
+  String get addForeignRemove => 'हटाएँ';
+
+  @override
+  String get txnConversion => 'रूपांतरण';
+
+  @override
+  String txnRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String txnFeeLine(String amount) {
+    return 'शुल्क $amount';
+  }
+
+  @override
   String get addScanReceipt => 'रसीद स्कैन करें';
 
   @override

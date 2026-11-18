@@ -173,7 +173,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 31;
+  int get schemaVersion => 32;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -347,6 +347,10 @@ class AppDatabase extends _$AppDatabase {
 
       if (from < 31) {
         await clearLoanDueDatesOnTheirDay();
+      }
+
+      if (from < 32 && await _tableExists('transactions')) {
+        await _ensureColumn(m, transactions, transactions.counterCurrency);
       }
     },
     beforeOpen: (details) async {
@@ -1985,6 +1989,12 @@ class AppDatabase extends _$AppDatabase {
             (t) => t.settlesTransactionId.equals(id) & t.deletedAt.isNull(),
           ))
           .write(tombstone);
+      // An entry in another currency takes its fee with it; left behind, the
+      // charge would keep reducing a balance for something no longer there.
+      await (update(transactions)..where(
+            (t) => t.feeForTransactionId.equals(id) & t.deletedAt.isNull(),
+          ))
+          .write(tombstone);
       await _shiftLoanRepaid(row, removing: true);
     });
   }
@@ -2082,6 +2092,15 @@ class AppDatabase extends _$AppDatabase {
                 ))
                 .get())
           repayment.id,
+      if (deletedAt != null)
+        for (final fee
+            in await (select(transactions)..where(
+                  (t) =>
+                      t.feeForTransactionId.equals(id) &
+                      t.deletedAt.equals(deletedAt),
+                ))
+                .get())
+          fee.id,
     ];
 
     await (update(transactions)..where((t) => t.id.isIn(restoredIds))).write(

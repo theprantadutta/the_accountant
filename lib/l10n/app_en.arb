@@ -1614,6 +1614,49 @@
   "addNoteHint": "Add a note",
   "addRepeatMonthly": "Repeat monthly",
   "addMoreOptions": "More options",
+  "addMoreOptionsHint": "Repeat, loan, split, payment method, budget, goal",
+  "addForeign": "Another currency",
+  "addForeignHint": "Money received or paid in dollars or another currency",
+  "addForeignIntro": "The amount above is what reached this account. Enter what it was in the other currency.",
+  "addForeignCurrency": "Currency",
+  "addForeignAmount": "Amount in {currency}",
+  "@addForeignAmount": {
+    "description": "Label for the amount in the foreign currency; {currency} is an ISO code like USD.",
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "addForeignFee": "Fee charged separately",
+  "addForeignFeeHelp": "Leave empty if there was none, or if it was taken before the money arrived.",
+  "addForeignFeeAccount": "Fee charged to",
+  "addForeignRemove": "Remove",
+  "txnConversion": "Conversion",
+  "txnRateLine": "1 {from} = {rate} {to}",
+  "@txnRateLine": {
+    "description": "Exchange rate line, e.g. 1 USD = 121.00 BDT.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "txnFeeLine": "fee {amount}",
+  "@txnFeeLine": {
+    "description": "Fee shown after the rate; {amount} is formatted money.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "addScanReceipt": "Scan receipt",
   "addDelete": "Delete transaction",
   "addTypeExpense": "Expense",

@@ -57,7 +57,7 @@ Future<bool> earnWithAd(
 
   if (!context.mounted) return false;
   if (choice == _Choice.premium) {
-    await PaywallUtils.showPaywall(context);
+    await PaywallUtils.showPaywall(context, source: 'ad_reward');
     return false;
   }
   if (choice != _Choice.watch) return false;

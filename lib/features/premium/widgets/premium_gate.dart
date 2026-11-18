@@ -55,7 +55,11 @@ class PremiumGate extends ConsumerWidget {
 }
 
 void _openPaywall(BuildContext context, {String? featureName}) {
-  PaywallUtils.showPaywall(context, featureName: featureName);
+  PaywallUtils.showPaywall(
+    context,
+    featureName: featureName,
+    source: 'premium_gate',
+  );
 }
 
 /// The locked state: a glowing orb with a lock, the pitch, and Unlock.
