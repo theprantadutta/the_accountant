@@ -3190,6 +3190,51 @@ class L10nEn extends L10n {
       'Repeat, loan, split, payment method, budget, goal';
 
   @override
+  String get addForeign => 'Another currency';
+
+  @override
+  String get addForeignHint =>
+      'Money received or paid in dollars or another currency';
+
+  @override
+  String get addForeignIntro =>
+      'The amount above is what reached this account. Enter what it was in the other currency.';
+
+  @override
+  String get addForeignCurrency => 'Currency';
+
+  @override
+  String addForeignAmount(String currency) {
+    return 'Amount in $currency';
+  }
+
+  @override
+  String get addForeignFee => 'Fee charged separately';
+
+  @override
+  String get addForeignFeeHelp =>
+      'Leave empty if there was none, or if it was taken before the money arrived.';
+
+  @override
+  String get addForeignFeeAccount => 'Fee charged to';
+
+  @override
+  String get addForeignRemove => 'Remove';
+
+  @override
+  String get txnConversion => 'Conversion';
+
+  @override
+  String txnRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String txnFeeLine(String amount) {
+    return 'fee $amount';
+  }
+
+  @override
   String get addScanReceipt => 'Scan receipt';
 
   @override

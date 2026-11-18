@@ -3217,6 +3217,51 @@ class L10nFr extends L10n {
       'Répétition, prêt, partage, moyen de paiement, budget, objectif';
 
   @override
+  String get addForeign => 'Autre devise';
+
+  @override
+  String get addForeignHint =>
+      'Argent reçu ou payé en dollars ou dans une autre devise';
+
+  @override
+  String get addForeignIntro =>
+      'Le montant ci-dessus est ce qui est arrivé sur ce compte. Indiquez ce qu\'il valait dans l\'autre devise.';
+
+  @override
+  String get addForeignCurrency => 'Devise';
+
+  @override
+  String addForeignAmount(String currency) {
+    return 'Montant en $currency';
+  }
+
+  @override
+  String get addForeignFee => 'Frais facturés à part';
+
+  @override
+  String get addForeignFeeHelp =>
+      'Laissez vide s\'il n\'y en a pas eu, ou s\'ils ont été prélevés avant l\'arrivée de l\'argent.';
+
+  @override
+  String get addForeignFeeAccount => 'Frais prélevés sur';
+
+  @override
+  String get addForeignRemove => 'Retirer';
+
+  @override
+  String get txnConversion => 'Conversion';
+
+  @override
+  String txnRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String txnFeeLine(String amount) {
+    return 'frais $amount';
+  }
+
+  @override
   String get addScanReceipt => 'Scanner un ticket';
 
   @override

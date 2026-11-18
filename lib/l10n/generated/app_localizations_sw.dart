@@ -3204,6 +3204,51 @@ class L10nSw extends L10n {
       'Rudia, mkopo, gawanya bili, njia ya malipo, bajeti, lengo';
 
   @override
+  String get addForeign => 'Sarafu nyingine';
+
+  @override
+  String get addForeignHint =>
+      'Pesa zilizopokelewa au kulipwa kwa dola au sarafu nyingine';
+
+  @override
+  String get addForeignIntro =>
+      'Kiasi kilicho juu ndicho kilichofika kwenye akaunti hii. Andika kilikuwa kiasi gani kwa sarafu nyingine.';
+
+  @override
+  String get addForeignCurrency => 'Sarafu';
+
+  @override
+  String addForeignAmount(String currency) {
+    return 'Kiasi kwa $currency';
+  }
+
+  @override
+  String get addForeignFee => 'Ada iliyotozwa kando';
+
+  @override
+  String get addForeignFeeHelp =>
+      'Acha wazi kama hakukuwa na ada, au ilikatwa kabla pesa hazijafika.';
+
+  @override
+  String get addForeignFeeAccount => 'Ada imetozwa kwenye';
+
+  @override
+  String get addForeignRemove => 'Ondoa';
+
+  @override
+  String get txnConversion => 'Ubadilishaji';
+
+  @override
+  String txnRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String txnFeeLine(String amount) {
+    return 'ada $amount';
+  }
+
+  @override
   String get addScanReceipt => 'Changanua risiti';
 
   @override

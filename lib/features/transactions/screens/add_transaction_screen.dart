@@ -26,7 +26,9 @@ import 'package:the_accountant/features/transactions/providers/transaction_provi
     hide Transaction;
 import 'package:the_accountant/features/transactions/providers/title_usage_provider.dart';
 import 'package:the_accountant/features/transactions/providers/transfer_provider.dart';
+import 'package:the_accountant/features/transactions/services/foreign_amount_service.dart';
 import 'package:the_accountant/features/transactions/widgets/calculator_bottom_sheet.dart';
+import 'package:the_accountant/features/transactions/widgets/foreign_amount_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/category_picker_sheet.dart';
 import 'package:the_accountant/features/transactions/widgets/compact_date_time_picker.dart';
 import 'package:the_accountant/features/transactions/widgets/horizontal_chip_selector.dart';
@@ -141,7 +143,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   /// uses one of the options: then it opens, so nothing set is out of sight.
   late bool _showMore = _hasExtras;
 
+  /// What this entry was in another currency, if it happened in one.
+  ForeignAmount? _foreign;
+
+  /// Whether the entry being edited had one, so clearing it is saved too.
+  bool _hadForeign = false;
+
   bool get _hasExtras =>
+      _foreign != null ||
       _specialType != TransactionSpecialType.none ||
       _selectedPaymentMethodId != null ||
       _selectedBudgetId != null ||
@@ -382,6 +391,15 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     _selectedBudgetId = t.budgetId;
     _selectedObjectiveId = t.objectiveId;
     _selectedPaymentMethodId = t.paymentMethodId;
+    if (!isTransferRow &&
+        t.counterCurrency != null &&
+        t.counterAmount != null) {
+      _hadForeign = true;
+      _foreign = ForeignAmount(
+        currency: t.counterCurrency!,
+        amount: t.counterAmount!,
+      );
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (isTransferRow) {
         // Resolve both sides of the pair so the wallet pickers show the real
@@ -402,6 +420,22 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         return;
       }
       _loadCategoryDetails();
+      if (_foreign case final foreign?) {
+        final fee = await ForeignAmountService(
+          ref.read(databaseProvider),
+        ).feeFor(t.id);
+        if (fee != null && mounted) {
+          setState(() {
+            _foreign = ForeignAmount(
+              currency: foreign.currency,
+              amount: foreign.amount,
+              fee: fee.amount,
+              feeWalletId: fee.walletId,
+            );
+            _showMore = true;
+          });
+        }
+      }
       // For subscription/repetitive, restore the recurring schedule from its config.
       if (_specialType == TransactionSpecialType.subscription ||
           _specialType == TransactionSpecialType.repetitive) {
@@ -729,6 +763,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
         // Create/update/remove the recurring config to match the new special type.
         await _reconcileRecurringConfig(widget.existingTransaction!.id);
+        if (_foreign != null || _hadForeign) {
+          await _saveForeign(widget.existingTransaction!.id);
+        }
       } else {
         final isPaid = !_specialType.startsUnpaid;
 
@@ -792,6 +829,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         // to this one row as it is a change of mind about the rule, and the
         // rules screen is where a rule is meant to be changed deliberately.
         await _learnTitleRule();
+        if (_foreign != null && newTransactionId != null) {
+          await _saveForeign(newTransactionId);
+        }
       }
 
       if (mounted) {
@@ -811,6 +851,66 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         setState(() => _isSaving = false);
       }
     }
+  }
+
+  /// Records the entry's foreign amount and fee, after the entry is saved.
+  Future<void> _saveForeign(String transactionId) async {
+    await ForeignAmountService(
+      ref.read(databaseProvider),
+    ).apply(transactionId, _foreign);
+    await ref.read(walletProvider.notifier).loadWallets();
+    await ref.read(transactionProvider.notifier).loadTransactions();
+  }
+
+  /// "Another currency": what this was in dollars, say, and what it cost.
+  Widget _buildForeignRow(List<Wallet> wallets) {
+    final c = context.sunrise;
+    final l10n = L10n.of(context);
+    final wallet = wallets.where((w) => w.id == _selectedWalletId).firstOrNull;
+    return SettingsGroup(
+      children: [
+        SettingsRow(
+          key: const Key('add_foreign_amount'),
+          icon: Symbols.currency_exchange_rounded,
+          iconColor: c.accent,
+          title: l10n.addForeign,
+          subtitle: _foreign == null ? l10n.addForeignHint : _foreignSummary(),
+          onTap: wallet == null
+              ? null
+              : () async {
+                  final choice = await showForeignAmountSheet(
+                    context,
+                    walletId: wallet.id,
+                    walletCurrency: wallet.currency,
+                    wallets: wallets,
+                    initial: _foreign,
+                  );
+                  if (choice != null && mounted) {
+                    setState(() => _foreign = choice.value);
+                  }
+                },
+        ),
+      ],
+    );
+  }
+
+  /// "$500 · fee ৳150", for the row and the More options summary.
+  String? _foreignSummary() {
+    final foreign = _foreign;
+    if (foreign == null) return null;
+    final amount =
+        '${CurrencyInfo.getSymbol(foreign.currency)}${_formatAmount(foreign.amount / 100)}';
+    if (foreign.fee <= 0) return amount;
+    final feeWallet = ref
+        .read(walletProvider)
+        .wallets
+        .where((w) => w.id == (foreign.feeWalletId ?? _selectedWalletId))
+        .firstOrNull;
+    final feeSymbol = CurrencyInfo.getSymbol(feeWallet?.currency ?? '');
+    final fee = L10n.of(
+      context,
+    ).txnFeeLine('$feeSymbol${_formatAmount(foreign.fee / 100)}');
+    return '$amount · $fee';
   }
 
   /// Reconcile the transaction's recurring config after an edit so it matches the
@@ -1074,6 +1174,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                       children: [
                         const SizedBox(height: SunriseSpace.gap),
                         _buildRepeatMonthlyRow(),
+                        const SizedBox(height: SunriseSpace.gap),
+                        _buildForeignRow(wallets),
                         const SizedBox(height: 16),
                         _buildSpecialTypeChips(),
                         if (_specialType ==
@@ -1419,7 +1521,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   String _moreOptionsSummary() {
     final l10n = L10n.of(context);
-    final parts = <String>[];
+    final parts = <String>[?_foreignSummary()];
     final repeatMonthly =
         _specialType == TransactionSpecialType.repetitive &&
         _subscriptionFrequency == 'monthly' &&

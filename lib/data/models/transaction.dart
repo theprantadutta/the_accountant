@@ -200,6 +200,15 @@ class Transactions extends Table {
   /// transfer carry equal amounts, and this stays null there.
   IntColumn get counterAmount => integer().nullable()();
 
+  /// The currency [counterAmount] is in, on an ordinary income or expense that
+  /// happened in another currency: $500 from AdMob that arrived as ৳60,500, or
+  /// a $10 subscription charged ৳1,250. Null on transfers, whose other currency
+  /// is simply the partner wallet's, and on everything else.
+  ///
+  /// Synced readable, like a wallet's currency: the server needs to know the
+  /// row is foreign to accept a fee linked to it. The amounts stay sealed.
+  TextColumn get counterCurrency => text().nullable()();
+
   TextColumn get budgetId => text().nullable()();
 
   // Objective assignment (for goals/loans)
