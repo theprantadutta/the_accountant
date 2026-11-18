@@ -1,90 +1,80 @@
 <en-US>
 • Your money data is now encrypted: on your phone, in your backups, and before it syncs
 • New: an optional passphrase so only you can open your synced data and backups
-• Add a transaction by voice, straight from the Today screen
-• Hide your balances and totals with privacy mode
-• Now in ten languages, including Bangla, Hindi, German, French and Portuguese
-• A faster start, straight from the splash to your dashboard
-• Card bill and plan reminders come from your phone, plus many fixes
+• Record income and expenses made in another currency, with the rate and any fee
+• The add form is simpler: the extras now sit behind one More options row
+• Add a transaction by voice, and hide your balances with privacy mode
+• Now in ten languages, with a faster start and many fixes
 </en-US>
 <bn-BD>
 • আপনার টাকার তথ্য এখন এনক্রিপ্টেড: ফোনে, ব্যাকআপে এবং সিঙ্ক হওয়ার আগে
 • নতুন: ঐচ্ছিক পাসফ্রেজ, যাতে সিঙ্ক করা ডেটা ও ব্যাকআপ শুধু আপনিই খুলতে পারেন
-• Today স্ক্রিন থেকে সরাসরি কণ্ঠে লেনদেন যোগ করুন
-• প্রাইভেসি মোডে ব্যালেন্স ও মোট অঙ্ক লুকিয়ে রাখুন
-• এখন দশটি ভাষায়, হিন্দি, জার্মান, ফরাসি ও পর্তুগিজসহ
-• দ্রুত চালু হয়, স্প্ল্যাশ থেকে সরাসরি ড্যাশবোর্ডে
-• কার্ডের বিল ও প্ল্যানের রিমাইন্ডার এখন আপনার ফোন থেকে আসে, সঙ্গে অনেক সংশোধন
+• অন্য মুদ্রায় হওয়া আয় ও খরচ রাখুন, রেট ও ফি সহ
+• যোগ করার ফর্ম সহজ হলো: বাড়তি অপশন এখন একটি সারির পিছনে
+• কণ্ঠে লেনদেন যোগ করুন, আর প্রাইভেসি মোডে ব্যালেন্স লুকান
+• এখন দশটি ভাষায়, দ্রুত চালু আর অনেক সংশোধনসহ
 </bn-BD>
 <hi-IN>
 • आपका वित्तीय डेटा अब एन्क्रिप्टेड है: फ़ोन पर, बैकअप में और सिंक होने से पहले
 • नया: वैकल्पिक पासफ़्रेज़, ताकि सिंक किया गया डेटा और बैकअप सिर्फ़ आप खोल सकें
-• Today स्क्रीन से सीधे बोलकर लेन-देन जोड़ें
-• प्राइवेसी मोड से अपने बैलेंस और कुल रकम छिपाएँ
-• अब दस भाषाओं में, जिनमें बांग्ला, जर्मन, फ़्रेंच और पुर्तगाली शामिल हैं
-• तेज़ शुरुआत, स्प्लैश से सीधे डैशबोर्ड तक
-• कार्ड बिल और प्लान के रिमाइंडर अब आपके फ़ोन से आते हैं, साथ ही कई सुधार
+• दूसरी मुद्रा में हुई आय और खर्च दर्ज करें, दर और फ़ीस के साथ
+• फ़ॉर्म आसान हुआ: अतिरिक्त विकल्प अब एक पंक्ति के पीछे
+• बोलकर लेन-देन जोड़ें, और प्राइवेसी मोड से बैलेंस छिपाएँ
+• अब दस भाषाओं में, तेज़ शुरुआत और कई सुधारों के साथ
 </hi-IN>
 <de-DE>
 • Deine Finanzdaten sind jetzt verschlüsselt: auf dem Handy, in Backups und vor der Synchronisierung
-• Neu: optionale Passphrase, damit nur du synchronisierte Daten und Backups öffnen kannst
-• Buchungen per Sprache erfassen, direkt vom Heute-Bildschirm
-• Guthaben und Summen mit dem Privatmodus ausblenden
-• Jetzt in zehn Sprachen
-• Schnellerer Start, direkt vom Splash zur Übersicht
-• Erinnerungen an Kartenrechnungen und Planraten kommen vom Handy, dazu viele Korrekturen
+• Neu: optionale Passphrase, damit nur du Backups und synchronisierte Daten öffnen kannst
+• Einnahmen und Ausgaben in anderer Währung erfassen, mit Kurs und Gebühr
+• Schlankeres Formular: Extras liegen jetzt hinter einer Zeile
+• Buchungen per Sprache, Guthaben mit dem Privatmodus ausblenden
+• In zehn Sprachen, mit schnellerem Start und vielen Korrekturen
 </de-DE>
 <fr-FR>
 • Vos données sont désormais chiffrées : sur le téléphone, dans les sauvegardes et avant la synchronisation
 • Nouveau : une phrase secrète facultative, pour que vous seul puissiez les ouvrir
-• Ajoutez une opération à la voix, directement depuis l'écran Aujourd'hui
-• Masquez vos soldes et totaux avec le mode confidentialité
-• Disponible en dix langues
-• Démarrage plus rapide, direct vers le tableau de bord
-• Les rappels de factures et d'échéances viennent du téléphone, et des corrections
+• Enregistrez revenus et dépenses dans une autre devise, avec le taux et les frais
+• Formulaire simplifié : les extras tiennent dans une seule ligne
+• Ajoutez une opération à la voix, masquez vos soldes en mode confidentialité
+• En dix langues, avec un démarrage plus rapide et de nombreuses corrections
 </fr-FR>
 <pt-PT>
-• Os seus dados financeiros estão agora encriptados: no telemóvel, nas cópias de segurança e antes de sincronizar
-• Novo: frase-passe opcional para que só você abra os dados sincronizados e as cópias de segurança
-• Adicione uma transação por voz, diretamente no ecrã Hoje
-• Oculte os seus saldos e totais com o modo de privacidade
-• Agora em dez idiomas
-• Arranque mais rápido, direto para o painel
-• Os lembretes de faturas do cartão e prestações vêm do telemóvel, além de muitas correções
+• Os seus dados estão agora encriptados: no telemóvel, nas cópias de segurança e antes de sincronizar
+• Novo: frase-passe opcional para que só você abra os dados sincronizados
+• Registe receitas e despesas noutra moeda, com a taxa de câmbio e comissões
+• Formulário mais simples: os extras ficam numa única linha
+• Adicione transações por voz e oculte saldos com o modo de privacidade
+• Em dez idiomas, com arranque mais rápido e muitas correções
 </pt-PT>
 <ms>
 • Data kewangan anda kini disulitkan: dalam telefon, dalam sandaran dan sebelum disegerakkan
-• Baharu: frasa laluan pilihan supaya hanya anda boleh membuka data segerak dan sandaran
-• Tambah transaksi dengan suara, terus dari skrin Hari Ini
-• Sembunyikan baki dan jumlah anda dengan mod privasi
-• Kini dalam sepuluh bahasa
-• Permulaan lebih pantas, terus ke papan pemuka
-• Peringatan bil kad dan ansuran pelan datang dari telefon anda, serta banyak pembaikan
+• Baharu: frasa laluan pilihan supaya hanya anda boleh membukanya
+• Rekod pendapatan dan perbelanjaan dalam mata wang lain, dengan kadar dan yuran
+• Borang lebih ringkas: tambahan kini di bawah satu baris
+• Tambah transaksi dengan suara, sembunyikan baki dengan mod privasi
+• Dalam sepuluh bahasa, dengan permulaan lebih pantas dan banyak pembaikan
 </ms>
 <fa-IR>
 • داده‌های مالی شما اکنون رمزگذاری می‌شوند: روی گوشی، در پشتیبان‌ها و پیش از همگام‌سازی
-• جدید: عبارت عبور اختیاری تا فقط خودتان بتوانید داده‌های همگام‌شده و پشتیبان‌ها را باز کنید
-• افزودن تراکنش با صدا، مستقیم از صفحه امروز
-• پنهان کردن موجودی و جمع‌ها با حالت حریم خصوصی
-• اکنون به ده زبان، از جمله بنگالی، هندی، آلمانی، فرانسوی و پرتغالی
-• شروع سریع‌تر، مستقیم به داشبورد
-• یادآوری صورت‌حساب کارت و اقساط از گوشی شما می‌آید، به‌همراه اصلاحات بسیار
+• جدید: عبارت عبور اختیاری تا فقط خودتان بتوانید آن‌ها را باز کنید
+• ثبت درآمد و هزینه به ارز دیگر، همراه با نرخ و کارمزد
+• فرم افزودن ساده‌تر شد: موارد اضافی اکنون پشت یک ردیف هستند
+• افزودن تراکنش با صدا و پنهان کردن موجودی با حالت حریم خصوصی
+• به ده زبان، با شروع سریع‌تر و اصلاحات بسیار
 </fa-IR>
 <sw>
 • Data yako ya fedha sasa imesimbwa fiche: kwenye simu, kwenye nakala rudufu na kabla ya kusawazishwa
-• Mpya: kaulisiri ya hiari ili wewe tu uweze kufungua data iliyosawazishwa na nakala rudufu
-• Ongeza muamala kwa sauti, moja kwa moja kutoka skrini ya Leo
-• Ficha salio na jumla zako kwa hali ya faragha
-• Sasa kwa lugha kumi
-• Kuanza haraka zaidi, moja kwa moja hadi dashibodi
-• Vikumbusho vya bili za kadi na awamu hutoka kwenye simu yako, pamoja na marekebisho mengi
+• Mpya: kaulisiri ya hiari ili wewe tu uweze kuzifungua
+• Rekodi mapato na matumizi ya sarafu nyingine, pamoja na kiwango na ada
+• Fomu rahisi zaidi: nyongeza sasa ziko nyuma ya safu moja
+• Ongeza muamala kwa sauti, na ficha salio kwa hali ya faragha
+• Kwa lugha kumi, kwa kuanza haraka na marekebisho mengi
 </sw>
 <am>
 • የገንዘብ ውሂብዎ አሁን ተመስጥሯል፦ በስልክዎ፣ በምትኬዎች እና ከመመሳሰሉ በፊት
-• አዲስ፦ የተመሳሰለ ውሂብና ምትኬዎችን እርስዎ ብቻ እንዲከፍቱ አማራጭ የይለፍ ሐረግ
-• ከዛሬ ማያ ገጽ በቀጥታ በድምፅ ግብይት ያክሉ
-• በግላዊነት ሁነታ ሒሳብዎንና ድምርዎን ይደብቁ
-• አሁን በአስር ቋንቋዎች፣ ባንግላ፣ ሂንዲ፣ ጀርመንኛ፣ ፈረንሳይኛ እና ፖርቱጋልኛን ጨምሮ
-• ፈጣን ጅምር፣ በቀጥታ ወደ ዳሽቦርድ
-• የካርድ ሂሳብና የዕቅድ አስታዋሾች ከስልክዎ ይመጣሉ፣ ከብዙ ማስተካከያዎች ጋር
+• አዲስ፦ አማራጭ የይለፍ ሐረግ፣ እርስዎ ብቻ እንዲከፍቱት
+• በሌላ ምንዛሬ የተደረገ ገቢና ወጪ ይመዝግቡ፣ ከተመንና ክፍያ ጋር
+• ቅጹ ቀለል አለ፦ ተጨማሪዎች አሁን ከአንድ ረድፍ ጀርባ ናቸው
+• በድምፅ ግብይት ያክሉ፣ በግላዊነት ሁነታ ሒሳብ ይደብቁ
+• በአስር ቋንቋዎች፣ በፈጣን ጅምርና በብዙ ማስተካከያዎች
 </am>
