@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter/services.dart';
+import 'package:the_accountant/core/services/analytics_service.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
@@ -292,8 +293,37 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper>
     ref.read(syncNotifierProvider.notifier).startPeriodicSync();
   }
 
+  /// The last step reported to Analytics.
+  String? _reportedStep;
+
   @override
   Widget build(BuildContext context) {
+    final step = _buildStep(context);
+    _reportStep(step);
+    return step;
+  }
+
+  /// Every step of getting in — the intro, the terms, signing in, the first
+  /// setup — is shown inside this one route, and a route is named once, when
+  /// it opens. So Analytics saw them all as the loading screen and could not
+  /// say where new people stopped. Each step is reported as it appears.
+  void _reportStep(Widget step) {
+    // The main screen reports its own tabs.
+    if (step is MainNavigationContainer) {
+      _reportedStep = null;
+      return;
+    }
+    final name = step.runtimeType.toString();
+    // The route itself already reports the loading screen it opens on.
+    if (step is AuthLoadingScreen || name.startsWith('_')) return;
+    if (name == _reportedStep) return;
+    _reportedStep = name;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AnalyticsService().logScreenView(screenName: name);
+    });
+  }
+
+  Widget _buildStep(BuildContext context) {
     final authState = ref.watch(authProvider);
     final onboardingState = ref.watch(onboardingProvider);
 
