@@ -1,0 +1,70 @@
+<en-US>
+• Upcoming now shows the repeating payments due in the next month
+• Repay a loan from a different account than the one it came into
+• Editing one repeated entry no longer starts a second schedule
+• The statement import screen shows the account picker properly
+• Fixed a crash after cancelling a subscription
+</en-US>
+<bn-BD>
+• আসন্ন অংশে এখন আগামী এক মাসের নিয়মিত পেমেন্ট দেখা যায়
+• যে অ্যাকাউন্টে ধার এসেছে, তার বদলে অন্য অ্যাকাউন্ট থেকে শোধ করুন
+• একটি পুনরাবৃত্ত লেনদেন সম্পাদনা করলে আর দ্বিতীয় শিডিউল তৈরি হয় না
+• স্টেটমেন্ট ইমপোর্টে অ্যাকাউন্ট বাছাই এখন ঠিকভাবে দেখায়
+• সাবস্ক্রিপশন বাতিলের পর একটি ক্র্যাশ ঠিক করা হয়েছে
+</bn-BD>
+<hi-IN>
+• आगामी में अब अगले एक महीने के दोहराए जाने वाले भुगतान दिखते हैं
+• उधार उसी खाते के बजाय किसी दूसरे खाते से चुकाएँ
+• एक दोहराई गई प्रविष्टि बदलने पर अब दूसरा शेड्यूल नहीं बनता
+• स्टेटमेंट इम्पोर्ट में खाता चुनने का विकल्प अब ठीक से दिखता है
+• सब्सक्रिप्शन रद्द करने के बाद होने वाला क्रैश ठीक किया गया
+</hi-IN>
+<de-DE>
+• Anstehend zeigt jetzt die wiederkehrenden Zahlungen des nächsten Monats
+• Kredite von einem anderen Konto zurückzahlen als dem, auf das sie kamen
+• Eine wiederkehrende Buchung zu bearbeiten startet keinen zweiten Plan mehr
+• Beim Kontoauszug-Import wird die Kontoauswahl richtig angezeigt
+• Absturz nach dem Kündigen eines Abos behoben
+</de-DE>
+<fr-FR>
+• À venir affiche désormais les paiements récurrents du mois suivant
+• Remboursez un prêt depuis un autre compte que celui où il est arrivé
+• Modifier une opération récurrente ne crée plus un second échéancier
+• L'import de relevé affiche correctement le choix du compte
+• Correction d'un plantage après l'annulation d'un abonnement
+</fr-FR>
+<pt-PT>
+• Próximos mostra agora os pagamentos recorrentes do mês seguinte
+• Pague um empréstimo a partir de outra conta que não a de entrada
+• Editar um movimento recorrente já não cria um segundo agendamento
+• A importação de extratos mostra corretamente a escolha da conta
+• Corrigida uma falha após cancelar uma subscrição
+</pt-PT>
+<ms>
+• Akan Datang kini menunjukkan bayaran berulang bagi sebulan akan datang
+• Bayar balik pinjaman dari akaun lain, bukan akaun yang menerimanya
+• Menyunting satu entri berulang tidak lagi memulakan jadual kedua
+• Skrin import penyata kini memaparkan pilihan akaun dengan betul
+• Membetulkan ranap selepas membatalkan langganan
+</ms>
+<fa-IR>
+• بخش پیش‌رو اکنون پرداخت‌های تکراری یک ماه آینده را نشان می‌دهد
+• وام را از حسابی غیر از حسابی که به آن واریز شده بازپرداخت کنید
+• ویرایش یک تراکنش تکراری دیگر برنامهٔ دوم نمی‌سازد
+• صفحهٔ وارد کردن صورت‌حساب انتخاب حساب را درست نشان می‌دهد
+• رفع خرابی پس از لغو اشتراک
+</fa-IR>
+<sw>
+• Zijazo sasa zinaonyesha malipo yanayojirudia ya mwezi ujao
+• Lipa mkopo kutoka akaunti nyingine tofauti na ile ulipoingia
+• Kuhariri muamala mmoja unaojirudia hakuanzishi tena ratiba ya pili
+• Skrini ya kuingiza taarifa ya benki inaonyesha uchaguzi wa akaunti vizuri
+• Tumerekebisha hitilafu baada ya kughairi usajili
+</sw>
+<am>
+• የሚመጡ አሁን በሚቀጥለው ወር የሚደጋገሙ ክፍያዎችን ያሳያል
+• ብድርን ከገባበት ሂሳብ ውጭ ከሌላ ሂሳብ ይክፈሉ
+• አንድ የሚደጋገም ግቤት ማስተካከል ከእንግዲህ ሁለተኛ መርሐግብር አይፈጥርም
+• የመግለጫ ማስመጫ ገጽ የሂሳብ ምርጫን በትክክል ያሳያል
+• የደንበኝነት ምዝገባ ከተሰረዘ በኋላ የነበረ ብልሽት ተስተካክሏል
+</am>
