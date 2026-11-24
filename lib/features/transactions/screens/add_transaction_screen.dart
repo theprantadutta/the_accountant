@@ -1900,18 +1900,24 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               ),
             ),
           ),
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            value: _subscriptionAskFirst,
-            activeTrackColor: sectionColor,
-            onChanged: (value) => setState(() => _subscriptionAskFirst = value),
-            title: Text(
-              L10n.of(context).subAskBeforeEachPayment,
-              style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
-            ),
-            subtitle: Text(
-              L10n.of(context).subAskBeforeEachPaymentHint,
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+          // The sheet behind this is a painted DecoratedBox, which would hide
+          // the tile's ink; a transparent Material gives it its own surface.
+          Material(
+            type: MaterialType.transparency,
+            child: SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              value: _subscriptionAskFirst,
+              activeTrackColor: sectionColor,
+              onChanged: (value) =>
+                  setState(() => _subscriptionAskFirst = value),
+              title: Text(
+                L10n.of(context).subAskBeforeEachPayment,
+                style: TextStyle(fontSize: 14, color: AppColors.textPrimary),
+              ),
+              subtitle: Text(
+                L10n.of(context).subAskBeforeEachPaymentHint,
+                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+              ),
             ),
           ),
         ],

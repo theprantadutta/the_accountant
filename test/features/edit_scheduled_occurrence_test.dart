@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart' show Value;
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,16 +35,6 @@ void main() {
   testWidgets('saving an edited occurrence leaves the schedules as they were', (
     tester,
   ) async {
-    // The schedule section's ListTile warns about its backdrop in debug
-    // builds; that is cosmetic and not what this test is about.
-    final original = FlutterError.onError;
-    FlutterError.onError = (details) {
-      if (details.exceptionAsString().contains('ListTile background color')) {
-        return;
-      }
-      original?.call(details);
-    };
-    addTearDown(() => FlutterError.onError = original);
     late Transaction occurrence;
     await tester.runAsync(() async {
       final walletId = await seedWallet(db, name: 'Bank', currency: 'BDT');
