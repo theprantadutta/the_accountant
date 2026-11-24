@@ -257,13 +257,14 @@ class _SubscriptionCard extends ConsumerWidget {
         padding: AppSpacing.paddingMd,
         variant: GlassCardVariant.standard,
         onTap: () async {
+          // Taken before the sheet opens: cancelling or ending the schedule
+          // there removes this card, and `ref` is unusable once it is gone.
+          final dashboard = ref.read(subscriptionDashboardProvider.notifier);
           final result = await showEditSubscriptionBottomSheet(
             context,
             item: item,
           );
-          if (result == true) {
-            ref.read(subscriptionDashboardProvider.notifier).refresh();
-          }
+          if (result == true) dashboard.refresh();
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
