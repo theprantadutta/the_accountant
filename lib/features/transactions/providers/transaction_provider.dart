@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:the_accountant/core/services/review_prompt_service.dart';
 import 'dart:typed_data';
 
 import 'package:drift/drift.dart' show Value;
@@ -444,6 +446,8 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       await _refreshOne(id);
 
       AnalyticsService().logTransactionCreate();
+      // Not awaited: the store sheet, when due, appears after the save.
+      unawaited(ReviewPromptService().onTransactionRecorded());
 
       // Refresh dashboard and reports data for real-time updates
       _ref.read(financialDataProvider.notifier).refreshData();

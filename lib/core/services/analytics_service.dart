@@ -175,6 +175,12 @@ class AnalyticsService {
     } catch (_) {}
   }
 
+  /// The store's rating sheet was requested, after [transactions] entries.
+  Future<void> logReviewPromptRequested(int transactions) => _logEvent(
+    'review_prompt_requested',
+    parameters: {'transactions': transactions},
+  );
+
   Future<void> logTransactionUpdate() => _logEvent('transaction_update');
   Future<void> logTransactionDelete() => _logEvent('transaction_delete');
 

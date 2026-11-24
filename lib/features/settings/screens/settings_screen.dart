@@ -1,3 +1,4 @@
+import 'package:the_accountant/core/services/review_prompt_service.dart';
 import 'package:the_accountant/core/dev/sample_data.dart';
 import 'package:the_accountant/features/cards/screens/card_bills_screen.dart';
 import 'package:the_accountant/features/forecast/screens/cash_flow_forecast_screen.dart';
@@ -48,7 +49,6 @@ import 'package:the_accountant/features/voice_log/providers/voice_fab_provider.d
 import 'package:the_accountant/features/dashboard/providers/net_worth_preferences_provider.dart';
 import 'package:the_accountant/l10n/generated/app_localizations.dart';
 import 'package:the_accountant/shared/widgets/sunrise/sunrise.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// One searchable settings entry.
 class _Entry {
@@ -901,14 +901,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  Future<void> _rateApp() async {
-    final uri = Uri.parse(
-      'https://play.google.com/store/apps/details?id=com.pranta.theaccountant',
-    );
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
+  // The store page for this platform: it used to open Google Play's web page
+  // everywhere, which on an iPhone led nowhere useful.
+  Future<void> _rateApp() => ReviewPromptService().openStoreListing();
 
   Future<void> _shareApp() async {
     await SharePlus.instance.share(
