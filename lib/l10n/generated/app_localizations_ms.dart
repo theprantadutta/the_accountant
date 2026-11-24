@@ -1838,6 +1838,13 @@ class L10nMs extends L10n {
   String get txUpcomingOverdue => 'Akan Datang & Tertunggak';
 
   @override
+  String get txnScheduledSection => 'Dijadualkan';
+
+  @override
+  String get txnScheduledHint =>
+      'Daripada bayaran berulang anda, direkod pada harinya';
+
+  @override
   String get txNew => 'Baharu';
 
   @override

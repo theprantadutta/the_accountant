@@ -1832,6 +1832,13 @@ class L10nEn extends L10n {
   String get txUpcomingOverdue => 'Upcoming & Overdue';
 
   @override
+  String get txnScheduledSection => 'Scheduled';
+
+  @override
+  String get txnScheduledHint =>
+      'From your repeating payments, recorded on the day';
+
+  @override
   String get txNew => 'New';
 
   @override

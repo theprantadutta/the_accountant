@@ -792,6 +792,8 @@
   "txClearAll": "Clear All",
   "txApplyFilters": "Apply Filters",
   "txUpcomingOverdue": "Upcoming & Overdue",
+  "txnScheduledSection": "Scheduled",
+  "txnScheduledHint": "From your repeating payments, recorded on the day",
   "txNew": "New",
   "txLoan": "Loan",
   "goalStarted": "Started",

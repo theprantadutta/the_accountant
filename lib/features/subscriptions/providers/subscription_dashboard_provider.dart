@@ -1,3 +1,4 @@
+import 'package:the_accountant/features/recurring/domain/scheduled_payment.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:the_accountant/core/providers/currency_provider.dart';
 import 'package:the_accountant/core/services/currency_service.dart';
@@ -116,34 +117,7 @@ class SubscriptionItem {
   }
 
   /// Human-readable frequency text
-  String get frequencyText {
-    if (periodLength == 1) {
-      switch (frequency.toLowerCase()) {
-        case 'daily':
-          return appL10n.budgetPeriodDaily;
-        case 'weekly':
-          return appL10n.planWeekly;
-        case 'monthly':
-          return appL10n.planMonthly;
-        case 'yearly':
-          return appL10n.planYearly;
-        default:
-          return frequency;
-      }
-    }
-    switch (frequency.toLowerCase()) {
-      case 'daily':
-        return appL10n.subEveryDays(periodLength);
-      case 'weekly':
-        return appL10n.subEveryWeeks(periodLength);
-      case 'monthly':
-        return appL10n.subEveryMonths(periodLength);
-      case 'yearly':
-        return appL10n.subEveryYears(periodLength);
-      default:
-        return appL10n.subEveryOther(periodLength, frequency);
-    }
-  }
+  String get frequencyText => recurrenceLabel(frequency, periodLength);
 }
 
 class SubscriptionDashboardNotifier

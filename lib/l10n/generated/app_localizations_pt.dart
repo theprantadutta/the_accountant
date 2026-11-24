@@ -1841,6 +1841,13 @@ class L10nPt extends L10n {
   String get txUpcomingOverdue => 'Próximos e em atraso';
 
   @override
+  String get txnScheduledSection => 'Agendado';
+
+  @override
+  String get txnScheduledHint =>
+      'Dos seus pagamentos recorrentes, registados no dia';
+
+  @override
   String get txNew => 'Nova';
 
   @override

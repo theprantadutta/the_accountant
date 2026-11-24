@@ -11,6 +11,7 @@ import 'package:the_accountant/core/themes/app_typography.dart';
 import 'package:the_accountant/core/utils/date_formatter.dart';
 import 'package:the_accountant/core/utils/number_formatter.dart';
 import 'package:the_accountant/data/datasources/local/app_database.dart';
+import 'package:the_accountant/features/recurring/domain/scheduled_payment.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
 import 'package:the_accountant/features/transactions/providers/upcoming_provider.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
@@ -77,9 +78,10 @@ class _UpcomingTransactionsScreenState
                     const Icon(Icons.schedule, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      L10n.of(
-                        context,
-                      ).txnUpcomingTab(state.upcomingTransactions.length),
+                      L10n.of(context).txnUpcomingTab(
+                        state.upcomingTransactions.length +
+                            state.scheduled.length,
+                      ),
                     ),
                   ],
                 ),
@@ -91,9 +93,10 @@ class _UpcomingTransactionsScreenState
                     Icon(Icons.warning_amber, size: 18, color: AppColors.error),
                     const SizedBox(width: 8),
                     Text(
-                      L10n.of(
-                        context,
-                      ).txnOverdueTab(state.overdueTransactions.length),
+                      L10n.of(context).txnOverdueTab(
+                        state.overdueTransactions.length +
+                            state.scheduledOverdue.length,
+                      ),
                     ),
                   ],
                 ),
@@ -109,10 +112,12 @@ class _UpcomingTransactionsScreenState
                   children: [
                     _buildTransactionList(
                       state.upcomingTransactions,
+                      state.scheduled,
                       isOverdue: false,
                     ),
                     _buildTransactionList(
                       state.overdueTransactions,
+                      state.scheduledOverdue,
                       isOverdue: true,
                     ),
                   ],
@@ -123,24 +128,154 @@ class _UpcomingTransactionsScreenState
   }
 
   Widget _buildTransactionList(
-    List<Transaction> transactions, {
+    List<Transaction> transactions,
+    List<ScheduledPayment> scheduled, {
     required bool isOverdue,
   }) {
-    if (transactions.isEmpty) {
+    if (transactions.isEmpty && scheduled.isEmpty) {
       return _buildEmptyState(isOverdue);
     }
 
     return RefreshIndicator(
       onRefresh: () => ref.read(upcomingProvider.notifier).refresh(),
-      child: ListView.builder(
+      child: ListView(
         padding: AppSpacing.paddingScreen,
-        itemCount: transactions.length + 1, // +1 for summary card
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return _buildSummaryCard(transactions, isOverdue);
-          }
-          return _buildTransactionCard(transactions[index - 1], isOverdue);
-        },
+        children: [
+          if (transactions.isNotEmpty) ...[
+            _buildSummaryCard(transactions, isOverdue),
+            for (final t in transactions) _buildTransactionCard(t, isOverdue),
+          ],
+          if (scheduled.isNotEmpty) ...[
+            Padding(
+              padding: EdgeInsets.only(
+                top: transactions.isEmpty ? 0 : 12,
+                bottom: 4,
+              ),
+              child: Text(
+                L10n.of(context).txnScheduledSection,
+                style: AppTypography.titleSmall,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                L10n.of(context).txnScheduledHint,
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.textMuted,
+                ),
+              ),
+            ),
+            for (final p in scheduled) _buildScheduledCard(p, isOverdue),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// A repeating payment's next date, before it has been recorded. Nothing to
+  /// pay or skip yet: the schedule writes it on the day, and one that asks
+  /// first then appears above with those buttons.
+  Widget _buildScheduledCard(ScheduledPayment payment, bool isOverdue) {
+    final l10n = L10n.of(context);
+    final categoryState = ref.watch(cat_provider.categoryProvider);
+    final category = categoryState.categories
+        .where((c) => c.id == payment.categoryId)
+        .firstOrNull;
+    final color = _parseColor(category?.colorCode ?? '#999999');
+    final df = ref.watch(dateFormatSettingProvider);
+    final nf = ref.watch(numberFormatSettingProvider);
+    final currencyFormat = AppNumberFormatter.currency(
+      CurrencyInfo.getSymbol(
+        ref.watch(walletCurrencyProvider(payment.walletId)),
+      ),
+      nf,
+    );
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(
+      payment.date.year,
+      payment.date.month,
+      payment.date.day,
+    );
+    final days = day.difference(today).inDays;
+    final String due;
+    final Color dueColor;
+    if (isOverdue) {
+      due = l10n.txnDaysOverdue(-days);
+      dueColor = AppColors.error;
+    } else if (days == 0) {
+      due = l10n.cardStatusDueToday;
+      dueColor = AppColors.warning;
+    } else {
+      due = l10n.cardStatusDueIn(days);
+      dueColor = days == 1 ? AppColors.info : AppColors.textSecondary;
+    }
+    final details = [
+      payment.frequencyText,
+      AppDateFormatter.formatDate(payment.date, df),
+      if (!payment.autoPay) l10n.subAsksFirst,
+    ].join(' · ');
+
+    return Padding(
+      key: ValueKey('scheduled_${payment.configId}'),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GlassCard(
+        padding: AppSpacing.paddingMd,
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.2),
+                borderRadius: AppSpacing.borderRadiusMd,
+              ),
+              child: Icon(Icons.repeat, color: color, size: 22),
+            ),
+            AppSpacing.gapHMd,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    payment.title.isNotEmpty
+                        ? payment.title
+                        : (category?.name ?? l10n.txUncategorized),
+                    style: AppTypography.titleSmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  AppSpacing.gapXs,
+                  Text(
+                    due,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: dueColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    details,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.textMuted,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              currencyFormat.format(payment.amount / 100.0),
+              style: AppTypography.titleMedium.copyWith(
+                color: payment.isIncome
+                    ? AppColors.success
+                    : AppColors.textPrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

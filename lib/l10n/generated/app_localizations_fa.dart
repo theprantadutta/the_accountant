@@ -1828,6 +1828,13 @@ class L10nFa extends L10n {
   String get txUpcomingOverdue => 'پیش رو و معوق';
 
   @override
+  String get txnScheduledSection => 'زمان‌بندی‌شده';
+
+  @override
+  String get txnScheduledHint =>
+      'از پرداخت‌های تکراری شما، در همان روز ثبت می‌شود';
+
+  @override
   String get txNew => 'جدید';
 
   @override

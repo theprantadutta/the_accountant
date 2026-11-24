@@ -546,6 +546,8 @@
   "txClearAll": "সব মুছুন",
   "txApplyFilters": "ফিল্টার প্রয়োগ করুন",
   "txUpcomingOverdue": "আসন্ন ও বকেয়া",
+  "txnScheduledSection": "নির্ধারিত",
+  "txnScheduledHint": "আপনার নিয়মিত পেমেন্ট থেকে, নির্দিষ্ট দিনে রেকর্ড হবে",
   "txNew": "নতুন",
   "txLoan": "ঋণ",
   "goalStarted": "শুরু",

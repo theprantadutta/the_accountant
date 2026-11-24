@@ -546,6 +546,8 @@
   "txClearAll": "پاک کردن همه",
   "txApplyFilters": "اعمال فیلترها",
   "txUpcomingOverdue": "پیش رو و معوق",
+  "txnScheduledSection": "زمان‌بندی‌شده",
+  "txnScheduledHint": "از پرداخت‌های تکراری شما، در همان روز ثبت می‌شود",
   "txNew": "جدید",
   "txLoan": "وام",
   "goalStarted": "شروع",

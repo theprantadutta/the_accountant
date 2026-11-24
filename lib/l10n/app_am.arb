@@ -546,6 +546,8 @@
   "txClearAll": "ሁሉንም አጽዳ",
   "txApplyFilters": "ማጣሪያዎችን ተግብር",
   "txUpcomingOverdue": "መጪ እና ያለፈባቸው",
+  "txnScheduledSection": "የታቀደ",
+  "txnScheduledHint": "ከሚደጋገሙ ክፍያዎችዎ፣ በዕለቱ ይመዘገባል",
   "txNew": "አዲስ",
   "txLoan": "ብድር",
   "goalStarted": "የተጀመረበት",

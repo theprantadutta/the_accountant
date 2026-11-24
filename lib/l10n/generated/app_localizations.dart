@@ -3393,6 +3393,18 @@ abstract class L10n {
   /// **'Upcoming & Overdue'**
   String get txUpcomingOverdue;
 
+  /// No description provided for @txnScheduledSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get txnScheduledSection;
+
+  /// No description provided for @txnScheduledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'From your repeating payments, recorded on the day'**
+  String get txnScheduledHint;
+
   /// No description provided for @txNew.
   ///
   /// In en, this message translates to:

@@ -1789,6 +1789,12 @@ class L10nAm extends L10n {
   String get txUpcomingOverdue => 'መጪ እና ያለፈባቸው';
 
   @override
+  String get txnScheduledSection => 'የታቀደ';
+
+  @override
+  String get txnScheduledHint => 'ከሚደጋገሙ ክፍያዎችዎ፣ በዕለቱ ይመዘገባል';
+
+  @override
   String get txNew => 'አዲስ';
 
   @override

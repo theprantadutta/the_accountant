@@ -546,6 +546,8 @@
   "txClearAll": "Alle löschen",
   "txApplyFilters": "Filter anwenden",
   "txUpcomingOverdue": "Anstehend & überfällig",
+  "txnScheduledSection": "Geplant",
+  "txnScheduledHint": "Aus deinen wiederkehrenden Zahlungen, am Tag erfasst",
   "txNew": "Neu",
   "txLoan": "Darlehen",
   "goalStarted": "Begonnen",

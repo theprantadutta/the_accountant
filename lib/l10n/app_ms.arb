@@ -546,6 +546,8 @@
   "txClearAll": "Kosongkan Semua",
   "txApplyFilters": "Guna Penapis",
   "txUpcomingOverdue": "Akan Datang & Tertunggak",
+  "txnScheduledSection": "Dijadualkan",
+  "txnScheduledHint": "Daripada bayaran berulang anda, direkod pada harinya",
   "txNew": "Baharu",
   "txLoan": "Pinjaman",
   "goalStarted": "Dimulakan",

@@ -546,6 +546,8 @@
   "txClearAll": "Futa Zote",
   "txApplyFilters": "Tumia Vichujio",
   "txUpcomingOverdue": "Yanayokuja na Yaliyochelewa",
+  "txnScheduledSection": "Iliyopangwa",
+  "txnScheduledHint": "Kutoka kwa malipo yako yanayojirudia, hurekodiwa siku hiyo",
   "txNew": "Mpya",
   "txLoan": "Mkopo",
   "goalStarted": "Ilianza",

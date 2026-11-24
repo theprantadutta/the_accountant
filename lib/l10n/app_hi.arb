@@ -546,6 +546,8 @@
   "txClearAll": "सब साफ़ करें",
   "txApplyFilters": "फ़िल्टर लागू करें",
   "txUpcomingOverdue": "आने वाले और बकाया",
+  "txnScheduledSection": "निर्धारित",
+  "txnScheduledHint": "आपके दोहराए जाने वाले भुगतानों से, उसी दिन दर्ज होंगे",
   "txNew": "नया",
   "txLoan": "लोन",
   "goalStarted": "शुरू हुआ",

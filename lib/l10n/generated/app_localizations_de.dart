@@ -1843,6 +1843,13 @@ class L10nDe extends L10n {
   String get txUpcomingOverdue => 'Anstehend & überfällig';
 
   @override
+  String get txnScheduledSection => 'Geplant';
+
+  @override
+  String get txnScheduledHint =>
+      'Aus deinen wiederkehrenden Zahlungen, am Tag erfasst';
+
+  @override
   String get txNew => 'Neu';
 
   @override

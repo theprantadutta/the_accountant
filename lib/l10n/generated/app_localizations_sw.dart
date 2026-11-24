@@ -1836,6 +1836,13 @@ class L10nSw extends L10n {
   String get txUpcomingOverdue => 'Yanayokuja na Yaliyochelewa';
 
   @override
+  String get txnScheduledSection => 'Iliyopangwa';
+
+  @override
+  String get txnScheduledHint =>
+      'Kutoka kwa malipo yako yanayojirudia, hurekodiwa siku hiyo';
+
+  @override
   String get txNew => 'Mpya';
 
   @override

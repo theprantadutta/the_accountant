@@ -1824,6 +1824,13 @@ class L10nBn extends L10n {
   String get txUpcomingOverdue => 'আসন্ন ও বকেয়া';
 
   @override
+  String get txnScheduledSection => 'নির্ধারিত';
+
+  @override
+  String get txnScheduledHint =>
+      'আপনার নিয়মিত পেমেন্ট থেকে, নির্দিষ্ট দিনে রেকর্ড হবে';
+
+  @override
   String get txNew => 'নতুন';
 
   @override

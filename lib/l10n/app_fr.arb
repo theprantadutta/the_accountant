@@ -546,6 +546,8 @@
   "txClearAll": "Tout effacer",
   "txApplyFilters": "Appliquer les filtres",
   "txUpcomingOverdue": "À venir et en retard",
+  "txnScheduledSection": "Planifié",
+  "txnScheduledHint": "Issus de vos paiements récurrents, enregistrés le jour même",
   "txNew": "Nouveau",
   "txLoan": "Prêt",
   "goalStarted": "Commencé le",
