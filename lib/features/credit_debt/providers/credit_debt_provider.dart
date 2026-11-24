@@ -195,10 +195,14 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
   /// `isPaid` — that flag records the original cash movement, and overloading it
   /// with settlement is what made a partially-repaid loan look either untouched
   /// or fully settled depending on which screen you looked at.
+  /// [walletId] is the account the money actually moved through, which need
+  /// not be the one the loan was recorded in: money borrowed into one bank is
+  /// often paid back from another. The loan's own account when null.
   Future<void> recordPayment({
     required String transactionId,
     required int paymentAmount, // integer minor units / cents
     DateTime? paidOn,
+    String? walletId,
   }) async {
     if (paymentAmount <= 0) {
       state = state.copyWith(error: appL10n.creditPaymentMustBePositive);
@@ -235,6 +239,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
           note:
               'Partial payment for ${isCredit ? "credit" : "debt"}: ${transaction.title}',
           paidOn: paidOn,
+          walletId: walletId,
         );
 
         await (_db.update(
@@ -248,6 +253,9 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
         );
 
         await _balanceService.updateWalletBalance(transaction.walletId);
+        if (walletId != null && walletId != transaction.walletId) {
+          await _balanceService.updateWalletBalance(walletId);
+        }
       });
 
       await _ref.read(walletProvider.notifier).loadWallets();
@@ -280,6 +288,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
     required String label,
     required String note,
     DateTime? paidOn,
+    String? walletId,
   }) async {
     final now = DateTime.now();
     // When the money changed hands. A repayment is usually recorded some time
@@ -297,7 +306,7 @@ class CreditDebtNotifier extends StateNotifier<CreditDebtState> {
         notes: Value(note),
         date: Value(date),
         isIncome: Value(isIncome),
-        walletId: Value(parent.walletId),
+        walletId: Value(walletId ?? parent.walletId),
         categoryId: Value(parent.categoryId),
         paymentMethodId: Value(parent.paymentMethodId),
         objectiveId: Value(parent.objectiveId),

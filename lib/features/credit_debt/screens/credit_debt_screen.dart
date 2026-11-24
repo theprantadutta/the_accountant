@@ -16,6 +16,7 @@ import 'package:the_accountant/features/transactions/screens/transaction_detail_
 import 'package:the_accountant/shared/widgets/sensitive.dart';
 import 'package:the_accountant/shared/widgets/shimmer_loading.dart';
 import 'package:the_accountant/features/settings/providers/settings_provider.dart';
+import 'package:the_accountant/features/wallets/providers/wallet_provider.dart';
 
 /// What is lent and borrowed: who owes whom, and what is still open.
 class CreditDebtScreen extends ConsumerStatefulWidget {
@@ -188,6 +189,14 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen> {
     final dateFormat = ref.read(dateFormatSettingProvider);
     // When the money changed hands; today unless the user says otherwise.
     var paidOn = DateTime.now();
+    // Where it moved through: the loan's own account unless it was paid from
+    // (or into) another one. Only accounts in the loan's currency, since the
+    // repayment is counted against the loan in that currency.
+    var payWalletId = transaction.walletId;
+    final payWallets = ref
+        .read(selectableWalletsProvider)
+        .where((w) => w.currency == walletCurrency)
+        .toList();
 
     showDialog(
       context: context,
@@ -313,6 +322,52 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen> {
                     );
                   },
                 ),
+                if (payWallets.length > 1)
+                  ListTile(
+                    key: const Key('credit_payment_account'),
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      Icons.account_balance_wallet_outlined,
+                      color: AppColors.textMuted,
+                    ),
+                    title: Text(
+                      L10n.of(context).entityAccount,
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                    trailing: Text(
+                      payWallets
+                              .where((w) => w.id == payWalletId)
+                              .firstOrNull
+                              ?.name ??
+                          '',
+                      style: TextStyle(color: AppColors.textPrimary),
+                    ),
+                    onTap: () async {
+                      final picked = await showDialog<String>(
+                        context: context,
+                        builder: (pick) => SimpleDialog(
+                          title: Text(L10n.of(pick).entityAccount),
+                          children: [
+                            for (final w in payWallets)
+                              SimpleDialogOption(
+                                onPressed: () => Navigator.of(pick).pop(w.id),
+                                child: Text(
+                                  w.name,
+                                  style: TextStyle(
+                                    fontWeight: w.id == payWalletId
+                                        ? FontWeight.w700
+                                        : FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                      if (picked != null) {
+                        setDialogState(() => payWalletId = picked);
+                      }
+                    },
+                  ),
               ],
             ),
             actions: [
@@ -349,7 +404,13 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen> {
                     return;
                   }
                   Navigator.of(context).pop();
-                  _recordPayment(transaction, amount, isCredit, paidOn);
+                  _recordPayment(
+                    transaction,
+                    amount,
+                    isCredit,
+                    paidOn,
+                    payWalletId,
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isCredit
@@ -376,6 +437,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen> {
     double amount,
     bool isCredit,
     DateTime paidOn,
+    String walletId,
   ) async {
     await ref
         .read(creditDebtProvider.notifier)
@@ -383,6 +445,7 @@ class _CreditDebtScreenState extends ConsumerState<CreditDebtScreen> {
           transactionId: transaction.id,
           paymentAmount: (amount * 100).round(), // dollars -> integer cents
           paidOn: paidOn,
+          walletId: walletId,
         );
     if (mounted) {
       final walletCurrency = ref.read(
