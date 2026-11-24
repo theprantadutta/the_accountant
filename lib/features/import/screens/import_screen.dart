@@ -294,26 +294,34 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               _sampleFor(selected),
               style: TextStyle(color: AppColors.textMuted, fontSize: 13),
             ),
-      trailing: DropdownButton<int?>(
-        value: selected,
-        dropdownColor: AppColors.primarySurface,
-        underline: const SizedBox.shrink(),
-        hint: Text('—', style: TextStyle(color: AppColors.textMuted)),
-        items: [
-          const DropdownMenuItem<int?>(child: Text('—')),
-          for (var i = 0; i < header.length; i++)
-            DropdownMenuItem<int?>(value: i, child: Text(header[i])),
-        ],
-        onChanged: (index) => setState(() {
-          _mapping = _mapping.assign(field, index);
-          if (field == ImportField.date && index != null) {
-            // A different date column almost certainly means a different
-            // format, and carrying the old one over would reject every row.
-            _mapping = _mapping.copyWith(
-              dateFormat: ImportValuesGuess.dateFormat(_document!, index),
-            );
-          }
-        }),
+      // Capped, so a long column heading cannot take the row from the label.
+      trailing: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 150),
+        child: DropdownButton<int?>(
+          value: selected,
+          isExpanded: true,
+          dropdownColor: AppColors.primarySurface,
+          underline: const SizedBox.shrink(),
+          hint: Text('—', style: TextStyle(color: AppColors.textMuted)),
+          items: [
+            const DropdownMenuItem<int?>(child: Text('—')),
+            for (var i = 0; i < header.length; i++)
+              DropdownMenuItem<int?>(
+                value: i,
+                child: Text(header[i], overflow: TextOverflow.ellipsis),
+              ),
+          ],
+          onChanged: (index) => setState(() {
+            _mapping = _mapping.assign(field, index);
+            if (field == ImportField.date && index != null) {
+              // A different date column almost certainly means a different
+              // format, and carrying the old one over would reject every row.
+              _mapping = _mapping.copyWith(
+                dateFormat: ImportValuesGuess.dateFormat(_document!, index),
+              );
+            }
+          }),
+        ),
       ),
     );
   }
@@ -444,19 +452,31 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         L10n.of(context).entityAccount,
         style: TextStyle(color: AppColors.textPrimary),
       ),
-      subtitle: Text(
-        L10n.of(context).importWhereRowsGoWhenThe,
-        style: TextStyle(color: AppColors.textMuted, fontSize: 13),
-      ),
-      trailing: DropdownButton<String>(
-        value: _walletId,
-        dropdownColor: AppColors.primarySurface,
-        underline: const SizedBox.shrink(),
-        items: [
-          for (final wallet in wallets)
-            DropdownMenuItem(value: wallet.id, child: Text(wallet.name)),
+      // The picker sits under its explanation, as the date format's does. At
+      // the end of the row it took the width of the longest account name and
+      // left the label a sliver, broken a few letters to a line.
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            L10n.of(context).importWhereRowsGoWhenThe,
+            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+          ),
+          DropdownButton<String>(
+            key: const Key('import_wallet_picker'),
+            value: _walletId,
+            isExpanded: true,
+            dropdownColor: AppColors.primarySurface,
+            items: [
+              for (final wallet in wallets)
+                DropdownMenuItem(
+                  value: wallet.id,
+                  child: Text(wallet.name, overflow: TextOverflow.ellipsis),
+                ),
+            ],
+            onChanged: (value) => setState(() => _walletId = value),
+          ),
         ],
-        onChanged: (value) => setState(() => _walletId = value),
       ),
     );
   }
