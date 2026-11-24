@@ -1,0 +1,30 @@
+{
+  "en": {
+    "subtitle": "Expense Tracker & Budget App",
+    "keywords": "spending,planner,personal,finance,income,bill,saving,goal,loan,debt,wallet,receipt,net,worth,zakat"
+  },
+  "bn-BD": {
+    "subtitle": "খরচ ও বাজেট প্ল্যানার",
+    "keywords": "আয়,ব্যয়,সঞ্চয়,ধার,দেনা,ঋণ,বিল,রসিদ,ওয়ালেট,লেনদেন,expense,budget,tracker,money"
+  },
+  "hi-IN": {
+    "subtitle": "खर्च ट्रैकर और बजट प्लानर",
+    "keywords": "हिसाब,किताब,खाता,बही,आय,व्यय,बचत,उधार,कर्ज,बिल,रसीद,वॉलेट,पैसा,expense,budget,tracker"
+  },
+  "de-DE": {
+    "subtitle": "Ausgaben & Budgetplaner",
+    "keywords": "finanzen,haushalt,kosten,einnahmen,sparen,kredit,schulden,konto,geld,kassenbuch,belege,abo,vermögen"
+  },
+  "fr-FR": {
+    "subtitle": "Suivi dépenses et budget",
+    "keywords": "gestion,compte,argent,revenus,épargne,prêt,dette,portefeuille,reçu,objectif,patrimoine,factures"
+  },
+  "pt-PT": {
+    "subtitle": "Controlo de gastos e orçamento",
+    "keywords": "despesas,finanças,pessoais,contas,receitas,poupança,empréstimo,dívida,carteira,recibo,metas,faturas"
+  },
+  "ms": {
+    "subtitle": "Penjejak Belanja & Bajet",
+    "keywords": "kewangan,perbelanjaan,simpanan,pinjaman,hutang,dompet,resit,pendapatan,akaun,duit,bil,expense,budget"
+  }
+}

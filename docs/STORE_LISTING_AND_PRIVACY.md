@@ -109,14 +109,14 @@ Description, keywords, subtitle, promotional text and six extra localizations
 were all set on the 5.2.1 version. For the next version, the same steps are:
 
 1. Paste `docs/store_listing/en.json` → `full` into *Description*.
-2. **Subtitle:** max 30 characters. Write one, e.g. "Budgets, loans & AI insights" (28). Don't reuse `short`; it's too long.
+2. **Subtitle:** max 30 characters, from `docs/store_listing/ios_keywords.json` → `subtitle` (keyword-led since 2026-11-24). Don't reuse `short`; it's too long.
 3. **Promotional text:** max 170 characters, editable any time, even without a new version. Use a one-line pitch.
-4. **Keywords:** max 100 characters, comma-separated, no spaces. Don't repeat words already in the name.
+4. **Keywords:** max 100 characters, comma-separated, no spaces. Don't repeat words already in the name. Per locale in `ios_keywords.json` → `keywords`.
 5. **Localizations:** Apple offers **7 of our 10**: English, **Bangla**
    (it *is* offered now — the old note here was wrong), Hindi, German, French,
    Portuguese (Portugal) and Malay. **Persian, Swahili and Amharic are not
    offered** — skip them.
-   - Per locale: `title` → Name and `short` → Subtitle (both on **App
+   - Per locale: `title` → Name and `ios_keywords.json` → Subtitle (both on **App
      Information**, max 30 each), `full` → Description and the release note →
      What's New (both on the **version** page). `short` also works as the
      promotional text.
